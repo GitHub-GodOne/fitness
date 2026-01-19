@@ -32,7 +32,7 @@ module.exports = {
       time: true,                                       // 在日志中添加时间戳
       log_date_format: 'YYYY-MM-DD HH:mm:ss Z',        // 日志时间格式
       merge_logs: true,                                 // 合并所有实例的日志（如果使用 cluster 模式）
-      log_type: 'json',                                 // 可选：'json' 或 'raw'，默认 'raw'
+      log_type: 'raw',                                  // 'json' 或 'raw'，默认 'raw'
       
       // 自动重启配置
       autorestart: true,
@@ -46,6 +46,23 @@ module.exports = {
       
       // 环境变量文件（可选）
       // env_file: '.env.production',
+    },
+    {
+      name: 'sync-pending-tasks',
+      script: 'npx',
+      args: 'tsx scripts/sync-pending-tasks.ts',
+      cwd: './',
+      instances: 1,
+      exec_mode: 'fork',
+      // 定时任务配置（每 10 分钟执行一次）
+      cron_restart: '*/10 * * * *',  // Cron 格式：分 时 日 月 周
+      autorestart: false,             // 定时任务不需要自动重启
+      watch: false,
+      // 日志配置
+      error_file: './logs/sync-pending-tasks-error.log',
+      out_file: './logs/sync-pending-tasks-out.log',
+      time: true,
+      log_date_format: 'YYYY-MM-DD HH:mm:ss Z',
     },
   ],
 };

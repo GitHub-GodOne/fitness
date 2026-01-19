@@ -424,6 +424,34 @@ grep "\[Volcano\]" ~/.pm2/logs/bible-video-out.log
 - 日志文件配置（错误日志、标准输出日志）
 - 自动重启配置
 - 内存限制配置
+- **定时任务配置**（同步未完成任务）
+
+### 定时任务配置
+
+**重要：** `vercel.json` 中的 `crons` 配置**只在 Vercel 平台有效**。如果使用 PM2 部署，需要单独配置定时任务。
+
+**PM2 定时任务方案：**
+
+项目已配置 PM2 定时任务，在 `ecosystem.config.js` 中包含：
+- **应用进程：** `bible-video` - 主应用
+- **定时任务：** `sync-pending-tasks` - 每 10 分钟同步一次未完成任务
+
+**定时任务配置说明：**
+```javascript
+{
+  name: 'sync-pending-tasks',
+  script: 'npx',
+  args: 'tsx scripts/sync-pending-tasks.ts',
+  cron_restart: '*/10 * * * *',  // 每 10 分钟执行一次
+  autorestart: false,             // 定时任务不需要自动重启
+}
+```
+
+**Cron 格式说明：**
+- `*/10 * * * *` = 每 10 分钟执行一次
+- `0 */1 * * *` = 每小时执行一次
+- `0 0 * * *` = 每天午夜执行
+- `0 0 * * 0` = 每周日午夜执行
 
 ### 使用 PM2 部署步骤
 
@@ -434,25 +462,54 @@ npm install -g pm2
 # 2. 构建项目
 pnpm build
 
-# 3. 启动应用
+# 3. 启动所有应用（包括定时任务）
 pm2 start ecosystem.config.js
 
-# 或者直接启动
-pm2 start npm --name "bible-video" -- start
+# 或者只启动主应用
+pm2 start ecosystem.config.js --only bible-video
 
-# 4. 查看应用状态
+# 4. 查看所有应用状态
 pm2 list
 pm2 status
 
 # 5. 查看日志
-pm2 logs bible-video
+pm2 logs bible-video                    # 主应用日志
+pm2 logs sync-pending-tasks             # 定时任务日志
+pm2 logs                                # 所有应用日志
 
-# 6. 保存 PM2 进程列表
+# 6. 查看定时任务状态
+pm2 show sync-pending-tasks
+
+# 7. 手动执行定时任务（测试用）
+pm2 restart sync-pending-tasks
+
+# 8. 保存 PM2 进程列表
 pm2 save
 
-# 7. 设置开机自启
+# 9. 设置开机自启
 pm2 startup
 # 然后执行输出的命令
+```
+
+### 定时任务的其他运行方式
+
+**方式 1：使用 PM2 Cron（推荐）**
+- 已在 `ecosystem.config.js` 中配置
+- 使用 `pm2 start ecosystem.config.js` 启动所有应用和定时任务
+
+**方式 2：使用系统 Cron**
+```bash
+# 编辑 crontab
+crontab -e
+
+# 添加以下行（每 10 分钟执行一次）
+*/10 * * * * cd /path/to/bible-video && npx tsx scripts/sync-pending-tasks.ts >> ./logs/cron-sync.log 2>&1
+```
+
+**方式 3：手动运行（测试用）**
+```bash
+# 直接运行脚本
+npx tsx scripts/sync-pending-tasks.ts
 ```
 
 ### PM2 日志文件位置

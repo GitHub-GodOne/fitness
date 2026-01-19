@@ -3,9 +3,9 @@
   "functions": {
     "/api/comments/list": {},
     "/api/comments/replies": {},
+    "/api/comments/visibility": {},
     "/api/comments/like": {},
     "/api/comments/create": {},
-    "/api/comments/visibility": {},
     "/api/comments/reply": {},
     "/_middleware": {
       "runtime": "nodejs",
