@@ -1,6 +1,7 @@
 {
   "fields": {
     "title": "标题",
+    "task_id": "任务ID",
     "media_type": "类型",
     "provider": "提供商",
     "model": "模型",

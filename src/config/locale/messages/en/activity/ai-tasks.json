@@ -1,6 +1,7 @@
 {
   "fields": {
     "title": "Title",
+    "task_id": "Task ID",
     "media_type": "Media Type",
     "provider": "Provider",
     "model": "Model",

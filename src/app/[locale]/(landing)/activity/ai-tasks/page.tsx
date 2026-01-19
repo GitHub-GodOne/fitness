@@ -41,6 +41,7 @@ export default async function AiTasksPage({
   const table: Table = {
     title: t('list.title'),
     columns: [
+      { name: 'taskId', title: t('fields.task_id'), type: 'copy' },
       { name: 'prompt', title: t('fields.prompt'), type: 'copy' },
       { name: 'mediaType', title: t('fields.media_type'), type: 'label' },
       // { name: 'options', title: t('fields.options'), type: 'copy' },

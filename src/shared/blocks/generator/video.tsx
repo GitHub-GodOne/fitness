@@ -107,6 +107,7 @@ interface BackendTask {
 
 interface HistoryTask {
   id: string;
+  taskId: string | null;
   status: string;
   provider: string;
   model: string;
@@ -353,16 +354,15 @@ export function VideoGenerator({
 
     setHistoryLoading(true);
     try {
-      const resp = await fetch('/api/ai/list', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          page: historyPage,
-          limit: historyLimit,
-          mediaType: AIMediaType.VIDEO,
-        }),
+      // Use GET request with URLSearchParams (same as AI Tasks page)
+      const params = new URLSearchParams({
+        page: String(historyPage),
+        limit: String(historyLimit),
+        mediaType: AIMediaType.VIDEO,
+      });
+
+      const resp = await fetch(`/api/ai/list?${params.toString()}`, {
+        method: 'GET',
       });
 
       if (!resp.ok) {
@@ -374,7 +374,15 @@ export function VideoGenerator({
         throw new Error(message || 'Failed to fetch history');
       }
 
-      const historyData = data as HistoryResponse;
+      // GET endpoint returns { data: tasks, total, page, limit, hasMore }
+      // Convert to HistoryResponse format
+      const historyData: HistoryResponse = {
+        list: data.data || [],
+        total: data.total || 0,
+        page: data.page || historyPage,
+        limit: data.limit || historyLimit,
+        hasMore: data.hasMore || false,
+      };
       setHistoryTasks(historyData.list || []);
       setHistoryTotal(historyData.total || 0);
     } catch (error: any) {
@@ -1473,6 +1481,7 @@ export function VideoGenerator({
                             />
                           </TableHead>
                           <TableHead className="w-12">Order</TableHead>
+                          <TableHead className="max-w-[120px]">Task ID</TableHead>
                           <TableHead>Prompt</TableHead>
                           <TableHead>Status</TableHead>
                           <TableHead>Created</TableHead>
@@ -1506,6 +1515,21 @@ export function VideoGenerator({
                                   <span className="inline-flex items-center justify-center w-6 h-6 rounded-full bg-primary text-primary-foreground text-xs font-medium">
                                     {selectedOrder}
                                   </span>
+                                )}
+                              </TableCell>
+                              <TableCell className="max-w-[120px]">
+                                {task.taskId ? (
+                                  <Copy
+                                    value={task.taskId}
+                                    metadata={{ message: t('copied') }}
+                                    className="cursor-pointer"
+                                  >
+                                    <span className="truncate text-xs" title={task.taskId}>
+                                      {task.taskId}
+                                    </span>
+                                  </Copy>
+                                ) : (
+                                  <span className="text-xs text-muted-foreground">-</span>
                                 )}
                               </TableCell>
                               <TableCell className="max-w-xs">
