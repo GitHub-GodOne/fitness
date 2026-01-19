@@ -22,10 +22,5 @@
       "maxDuration": 30
     }
   },
-  "crons": [
-    {
-      "path": "/api/ai/sync-pending-tasks",
-      "schedule": "*/10 * * * *"
-    }
-  ]
+  "crons": []
 }
