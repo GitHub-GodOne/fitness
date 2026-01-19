@@ -3,8 +3,8 @@
   "functions": {
     "/api/comments/list": {},
     "/api/comments/replies": {},
-    "/api/comments/visibility": {},
     "/api/comments/like": {},
+    "/api/comments/visibility": {},
     "/api/comments/create": {},
     "/api/comments/reply": {},
     "/_middleware": {
