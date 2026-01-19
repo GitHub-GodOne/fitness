@@ -2,29 +2,23 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
 
 <url>
-  <loc>https://www.fearnotforiamwithyou.com/en</loc>
+  <loc>https://fearnotforiamwithyou.com</loc>
   <lastmod>2026-01-08T19:36:46+00:00</lastmod>
   <priority>1.00</priority>
 </url>
 <url>
-  <loc>https://www.fearnotforiamwithyou.com/en/create</loc>
+  <loc>https://fearnotforiamwithyou.com/ai-video-generator</loc>
   <lastmod>2026-01-08T19:36:46+00:00</lastmod>
   <priority>0.80</priority>
 </url>
 <url>
-  <loc>https://www.fearnotforiamwithyou.com/en/pricing</loc>
+  <loc>https://fearnotforiamwithyou.com/pricing</loc>
   <lastmod>2026-01-08T19:36:46+00:00</lastmod>
   <priority>0.80</priority>
 </url>
 <url>
-  <loc>https://www.fearnotforiamwithyou.com/en/sign-up</loc>
+  <loc>https://fearnotforiamwithyou.com/comments</loc>
   <lastmod>2026-01-08T19:36:46+00:00</lastmod>
   <priority>0.80</priority>
 </url>
-<url>
-  <loc>https://www.fearnotforiamwithyou.com/en/sign-in</loc>
-  <lastmod>2026-01-08T19:36:46+00:00</lastmod>
-  <priority>0.80</priority>
-</url>
-
 </urlset>

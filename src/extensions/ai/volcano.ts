@@ -183,10 +183,61 @@ export class VolcanoProvider implements AIProvider {
     }
 
     /**
+     * Convert image URL to base64 format
+     * Downloads the image and converts it to base64 data URL to avoid 403 errors
+     * 
+     * @param imageUrl - Image URL or base64 data URL
+     * @returns Base64 data URL (e.g., "data:image/png;base64,...")
+     */
+    private async convertImageToBase64(imageUrl: string): Promise<string> {
+        // If already a base64 data URL, return as is
+        if (imageUrl.startsWith('data:image/')) {
+            return imageUrl;
+        }
+
+        try {
+            // Fetch the image
+            const response = await fetch(imageUrl);
+            if (!response.ok) {
+                throw new Error(`Failed to fetch image: ${response.status} ${response.statusText}`);
+            }
+
+            // Get image buffer
+            const arrayBuffer = await response.arrayBuffer();
+            const buffer = Buffer.from(arrayBuffer);
+
+            // Detect content type from response headers or URL
+            let contentType = response.headers.get('content-type') || 'image/png';
+            if (!contentType.startsWith('image/')) {
+                // Fallback: try to detect from URL extension
+                const urlLower = imageUrl.toLowerCase();
+                if (urlLower.includes('.jpg') || urlLower.includes('.jpeg')) {
+                    contentType = 'image/jpeg';
+                } else if (urlLower.includes('.png')) {
+                    contentType = 'image/png';
+                } else if (urlLower.includes('.gif')) {
+                    contentType = 'image/gif';
+                } else if (urlLower.includes('.webp')) {
+                    contentType = 'image/webp';
+                } else {
+                    contentType = 'image/png'; // Default fallback
+                }
+            }
+
+            // Convert to base64
+            const base64 = buffer.toString('base64');
+            return `data:${contentType};base64,${base64}`;
+        } catch (error: any) {
+            console.error('[Volcano] Failed to convert image to base64:', error);
+            throw new Error(`Failed to convert image to base64: ${error.message}`);
+        }
+    }
+
+    /**
      * Image-to-Text Chat Completion (图生文)
      * Convenience method for image-to-text vision chat
      * 
-     * @param imageUrl - Image URL to analyze
+     * @param imageUrl - Image URL or base64 data URL to analyze
      * @param textPrompt - Text prompt/question about the image
      * @param systemPrompt - Optional system prompt
      * @param options - Chat completion options (must use vision model like doubao-1-5-vision-pro-32k-250115)
@@ -208,6 +259,9 @@ export class VolcanoProvider implements AIProvider {
             });
         }
 
+        // Convert image URL to base64 format to avoid 403 errors
+        const base64ImageUrl = await this.convertImageToBase64(imageUrl);
+        console.log('base64ImageUrl', base64ImageUrl);
         // Add multimodal user message (image + text)
         messages.push({
             role: 'user',
@@ -215,7 +269,7 @@ export class VolcanoProvider implements AIProvider {
                 {
                     type: 'image_url',
                     image_url: {
-                        url: imageUrl,
+                        url: base64ImageUrl, // Use base64 format instead of URL
                     },
                 },
                 {
@@ -309,6 +363,7 @@ export class VolcanoProvider implements AIProvider {
                            - 自己拼接或组合经文片段
                            - 添加或删除任何字词
                            - 如果经文太长，只能选择完整的句子或段落，不能自己截取片段
+                           - 人物所说的话必须是完整的经文内容, 所说经文内容占据视频时长的80%左右， 可以一边切换场景一边说话，适当可以加一些背景音
                         2. **精准匹配** - 根据用户的情感状态选择最合适的经文
                         3. **视觉化描述** - 将经文转化为具体的、可视化的场景描述
                         4. **安慰为主** - 传递希望、平安和神的爱
@@ -326,7 +381,7 @@ export class VolcanoProvider implements AIProvider {
                         伤害：罗马书 12:19, 诗篇 34:18
 
                         **视频场景要求：**
-                        根据用户的图片和文字，选择或者参考以下视频案例。**重要：必须均匀选择不同的圣经元素，避免频繁使用同一个元素（如彩虹）。**
+                        根据用户的图片和文字，选择或者参考以下视频案例。**重要：必须均匀选择不同的圣经元素，避免频繁使用同一个元素（如彩虹）。尽量在下面的物件中平等概率的出现物件
                         
                         1. 十字架（Cross）
                         核心意义：救赎、牺牲、上帝的爱、战胜死亡与罪恶        
@@ -434,7 +489,7 @@ export class VolcanoProvider implements AIProvider {
                             "textEn": "英文经文（必须是完整的圣经原文，至少${Math.floor(duration * 0.8 * 2)}-${Math.floor(duration * 0.9 * 2)}个单词，确保朗读时间达到${Math.floor(duration * 0.8)}-${Math.floor(duration * 0.9)}秒，绝对不允许修改、缩写或截取）",
                             "estimatedDuration": "预估朗读时长（秒），必须达到${Math.floor(duration * 0.8)}-${Math.floor(duration * 0.9)}秒"
                         },
-                            "enhancedPrompt": "通用的英文视频生成提示词，重点描述人物朗读圣经经文，朗读时间必须占据${Math.floor(duration * 0.8)}-${Math.floor(duration * 0.9)}秒，并自然融入1-2个圣经元素（优先选择十字架、羔羊、鸽子、方舟、橄榄枝、吗哪、七烛台、牧羊杖、圣杯等，谨慎使用彩虹），例如：A peaceful, hopeful scene offering spiritual comfort, where if a person appears, they gently speak the Bible words **[完整英文经文，必须与textEn完全一致]** slowly and clearly for ${Math.floor(duration * 0.8)}-${Math.floor(duration * 0.9)} seconds with a calm, tender expression and comforting voice, and if no person appears, the same words are delivered through a soft, soothing voiceover lasting ${Math.floor(duration * 0.8)}-${Math.floor(duration * 0.9)} seconds; a single subtle Christian symbol such as a wooden cross, a gentle dove, or a shepherd's staff blends naturally into the background (avoid rainbow unless absolutely necessary), with warm lighting and a tranquil, sacred atmosphere throughout.",
+                            "enhancedPrompt": "通用的英文视频生成提示词，重点描述人物朗读圣经经文，朗读时间必须占据${Math.floor(duration * 0.8)}-${Math.floor(duration * 0.9)}秒，并自然融入1-2个圣经元素（优先选择十字架、羔羊、鸽子、方舟、橄榄枝、吗哪、七烛台、牧羊杖、圣杯等，谨慎使用彩虹），提示词尽量详细，镜头切换, 画面转场，圣经元素描述的位置等这些信息要描述到位",
                             "sceneDescription": "场景描述（中文）"
                         }
 
@@ -448,7 +503,7 @@ export class VolcanoProvider implements AIProvider {
                         ✅ 好的长度："不要惧怕，因为我与你同在；不要惊惶，因为我是你的神。我必坚固你，我必帮助你，我必用我公义的右手扶持你。"（约24-27字，9-10秒朗读，符合要求）
                         ❌ 太短："不要惧怕。"（只有4字，2秒朗读，不符合要求，必须增加经文长度）
                         ❌ 不允许："不要惧怕，因为我与你同在...我必帮助你。"（自己截取片段，不允许，必须使用完整经文）
-                        ✅ 如果必须使用长经文："应当一无挂虑，只要凡事借着祷告祈求，和感谢，将你们所要的告诉神。神所赐出人意外的平安，必在基督耶稣里，保守你们的心怀意念。"（完整引用，即使超过${duration}秒也可以，但朗读时间必须达到${Math.floor(duration * 0.8)}-${Math.floor(duration * 0.9)}秒）
+                        ✅ 如果必须使用长经文："应当一无挂虑，只要凡事借着祷告祈求，和感谢，将你们所要的告诉神。神所赐出人意外的平安，必在基督耶稣里，保守你们的心怀意念。"（完整引用，即使超过${duration}秒也可以，但朗读时间必须达到${Math.floor(duration * 0.8)}-${Math.floor(duration * 0.9)}秒）,大概朗读占比大概就是80%-90%
 
                         现在请分析用户的感受并生成JSON回应。`;
 

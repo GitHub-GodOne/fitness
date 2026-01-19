@@ -22,10 +22,6 @@
       "select_model": "选择模型",
       "prompt": "描述",
       "prompt_placeholder": "描述场景、感受或想要展现的圣经经文",
-      "user_feeling": "您的感受",
-      "user_feeling_placeholder": "请分享您的感受，例如：我最近感到很焦虑，工作压力很大...",
-      "user_feeling_hint": "✨ 生成时会自动匹配圣经经文并创建温暖的视频场景",
-      "user_feeling_required": "请输入您的感受",
       "reference_image": "选择图片",
       "reference_image_placeholder": "上传参考图片用于视频生成",
       "reference_video": "参考视频链接",
@@ -36,7 +32,6 @@
     "generate": "生成视频",
     "reset": "重置",
     "reset_success": "重置成功",
-    "regenerate": "重新生成",
     "checking_account": "检查账户...",
     "loading": "加载中...",
     "generating": "生成中...",
@@ -70,12 +65,7 @@
       "generate_audio_hint": "为视频添加背景音乐和音效",
       "save": "保存",
       "cancel": "取消"
-    },
-    "merge": {
-      "insufficient_credits": "合并视频需要积分大于3。请购买积分以使用此功能。",
-      "insufficient_credits_title": "积分不足"
-    },
-    "copied": "已复制！"
+    }
   }
 }
 
