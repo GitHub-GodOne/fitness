@@ -1,0 +1,15 @@
+{
+  "metadata": {
+    "title": "Comments",
+    "description": "Share and discuss your thoughts"
+  },
+  "page": {
+    "title": "Comments",
+    "sections": {
+      "comments": {
+        "type": "comments",
+        "id": "comments"
+      }
+    }
+  }
+}

@@ -1,0 +1,75 @@
+{
+  "section": {
+    "title": "评论",
+    "sort": {
+      "latest": "最新",
+      "hot": "最热"
+    },
+    "empty": "还没有评论，来发表第一条评论吧！",
+    "loadMore": "加载更多",
+    "loading": "加载中..."
+  },
+  "input": {
+    "placeholder": "分享你的想法...",
+    "placeholderAnonymous": "分享你的想法...(未登录用户需提供昵称和邮箱)",
+    "userName": "昵称",
+    "userEmail": "邮箱",
+    "referenceAI": "引用 AI 视频",
+    "submit": "发布评论",
+    "submitting": "发布中...",
+    "cancel": "取消",
+    "characterCount": "{count} / 5000"
+  },
+  "item": {
+    "expand": "展开全文",
+    "collapse": "收起",
+    "like": "点赞",
+    "reply": "回复",
+    "replies": "{count} 条回复",
+    "viewReplies": "查看回复",
+    "hideReplies": "隐藏回复",
+    "justNow": "刚刚",
+    "minutesAgo": "{count}分钟前",
+    "hoursAgo": "{count}小时前",
+    "daysAgo": "{count}天前",
+    "referenced": "引用了 AI 生成内容",
+    "playVideo": "播放",
+    "viewImage": "查看",
+    "videoPreview": "视频预览",
+    "imagePreview": "图片预览"
+  },
+  "reply": {
+    "placeholder": "写下你的回复...",
+    "submit": "发布回复",
+    "submitting": "发布中...",
+    "characterCount": "{count} / 2000",
+    "writeReply": "写回复...",
+    "justNow": "刚刚",
+    "minutesAgo": "{count}分钟前",
+    "hoursAgo": "{count}小时前",
+    "daysAgo": "{count}天前"
+  },
+  "aiSelector": {
+    "title": "选择 AI 生成内容",
+    "empty": "还没有生成任何内容",
+    "close": "关闭",
+    "retry": "重试"
+  },
+  "selector": {
+    "title": "选择 AI 生成内容",
+    "empty": "还没有生成任何内容",
+    "close": "关闭"
+  },
+  "toast": {
+    "commentRequired": "请填写评论内容",
+    "nameEmailRequired": "请填写昵称和邮箱",
+    "emailInvalid": "邮箱格式不正确",
+    "commentSuccess": "评论发布成功",
+    "commentFailed": "发布评论失败",
+    "replyRequired": "请填写回复内容",
+    "replySuccess": "回复发布成功",
+    "replyFailed": "发布回复失败",
+    "likeFailed": "操作失败",
+    "loadFailed": "加载失败"
+  }
+}

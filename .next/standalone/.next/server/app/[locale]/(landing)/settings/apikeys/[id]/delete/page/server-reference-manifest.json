@@ -1,0 +1,35 @@
+{
+  "node": {
+    "60c181741f057881e8de3b60a127de8252c105d83b": {
+      "workers": {
+        "app/[locale]/(landing)/settings/apikeys/[id]/delete/page": {
+          "moduleId": 178496,
+          "async": true,
+          "exportedName": "$$RSC_SERVER_ACTION_0",
+          "filename": "src/app/[locale]/(landing)/settings/apikeys/[id]/delete/page.tsx"
+        }
+      },
+      "layer": {
+        "app/[locale]/(landing)/settings/apikeys/[id]/delete/page": "rsc"
+      },
+      "exportedName": "$$RSC_SERVER_ACTION_0",
+      "filename": "src/app/[locale]/(landing)/settings/apikeys/[id]/delete/page.tsx"
+    },
+    "00a2e3e2edef5e403ba998f078cb21b81f5850d9ee": {
+      "workers": {
+        "app/[locale]/(landing)/settings/apikeys/[id]/delete/page": {
+          "moduleId": 178496,
+          "async": true,
+          "exportedName": "getClientIp",
+          "filename": "src/shared/lib/ip.ts"
+        }
+      },
+      "layer": {
+        "app/[locale]/(landing)/settings/apikeys/[id]/delete/page": "rsc"
+      },
+      "exportedName": "getClientIp",
+      "filename": "src/shared/lib/ip.ts"
+    }
+  },
+  "edge": {}
+}

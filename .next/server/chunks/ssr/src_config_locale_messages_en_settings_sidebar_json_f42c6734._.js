@@ -1,0 +1,3 @@
+module.exports=[141133,a=>{a.v({title:"Settings",nav:{items:[{title:"Profile",url:"/settings/profile",icon:"User"},{title:"Billing",url:"/settings/billing",icon:"CreditCard"},{title:"Payments",url:"/settings/payments",icon:"DollarSign"},{title:"Credits",url:"/settings/credits",icon:"Coins"},{title:"API Keys",url:"/settings/apikeys",icon:"RiKeyLine"},{title:"Merge History",url:"/settings/merge-history",icon:"RiVideoLine"}]},top_nav:{items:[{title:"Activity",url:"/activity",icon:"Activity"},{title:"Settings",url:"/settings",icon:"Settings"}]}})}];
+
+//# sourceMappingURL=src_config_locale_messages_en_settings_sidebar_json_f42c6734._.js.map

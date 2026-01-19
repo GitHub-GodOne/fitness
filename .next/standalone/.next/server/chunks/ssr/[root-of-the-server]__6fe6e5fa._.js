@@ -1,0 +1,3 @@
+module.exports=[193695,(a,b,c)=>{b.exports=a.x("next/dist/shared/lib/no-fallback-error.external.js",()=>require("next/dist/shared/lib/no-fallback-error.external.js"))},650645,a=>{a.n(a.i(827572))},517537,a=>{a.n(a.i(903363))},23172,a=>{a.n(a.i(776632))},484298,a=>{a.n(a.i(760236))},703678,a=>{a.n(a.i(696704))},884649,a=>{a.n(a.i(965507))},599377,a=>{a.n(a.i(553908))},472016,a=>{"use strict";var b=a.i(903803);function c(){return(0,b.jsx)("div",{className:"flex h-screen flex-col items-center justify-center",children:(0,b.jsx)("h1",{className:"text-2xl font-normal",children:"Access denied"})})}a.s(["default",()=>c])}];
+
+//# sourceMappingURL=%5Broot-of-the-server%5D__6fe6e5fa._.js.map

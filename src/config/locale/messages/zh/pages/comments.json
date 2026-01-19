@@ -1,0 +1,15 @@
+{
+  "metadata": {
+    "title": "评论",
+    "description": "分享和讨论你的想法"
+  },
+  "page": {
+    "title": "评论",
+    "sections": {
+      "comments": {
+        "type": "comments",
+        "id": "comments"
+      }
+    }
+  }
+}

@@ -1,0 +1,3 @@
+module.exports=[651574,e=>{e.v({fields:{task_id:"Task ID",media_type:"Media Type",provider:"Provider",model:"Model",prompt:"Prompt",options:"Options",user:"User",status:"Status",cost_credits:"Cost Credits",result:"Result",created_at:"Created At",action:"Action",scene:"Scene"},list:{title:"AI Tasks",crumbs:{admin:"Admin","ai-tasks":"AI Tasks"},tabs:{all:"All",music:"Music",image:"Image",video:"Video",audio:"Audio",text:"Text"},buttons:{view:"View Task",refresh:"Refresh Task"},empty_message:"No tasks found"}})}];
+
+//# sourceMappingURL=src_config_locale_messages_en_admin_ai-tasks_json_b2717d3a._.js.map

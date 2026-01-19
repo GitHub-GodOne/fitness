@@ -1,0 +1,35 @@
+{
+  "node": {
+    "00a2e3e2edef5e403ba998f078cb21b81f5850d9ee": {
+      "workers": {
+        "app/[locale]/(admin)/admin/categories/[id]/edit/page": {
+          "moduleId": 894642,
+          "async": true,
+          "exportedName": "getClientIp",
+          "filename": "src/shared/lib/ip.ts"
+        }
+      },
+      "layer": {
+        "app/[locale]/(admin)/admin/categories/[id]/edit/page": "rsc"
+      },
+      "exportedName": "getClientIp",
+      "filename": "src/shared/lib/ip.ts"
+    },
+    "6081312c1a45243024111eb1797de23412bb353ff6": {
+      "workers": {
+        "app/[locale]/(admin)/admin/categories/[id]/edit/page": {
+          "moduleId": 894642,
+          "async": true,
+          "exportedName": "$$RSC_SERVER_ACTION_0",
+          "filename": "src/app/[locale]/(admin)/admin/categories/[id]/edit/page.tsx"
+        }
+      },
+      "layer": {
+        "app/[locale]/(admin)/admin/categories/[id]/edit/page": "rsc"
+      },
+      "exportedName": "$$RSC_SERVER_ACTION_0",
+      "filename": "src/app/[locale]/(admin)/admin/categories/[id]/edit/page.tsx"
+    }
+  },
+  "edge": {}
+}

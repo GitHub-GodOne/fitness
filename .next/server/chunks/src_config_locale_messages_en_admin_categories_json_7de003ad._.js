@@ -1,0 +1,3 @@
+module.exports=[420232,t=>{t.v({fields:{slug:"Slug",title:"Title",description:"Description",status:"Status",created_at:"Created At",updated_at:"Updated At"},list:{title:"Categories",crumbs:{admin:"Admin",categories:"Categories"},buttons:{add:"Add Category",edit:"Edit Category",view:"View Category",delete:"Delete Category"},tabs:{all:"All",published:"Published",pending:"Pending",draft:"Draft",archived:"Archived"}},add:{title:"Add Category",crumbs:{admin:"Admin",categories:"Categories",add:"Add Category"},buttons:{submit:"Add Category"}},edit:{title:"Edit Category",crumbs:{admin:"Admin",categories:"Categories",edit:"Edit Category"},buttons:{submit:"Edit Category"}}})}];
+
+//# sourceMappingURL=src_config_locale_messages_en_admin_categories_json_7de003ad._.js.map

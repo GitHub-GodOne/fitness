@@ -1,0 +1,3 @@
+module.exports=[442533,e=>{e.v({metadata:{title:"Merge History",description:"View your video merge history"},page:{title:"Merge History",description:"View all your video merge records",empty:"No merge history found",loading:"Loading merge history...",table:{headers:{id:"ID",videoCount:"Videos",status:"Status",createdAt:"Created At",actions:"Actions"},status:{success:"Success",failed:"Failed",processing:"Processing"},actions:{view:"View",download:"Download"}},details:{title:"Merge Details",sourceVideos:"Source Videos",mergedVideo:"Merged Video",videoCount:"Video Count",status:"Status",createdAt:"Created At",error:"Error"}}})}];
+
+//# sourceMappingURL=src_config_locale_messages_en_settings_merge-history_json_f4f38c2f._.js.map

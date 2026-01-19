@@ -1,0 +1,15 @@
+{
+  "metadata": {
+    "title": "作品展示",
+    "description": "查看用户生成的精彩 AI 作品"
+  },
+  "page": {
+    "title": "作品展示",
+    "sections": {
+      "showcases-flow": {
+        "type": "showcases-flow",
+        "id": "showcases-flow"
+      }
+    }
+  }
+}

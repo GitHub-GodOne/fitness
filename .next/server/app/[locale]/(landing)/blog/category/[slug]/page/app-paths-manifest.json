@@ -1,0 +1,3 @@
+{
+  "/[locale]/(landing)/blog/category/[slug]/page": "app/[locale]/(landing)/blog/category/[slug]/page.js"
+}

@@ -1,0 +1,3 @@
+module.exports=[935651,e=>{e.v({fields:{transaction_no:"Transaction No",description:"Description",type:"Type",scene:"Scene",credits:"Credits",expires_at:"Expires At",created_at:"Created At",action:"Action"},list:{title:"Credits Records",tabs:{all:"All",grant:"Grant",consume:"Consume"}},view:{title:"Credits Balance",buttons:{purchase:"Purchase Credits"}}})}];
+
+//# sourceMappingURL=src_config_locale_messages_en_settings_credits_json_d8b5c048._.js.map

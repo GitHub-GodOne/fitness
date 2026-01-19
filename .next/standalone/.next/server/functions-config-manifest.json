@@ -1,0 +1,20 @@
+{
+  "version": 1,
+  "functions": {
+    "/api/comments/list": {},
+    "/api/comments/replies": {},
+    "/api/comments/like": {},
+    "/api/comments/create": {},
+    "/api/comments/visibility": {},
+    "/api/comments/reply": {},
+    "/_middleware": {
+      "runtime": "nodejs",
+      "matchers": [
+        {
+          "regexp": "^(?:\\/(_next\\/data\\/[^/]{1,}))?(?:\\/((?!api|trpc|_next|_vercel|.*\\..*).*))(\\.json)?[\\/#\\?]?$",
+          "originalSource": "/((?!api|trpc|_next|_vercel|.*\\..*).*)"
+        }
+      ]
+    }
+  }
+}

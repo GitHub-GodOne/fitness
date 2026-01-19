@@ -1,0 +1,12 @@
+{
+  "copy": "Copy",
+  "copied": "Copied",
+  "tooltip": "Copy to clipboard",
+  "success": {
+    "copied": "Copied to clipboard!"
+  },
+  "errors": {
+    "no_text": "No text available to copy",
+    "copy_failed": "Failed to copy. Please try again."
+  }
+}

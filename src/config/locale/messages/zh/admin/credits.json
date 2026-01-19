@@ -1,0 +1,65 @@
+{
+  "fields": {
+    "transaction_no": "交易单号",
+    "user": "用户",
+    "amount": "金额",
+    "remaining": "剩余",
+    "type": "类型",
+    "scene": "场景",
+    "description": "描述",
+    "created_at": "创建时间",
+    "expires_at": "过期时间",
+    "metadata": "元数据",
+    "action": "操作"
+  },
+  "list": {
+    "title": "积分",
+    "crumbs": {
+      "admin": "管理后台",
+      "credits": "积分"
+    },
+    "tabs": {
+      "all": "全部",
+      "grant": "授予",
+      "consume": "消费"
+    }
+  },
+  "grant_form": {
+    "title": "授予积分",
+    "description": "搜索用户并授予积分",
+    "searching": "搜索中...",
+    "no_users_found": "未找到用户",
+    "submitting": "授予中...",
+    "submit": "授予积分",
+    "fields": {
+      "user": {
+        "label": "用户",
+        "placeholder": "通过邮箱搜索...",
+        "no_name": "用户"
+      },
+      "credits": {
+        "label": "积分数量",
+        "placeholder": "请输入积分数量"
+      },
+      "valid_days": {
+        "label": "有效天数",
+        "placeholder": "请输入有效天数（0表示不过期）",
+        "tip": "0表示不过期，留空使用默认值"
+      },
+      "description": {
+        "label": "描述",
+        "placeholder": "可选的授予说明"
+      }
+    },
+    "errors": {
+      "user_required": "请选择用户",
+      "credits_invalid": "积分数量必须是正整数",
+      "valid_days_invalid": "有效天数必须是非负整数",
+      "search_failed": "搜索失败，请重试",
+      "grant_failed": "授予积分失败，请重试"
+    },
+    "success": {
+      "granted": "成功授予 {{email}} {{credits}} 积分"
+    }
+  }
+}

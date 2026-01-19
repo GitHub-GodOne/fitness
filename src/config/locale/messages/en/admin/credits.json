@@ -1,0 +1,65 @@
+{
+  "fields": {
+    "transaction_no": "Transaction No",
+    "user": "User",
+    "amount": "Amount",
+    "remaining": "Remaining",
+    "type": "Type",
+    "scene": "Scene",
+    "description": "Description",
+    "created_at": "Created At",
+    "expires_at": "Expires At",
+    "metadata": "Metadata",
+    "action": "Action"
+  },
+  "list": {
+    "title": "Credits",
+    "crumbs": {
+      "admin": "Admin",
+      "credits": "Credits"
+    },
+    "tabs": {
+      "all": "All",
+      "grant": "Grant",
+      "consume": "Consume"
+    }
+  },
+  "grant_form": {
+    "title": "Grant Credits",
+    "description": "Search for a user and grant credits to them",
+    "searching": "Searching...",
+    "no_users_found": "No users found",
+    "submitting": "Granting...",
+    "submit": "Grant Credits",
+    "fields": {
+      "user": {
+        "label": "User",
+        "placeholder": "Search by email...",
+        "no_name": "User"
+      },
+      "credits": {
+        "label": "Credits Amount",
+        "placeholder": "Enter credits amount"
+      },
+      "valid_days": {
+        "label": "Valid Days",
+        "placeholder": "Enter valid days (0 means no expiration)",
+        "tip": "0 means no expiration, leave empty for default"
+      },
+      "description": {
+        "label": "Description",
+        "placeholder": "Optional description for this grant"
+      }
+    },
+    "errors": {
+      "user_required": "Please select a user",
+      "credits_invalid": "Credits amount must be a positive number",
+      "valid_days_invalid": "Valid days must be a non-negative number",
+      "search_failed": "Search failed. Please try again.",
+      "grant_failed": "Failed to grant credits. Please try again."
+    },
+    "success": {
+      "granted": "Successfully granted {{credits}} credits to {{email}}"
+    }
+  }
+}

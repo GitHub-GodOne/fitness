@@ -1,0 +1,12 @@
+{
+  "share": "Share",
+  "copied": "Copied",
+  "tooltip": "Copy video URL",
+  "success": {
+    "copied": "URL copied to clipboard!"
+  },
+  "errors": {
+    "no_url": "No URL available to share",
+    "copy_failed": "Failed to copy URL. Please try again."
+  }
+}

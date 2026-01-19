@@ -1,0 +1,35 @@
+{
+  "node": {
+    "00a2e3e2edef5e403ba998f078cb21b81f5850d9ee": {
+      "workers": {
+        "app/[locale]/(admin)/admin/users/[id]/edit-roles/page": {
+          "moduleId": 81805,
+          "async": true,
+          "exportedName": "getClientIp",
+          "filename": "src/shared/lib/ip.ts"
+        }
+      },
+      "layer": {
+        "app/[locale]/(admin)/admin/users/[id]/edit-roles/page": "rsc"
+      },
+      "exportedName": "getClientIp",
+      "filename": "src/shared/lib/ip.ts"
+    },
+    "60761c2d06fce9077eaf21477d8336b2aec472df51": {
+      "workers": {
+        "app/[locale]/(admin)/admin/users/[id]/edit-roles/page": {
+          "moduleId": 81805,
+          "async": true,
+          "exportedName": "$$RSC_SERVER_ACTION_0",
+          "filename": "src/app/[locale]/(admin)/admin/users/[id]/edit-roles/page.tsx"
+        }
+      },
+      "layer": {
+        "app/[locale]/(admin)/admin/users/[id]/edit-roles/page": "rsc"
+      },
+      "exportedName": "$$RSC_SERVER_ACTION_0",
+      "filename": "src/app/[locale]/(admin)/admin/users/[id]/edit-roles/page.tsx"
+    }
+  },
+  "edge": {}
+}
