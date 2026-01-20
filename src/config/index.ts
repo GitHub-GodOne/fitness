@@ -54,4 +54,6 @@ export const envConfigs: ConfigMap = {
   cdn_domain: process.env.NEXT_PUBLIC_CDN_DOMAIN ?? 'https://public.pikju.top',
   // R2 bucket name for URL replacement
   r2_bucket_name: process.env.R2_BUCKET_NAME ?? 'fearnot',
+  // Refund email address for refund requests
+  refund_email: process.env.REFUND_EMAIL ?? '',
 };

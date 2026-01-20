@@ -28,6 +28,11 @@
           "title": "评论",
           "url": "/comments",
           "icon": "MessageSquare"
+        },
+        {
+          "title": "退款",
+          "url": "/refund",
+          "icon": "RotateCcw"
         }
       ]
     },

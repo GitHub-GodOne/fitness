@@ -1,3 +1,0 @@
-module.exports=[152931,e=>{e.v({fields:{title:"Title",key:"Key",created_at:"Created At",action:"Action"},list:{title:"API Keys",empty_message:"No API Keys",buttons:{add:"Create API Key",edit:"Edit",delete:"Delete"}},add:{title:"Create API Key",crumbs:{apikeys:"API Keys",add:"Create API Key"},buttons:{submit:"Create"}},edit:{title:"Edit API Key",crumbs:{apikeys:"API Keys",edit:"Edit API Key"},buttons:{submit:"Update"}},delete:{title:"Delete API Key",crumbs:{apikeys:"API Keys",delete:"Delete API Key"},buttons:{submit:"Confirm Delete"}}})}];
-
-//# sourceMappingURL=src_config_locale_messages_en_settings_apikeys_json_0825f3ac._.js.map

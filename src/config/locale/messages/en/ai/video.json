@@ -46,6 +46,7 @@
     "buy_credits": "Buy Credits",
     "progress": "Progress",
     "generated_videos": "Video Preview",
+    "do_not_close_page": "Please do not close this page while the video is being generated. The process will continue in the background.",
     "ready_to_generate": "Ready to Generate",
     "ready_for_generating": "Ready for Generating",
     "no_videos_generated": "No Videos Generated",
@@ -75,7 +76,9 @@
       "insufficient_credits": "You need more than 3 credits to merge videos. Please purchase credits to use this feature.",
       "insufficient_credits_title": "Insufficient Credits"
     },
-    "copied": "Copied!"
+    "copied": "Copied!",
+    "refund_support": "Refund service available",
+    "learn_more": "Learn more"
   }
 }
 

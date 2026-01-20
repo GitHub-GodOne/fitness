@@ -1,3 +1,0 @@
-module.exports=[626924,a=>{"use strict";var b=a.i(903803),c=a.i(245918);async function d({locale:a,page:d,data:e}){return(0,b.jsxs)(b.Fragment,{children:[d.title&&!d.sections?.hero&&(0,b.jsx)("h1",{className:"sr-only",children:d.title}),d?.sections&&Object.keys(d.sections).map(async a=>{let f=d.sections?.[a];if(!f||!0===f.disabled||d.show_sections&&!d.show_sections.includes(a))return null;let g=f.block||f.id||a;try{if(f.component)return f.component;let d=await (0,c.getThemeBlock)(g);return(0,b.jsx)(d,{section:f,...e||f.data||{}},a)}catch(a){return null}})]})}a.s(["default",()=>d])}];
-
-//# sourceMappingURL=src_themes_default_pages_dynamic-page_tsx_71dfca80._.js.map

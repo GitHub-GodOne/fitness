@@ -59,4 +59,5 @@ export const localeMessagesPaths = [
   'components/comments',
   'components/share',
   'components/copy',
+  'refund',
 ];

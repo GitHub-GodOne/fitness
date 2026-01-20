@@ -7,6 +7,8 @@ import { toast } from 'sonner';
 
 import { Button } from '@/shared/components/ui/button';
 import { cn } from '@/shared/lib/utils';
+import { useAppContext } from '@/shared/contexts/app';
+import { usePathname } from '@/core/i18n/navigation';
 
 export type UploadStatus = 'idle' | 'uploading' | 'uploaded' | 'error';
 
@@ -81,6 +83,8 @@ export function ImageUploader({
   const replaceTargetIdRef = useRef<string | null>(null);
   const dragCounterRef = useRef(0);
   const [isDragActive, setIsDragActive] = useState(false);
+  const { user, setIsShowSignModal } = useAppContext();
+  const pathname = usePathname();
 
   // 使用 defaultPreviews 初始化 items，只在组件挂载时执行一次
   const [items, setItems] = useState<UploadItem[]>(() => {
@@ -237,6 +241,20 @@ export function ImageUploader({
   };
 
   const handleFiles = (selectedFiles: File[]) => {
+    // Check if user is logged in before uploading
+    if (!user) {
+      // Set callback URL to current page for redirect after login
+      const callbackUrl = pathname || '/ai-video-generator';
+      setIsShowSignModal(true);
+      // Store callback URL in sessionStorage for SignModal to use
+      if (typeof window !== 'undefined') {
+        sessionStorage.setItem('signInCallbackUrl', callbackUrl);
+      }
+      toast.error('Please sign in to upload images');
+      if (inputRef.current) inputRef.current.value = '';
+      return;
+    }
+
     const replaceTargetId = replaceTargetIdRef.current;
     if (replaceTargetId) {
       // reset immediately to avoid sticky replace mode
@@ -435,6 +453,18 @@ export function ImageUploader({
   };
 
   const openFilePicker = () => {
+    // Check if user is logged in before opening file picker
+    if (!user) {
+      // Set callback URL to current page for redirect after login
+      const callbackUrl = pathname || '/ai-video-generator';
+      setIsShowSignModal(true);
+      // Store callback URL in sessionStorage for SignModal to use
+      if (typeof window !== 'undefined') {
+        sessionStorage.setItem('signInCallbackUrl', callbackUrl);
+      }
+      toast.error('Please sign in to upload images');
+      return;
+    }
     inputRef.current?.click();
   };
 

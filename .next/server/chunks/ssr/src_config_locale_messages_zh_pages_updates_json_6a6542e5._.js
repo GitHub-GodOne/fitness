@@ -1,3 +1,0 @@
-module.exports=[450335,a=>{a.v({metadata:{title:"更新日志",description:"查看产品更新日志，了解产品最新功能和改进。"},page:{sections:{updates:{id:"updates",title:"更新日志",description:"查看产品更新日志，了解产品最新功能和改进。"}}}})}];
-
-//# sourceMappingURL=src_config_locale_messages_zh_pages_updates_json_6a6542e5._.js.map

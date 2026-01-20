@@ -5,7 +5,7 @@ import { Check, Loader2, HelpCircle } from 'lucide-react';
 import { useLocale, useTranslations } from 'next-intl';
 import { toast } from 'sonner';
 
-import { useRouter } from '@/core/i18n/navigation';
+import { Link, useRouter } from '@/core/i18n/navigation';
 
 import { SmartIcon } from '@/shared/blocks/common';
 import { PaymentModal } from '@/shared/blocks/payment/payment-modal';
@@ -387,6 +387,20 @@ export function Pricing({
         <p className="text-muted-foreground mx-auto mb-4 max-w-2xl lg:max-w-3xl text-sm sm:text-base lg:text-lg break-words px-2 sm:px-0">
           {section.description}
         </p>
+        <div className="mt-4 flex items-center justify-center gap-2">
+          <div className="inline-flex items-center gap-2 rounded-full bg-green-50 px-3 py-1.5 text-sm font-medium text-green-700 dark:bg-green-950 dark:text-green-300">
+            <svg className="h-4 w-4" fill="currentColor" viewBox="0 0 20 20">
+              <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+            </svg>
+            <span>{t('refund_support')}</span>
+          </div>
+          <Link
+            href="/refund"
+            className="text-primary hover:underline text-sm font-medium"
+          >
+            {t('learn_more')}
+          </Link>
+        </div>
       </div>
 
       <div className="container">

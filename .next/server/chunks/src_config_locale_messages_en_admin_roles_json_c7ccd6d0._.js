@@ -1,3 +1,0 @@
-module.exports=[689691,e=>{e.v({fields:{id:"ID",name:"Name",title:"Title",description:"Description",status:"Status",sort:"Sort",created_at:"Created At",updated_at:"Updated At",permissions:"Permissions",actions:"Actions"},list:{title:"Roles",crumbs:{admin:"Admin",roles:"Roles"},buttons:{create:"Create Role",edit:"Edit Role",edit_permissions:"Edit Permissions",delete:"Delete Role"}},edit:{title:"Edit Role",crumbs:{admin:"Admin",roles:"Roles",edit:"Edit Role"},buttons:{submit:"Update"}},edit_permissions:{title:"Edit Permissions",crumbs:{admin:"Admin",roles:"Roles",edit_permissions:"Edit Permissions"},buttons:{submit:"Update"}}})}];
-
-//# sourceMappingURL=src_config_locale_messages_en_admin_roles_json_c7ccd6d0._.js.map

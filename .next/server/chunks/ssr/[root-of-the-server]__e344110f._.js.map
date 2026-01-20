@@ -1,1 +1,0 @@
-{"version":3,"sources":["../../../../src/app/%5Blocale%5D/%28landing%29/activity/feedbacks/page.tsx"],"sourcesContent":["export default function FeedbacksPage() {\n  return <div>feedbacks</div>;\n}\n"],"names":[],"mappings":"ubAAe,SAAS,IACtB,MAAO,CAAA,EAAA,EAAA,GAAA,EAAC,MAAA,UAAI,aACd"}

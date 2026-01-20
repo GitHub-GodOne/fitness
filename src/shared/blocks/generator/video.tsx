@@ -1,6 +1,6 @@
 'use client';
 
-import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import {
   CreditCard,
   Download,
@@ -79,6 +79,8 @@ import { Checkbox } from '@/shared/components/ui/checkbox';
 import { Switch } from '@/shared/components/ui/switch';
 import { useMediaQuery } from '@/shared/hooks/use-media-query';
 import { useAppContext } from '@/shared/contexts/app';
+import { SignModal } from '@/shared/blocks/sign/sign-modal';
+import { usePathname } from '@/core/i18n/navigation';
 
 interface VideoGeneratorProps {
   maxSizeMB?: number;
@@ -325,6 +327,7 @@ export function VideoGenerator({
   const [historyLoading, setHistoryLoading] = useState(false);
   const [previewVideoUrl, setPreviewVideoUrl] = useState<string | null>(null);
   const [isPreviewOpen, setIsPreviewOpen] = useState(false);
+  const progressCardRef = useRef<HTMLDivElement>(null);
   const historyLimit = 10;
   // 选中的视频（按顺序）：Map<taskId, videoUrl>
   const [selectedVideos, setSelectedVideos] = useState<Map<string, string>>(new Map());
@@ -344,6 +347,7 @@ export function VideoGenerator({
     useAppContext();
 
   const isDesktop = useMediaQuery('(min-width: 768px)');
+  const pathname = usePathname();
 
   useEffect(() => {
     setIsMounted(true);
@@ -945,6 +949,16 @@ export function VideoGenerator({
     setGeneratedVideos([]);
     setGenerationStartTime(Date.now());
 
+    // Scroll to progress card on mobile after a short delay
+    setTimeout(() => {
+      if (progressCardRef.current) {
+        progressCardRef.current.scrollIntoView({
+          behavior: 'smooth',
+          block: 'start',
+        });
+      }
+    }, 300);
+
     try {
       const options: any = {
         resolution,
@@ -1256,22 +1270,31 @@ export function VideoGenerator({
                     </div>
                   </div>
                 ) : user && remainingCredits > 0 ? (
-                  <div className="flex flex-col gap-2 text-sm sm:flex-row sm:items-center sm:justify-between">
-                    <span className="text-primary">
-                      {t('credits_cost', { credits: costCredits })}
-                    </span>
-                    <div className="flex items-center gap-2">
-                      <Link href="/pricing">
-                        <button
-                          className="text-primary hover:text-primary/80 flex h-5 w-5 items-center justify-center rounded-full border border-current transition-colors"
-                          title="Buy Credits"
-                        >
-                          <Plus className="h-3 w-3" />
-                        </button>
-                      </Link>
-                      <span>
-                        {t('credits_remaining', { credits: remainingCredits })}
+                  <div className="space-y-2">
+                    <div className="flex flex-col gap-2 text-sm sm:flex-row sm:items-center sm:justify-between">
+                      <span className="text-primary">
+                        {t('credits_cost', { credits: costCredits })}
                       </span>
+                      <div className="flex items-center gap-2">
+                        <Link href="/pricing">
+                          <button
+                            className="text-primary hover:text-primary/80 flex h-5 w-5 items-center justify-center rounded-full border border-current transition-colors"
+                            title="Buy Credits"
+                          >
+                            <Plus className="h-3 w-3" />
+                          </button>
+                        </Link>
+                        <span>
+                          {t('credits_remaining', { credits: remainingCredits })}
+                        </span>
+                      </div>
+                    </div>
+                    <div className="flex items-center gap-1 text-xs text-muted-foreground">
+                      <span>✓</span>
+                      <span>{t('refund_support')}</span>
+                      <Link href="/refund" className="text-primary hover:underline font-medium">
+                        {t('learn_more')}
+                      </Link>
                     </div>
                   </div>
                 ) : (
@@ -1300,27 +1323,24 @@ export function VideoGenerator({
                         <span className="whitespace-nowrap">{t('buy_credits')}</span>
                       </Button>
                     </Link>
+                    <div className="flex items-center gap-2">
+                      <div className="inline-flex items-center gap-1.5 rounded-full bg-green-50 px-2.5 py-1 text-xs font-medium text-green-700 dark:bg-green-950 dark:text-green-300">
+                        <svg className="h-3.5 w-3.5" fill="currentColor" viewBox="0 0 20 20">
+                          <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+                        </svg>
+                        <span>{t('refund_support')}</span>
+                      </div>
+                      <Link href="/refund" className="text-primary hover:underline text-xs font-medium">
+                        {t('learn_more')}
+                      </Link>
+                    </div>
                   </div>
                 )}
 
-                {isGenerating && (
-                  <div className="space-y-2 rounded-lg border p-4">
-                    <div className="flex items-center justify-between text-sm">
-                      <span>{t('progress')}</span>
-                      <span>{progress}%</span>
-                    </div>
-                    <Progress value={progress} />
-                    {taskStatusLabel && (
-                      <p className="text-muted-foreground text-center text-xs">
-                        {taskStatusLabel}
-                      </p>
-                    )}
-                  </div>
-                )}
               </CardContent>
             </Card>
 
-            <Card>
+            <Card ref={progressCardRef}>
               <CardHeader>
                 <CardTitle className="flex items-center gap-2 text-xl font-semibold">
                   <Video className="h-5 w-5" />
@@ -1328,6 +1348,27 @@ export function VideoGenerator({
                 </CardTitle>
               </CardHeader>
               <CardContent className="pb-8">
+                {isGenerating && (
+                  <div className="mb-6 space-y-3 rounded-lg border-2 border-primary/20 bg-gradient-to-br from-primary/5 to-primary/10 p-4 sm:p-6">
+                    <div className="flex items-center justify-between text-sm font-medium sm:text-base">
+                      <span className="flex items-center gap-2">
+                        <Loader2 className="h-4 w-4 animate-spin sm:h-5 sm:w-5" />
+                        <span>{t('progress')}</span>
+                      </span>
+                      <span className="font-bold text-primary">{progress}%</span>
+                    </div>
+                    <Progress value={progress} className="h-2.5 sm:h-3" />
+                    {taskStatusLabel && (
+                      <p className="text-center text-xs font-medium text-muted-foreground sm:text-sm">
+                        {taskStatusLabel}
+                      </p>
+                    )}
+                    <div className="mt-3 flex items-start gap-2 rounded-md bg-amber-50 p-3 text-xs text-amber-800 dark:bg-amber-950 dark:text-amber-200 sm:text-sm">
+                      <span className="mt-0.5 shrink-0">⚠️</span>
+                      <span>{t('do_not_close_page')}</span>
+                    </div>
+                  </div>
+                )}
                 {generatedVideos.length > 0 ? (
                   <div className="space-y-6">
                     {generatedVideos.map((video) => (
@@ -1950,6 +1991,9 @@ export function VideoGenerator({
           </DrawerContent>
         </Drawer>
       )}
+
+      {/* Sign Modal */}
+      <SignModal callbackUrl={pathname || '/ai-video-generator'} />
     </section>
   );
 }
