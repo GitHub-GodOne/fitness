@@ -728,6 +728,67 @@ export function VideoGenerator({
     [referenceImageItems]
   );
 
+  // Upload image file (used when deferring upload until generate)
+  const uploadImageFile = useCallback(async (file: File) => {
+    const formData = new FormData();
+    formData.append('files', file);
+
+    const response = await fetch('/api/storage/upload-image', {
+      method: 'POST',
+      body: formData,
+    });
+
+    if (!response.ok) {
+      throw new Error(`Upload failed with status ${response.status}`);
+    }
+
+    const result = await response.json();
+    if (result.code !== 0 || !result.data?.urls?.length) {
+      throw new Error(result.message || 'Upload failed');
+    }
+
+    return result.data.urls[0] as string;
+  }, []);
+
+  // Ensure reference images are uploaded before generate; uploads only pending local files.
+  const ensureReferenceImagesUploaded = useCallback(async () => {
+    const updatedItems = [...referenceImageItems];
+    const uploadedUrls: string[] = [];
+
+    for (let i = 0; i < updatedItems.length; i += 1) {
+      const item = updatedItems[i];
+      if (item.url) {
+        uploadedUrls.push(item.url);
+        continue;
+      }
+
+      if (item.file) {
+        // mark uploading for UI
+        updatedItems[i] = { ...item, status: 'uploading' };
+        setReferenceImageItems([...updatedItems]);
+        try {
+          const url = await uploadImageFile(item.file);
+          updatedItems[i] = {
+            ...updatedItems[i],
+            url,
+            preview: url,
+            status: 'uploaded',
+            file: undefined,
+          };
+          uploadedUrls.push(url);
+          setReferenceImageItems([...updatedItems]);
+        } catch (err) {
+          updatedItems[i] = { ...updatedItems[i], status: 'error' };
+          setReferenceImageItems([...updatedItems]);
+          throw err;
+        }
+      }
+    }
+
+    setReferenceImageUrls(uploadedUrls);
+    return uploadedUrls;
+  }, [referenceImageItems, uploadImageFile]);
+
   const hasReferenceUploadError = useMemo(
     () => referenceImageItems.some((item) => item.status === 'error'),
     [referenceImageItems]
@@ -969,9 +1030,12 @@ export function VideoGenerator({
       };
 
       if (isImageToVideoMode) {
-        // Backend supports multiple images via array
-        // Currently limited to 1 image, but code is ready for multiple images
-        options.image_input = referenceImageUrls;
+        // Upload images only when generating (deferred upload)
+        const uploadedUrls = await ensureReferenceImagesUploaded();
+        if (!uploadedUrls.length) {
+          throw new Error('Please add at least one reference image.');
+        }
+        options.image_input = uploadedUrls;
       }
 
       if (isVideoToVideoMode) {
@@ -1084,7 +1148,8 @@ export function VideoGenerator({
                 {srOnlyTitle && <h2 className="sr-only">{srOnlyTitle}</h2>}
                 <CardTitle className="flex items-center justify-between text-xl font-semibold">
                   <span className="flex items-center gap-2">{t('title')}</span>
-                  <Button
+                  {/* Settings button hidden for now */}
+                  {/* <Button
                     variant="ghost"
                     size="sm"
                     onClick={() => setIsSettingsOpen(true)}
@@ -1092,7 +1157,7 @@ export function VideoGenerator({
                     title={t('settings.title')}
                   >
                     <Settings className="h-4 w-4" />
-                  </Button>
+                  </Button> */}
                 </CardTitle>
               </CardHeader>
               <CardContent className="space-y-4 px-4 pb-6 sm:space-y-6 sm:px-6 sm:pb-8">
@@ -1152,6 +1217,7 @@ export function VideoGenerator({
                       maxSizeMB={maxSizeMB}
                       onChange={handleReferenceImagesChange}
                       defaultPreviews={referenceImageUrls}
+                      uploadOnSelect={false}
                     />
 
                     {hasReferenceUploadError && (
@@ -1363,6 +1429,18 @@ export function VideoGenerator({
                         {taskStatusLabel}
                       </p>
                     )}
+                    <div className="flex justify-center">
+                      <div className="relative h-14 w-14 sm:h-16 sm:w-16">
+                        <div className="absolute inset-0 rounded-full border-4 border-primary/20 border-t-primary animate-spin" />
+                        <div className="absolute inset-1 rounded-full border border-primary/10 bg-background/90 backdrop-blur-sm" />
+                        <img
+                          src="/logo-icon.png"
+                          alt="Logo"
+                          className="absolute inset-2 h-8 w-8 sm:h-10 sm:w-10 object-contain"
+                          loading="lazy"
+                        />
+                      </div>
+                    </div>
                     <div className="mt-3 flex items-start gap-2 rounded-md bg-amber-50 p-3 text-xs text-amber-800 dark:bg-amber-950 dark:text-amber-200 sm:text-sm">
                       <span className="mt-0.5 shrink-0">⚠️</span>
                       <span>{t('do_not_close_page')}</span>
@@ -1526,7 +1604,9 @@ export function VideoGenerator({
                           <TableHead>Prompt</TableHead>
                           <TableHead>Status</TableHead>
                           <TableHead>Created</TableHead>
-                          <TableHead className="text-right">Actions</TableHead>
+                          <TableHead className="text-right w-[220px] sm:w-[260px] sticky right-0 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/75 z-20">
+                            Actions
+                          </TableHead>
                         </TableRow>
                       </TableHeader>
                       <TableBody>
@@ -1608,7 +1688,7 @@ export function VideoGenerator({
                                   ? new Date(task.createdAt).toLocaleDateString()
                                   : '-'}
                               </TableCell>
-                              <TableCell className="text-right">
+                              <TableCell className="text-right w-[220px] sm:w-[260px] sticky right-0 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/75 z-10">
                                 <div className="flex items-center justify-end gap-1 sm:gap-2 flex-wrap">
                                   {videoUrl && (
                                     <>

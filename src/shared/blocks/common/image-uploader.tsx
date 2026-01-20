@@ -18,6 +18,7 @@ export interface ImageUploaderValue {
   url?: string;
   status: UploadStatus;
   size?: number;
+  file?: File;
 }
 
 interface ImageUploaderProps {
@@ -29,6 +30,11 @@ interface ImageUploaderProps {
   className?: string;
   defaultPreviews?: string[];
   onChange?: (items: ImageUploaderValue[]) => void;
+  /**
+   * If true (default), files will be uploaded immediately on select.
+   * If false, files are only kept locally; caller must upload later (e.g., on submit).
+   */
+  uploadOnSelect?: boolean;
 }
 
 interface UploadItem extends ImageUploaderValue {
@@ -75,6 +81,7 @@ export function ImageUploader({
   className,
   defaultPreviews,
   onChange,
+  uploadOnSelect = true,
 }: ImageUploaderProps) {
   const inputRef = useRef<HTMLInputElement | null>(null);
   const isInitializedRef = useRef(false);
@@ -169,12 +176,13 @@ export function ImageUploader({
     isInternalChangeRef.current = true;
 
     onChangeRef.current?.(
-      items.map(({ id, preview, url, status, size }) => ({
+      items.map(({ id, preview, url, status, size, file }) => ({
         id,
         preview,
         url,
         status,
         size,
+        file,
       }))
     );
   }, [items]);
@@ -193,50 +201,54 @@ export function ImageUploader({
           return {
             ...item,
             preview: nextPreview,
-            file,
             size: file.size,
             url: undefined,
-            status: 'uploading' as UploadStatus,
+            status: uploadOnSelect ? ('uploading' as UploadStatus) : ('idle' as UploadStatus),
             uploadKey,
+            file: uploadOnSelect ? undefined : file,
           };
         })
       );
 
-      uploadImageFile(file)
-        .then((url) => {
-          setItems((prev) =>
-            prev.map((item) => {
-              if (item.id !== id) return item;
-              if (item.uploadKey !== uploadKey) return item; // stale upload
-              if (item.preview.startsWith('blob:')) {
-                URL.revokeObjectURL(item.preview);
-              }
-              return {
-                ...item,
-                preview: url,
-                url,
-                status: 'uploaded' as UploadStatus,
-                file: undefined,
-              };
-            })
-          );
-        })
-        .catch((error: any) => {
-          console.error('Upload failed:', error);
-          toast.error(
-            error?.message ? `Upload failed: ${error.message}` : 'Upload failed'
-          );
-          setItems((prev) =>
-            prev.map((item) => {
-              if (item.id !== id) return item;
-              if (item.uploadKey !== uploadKey) return item; // stale upload
-              return { ...item, status: 'error' as UploadStatus };
-            })
-          );
-        })
-        .finally(() => {
-          if (inputRef.current) inputRef.current.value = '';
-        });
+      if (uploadOnSelect) {
+        uploadImageFile(file)
+          .then((url) => {
+            setItems((prev) =>
+              prev.map((item) => {
+                if (item.id !== id) return item;
+                if (item.uploadKey !== uploadKey) return item; // stale upload
+                if (item.preview.startsWith('blob:')) {
+                  URL.revokeObjectURL(item.preview);
+                }
+                return {
+                  ...item,
+                  preview: url,
+                  url,
+                  status: 'uploaded' as UploadStatus,
+                  file: undefined,
+                };
+              })
+            );
+          })
+          .catch((error: any) => {
+            console.error('Upload failed:', error);
+            toast.error(
+              error?.message ? `Upload failed: ${error.message}` : 'Upload failed'
+            );
+            setItems((prev) =>
+              prev.map((item) => {
+                if (item.id !== id) return item;
+                if (item.uploadKey !== uploadKey) return item; // stale upload
+                return { ...item, status: 'error' as UploadStatus };
+              })
+            );
+          })
+          .finally(() => {
+            if (inputRef.current) inputRef.current.value = '';
+          });
+      } else {
+        if (inputRef.current) inputRef.current.value = '';
+      }
     });
   };
 
@@ -327,59 +339,61 @@ export function ImageUploader({
     const newItems = filesToAdd.map((file) => ({
       id: `${file.name}-${file.lastModified}-${Math.random()}`,
       preview: URL.createObjectURL(file),
-      file,
+      file: uploadOnSelect ? undefined : file,
       size: file.size,
-      status: 'uploading' as UploadStatus,
+      status: uploadOnSelect ? ('uploading' as UploadStatus) : ('idle' as UploadStatus),
       uploadKey: `${Date.now()}-${Math.random()}`,
     }));
 
     setItems((prev) => [...prev, ...newItems]);
 
-    // Upload in parallel
-    Promise.all(
-      newItems.map(async (item) => {
-        try {
-          const url = await uploadImageFile(item.file as File);
-          setItems((prev) => {
-            const next = prev.map((current) => {
-              if (current.id === item.id) {
-                if (current.uploadKey && item.uploadKey) {
-                  if (current.uploadKey !== item.uploadKey) return current; // stale upload
+    if (uploadOnSelect) {
+      // Upload in parallel
+      Promise.all(
+        newItems.map(async (item) => {
+          try {
+            const url = await uploadImageFile(item.file as File);
+            setItems((prev) => {
+              const next = prev.map((current) => {
+                if (current.id === item.id) {
+                  if (current.uploadKey && item.uploadKey) {
+                    if (current.uploadKey !== item.uploadKey) return current; // stale upload
+                  }
+                  // Revoke the blob URL since we have the uploaded URL now
+                  if (current.preview.startsWith('blob:')) {
+                    URL.revokeObjectURL(current.preview);
+                  }
+                  return {
+                    ...current,
+                    preview: url, // Replace preview with uploaded URL
+                    url,
+                    status: 'uploaded' as UploadStatus,
+                    file: undefined,
+                  };
                 }
-                // Revoke the blob URL since we have the uploaded URL now
-                if (current.preview.startsWith('blob:')) {
-                  URL.revokeObjectURL(current.preview);
+                return current;
+              });
+              return next;
+            });
+          } catch (error: any) {
+            console.error('Upload failed:', error);
+            toast.error(
+              error?.message ? `Upload failed: ${error.message}` : 'Upload failed'
+            );
+            setItems((prev) => {
+              const next = prev.map((current) => {
+                if (current.id !== item.id) return current;
+                if (current.uploadKey && current.uploadKey !== item.uploadKey) {
+                  return current; // stale upload
                 }
-                return {
-                  ...current,
-                  preview: url, // Replace preview with uploaded URL
-                  url,
-                  status: 'uploaded' as UploadStatus,
-                  file: undefined,
-                };
-              }
-              return current;
+                return { ...current, status: 'error' as UploadStatus };
+              });
+              return next;
             });
-            return next;
-          });
-        } catch (error: any) {
-          console.error('Upload failed:', error);
-          toast.error(
-            error?.message ? `Upload failed: ${error.message}` : 'Upload failed'
-          );
-          setItems((prev) => {
-            const next = prev.map((current) => {
-              if (current.id !== item.id) return current;
-              if (current.uploadKey && current.uploadKey !== item.uploadKey) {
-                return current; // stale upload
-              }
-              return { ...current, status: 'error' as UploadStatus };
-            });
-            return next;
-          });
-        }
-      })
-    );
+          }
+        })
+      );
+    }
 
     if (inputRef.current) {
       inputRef.current.value = '';

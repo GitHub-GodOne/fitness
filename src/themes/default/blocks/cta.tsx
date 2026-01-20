@@ -35,23 +35,31 @@ export function Cta({
 
           <ScrollAnimation delay={0.3}>
             <div className="mt-6 sm:mt-8 md:mt-10 lg:mt-12 flex flex-col sm:flex-row flex-wrap justify-center gap-3 sm:gap-4 px-4">
-              {section.buttons?.map((button, idx) => (
-                <Button
-                  asChild
-                  size={button.size || 'default'}
-                  variant={button.variant || 'default'}
-                  key={idx}
-                  className="h-11 text-sm sm:h-12 sm:text-base"
-                >
-                  <Link
-                    href={button.url || ''}
-                    target={button.target || '_self'}
+              {section.buttons?.map((button, idx) => {
+                const btn = button as any;
+                return (
+                  <Button
+                    asChild
+                    size={btn.size || 'default'}
+                    variant={btn.variant || 'default'}
+                    key={idx}
+                    className={cn(
+                      'h-auto min-h-11 text-sm sm:min-h-12 sm:text-base',
+                      'flex items-center justify-center gap-2 whitespace-normal break-words text-center',
+                      'px-4 sm:px-6 py-2.5 sm:py-3'
+                    )}
                   >
-                    {button.icon && <SmartIcon name={button.icon as string} />}
-                    <span>{button.title}</span>
-                  </Link>
-                </Button>
-              ))}
+                    <Link
+                      href={btn.url || ''}
+                      target={btn.target || '_self'}
+                      className="flex items-center justify-center gap-2"
+                    >
+                      {btn.icon && <SmartIcon name={btn.icon as string} className="h-4 w-4 sm:h-5 sm:w-5 shrink-0" />}
+                      <span className="break-words">{btn.title}</span>
+                    </Link>
+                  </Button>
+                );
+              })}
             </div>
           </ScrollAnimation>
         </div>

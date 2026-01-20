@@ -13,23 +13,22 @@
         "id": "hero",
         "title": "Fear Not For I Am With You",
         "highlight_text": "I Am With You",
-        "description": "Create videos based on God's promise: \"Fear not, for I am with you.\"",
+        "description": "Create <strong>personalized Bible videos</strong> anchored in God's promise: <em>\"fear not, for I am with you\"</em>—made just for you.",
         "buttons": [
           {
-            "title": "Create Your Bible Video",
+            "title": "✨ Create Your Video Now",
             "url": "/ai-video-generator",
             "target": "_self",
             "variant": "default"
           }
         ],
-        "tip": "✨ Delivered in minutes • Free trial available",
         "featured_video": {
           "src": "/5.mp4",
           "poster": "/imgs/video-poster.jpg",
           "caption": "Isaiah 41:10 - Fear not, for I am with you"
         },
         "social_proof": {
-          "title": "Loved by 1000+ families",
+          "title": "Trusted by 1,000+ Christian Believers",
           "avatars": [
             { "src": "/imgs/avatars/1.png", "alt": "User 1" },
             { "src": "/imgs/avatars/2.png", "alt": "User 2" },
@@ -55,22 +54,25 @@
       "how-it-works": {
         "block": "features-step",
         "id": "how-it-works",
-        "title": "How It Works",
+        "title": "How It Works (3 Simple Steps)",
         "text_align": "center",
         "items": [
           {
-            "title": "Upload your photos"
+            "title": "Upload Photos",
+            "description": "Share your cherished faith journey snapshots"
           },
           {
-            "title": "Share your feelings"
+            "title": "Share Your Heart",
+            "description": "Tell us your hopes, struggles or occasion"
           },
           {
-            "title": "Generate your video"
+            "title": "Get Your Video",
+            "description": "Scripture-driven, centered on <em>\"fear not, for I am with you\"</em>—ready fast"
           }
         ],
         "buttons": [
           {
-            "title": "Create Your Bible Video",
+            "title": "Start Your “Fear Not For I Am With You” Video",
             "url": "/ai-video-generator",
             "target": "_self",
             "variant": "default"
@@ -80,13 +82,13 @@
       },
       "testimonials": {
         "id": "testimonials",
-        "title": "Why Families Love Their Bible Videos",
-        "description": "Read heartfelt stories from people who found comfort and peace",
+        "title": "Why Believers Love It",
+        "description": "",
         "items": [
           {
             "name": "Sarah M.",
-            "role": "Mother",
-            "quote": "Oh praise God! This is absolutely breathtaking. I can't believe it… I am going to have a hard time keeping this a secret until Sunday. We will listen to it on our way to church! God bless this work you are doing.",
+            "role": "Believer",
+            "quote": "Breathtaking! I'll listen on my way to worship—God bless this ministry!",
             "image": {
               "src": "/imgs/avatars/1.png",
               "alt": "Sarah"
@@ -96,7 +98,7 @@
           {
             "name": "David L.",
             "role": "Verified Customer",
-            "quote": "Absolutely beautiful, you captured such special moments… we both were crying. Cannot ask for a more beautiful video. Thank you so much for this amazing gift.",
+            "quote": "Perfectly captured my moments—I wept. Such a beautiful faith blessing!",
             "image": {
               "src": "/imgs/avatars/2.png",
               "alt": "David"
@@ -106,7 +108,7 @@
           {
             "name": "Jennifer K.",
             "role": "Verified Customer",
-            "quote": "Very very wonderful video. I absolutely loved it and so did my family! I will be singing your praises and telling everyone about your beautiful work. God Bless you all….",
+            "quote": "Wonderful! I'll share this with everyone I know—God bless you all!",
             "image": {
               "src": "/imgs/avatars/3.png",
               "alt": "Jennifer"
@@ -116,10 +118,11 @@
         ],
         "buttons": [
           {
-            "title": "Create Your Bible Video",
+            "title": "Create Your Personalized Video",
             "url": "/ai-video-generator",
             "target": "_self",
-            "variant": "default"
+            "variant": "default",
+            "icon": "Video"
           }
         ],
         "className": "bg-background"
@@ -205,7 +208,7 @@
         ],
         "buttons": [
           {
-            "title": "Start Creating Your Video",
+            "title": "Make Your “Fear Not For I Am With You” Video Today",
             "url": "/ai-video-generator",
             "target": "_self"
           }
@@ -216,27 +219,27 @@
         "block": "features",
         "id": "what-you-get",
         "title": "What You Get",
-        "description": "Once we finish your video, you'll receive a beautiful Bible video ready to share",
+        "description": "",
         "items": [
           {
-            "title": "Radio-Quality Video",
-            "description": "Professional-quality Bible video, ready to share with family and friends",
+            "title": "Pro-Quality Video",
+            "description": "Woven with <em>\"fear not, for I am with you\"</em>—for worship or reflection",
             "icon": "RiVideoLine"
           },
           {
-            "title": "Personalized Scripture",
-            "description": "Custom Bible verses inspired by your story and emotional needs",
+            "title": "Custom Scripture",
+            "description": "Tailored to your story & spiritual needs",
             "icon": "RiBookOpenLine"
           },
           {
-            "title": "Fast Delivery",
-            "description": "Receive your finished video in just minutes, delivered straight to your email",
+            "title": "Fast Email Delivery",
+            "description": "Get your video in minutes, straight to your inbox",
             "icon": "RiTimeLine"
           }
         ],
         "buttons": [
           {
-            "title": "Create Your Bible Video",
+            "title": "Make Your “Fear Not For I Am With You” Video Today",
             "url": "/ai-video-generator",
             "target": "_self",
             "variant": "default"
@@ -316,7 +319,8 @@
             "title": "Create Your Bible Video",
             "url": "/ai-video-generator",
             "target": "_self",
-            "variant": "default"
+            "variant": "default",
+            "icon": "Play"
           }
         ],
         "className": "bg-background"
@@ -329,7 +333,8 @@
           {
             "title": "Create Your Bible Video",
             "url": "/ai-video-generator",
-            "target": "_self"
+            "target": "_self",
+            "icon": "Heart"
           }
         ],
         "quote": {

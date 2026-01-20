@@ -13,7 +13,7 @@
         "id": "hero",
         "title": "不要惧怕，因为我与你同在",
         "highlight_text": "我与你同在",
-        "description": "创建基于上帝应许的视频：“不要惧怕，因为我与你同在。”",
+        "description": "创建<strong>个性化圣经视频</strong>，基于上帝的应许：<em>\"不要惧怕，因为我与你同在\"</em>—专为你而制作。",
         "buttons": [
           {
             "title": "创建你的圣经视频",
@@ -22,14 +22,13 @@
             "variant": "default"
           }
         ],
-        "tip": "✨ 几分钟内交付 • 提供免费试用",
         "featured_video": {
           "src": "/5.mp4",
           "poster": "/imgs/video-poster.jpg",
           "caption": "以赛亚书 41:10 - 不要惧怕，因为我与你同在"
         },
         "social_proof": {
-          "title": "受到 1000+ 家庭喜爱",
+          "title": "受到 1,000+ 基督徒信赖",
           "avatars": [
             { "src": "/imgs/avatars/1.png", "alt": "用户 1" },
             { "src": "/imgs/avatars/2.png", "alt": "用户 2" },
@@ -55,38 +54,42 @@
       "how-it-works": {
         "block": "features-step",
         "id": "how-it-works",
-        "title": "如何使用",
+        "title": "如何使用（3个简单步骤）",
         "text_align": "center",
         "items": [
           {
-            "title": "上传你的照片"
+            "title": "上传照片",
+            "description": "分享你珍贵的信仰旅程快照"
           },
           {
-            "title": "分享你的感受"
+            "title": "分享你的心声",
+            "description": "告诉我们你的希望、挣扎或场合"
           },
           {
-            "title": "生成你的视频"
+            "title": "获得你的视频",
+            "description": "以经文为驱动，围绕<em>\"不要惧怕，因为我与你同在\"</em>—快速就绪"
           }
         ],
         "buttons": [
           {
-            "title": "创建你的圣经视频",
+            "title": "开始你的\"不要惧怕，因为我与你同在\"视频",
             "url": "/ai-video-generator",
             "target": "_self",
-            "variant": "default"
+            "variant": "default",
+            "icon": "PlayCircle"
           }
         ],
         "className": "bg-background"
       },
       "testimonials": {
         "id": "testimonials",
-        "title": "为什么家庭都喜爱他们的圣经视频",
-        "description": "阅读找到安慰和平安的人们的真实故事",
+        "title": "为什么信徒喜爱它",
+        "description": "",
         "items": [
           {
             "name": "莎拉 M.",
-            "role": "母亲",
-            "quote": "哦，赞美神！这绝对令人惊叹。我简直不敢相信……在周日之前我很难保守这个秘密。我们会在去教会的路上听！愿神祝福你们正在做的这项工作。",
+            "role": "信徒",
+            "quote": "令人惊叹！我会在去敬拜的路上听—愿神祝福这个事工！",
             "image": {
               "src": "/imgs/avatars/1.png",
               "alt": "莎拉"
@@ -96,7 +99,7 @@
           {
             "name": "大卫 L.",
             "role": "认证客户",
-            "quote": "绝对美丽，你捕捉到了如此特殊的时刻……我们都哭了。不能要求更美丽的视频了。非常感谢这份令人惊叹的礼物。",
+            "quote": "完美捕捉了我的时刻—我哭了。如此美丽的信仰祝福！",
             "image": {
               "src": "/imgs/avatars/2.png",
               "alt": "大卫"
@@ -106,7 +109,7 @@
           {
             "name": "珍妮弗 K.",
             "role": "认证客户",
-            "quote": "非常非常精彩的视频。我绝对喜欢它，我的家人也是！我会歌颂你们的赞美，告诉每个人你们美丽的作品。愿神祝福你们所有人……",
+            "quote": "太棒了！我会与所有我认识的人分享—愿神祝福你们所有人！",
             "image": {
               "src": "/imgs/avatars/3.png",
               "alt": "珍妮弗"
@@ -116,10 +119,11 @@
         ],
         "buttons": [
           {
-            "title": "创建你的圣经视频",
+            "title": "创建你的个性化视频",
             "url": "/ai-video-generator",
             "target": "_self",
-            "variant": "default"
+            "variant": "default",
+            "icon": "Video"
           }
         ],
         "className": "bg-background"
@@ -216,30 +220,31 @@
         "block": "features",
         "id": "what-you-get",
         "title": "你将获得什么",
-        "description": "完成你的视频后，你将收到一个可以分享的美丽圣经视频",
+        "description": "",
         "items": [
           {
             "title": "专业品质视频",
-            "description": "专业质量的圣经视频，可与家人和朋友分享",
+            "description": "融入<em>\"不要惧怕，因为我与你同在\"</em>—用于敬拜或反思",
             "icon": "RiVideoLine"
           },
           {
-            "title": "个性化经文",
-            "description": "根据你的故事和情感需求定制的圣经经文",
+            "title": "定制经文",
+            "description": "根据你的故事和属灵需求量身定制",
             "icon": "RiBookOpenLine"
           },
           {
-            "title": "快速交付",
-            "description": "只需几分钟即可收到完成的视频，直接发送到你的邮箱",
+            "title": "快速邮件交付",
+            "description": "几分钟内获得你的视频，直接发送到你的收件箱",
             "icon": "RiTimeLine"
           }
         ],
         "buttons": [
           {
-            "title": "创建你的圣经视频",
+            "title": "今天就制作你的\"不要惧怕，因为我与你同在\"视频",
             "url": "/ai-video-generator",
             "target": "_self",
-            "variant": "default"
+            "variant": "default",
+            "icon": "Zap"
           }
         ],
         "className": "bg-background"
@@ -316,7 +321,8 @@
             "title": "创建你的圣经视频",
             "url": "/ai-video-generator",
             "target": "_self",
-            "variant": "default"
+            "variant": "default",
+            "icon": "Play"
           }
         ],
         "className": "bg-background"
@@ -329,7 +335,8 @@
           {
             "title": "创建你的圣经视频",
             "url": "/ai-video-generator",
-            "target": "_self"
+            "target": "_self",
+            "icon": "Heart"
           }
         ],
         "quote": {

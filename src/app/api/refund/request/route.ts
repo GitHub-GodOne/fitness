@@ -15,50 +15,51 @@ import { getEmailService } from '@/shared/services/email';
  * 3. Sending refund request email to configured refund email
  */
 export async function POST(req: NextRequest) {
-  try {
-    const user = await getUserInfo();
-    if (!user) {
-      return respErr('no auth, please sign in', 401);
-    }
+    try {
+        const user = await getUserInfo();
+        if (!user) {
+            return respErr('no auth, please sign in', 401);
+        }
 
-    const { reason, account, creditsAmount, description } = await req.json();
+        const { reason, account, creditsAmount, description } = await req.json();
 
-    // Validate required fields
-    if (!reason || typeof reason !== 'string' || reason.trim().length === 0) {
-      return respErr('Refund reason is required', 400);
-    }
+        // Validate required fields
+        if (!reason || typeof reason !== 'string' || reason.trim().length === 0) {
+            return respErr('Refund reason is required', 400);
+        }
 
-    if (!account || typeof account !== 'string' || account.trim().length === 0) {
-      return respErr('Account information is required', 400);
-    }
+        if (!account || typeof account !== 'string' || account.trim().length === 0) {
+            return respErr('Account information is required', 400);
+        }
 
-    if (!creditsAmount || typeof creditsAmount !== 'number' || creditsAmount <= 0) {
-      return respErr('Valid credits amount is required', 400);
-    }
+        if (!creditsAmount || typeof creditsAmount !== 'number' || creditsAmount <= 0) {
+            return respErr('Valid credits amount is required', 400);
+        }
 
-    // Check user has more than 3 credits
-    const remainingCredits = await getRemainingCredits(user.id);
-    if (remainingCredits <= 3) {
-      return respErr('You must have more than 3 credits to request a refund', 400);
-    }
+        // Check user has more than 3 credits
+        const remainingCredits = await getRemainingCredits(user.id);
+        if (remainingCredits <= 3) {
+            return respErr('You must have more than 3 credits to request a refund', 400);
+        }
 
-    // Check refund email is configured
-    const refundEmail = envConfigs.refund_email;
-    if (!refundEmail || refundEmail.trim().length === 0) {
-      console.error('[Refund] Refund email not configured in REFUND_EMAIL environment variable');
-      return respErr('Refund service is not configured. Please contact support.', 500);
-    }
+        // Check refund email is configured
+        const refundEmail = envConfigs.refund_email;
+        console.log('refundEmail----------->', refundEmail);
+        if (!refundEmail || refundEmail.trim().length === 0) {
+            console.error('[Refund] Refund email not configured in REFUND_EMAIL environment variable');
+            return respErr('Refund service is not configured. Please contact support.', 500);
+        }
 
-    // Get email service
-    const emailService = await getEmailService();
-    if (!emailService) {
-      console.error('[Refund] Email service not available');
-      return respErr('Email service is not available. Please contact support.', 500);
-    }
+        // Get email service
+        const emailService = await getEmailService();
+        if (!emailService) {
+            console.error('[Refund] Email service not available');
+            return respErr('Email service is not available. Please contact support.', 500);
+        }
 
-    // Prepare email content
-    const emailSubject = `Refund Request - ${user.email}`;
-    const emailHtml = `
+        // Prepare email content
+        const emailSubject = `Refund Request - ${user.email}`;
+        const emailHtml = `
       <!DOCTYPE html>
       <html>
         <head>
@@ -127,7 +128,7 @@ export async function POST(req: NextRequest) {
       </html>
     `;
 
-    const emailText = `
+        const emailText = `
 Refund Request
 
 User Email: ${user.email}
@@ -148,33 +149,33 @@ ${description ? `Additional Description:\n${description}\n` : ''}
 Request Time: ${new Date().toISOString()}
     `.trim();
 
-    // Send email
-    const emailResult = await emailService.sendEmail({
-      to: refundEmail,
-      subject: emailSubject,
-      html: emailHtml,
-      text: emailText,
-      replyTo: user.email,
-    });
+        // Send email
+        const emailResult = await emailService.sendEmail({
+            to: refundEmail,
+            subject: emailSubject,
+            html: emailHtml,
+            text: emailText,
+            replyTo: user.email,
+        });
 
-    if (!emailResult.success) {
-      console.error('[Refund] Failed to send refund email:', emailResult.error);
-      return respErr(`Failed to send refund request: ${emailResult.error}`, 500);
+        if (!emailResult.success) {
+            console.error('[Refund] Failed to send refund email:', emailResult.error);
+            return respErr(`Failed to send refund request: ${emailResult.error}`, 500);
+        }
+
+        console.log('[Refund] Refund request email sent successfully:', {
+            userId: user.id,
+            userEmail: user.email,
+            creditsAmount,
+            messageId: emailResult.messageId,
+        });
+
+        return respData({
+            message: 'Refund request submitted successfully. We will process your request and contact you via email.',
+            messageId: emailResult.messageId,
+        });
+    } catch (e: any) {
+        console.error('[Refund] Failed to process refund request:', e);
+        return respErr(e.message || 'Failed to process refund request', 500);
     }
-
-    console.log('[Refund] Refund request email sent successfully:', {
-      userId: user.id,
-      userEmail: user.email,
-      creditsAmount,
-      messageId: emailResult.messageId,
-    });
-
-    return respData({
-      message: 'Refund request submitted successfully. We will process your request and contact you via email.',
-      messageId: emailResult.messageId,
-    });
-  } catch (e: any) {
-    console.error('[Refund] Failed to process refund request:', e);
-    return respErr(e.message || 'Failed to process refund request', 500);
-  }
 }

@@ -3,6 +3,7 @@
 import { useState, useRef, useEffect } from 'react';
 import { Play } from 'lucide-react';
 import { Button } from '@/shared/components/ui/button';
+import { SmartIcon } from '@/shared/blocks/common';
 import { cn } from '@/shared/lib/utils';
 import { Section } from '@/shared/types/blocks/landing';
 
@@ -11,6 +12,7 @@ interface HeroVideoButton {
   url: string;
   target?: string;
   variant?: 'link' | 'default' | 'destructive' | 'outline' | 'ghost';
+  icon?: string;
 }
 
 interface HeroVideoSection extends Omit<Section, 'buttons'> {
@@ -176,9 +178,10 @@ export function HeroVideo({
 
           {/* Description */}
           {section.description && (
-            <p className="text-sm sm:text-base md:text-lg lg:text-xl text-muted-foreground mx-auto px-4 whitespace-normal break-words">
-              {section.description}
-            </p>
+            <p 
+              className="text-sm sm:text-base md:text-lg lg:text-xl text-muted-foreground mx-auto px-4 whitespace-normal break-words"
+              dangerouslySetInnerHTML={{ __html: section.description }}
+            />
           )}
 
           {/* CTA Buttons */}
@@ -190,13 +193,16 @@ export function HeroVideo({
                   asChild
                   variant={button.variant === 'default' ? 'default' : 'outline'}
                   className={cn(
-                    'h-11 text-sm font-semibold shadow-lg hover:shadow-xl transition-all sm:h-12 sm:text-base md:h-14 md:text-lg sm:px-6 md:px-8',
+                    'h-auto min-h-11 text-sm font-semibold shadow-lg hover:shadow-xl transition-all sm:h-12 sm:text-base md:h-14 md:text-lg sm:px-6 md:px-8 py-2.5 sm:py-3',
+                    'flex items-center justify-center gap-2 whitespace-normal break-words text-center',
+                    'w-full sm:w-auto max-w-full',
                     button.variant === 'default' &&
                       'bg-primary hover:bg-primary/90 text-primary-foreground border-0'
                   )}
                 >
-                  <a href={button.url} target={button.target || '_self'}>
-                    {button.title}
+                  <a href={button.url} target={button.target || '_self'} className="flex items-center justify-center gap-2 w-full sm:w-auto">
+                    {button.icon && <SmartIcon name={button.icon} className="h-4 w-4 sm:h-5 sm:w-5 shrink-0" />}
+                    <span className="break-words overflow-wrap-anywhere">{button.title}</span>
                   </a>
                 </Button>
               ))}

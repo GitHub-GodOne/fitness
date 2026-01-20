@@ -37,9 +37,15 @@ export function Features({
               <div className="space-y-2 sm:space-y-3" key={idx}>
                 <div className="flex items-center gap-2">
                   <SmartIcon name={item.icon as string} size={20} className="sm:w-6 sm:h-6" />
-                  <h3 className="text-xs sm:text-sm font-medium">{item.title}</h3>
+                  <h3 
+                    className="text-xs sm:text-sm font-medium"
+                    dangerouslySetInnerHTML={{ __html: item.title || '' }}
+                  />
                 </div>
-                <p className="text-xs sm:text-sm text-muted-foreground">{item.description}</p>
+                <p 
+                  className="text-xs sm:text-sm text-muted-foreground"
+                  dangerouslySetInnerHTML={{ __html: item.description || '' }}
+                />
               </div>
             ))}
           </div>
@@ -73,20 +79,28 @@ export function Features({
         {/* Buttons */}
         {section.buttons && section.buttons.length > 0 && (
           <ScrollAnimation delay={0.6}>
-            <div className="mt-8 sm:mt-10 md:mt-12 flex justify-center">
-              {section.buttons.map((button, index) => (
-                <Button
-                  key={index}
-                  asChild
-                  size="default"
-                  className="h-11 sm:h-12 text-sm sm:text-base px-6 sm:px-8 font-semibold shadow-lg hover:shadow-xl transition-all"
-                  variant={button.variant || 'default'}
-                >
-                  <Link href={button.url || ''} target={button.target || '_self'}>
-                    {button.title}
-                  </Link>
-                </Button>
-              ))}
+            <div className="mt-8 sm:mt-10 md:mt-12 flex flex-col sm:flex-row justify-center gap-3 sm:gap-4 px-4">
+              {section.buttons.map((button, index) => {
+                const btn = button as any;
+                return (
+                  <Button
+                    key={index}
+                    asChild
+                    size="default"
+                    className={cn(
+                      'h-auto min-h-11 sm:min-h-12 text-sm sm:text-base px-4 sm:px-6 md:px-8 font-semibold shadow-lg hover:shadow-xl transition-all',
+                      'flex items-center justify-center gap-2 whitespace-normal break-words text-center',
+                      'w-full sm:w-auto max-w-full py-2.5 sm:py-3'
+                    )}
+                    variant={btn.variant || 'default'}
+                  >
+                    <Link href={btn.url || ''} target={btn.target || '_self'} className="flex items-center justify-center gap-2 w-full sm:w-auto">
+                      {btn.icon && <SmartIcon name={btn.icon} className="h-4 w-4 sm:h-5 sm:w-5 shrink-0" />}
+                      <span className="break-words overflow-wrap-anywhere">{btn.title}</span>
+                    </Link>
+                  </Button>
+                );
+              })}
             </div>
           </ScrollAnimation>
         )}

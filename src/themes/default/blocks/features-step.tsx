@@ -9,6 +9,14 @@ import { cn } from '@/shared/lib/utils';
 import { Section } from '@/shared/types/blocks/landing';
 import { Link } from '@/core/i18n/navigation';
 
+interface ButtonWithIcon {
+  title: string;
+  url: string;
+  target?: string;
+  variant?: string;
+  icon?: string;
+}
+
 export function FeaturesStep({
   section,
   className,
@@ -45,9 +53,18 @@ export function FeaturesStep({
                   <span className="flex size-8 sm:size-10 items-center justify-center rounded-full bg-primary/10 text-base sm:text-lg font-bold text-primary shrink-0">
                     {idx + 1}
                   </span>
-                  <h3 className="text-foreground text-base sm:text-lg md:text-xl font-semibold">
-                    {item.title}
-                  </h3>
+                  <div className="flex-1">
+                    <h3 
+                      className="text-foreground text-base sm:text-lg md:text-xl font-semibold"
+                      dangerouslySetInnerHTML={{ __html: item.title || '' }}
+                    />
+                    {item.description && (
+                      <p 
+                        className="text-muted-foreground text-sm sm:text-base mt-1"
+                        dangerouslySetInnerHTML={{ __html: item.description }}
+                      />
+                    )}
+                  </div>
                 </div>
               ))}
             </div>
@@ -56,20 +73,28 @@ export function FeaturesStep({
           {/* CTA Buttons */}
           {section.buttons && section.buttons.length > 0 && (
             <ScrollAnimation delay={0.4}>
-              <div className="mt-8 sm:mt-10 md:mt-12 flex justify-center">
-                {section.buttons.map((button, index) => (
-                  <Button
-                    key={index}
-                    asChild
-                    size="default"
-                    variant={button.variant || 'default'}
-                    className="h-11 text-sm font-semibold sm:h-12 sm:text-base"
-                  >
-                    <Link href={button.url || ''} target={button.target || '_self'}>
-                      {button.title}
-                    </Link>
-                  </Button>
-                ))}
+              <div className="mt-8 sm:mt-10 md:mt-12 flex flex-col sm:flex-row justify-center gap-3 sm:gap-4 px-4">
+                {section.buttons.map((button, index) => {
+                  const btn = button as ButtonWithIcon;
+                  return (
+                    <Button
+                      key={index}
+                      asChild
+                      size="default"
+                      variant={btn.variant || 'default'}
+                      className={cn(
+                        'h-auto min-h-11 text-sm font-semibold sm:h-12 sm:text-base',
+                        'flex items-center justify-center gap-2 whitespace-normal break-words text-center',
+                        'w-full sm:w-auto max-w-full px-4 sm:px-6 py-2.5 sm:py-3'
+                      )}
+                    >
+                      <Link href={btn.url || ''} target={btn.target || '_self'} className="flex items-center justify-center gap-2 w-full sm:w-auto">
+                        {btn.icon && <SmartIcon name={btn.icon} className="h-4 w-4 sm:h-5 sm:w-5 shrink-0" />}
+                        <span className="break-words overflow-wrap-anywhere">{btn.title}</span>
+                      </Link>
+                    </Button>
+                  );
+                })}
               </div>
             </ScrollAnimation>
           )}
