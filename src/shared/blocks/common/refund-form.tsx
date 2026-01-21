@@ -1,9 +1,10 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { Loader2, Mail } from 'lucide-react';
+import { Loader2, Mail, FileText } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 import { toast } from 'sonner';
+import { Link } from '@/core/i18n/navigation';
 
 import { Button } from '@/shared/components/ui/button';
 import {
@@ -255,6 +256,17 @@ export function RefundForm({ className }: RefundFormProps) {
               {t('note')}
             </p>
           </form>
+        )}
+
+        {canRefund && (
+          <div className="mt-6 border-t pt-4">
+            <Link href="/refund/my-requests">
+              <Button variant="outline" className="w-full">
+                <FileText className="mr-2 h-4 w-4" />
+                {t('view_my_requests')}
+              </Button>
+            </Link>
+          </div>
         )}
       </CardContent>
     </Card>

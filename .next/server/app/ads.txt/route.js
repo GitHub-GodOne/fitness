@@ -1,5 +1,5 @@
 var R=require("../../chunks/[turbopack]_runtime.js")("server/app/ads.txt/route.js")
-R.c("server/chunks/src_config_locale_messages_ac279b66._.js")
+R.c("server/chunks/src_config_locale_messages_3db97cfc._.js")
 R.c("server/chunks/0a4c4_next_8099a029._.js")
 R.c("server/chunks/0a4c4_next_dist_61f9264b._.js")
 R.c("server/chunks/[root-of-the-server]__6dbe4607._.js")

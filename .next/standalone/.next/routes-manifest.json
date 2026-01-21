@@ -219,6 +219,14 @@
       "namedRegex": "^/(?<nxtPlocale>[^/]+?)/admin/posts/(?<nxtPid>[^/]+?)/edit(?:/)?$"
     },
     {
+      "page": "/[locale]/admin/refunds",
+      "regex": "^/([^/]+?)/admin/refunds(?:/)?$",
+      "routeKeys": {
+        "nxtPlocale": "nxtPlocale"
+      },
+      "namedRegex": "^/(?<nxtPlocale>[^/]+?)/admin/refunds(?:/)?$"
+    },
+    {
       "page": "/[locale]/admin/roles",
       "regex": "^/([^/]+?)/admin/roles(?:/)?$",
       "routeKeys": {
@@ -295,6 +303,14 @@
         "nxtPid": "nxtPid"
       },
       "namedRegex": "^/(?<nxtPlocale>[^/]+?)/admin/users/(?<nxtPid>[^/]+?)/grant\\-credits(?:/)?$"
+    },
+    {
+      "page": "/[locale]/admin/videos",
+      "regex": "^/([^/]+?)/admin/videos(?:/)?$",
+      "routeKeys": {
+        "nxtPlocale": "nxtPlocale"
+      },
+      "namedRegex": "^/(?<nxtPlocale>[^/]+?)/admin/videos(?:/)?$"
     },
     {
       "page": "/[locale]/ai-image-generator",
@@ -411,6 +427,14 @@
         "nxtPlocale": "nxtPlocale"
       },
       "namedRegex": "^/(?<nxtPlocale>[^/]+?)/refund(?:/)?$"
+    },
+    {
+      "page": "/[locale]/refund/my-requests",
+      "regex": "^/([^/]+?)/refund/my\\-requests(?:/)?$",
+      "routeKeys": {
+        "nxtPlocale": "nxtPlocale"
+      },
+      "namedRegex": "^/(?<nxtPlocale>[^/]+?)/refund/my\\-requests(?:/)?$"
     },
     {
       "page": "/[locale]/settings",
@@ -588,6 +612,12 @@
       "namedRegex": "^/ads\\.txt(?:/)?$"
     },
     {
+      "page": "/api/admin/ai-tasks",
+      "regex": "^/api/admin/ai\\-tasks(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/api/admin/ai\\-tasks(?:/)?$"
+    },
+    {
       "page": "/api/admin/credits/grant",
       "regex": "^/api/admin/credits/grant(?:/)?$",
       "routeKeys": {},
@@ -732,10 +762,28 @@
       "namedRegex": "^/api/proxy/file(?:/)?$"
     },
     {
+      "page": "/api/refund/list",
+      "regex": "^/api/refund/list(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/api/refund/list(?:/)?$"
+    },
+    {
+      "page": "/api/refund/my-requests",
+      "regex": "^/api/refund/my\\-requests(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/api/refund/my\\-requests(?:/)?$"
+    },
+    {
       "page": "/api/refund/request",
       "regex": "^/api/refund/request(?:/)?$",
       "routeKeys": {},
       "namedRegex": "^/api/refund/request(?:/)?$"
+    },
+    {
+      "page": "/api/refund/update",
+      "regex": "^/api/refund/update(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/api/refund/update(?:/)?$"
     },
     {
       "page": "/api/storage/upload-image",

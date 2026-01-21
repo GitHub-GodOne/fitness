@@ -78,7 +78,16 @@
     "copied": "已复制！",
     "regenerate": "重新生成",
     "refund_support": "支持退款服务",
-    "learn_more": "了解更多"
+    "learn_more": "了解更多",
+    "history": {
+      "order": "顺序",
+      "task_id": "任务ID",
+      "prompt": "提示词",
+      "final_prompt": "最终提示词",
+      "status": "状态",
+      "created": "创建时间",
+      "actions": "操作"
+    }
   }
 }
 

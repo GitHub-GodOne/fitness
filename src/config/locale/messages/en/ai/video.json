@@ -78,7 +78,16 @@
     },
     "copied": "Copied!",
     "refund_support": "Refund service available",
-    "learn_more": "Learn more"
+    "learn_more": "Learn more",
+    "history": {
+      "order": "Order",
+      "task_id": "Task ID",
+      "prompt": "Prompt",
+      "final_prompt": "Final Prompt",
+      "status": "Status",
+      "created": "Created",
+      "actions": "Actions"
+    }
   }
 }
 

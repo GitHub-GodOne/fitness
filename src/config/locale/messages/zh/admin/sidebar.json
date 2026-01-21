@@ -70,6 +70,11 @@
               "title": "积分",
               "url": "/admin/credits",
               "icon": "Coins"
+            },
+            {
+              "title": "退款申请",
+              "url": "/admin/refunds",
+              "icon": "RotateCcw"
             }
           ]
         }
@@ -82,6 +87,11 @@
           "title": "AI任务",
           "url": "/admin/ai-tasks",
           "icon": "Brain"
+        },
+        {
+          "title": "视频",
+          "url": "/admin/videos",
+          "icon": "Video"
         },
         {
           "title": "AI 对话",

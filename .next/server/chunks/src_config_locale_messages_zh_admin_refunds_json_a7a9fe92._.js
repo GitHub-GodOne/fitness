@@ -1,0 +1,3 @@
+module.exports=[820523,e=>{e.v({list:{title:"退款申请",crumbs:{admin:"管理后台",refunds:"退款申请"},tabs:{all:"全部",pending:"待处理",completed:"已完成",rejected:"已拒绝"}},fields:{id:"ID",user:"用户",user_email:"用户邮箱",reason:"退款理由",account:"账户信息",requested_credits:"申请积分",approved_credits:"批准积分",remaining_credits:"剩余积分",status:"状态",admin_notes:"管理员备注",created_at:"创建时间",processed_at:"处理时间",actions:"操作"},status:{pending:"待处理",completed:"已完成",rejected:"已拒绝"},actions:{edit:"编辑",cancel:"取消",save:"保存",updating:"更新中..."},edit:{title:"编辑退款申请",description:"更新退款申请状态和批准积分数量。",approved_credits_hint:"留空则使用申请数量",admin_notes_placeholder:"添加管理员备注（可选）"},update:{success:"退款申请更新成功",failed:"更新退款申请失败"}})}];
+
+//# sourceMappingURL=src_config_locale_messages_zh_admin_refunds_json_a7a9fe92._.js.map

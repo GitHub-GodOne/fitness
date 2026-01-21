@@ -1,11 +1,7 @@
 import { respData, respErr } from '@/shared/lib/resp';
 import {
     getAITasks,
-    UpdateAITask,
-    updateAITaskById,
 } from '@/shared/models/ai_task';
-import { getAIService } from '@/shared/services/ai';
-import { uploadVideosInBackground } from '@/shared/services/video-upload';
 import { AITaskStatus } from '@/extensions/ai';
 
 /**
@@ -59,78 +55,57 @@ export async function GET(req: Request) {
 
         console.log(`[Sync Pending Tasks] Found ${allTasks.length} tasks to check`);
 
-        const aiService = await getAIService();
         let updatedCount = 0;
         let failedCount = 0;
         const errors: string[] = [];
 
-        // Process each task
+        // Get the base URL for internal API calls
+        const baseUrl = process.env.NEXT_PUBLIC_BASE_URL ||
+            (req.headers.get('host') ? `http://${req.headers.get('host')}` : 'http://localhost:3000');
+
+        // Process each task by calling the query API
         for (const task of allTasks) {
             try {
-                if (!task.taskId || !task.provider) {
-                    console.warn(`[Sync Pending Tasks] Task ${task.id} missing taskId or provider, skipping`);
+                if (!task.taskId) {
+                    console.warn(`[Sync Pending Tasks] Task ${task.id} missing taskId, skipping`);
                     continue;
                 }
 
-                const aiProvider = aiService.getProvider(task.provider);
-                if (!aiProvider) {
-                    console.error(`[Sync Pending Tasks] Provider not found for task ${task.id}:`, task.provider);
-                    failedCount++;
-                    errors.push(`Task ${task.id}: Provider ${task.provider} not found`);
-                    continue;
-                }
-
-                // Query task status from provider
-                const result = await aiProvider?.query?.({
-                    taskId: task.taskId,
-                    mediaType: task.mediaType,
-                    model: task.model,
+                // Call the query API to check task status
+                // This will handle the actual query and update logic
+                const response = await fetch(`${baseUrl}/api/ai/query`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ taskId: task.id }),
                 });
 
-                if (!result?.taskStatus) {
-                    console.warn(`[Sync Pending Tasks] No status returned for task ${task.id}`);
-                    continue;
+                if (!response.ok) {
+                    const errorData = await response.json().catch(() => ({}));
+                    const errorMessage = errorData.message || `HTTP ${response.status}`;
+
+                    // If task query is in progress, skip it (not a failure)
+                    if (errorMessage === 'task query in progress') {
+                        console.log(`[Sync Pending Tasks] Task ${task.id} query already in progress, skipping`);
+                        continue;
+                    }
+
+                    throw new Error(errorMessage);
                 }
 
-                // Check if status changed
-                if (result.taskStatus === task.status &&
-                    result.taskInfo === task.taskInfo &&
-                    result.taskResult === task.taskResult) {
-                    // Status unchanged, skip update
-                    continue;
+                const result = await response.json();
+                if (result.code !== 0) {
+                    // If task query is in progress, skip it (not a failure)
+                    if (result.message === 'task query in progress') {
+                        console.log(`[Sync Pending Tasks] Task ${task.id} query already in progress, skipping`);
+                        continue;
+                    }
+                    throw new Error(result.message || 'query failed');
                 }
 
-                // Check if video upload should happen in background
-                const videos = result.taskInfo?.videos;
-                const shouldUploadInBackground =
-                    task.provider === 'volcano' &&
-                    result.taskStatus === AITaskStatus.SUCCESS &&
-                    videos &&
-                    Array.isArray(videos) &&
-                    videos.length > 0 &&
-                    result.taskResult?.video_upload_pending === true;
-
-                // Start background upload if needed (fire and forget)
-                if (shouldUploadInBackground && videos) {
-                    uploadVideosInBackground({
-                        taskId: task.id,
-                        videos: videos,
-                        originalTaskResult: result.taskResult,
-                    });
-                }
-
-                // Update task with current result
-                const updateAITask: UpdateAITask = {
-                    status: result.taskStatus,
-                    taskInfo: result.taskInfo ? JSON.stringify(result.taskInfo) : null,
-                    taskResult: result.taskResult ? JSON.stringify(result.taskResult) : null,
-                    creditId: task.creditId, // Preserve credit consumption record id
-                };
-
-                await updateAITaskById(task.id, updateAITask);
                 updatedCount++;
-
-                console.log(`[Sync Pending Tasks] Updated task ${task.id}: ${task.status} -> ${result.taskStatus}`);
+                console.log(`[Sync Pending Tasks] Updated task ${task.id}`);
             } catch (error: any) {
                 console.error(`[Sync Pending Tasks] Failed to process task ${task.id}:`, error);
                 failedCount++;

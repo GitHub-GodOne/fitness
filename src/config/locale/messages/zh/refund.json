@@ -25,5 +25,28 @@
   "insufficient_credits_for_refund": "您必须拥有超过3个积分才能申请退款",
   "insufficient_credits_message_prefix": "您当前有",
   "insufficient_credits_message_suffix": "个积分。您需要拥有超过3个积分才能申请退款。",
-  "note": "注意：退款申请通过邮件处理。请允许3-5个工作日进行处理。"
+  "note": "注意：退款申请通过邮件处理。请允许3-5个工作日进行处理。",
+  "view_my_requests": "查看我的退款申请",
+  "my_requests": {
+    "title": "我的退款申请",
+    "fetch_failed": "加载退款申请失败",
+    "no_requests": "您还没有提交任何退款申请。",
+    "request_id": "申请ID",
+    "created_at": "创建时间",
+    "status": {
+      "pending": "待处理",
+      "completed": "已完成",
+      "rejected": "已拒绝"
+    },
+    "fields": {
+      "requested_credits": "申请积分",
+      "approved_credits": "批准积分",
+      "remaining_credits": "剩余积分",
+      "reason": "退款理由",
+      "account": "账户信息",
+      "description": "补充说明",
+      "admin_notes": "管理员备注",
+      "processed_at": "处理时间"
+    }
+  }
 }

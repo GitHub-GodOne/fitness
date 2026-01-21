@@ -464,14 +464,26 @@ export function VideoGenerator({
     if (!taskResult) return null;
     try {
       const parsed = JSON.parse(taskResult);
-      // Check for content.last_frame_url (Volcano Engine format)
+
+      // Prefer saved (CDN) URL
+      if (parsed.saved_last_frame_url && typeof parsed.saved_last_frame_url === 'string') {
+        return parsed.saved_last_frame_url;
+      }
+
+      // Volcano Engine format
       if (parsed.content && parsed.content.last_frame_url && typeof parsed.content.last_frame_url === 'string') {
         return parsed.content.last_frame_url;
       }
-      // Try to find last frame image in various possible formats
+
+      // Original/fallback last frame urls
+      if (parsed.original_last_frame_url && typeof parsed.original_last_frame_url === 'string') {
+        return parsed.original_last_frame_url;
+      }
       if (parsed.lastFrame || parsed.last_frame || parsed.frame || parsed.last_frame_url) {
         return parsed.lastFrame || parsed.last_frame || parsed.frame || parsed.last_frame_url;
       }
+
+      // Images array fallback
       if (parsed.images && Array.isArray(parsed.images) && parsed.images.length > 0) {
         return parsed.images[parsed.images.length - 1];
       }
@@ -994,7 +1006,9 @@ export function VideoGenerator({
       return;
     }
 
-    if (isImageToVideoMode && referenceImageUrls.length === 0) {
+    if (isImageToVideoMode && 
+        referenceImageUrls.length === 0 && 
+        !referenceImageItems.some((item) => item.file)) {
       toast.error('Please upload a reference image before generating.');
       return;
     }
@@ -1291,7 +1305,9 @@ export function VideoGenerator({
                         !userFeeling.trim() ||
                         isReferenceUploading ||
                         hasReferenceUploadError ||
-                        (isImageToVideoMode && referenceImageUrls.length === 0) ||
+                        (isImageToVideoMode && 
+                          referenceImageUrls.length === 0 && 
+                          !referenceImageItems.some((item) => item.file)) ||
                         (isVideoToVideoMode && !referenceVideoUrl)
                       }
                     >
@@ -1599,13 +1615,14 @@ export function VideoGenerator({
                               aria-label="Select all"
                             />
                           </TableHead>
-                          <TableHead className="w-12">Order</TableHead>
-                          <TableHead className="max-w-[120px]">Task ID</TableHead>
-                          <TableHead>Prompt</TableHead>
-                          <TableHead>Status</TableHead>
-                          <TableHead>Created</TableHead>
+                          <TableHead className="w-12">{t('history.order')}</TableHead>
+                          <TableHead className="max-w-[120px]">{t('history.task_id')}</TableHead>
+                          <TableHead>{t('history.prompt')}</TableHead>
+                          <TableHead className="max-w-xs">{t('history.final_prompt')}</TableHead>
+                          <TableHead>{t('history.status')}</TableHead>
+                          <TableHead>{t('history.created')}</TableHead>
                           <TableHead className="text-right w-[220px] sm:w-[260px] sticky right-0 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/75 z-20">
-                            Actions
+                            {t('history.actions')}
                           </TableHead>
                         </TableRow>
                       </TableHeader>
@@ -1618,6 +1635,17 @@ export function VideoGenerator({
                             ? Array.from(selectedVideos.keys()).indexOf(task.id) + 1
                             : null;
                           const canSelect = videoUrl && task.status === AITaskStatus.SUCCESS;
+                          
+                          // 解析 final_prompt
+                          let finalPrompt = '';
+                          try {
+                            if (task.options) {
+                              const options = JSON.parse(task.options);
+                              finalPrompt = options.final_prompt || '';
+                            }
+                          } catch (e) {
+                            // 忽略解析错误
+                          }
 
                           return (
                             <TableRow key={task.id}>
@@ -1668,6 +1696,21 @@ export function VideoGenerator({
                                   <span>-</span>
                                 )}
                               </TableCell>
+                              <TableCell className="max-w-xs">
+                                {finalPrompt ? (
+                                  <Copy
+                                    value={finalPrompt}
+                                    metadata={{ message: t('copied') }}
+                                    className="cursor-pointer"
+                                  >
+                                    <span className="truncate text-xs" title={finalPrompt}>
+                                      {finalPrompt}
+                                    </span>
+                                  </Copy>
+                                ) : (
+                                  <span className="text-xs text-muted-foreground">-</span>
+                                )}
+                              </TableCell>
                               <TableCell>
                                 <span
                                   className={`text-xs ${
@@ -1689,7 +1732,7 @@ export function VideoGenerator({
                                   : '-'}
                               </TableCell>
                               <TableCell className="text-right w-[220px] sm:w-[260px] sticky right-0 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/75 z-10">
-                                <div className="flex items-center justify-end gap-1 sm:gap-2 flex-wrap">
+                                <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-end sm:gap-2 flex-wrap">
                                   {videoUrl && (
                                     <>
                                       <Button
@@ -1743,74 +1786,76 @@ export function VideoGenerator({
                       </TableBody>
                     </Table>
                     {historyTotal > 0 && (
-                      <div className="mt-4 flex items-center justify-between">
+                      <div className="mt-4 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
                         <div className="text-sm text-muted-foreground">
                           Showing {(historyPage - 1) * historyLimit + 1} to{' '}
                           {Math.min(historyPage * historyLimit, historyTotal)} of{' '}
                           {historyTotal} results
                         </div>
                         {Math.ceil(historyTotal / historyLimit) > 1 && (
-                          <Pagination>
-                            <PaginationContent>
-                              <PaginationItem>
-                                <PaginationPrevious
-                                  onClick={() => {
-                                    if (historyPage > 1) {
-                                      setHistoryPage((p) => p - 1);
+                          <div className="flex justify-end">
+                            <Pagination>
+                              <PaginationContent>
+                                <PaginationItem>
+                                  <PaginationPrevious
+                                    onClick={() => {
+                                      if (historyPage > 1) {
+                                        setHistoryPage((p) => p - 1);
+                                      }
+                                    }}
+                                    className={
+                                      historyPage === 1
+                                        ? 'pointer-events-none opacity-50'
+                                        : 'cursor-pointer'
                                     }
-                                  }}
-                                  className={
-                                    historyPage === 1
-                                      ? 'pointer-events-none opacity-50'
-                                      : 'cursor-pointer'
+                                  />
+                                </PaginationItem>
+                                {(() => {
+                                  const totalPages = Math.ceil(historyTotal / historyLimit);
+                                  const maxPagesToShow = 5;
+                                  let startPage = Math.max(1, historyPage - Math.floor(maxPagesToShow / 2));
+                                  let endPage = Math.min(totalPages, startPage + maxPagesToShow - 1);
+                                  
+                                  // Adjust start page if we're near the end
+                                  if (endPage - startPage < maxPagesToShow - 1) {
+                                    startPage = Math.max(1, endPage - maxPagesToShow + 1);
                                   }
-                                />
-                              </PaginationItem>
-                              {(() => {
-                                const totalPages = Math.ceil(historyTotal / historyLimit);
-                                const maxPagesToShow = 5;
-                                let startPage = Math.max(1, historyPage - Math.floor(maxPagesToShow / 2));
-                                let endPage = Math.min(totalPages, startPage + maxPagesToShow - 1);
-                                
-                                // Adjust start page if we're near the end
-                                if (endPage - startPage < maxPagesToShow - 1) {
-                                  startPage = Math.max(1, endPage - maxPagesToShow + 1);
-                                }
-                                
-                                const pages = [];
-                                for (let i = startPage; i <= endPage; i++) {
-                                  pages.push(i);
-                                }
-                                
-                                return pages.map((pageNum) => (
-                                  <PaginationItem key={pageNum}>
-                                    <PaginationLink
-                                      onClick={() => setHistoryPage(pageNum)}
-                                      isActive={historyPage === pageNum}
-                                      className="cursor-pointer"
-                                    >
-                                      {pageNum}
-                                    </PaginationLink>
-                                  </PaginationItem>
-                                ));
-                              })()}
-                              <PaginationItem>
-                                <PaginationNext
-                                  onClick={() => {
-                                    const totalPages = Math.ceil(historyTotal / historyLimit);
-                                    if (historyPage < totalPages) {
-                                      setHistoryPage((p) => p + 1);
+                                  
+                                  const pages = [];
+                                  for (let i = startPage; i <= endPage; i++) {
+                                    pages.push(i);
+                                  }
+                                  
+                                  return pages.map((pageNum) => (
+                                    <PaginationItem key={pageNum}>
+                                      <PaginationLink
+                                        onClick={() => setHistoryPage(pageNum)}
+                                        isActive={historyPage === pageNum}
+                                        className="cursor-pointer"
+                                      >
+                                        {pageNum}
+                                      </PaginationLink>
+                                    </PaginationItem>
+                                  ));
+                                })()}
+                                <PaginationItem>
+                                  <PaginationNext
+                                    onClick={() => {
+                                      const totalPages = Math.ceil(historyTotal / historyLimit);
+                                      if (historyPage < totalPages) {
+                                        setHistoryPage((p) => p + 1);
+                                      }
+                                    }}
+                                    className={
+                                      historyPage >= Math.ceil(historyTotal / historyLimit)
+                                        ? 'pointer-events-none opacity-50'
+                                        : 'cursor-pointer'
                                     }
-                                  }}
-                                  className={
-                                    historyPage >= Math.ceil(historyTotal / historyLimit)
-                                      ? 'pointer-events-none opacity-50'
-                                      : 'cursor-pointer'
-                                  }
-                                />
-                              </PaginationItem>
-                            </PaginationContent>
-                          </Pagination>
+                                  />
+                                </PaginationItem>
+                              </PaginationContent>
+                            </Pagination>
+                          </div>
                         )}
                       </div>
                     )}

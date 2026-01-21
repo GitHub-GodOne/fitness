@@ -92,6 +92,12 @@
           "exportedName": "getClientIp",
           "filename": "src/shared/lib/ip.ts"
         },
+        "app/[locale]/(admin)/admin/refunds/page": {
+          "moduleId": 481062,
+          "async": false,
+          "exportedName": "getClientIp",
+          "filename": "src/shared/lib/ip.ts"
+        },
         "app/[locale]/(admin)/admin/roles/[id]/edit-permissions/page": {
           "moduleId": 845302,
           "async": true,
@@ -146,6 +152,12 @@
           "exportedName": "getClientIp",
           "filename": "src/shared/lib/ip.ts"
         },
+        "app/[locale]/(admin)/admin/videos/page": {
+          "moduleId": 719960,
+          "async": false,
+          "exportedName": "getClientIp",
+          "filename": "src/shared/lib/ip.ts"
+        },
         "app/[locale]/(landing)/activity/ai-tasks/[id]/refresh/page": {
           "moduleId": 971588,
           "async": false,
@@ -166,6 +178,12 @@
         },
         "app/[locale]/(landing)/pricing/page": {
           "moduleId": 676265,
+          "async": false,
+          "exportedName": "getClientIp",
+          "filename": "src/shared/lib/ip.ts"
+        },
+        "app/[locale]/(landing)/refund/my-requests/page": {
+          "moduleId": 692441,
           "async": false,
           "exportedName": "getClientIp",
           "filename": "src/shared/lib/ip.ts"
@@ -259,6 +277,7 @@
         "app/[locale]/(admin)/admin/posts/[id]/edit/page": "rsc",
         "app/[locale]/(admin)/admin/posts/add/page": "rsc",
         "app/[locale]/(admin)/admin/posts/page": "rsc",
+        "app/[locale]/(admin)/admin/refunds/page": "rsc",
         "app/[locale]/(admin)/admin/roles/[id]/edit-permissions/page": "rsc",
         "app/[locale]/(admin)/admin/roles/[id]/edit/page": "rsc",
         "app/[locale]/(admin)/admin/roles/page": "rsc",
@@ -268,10 +287,12 @@
         "app/[locale]/(admin)/admin/users/[id]/edit/page": "rsc",
         "app/[locale]/(admin)/admin/users/[id]/grant-credits/page": "rsc",
         "app/[locale]/(admin)/admin/users/page": "rsc",
+        "app/[locale]/(admin)/admin/videos/page": "rsc",
         "app/[locale]/(landing)/activity/ai-tasks/[id]/refresh/page": "rsc",
         "app/[locale]/(landing)/activity/ai-tasks/page": "rsc",
         "app/[locale]/(landing)/activity/chats/page": "rsc",
         "app/[locale]/(landing)/pricing/page": "rsc",
+        "app/[locale]/(landing)/refund/my-requests/page": "rsc",
         "app/[locale]/(landing)/settings/apikeys/[id]/delete/page": "rsc",
         "app/[locale]/(landing)/settings/apikeys/[id]/edit/page": "rsc",
         "app/[locale]/(landing)/settings/apikeys/create/page": "rsc",

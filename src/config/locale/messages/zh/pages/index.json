@@ -30,11 +30,11 @@
         "social_proof": {
           "title": "受到 1,000+ 基督徒信赖",
           "avatars": [
-            { "src": "/imgs/avatars/1.png", "alt": "用户 1" },
-            { "src": "/imgs/avatars/2.png", "alt": "用户 2" },
-            { "src": "/imgs/avatars/3.png", "alt": "用户 3" },
-            { "src": "/imgs/avatars/4.png", "alt": "用户 4" },
-            { "src": "/imgs/avatars/5.png", "alt": "用户 5" }
+            { "src": "/imgs/avatars/14.jpg", "alt": "用户 1" },
+            { "src": "/imgs/avatars/15.jpg", "alt": "用户 2" },
+            { "src": "/imgs/avatars/16.jpg", "alt": "用户 3" },
+            { "src": "/imgs/avatars/17.jpg", "alt": "用户 4" },
+            { "src": "/imgs/avatars/18.jpg", "alt": "用户 5" }
           ]
         }
       },
@@ -91,7 +91,7 @@
             "role": "信徒",
             "quote": "令人惊叹！我会在去敬拜的路上听—愿神祝福这个事工！",
             "image": {
-              "src": "/imgs/avatars/1.png",
+              "src": "/imgs/avatars/14.jpg",
               "alt": "莎拉"
             },
             "rating": 5
@@ -101,7 +101,7 @@
             "role": "认证客户",
             "quote": "完美捕捉了我的时刻—我哭了。如此美丽的信仰祝福！",
             "image": {
-              "src": "/imgs/avatars/2.png",
+              "src": "/imgs/avatars/15.jpg",
               "alt": "大卫"
             },
             "rating": 5
@@ -111,7 +111,7 @@
             "role": "认证客户",
             "quote": "太棒了！我会与所有我认识的人分享—愿神祝福你们所有人！",
             "image": {
-              "src": "/imgs/avatars/3.png",
+              "src": "/imgs/avatars/16.jpg",
               "alt": "珍妮弗"
             },
             "rating": 5

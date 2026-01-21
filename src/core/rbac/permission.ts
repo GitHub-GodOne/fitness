@@ -60,6 +60,10 @@ export const PERMISSIONS = {
   AITASKS_READ: 'admin.ai-tasks.read',
   AITASKS_WRITE: 'admin.ai-tasks.write',
   AITASKS_DELETE: 'admin.ai-tasks.delete',
+
+  // Refunds
+  ADMIN_REFUND_VIEW: 'admin.refund.view',
+  ADMIN_REFUND_UPDATE: 'admin.refund.update',
 } as const;
 
 /**

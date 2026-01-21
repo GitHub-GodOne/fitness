@@ -30,11 +30,11 @@
         "social_proof": {
           "title": "Trusted by 1,000+ Christian Believers",
           "avatars": [
-            { "src": "/imgs/avatars/1.png", "alt": "User 1" },
-            { "src": "/imgs/avatars/2.png", "alt": "User 2" },
-            { "src": "/imgs/avatars/3.png", "alt": "User 3" },
-            { "src": "/imgs/avatars/4.png", "alt": "User 4" },
-            { "src": "/imgs/avatars/5.png", "alt": "User 5" }
+            { "src": "/imgs/avatars/14.jpg", "alt": "User 1" },
+            { "src": "/imgs/avatars/15.jpg", "alt": "User 2" },
+            { "src": "/imgs/avatars/16.jpg", "alt": "User 3" },
+            { "src": "/imgs/avatars/17.jpg", "alt": "User 4" },
+            { "src": "/imgs/avatars/18.jpg", "alt": "User 5" }
           ]
         }
       },
@@ -90,7 +90,7 @@
             "role": "Believer",
             "quote": "Breathtaking! I'll listen on my way to worship—God bless this ministry!",
             "image": {
-              "src": "/imgs/avatars/1.png",
+              "src": "/imgs/avatars/14.jpg",
               "alt": "Sarah"
             },
             "rating": 5
@@ -100,7 +100,7 @@
             "role": "Verified Customer",
             "quote": "Perfectly captured my moments—I wept. Such a beautiful faith blessing!",
             "image": {
-              "src": "/imgs/avatars/2.png",
+              "src": "/imgs/avatars/15.jpg",
               "alt": "David"
             },
             "rating": 5
@@ -110,7 +110,7 @@
             "role": "Verified Customer",
             "quote": "Wonderful! I'll share this with everyone I know—God bless you all!",
             "image": {
-              "src": "/imgs/avatars/3.png",
+              "src": "/imgs/avatars/16.jpg",
               "alt": "Jennifer"
             },
             "rating": 5

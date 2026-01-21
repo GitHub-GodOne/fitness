@@ -3,6 +3,7 @@ import { replaceR2Url } from '@/shared/lib/url';
 import { saveFiles } from '@/extensions/ai';
 import { updateAITaskById, UpdateAITask } from '@/shared/models/ai_task';
 import { AIVideo, AIFile } from '@/extensions/ai/types';
+import { AITaskStatus } from '@/extensions/ai';
 
 /**
  * Background video upload service
@@ -47,6 +48,21 @@ export async function uploadVideosInBackground({
                 })
                 .filter((file): file is AIFile => file !== null && file !== undefined);
 
+            // Add last frame image if available (Volcano returns a temp URL that expires)
+            const lastFrameUrl =
+                originalTaskResult?.saved_last_frame_url ||
+                originalTaskResult?.last_frame_url ||
+                originalTaskResult?.content?.last_frame_url;
+            if (lastFrameUrl && typeof lastFrameUrl === 'string') {
+                filesToSave.push({
+                    url: lastFrameUrl,
+                    contentType: 'image/png',
+                    key: `volcano/last-frame/${getUuid()}.png`,
+                    index: videos.length, // not used for images, but keep unique
+                    type: 'image',
+                });
+            }
+
             // Upload videos to storage
             const uploadedFiles = await saveFiles(filesToSave);
 
@@ -58,16 +74,29 @@ export async function uploadVideosInBackground({
 
             // Build updated task result with saved URLs
             const savedVideoUrls: string[] = [];
+            let savedLastFrameUrl: string | null = null;
             uploadedFiles.forEach((file: AIFile) => {
                 if (file && file.url && file.index !== undefined) {
+                    const replacedUrl = replaceR2Url(file.url);
+
+                    // Video files (index within videos array)
                     const video = videos[file.index];
                     if (video) {
-                        const replacedUrl = replaceR2Url(file.url);
                         savedVideoUrls.push(replacedUrl);
                         console.log('[VideoUpload] Video uploaded:', {
                             taskId,
                             index: file.index,
                             original: video.videoUrl,
+                            saved: replacedUrl,
+                        });
+                        return;
+                    }
+
+                    // Last frame image (not in videos array)
+                    if (!video && !savedLastFrameUrl) {
+                        savedLastFrameUrl = replacedUrl;
+                        console.log('[VideoUpload] Last frame uploaded:', {
+                            taskId,
                             saved: replacedUrl,
                         });
                     }
@@ -86,6 +115,13 @@ export async function uploadVideosInBackground({
                 // Keep original URLs as fallback
                 original_video_url: originalTaskResult.original_video_url || originalTaskResult.saved_video_url,
                 original_video_urls: originalTaskResult.original_video_urls || originalTaskResult.saved_video_urls,
+                // Last frame CDN URL
+                saved_last_frame_url: savedLastFrameUrl || originalTaskResult.saved_last_frame_url,
+                // Keep original last frame as fallback
+                original_last_frame_url:
+                    originalTaskResult.original_last_frame_url ||
+                    originalTaskResult.last_frame_url ||
+                    originalTaskResult.content?.last_frame_url,
             };
 
             // Update database with uploaded video URLs
@@ -99,7 +135,17 @@ export async function uploadVideosInBackground({
         } catch (error) {
             // Log error but don't throw - this is a background task
             console.error('[VideoUpload] Background upload failed for task:', taskId, error);
-            // Optionally: Could send notification or retry logic here
+
+            // Update task status to processing on error
+            try {
+                const updateAITask: UpdateAITask = {
+                    status: AITaskStatus.PROCESSING,
+                };
+                await updateAITaskById(taskId, updateAITask);
+                console.log('[VideoUpload] Updated task status to PROCESSING due to upload error:', taskId);
+            } catch (updateError) {
+                console.error('[VideoUpload] Failed to update task status after upload error:', taskId, updateError);
+            }
         }
     })();
 }

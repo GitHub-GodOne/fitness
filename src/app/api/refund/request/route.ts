@@ -4,6 +4,8 @@ import { envConfigs } from '@/config';
 import { respData, respErr } from '@/shared/lib/resp';
 import { getRemainingCredits } from '@/shared/models/credit';
 import { getUserInfo } from '@/shared/models/user';
+import { createRefundRequest } from '@/shared/models/refund-request';
+import { RefundRequestStatus } from '@/shared/types/refund';
 import { getEmailService } from '@/shared/services/email';
 
 /**
@@ -149,6 +151,23 @@ ${description ? `Additional Description:\n${description}\n` : ''}
 Request Time: ${new Date().toISOString()}
     `.trim();
 
+        // Save refund request to database
+        const refundRequest = await createRefundRequest({
+            userId: user.id,
+            userEmail: user.email,
+            userName: user.name || null,
+            reason,
+            account,
+            requestedCreditsAmount: creditsAmount,
+            approvedCreditsAmount: null, // Will be set by admin
+            description: description || null,
+            status: RefundRequestStatus.PENDING,
+            remainingCredits,
+            adminNotes: null,
+            processedAt: null,
+            processedBy: null,
+        });
+
         // Send email
         const emailResult = await emailService.sendEmail({
             to: refundEmail,
@@ -160,10 +179,12 @@ Request Time: ${new Date().toISOString()}
 
         if (!emailResult.success) {
             console.error('[Refund] Failed to send refund email:', emailResult.error);
-            return respErr(`Failed to send refund request: ${emailResult.error}`, 500);
+            // Still return success since request is saved to database
+            console.warn('[Refund] Refund request saved but email failed:', refundRequest.id);
         }
 
-        console.log('[Refund] Refund request email sent successfully:', {
+        console.log('[Refund] Refund request created successfully:', {
+            requestId: refundRequest.id,
             userId: user.id,
             userEmail: user.email,
             creditsAmount,
@@ -172,6 +193,7 @@ Request Time: ${new Date().toISOString()}
 
         return respData({
             message: 'Refund request submitted successfully. We will process your request and contact you via email.',
+            requestId: refundRequest.id,
             messageId: emailResult.messageId,
         });
     } catch (e: any) {

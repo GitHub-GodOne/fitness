@@ -1,0 +1,23 @@
+{
+  "list": {
+    "title": "All Videos",
+    "crumbs": {
+      "admin": "Admin",
+      "videos": "Videos"
+    }
+  },
+  "fields": {
+    "order": "Order",
+    "task_id": "Task ID",
+    "user": "User",
+    "prompt": "Prompt",
+    "final_prompt": "Final Prompt",
+    "status": "Status",
+    "created": "Created",
+    "actions": "Actions"
+  },
+  "no_videos": "No videos found",
+  "preview": {
+    "title": "Video Preview"
+  }
+}

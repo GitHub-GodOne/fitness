@@ -648,6 +648,41 @@ export const commentLike = table(
   ]
 );
 
+export const refundRequest = table(
+  'refund_request',
+  {
+    id: text('id').primaryKey(),
+    userId: text('user_id')
+      .notNull()
+      .references(() => user.id, { onDelete: 'cascade' }),
+    userEmail: text('user_email').notNull(),
+    userName: text('user_name'),
+    reason: text('reason').notNull(), // refund reason
+    account: text('account').notNull(), // account information for refund
+    requestedCreditsAmount: integer('requested_credits_amount').notNull(), // requested credits amount
+    approvedCreditsAmount: integer('approved_credits_amount'), // approved credits amount (can be modified by admin)
+    description: text('description'), // additional description
+    status: text('status').notNull().default('pending'), // pending, completed, rejected
+    remainingCredits: integer('remaining_credits'), // user's remaining credits at request time
+    adminNotes: text('admin_notes'), // admin notes
+    processedAt: timestamp('processed_at'), // processed at
+    processedBy: text('processed_by'), // admin user id who processed
+    createdAt: timestamp('created_at').defaultNow().notNull(),
+    updatedAt: timestamp('updated_at')
+      .$onUpdate(() => /* @__PURE__ */ new Date())
+      .notNull(),
+    deletedAt: timestamp('deleted_at'),
+  },
+  (table) => [
+    // Query user's refund requests
+    index('idx_refund_request_user_id').on(table.userId),
+    // Query refund requests by status
+    index('idx_refund_request_status').on(table.status),
+    // Order refund requests by creation time
+    index('idx_refund_request_created_at').on(table.createdAt),
+  ]
+);
+
 export const videoMerge = table(
   'video_merge',
   {
