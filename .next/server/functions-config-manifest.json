@@ -1,12 +1,12 @@
 {
   "version": 1,
   "functions": {
-    "/api/comments/list": {},
-    "/api/comments/replies": {},
     "/api/comments/like": {},
-    "/api/comments/create": {},
+    "/api/comments/list": {},
     "/api/comments/visibility": {},
+    "/api/comments/replies": {},
     "/api/comments/reply": {},
+    "/api/comments/create": {},
     "/_middleware": {
       "runtime": "nodejs",
       "matchers": [
