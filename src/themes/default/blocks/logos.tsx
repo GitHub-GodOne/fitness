@@ -1,9 +1,9 @@
-'use client';
+"use client";
 
-import { LazyImage } from '@/shared/blocks/common';
-import { ScrollAnimation } from '@/shared/components/ui/scroll-animation';
-import { cn } from '@/shared/lib/utils';
-import { Section } from '@/shared/types/blocks/landing';
+import { LazyImage } from "@/shared/blocks/common";
+import { ScrollAnimation } from "@/shared/components/ui/scroll-animation";
+import { cn } from "@/shared/lib/utils";
+import { Section } from "@/shared/types/blocks/landing";
 
 export function Logos({
   section,
@@ -15,7 +15,7 @@ export function Logos({
   return (
     <section
       id={section.id}
-      className={cn('py-16 md:py-24', section.className, className)}
+      className={cn("py-16 md:py-24", section.className, className)}
     >
       <div className={`mx-auto max-w-5xl px-6`}>
         <ScrollAnimation>
@@ -27,8 +27,8 @@ export function Logos({
               <LazyImage
                 key={idx}
                 className="h-8 w-fit dark:invert"
-                src={item.image?.src ?? ''}
-                alt={item.image?.alt ?? ''}
+                src={item.image?.src ?? ""}
+                alt={item.image?.alt ?? ""}
               />
             ))}
           </div>

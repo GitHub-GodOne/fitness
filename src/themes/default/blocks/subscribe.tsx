@@ -1,13 +1,13 @@
-'use client';
+"use client";
 
-import { useState } from 'react';
-import { Loader2, Mail, SendHorizonal } from 'lucide-react';
-import { toast } from 'sonner';
+import { useState } from "react";
+import { Loader2, Mail, SendHorizonal } from "lucide-react";
+import { toast } from "sonner";
 
-import { Button } from '@/shared/components/ui/button';
-import { ScrollAnimation } from '@/shared/components/ui/scroll-animation';
-import { cn } from '@/shared/lib/utils';
-import type { Section } from '@/shared/types/blocks/landing';
+import { Button } from "@/shared/components/ui/button";
+import { ScrollAnimation } from "@/shared/components/ui/scroll-animation";
+import { cn } from "@/shared/lib/utils";
+import type { Section } from "@/shared/types/blocks/landing";
 
 export function Subscribe({
   section,
@@ -16,7 +16,7 @@ export function Subscribe({
   section: Section;
   className?: string;
 }) {
-  const [email, setEmail] = useState('');
+  const [email, setEmail] = useState("");
   const [loading, setLoading] = useState(false);
 
   const handleSubscribe = async () => {
@@ -31,7 +31,7 @@ export function Subscribe({
     try {
       setLoading(true);
       const resp = await fetch(section.submit.action, {
-        method: 'POST',
+        method: "POST",
         body: JSON.stringify({ email }),
       });
 
@@ -51,14 +51,14 @@ export function Subscribe({
       }
     } catch (e: any) {
       setLoading(false);
-      toast.error(e.message || 'subscribe failed');
+      toast.error(e.message || "subscribe failed");
     }
   };
 
   return (
     <section
       id={section.id}
-      className={cn('py-16 md:py-24', section.className, className)}
+      className={cn("py-16 md:py-24", section.className, className)}
     >
       <div className="mx-auto max-w-5xl px-6">
         <div className="text-center">
@@ -78,7 +78,7 @@ export function Subscribe({
 
                 <input
                   placeholder={
-                    section.submit?.input?.placeholder || 'Enter your email'
+                    section.submit?.input?.placeholder || "Enter your email"
                   }
                   className="h-14 w-full bg-transparent pl-12 focus:outline-none"
                   type="email"

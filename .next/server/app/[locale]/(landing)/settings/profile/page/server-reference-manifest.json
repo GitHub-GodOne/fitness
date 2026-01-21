@@ -1,6 +1,6 @@
 {
   "node": {
-    "6098058803e18dffb5dfaf9e80eb7126c4143c91f9": {
+    "609d4728af20d1765721bce13a6fd092945e16fa86": {
       "workers": {
         "app/[locale]/(landing)/settings/profile/page": {
           "moduleId": 528732,
@@ -15,7 +15,7 @@
       "exportedName": "$$RSC_SERVER_ACTION_0",
       "filename": "src/app/[locale]/(landing)/settings/profile/page.tsx"
     },
-    "001e690678fd6d4ade1d0be4648d406f8caf165f28": {
+    "00cf3b2c537f0cc1f944b88c7919b6b67ef0f6d736": {
       "workers": {
         "app/[locale]/(landing)/settings/profile/page": {
           "moduleId": 528732,

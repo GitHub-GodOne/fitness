@@ -1,46 +1,46 @@
-'use client';
+"use client";
 
-import { useEffect, useState } from 'react';
-import { Check, Loader2, HelpCircle } from 'lucide-react';
-import { useLocale, useTranslations } from 'next-intl';
-import { toast } from 'sonner';
+import { useEffect, useState } from "react";
+import { Check, Loader2, HelpCircle } from "lucide-react";
+import { useLocale, useTranslations } from "next-intl";
+import { toast } from "sonner";
 
-import { Link, useRouter } from '@/core/i18n/navigation';
+import { Link, useRouter } from "@/core/i18n/navigation";
 
-import { SmartIcon } from '@/shared/blocks/common';
-import { PaymentModal } from '@/shared/blocks/payment/payment-modal';
-import { Badge } from '@/shared/components/ui/badge';
-import { Button } from '@/shared/components/ui/button';
+import { SmartIcon } from "@/shared/blocks/common";
+import { PaymentModal } from "@/shared/blocks/payment/payment-modal";
+import { Badge } from "@/shared/components/ui/badge";
+import { Button } from "@/shared/components/ui/button";
 import {
   Card,
   CardContent,
   CardDescription,
   CardHeader,
   CardTitle,
-} from '@/shared/components/ui/card';
+} from "@/shared/components/ui/card";
 import {
   Tooltip,
   TooltipContent,
   TooltipProvider,
   TooltipTrigger,
-} from '@/shared/components/ui/tooltip';
+} from "@/shared/components/ui/tooltip";
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from '@/shared/components/ui/select';
-import { Tabs, TabsList, TabsTrigger } from '@/shared/components/ui/tabs';
-import { useAppContext } from '@/shared/contexts/app';
-import { getCookie } from '@/shared/lib/cookie';
-import { cn } from '@/shared/lib/utils';
-import { Subscription } from '@/shared/models/subscription';
+} from "@/shared/components/ui/select";
+import { Tabs, TabsList, TabsTrigger } from "@/shared/components/ui/tabs";
+import { useAppContext } from "@/shared/contexts/app";
+import { getCookie } from "@/shared/lib/cookie";
+import { cn } from "@/shared/lib/utils";
+import { Subscription } from "@/shared/models/subscription";
 import {
   PricingCurrency,
   PricingItem,
   Pricing as PricingType,
-} from '@/shared/types/blocks/pricing';
+} from "@/shared/types/blocks/pricing";
 
 // Helper function to get all available currencies from a pricing item
 function getCurrenciesFromItem(item: PricingItem | null): PricingCurrency[] {
@@ -50,8 +50,8 @@ function getCurrenciesFromItem(item: PricingItem | null): PricingCurrency[] {
   const defaultCurrency: PricingCurrency = {
     currency: item.currency,
     amount: item.amount,
-    price: item.price || '',
-    original_price: item.original_price || '',
+    price: item.price || "",
+    original_price: item.original_price || "",
   };
 
   // Add additional currencies if available
@@ -66,14 +66,14 @@ function getCurrenciesFromItem(item: PricingItem | null): PricingCurrency[] {
 function getInitialCurrency(
   currencies: PricingCurrency[],
   locale: string,
-  defaultCurrency: string
+  defaultCurrency: string,
 ): string {
   if (currencies.length === 0) return defaultCurrency;
 
   // If locale is 'zh', prefer CNY
-  if (locale === 'zh') {
+  if (locale === "zh") {
     const cnyCurrency = currencies.find(
-      (c) => c.currency.toLowerCase() === 'cny'
+      (c) => c.currency.toLowerCase() === "cny",
     );
     if (cnyCurrency) {
       return cnyCurrency.currency;
@@ -95,7 +95,7 @@ export function Pricing({
 }) {
   const locale = useLocale();
   const router = useRouter();
-  const t = useTranslations('pages.pricing.messages');
+  const t = useTranslations("pages.pricing.messages");
 
   const {
     user,
@@ -108,7 +108,7 @@ export function Pricing({
   const [group, setGroup] = useState(() => {
     // find current pricing item
     const currentItem = section.items?.find(
-      (i) => i.product_id === currentSubscription?.productId
+      (i) => i.product_id === currentSubscription?.productId,
     );
 
     // First look for a group with is_featured set to true
@@ -144,12 +144,12 @@ export function Pricing({
         const selectedCurrency = getInitialCurrency(
           currencies,
           locale,
-          item.currency
+          item.currency,
         );
 
         // Create displayed item with selected currency
         const currencyData = currencies.find(
-          (c) => c.currency.toLowerCase() === selectedCurrency.toLowerCase()
+          (c) => c.currency.toLowerCase() === selectedCurrency.toLowerCase(),
         );
 
         const displayedItem = currencyData
@@ -184,7 +184,7 @@ export function Pricing({
 
     const currencies = getCurrenciesFromItem(item);
     const currencyData = currencies.find(
-      (c) => c.currency.toLowerCase() === currency.toLowerCase()
+      (c) => c.currency.toLowerCase() === currency.toLowerCase(),
     );
 
     if (currencyData) {
@@ -219,8 +219,8 @@ export function Pricing({
     // Check if it's a free plan (amount is 0 or price is "Free" or "免费")
     const isFreePlan =
       displayedItem.amount === 0 ||
-      displayedItem.price?.toLowerCase() === 'free' ||
-      displayedItem.price === '免费';
+      displayedItem.price?.toLowerCase() === "free" ||
+      displayedItem.price === "免费";
 
     // For free plans, directly navigate to video generator
     if (isFreePlan) {
@@ -229,7 +229,7 @@ export function Pricing({
         return;
       }
       // Navigate to video generator page
-      router.push('/ai-video-generator');
+      router.push("/ai-video-generator");
       return;
     }
 
@@ -239,7 +239,7 @@ export function Pricing({
       return;
     }
 
-    if (configs.select_payment_enabled === 'true') {
+    if (configs.select_payment_enabled === "true") {
       setPricingItem(displayedItem);
       setIsShowPaymentModal(true);
     } else {
@@ -256,22 +256,22 @@ export function Pricing({
 
     // get Affonso referral
     if (
-      configs.affonso_enabled === 'true' &&
-      ['stripe', 'creem'].includes(paymentProvider)
+      configs.affonso_enabled === "true" &&
+      ["stripe", "creem"].includes(paymentProvider)
     ) {
-      const affonsoReferral = getCookie('affonso_referral') || '';
+      const affonsoReferral = getCookie("affonso_referral") || "";
       affiliateMetadata.affonso_referral = affonsoReferral;
     }
 
     // get PromoteKit referral
     if (
-      configs.promotekit_enabled === 'true' &&
-      ['stripe'].includes(paymentProvider)
+      configs.promotekit_enabled === "true" &&
+      ["stripe"].includes(paymentProvider)
     ) {
       const promotekitReferral =
-        typeof window !== 'undefined' && (window as any).promotekit_referral
+        typeof window !== "undefined" && (window as any).promotekit_referral
           ? (window as any).promotekit_referral
-          : getCookie('promotekit_referral') || '';
+          : getCookie("promotekit_referral") || "";
       affiliateMetadata.promotekit_referral = promotekitReferral;
     }
 
@@ -280,7 +280,7 @@ export function Pricing({
 
   const handleCheckout = async (
     item: PricingItem,
-    paymentProvider?: string
+    paymentProvider?: string,
   ) => {
     try {
       if (!user) {
@@ -289,24 +289,24 @@ export function Pricing({
       }
 
       const affiliateMetadata = getAffiliateMetadata({
-        paymentProvider: paymentProvider || '',
+        paymentProvider: paymentProvider || "",
       });
 
       const params = {
         product_id: item.product_id,
         currency: item.currency,
-        locale: locale || 'en',
-        payment_provider: paymentProvider || '',
+        locale: locale || "en",
+        payment_provider: paymentProvider || "",
         metadata: affiliateMetadata,
       };
 
       setIsLoading(true);
       setProductId(item.product_id);
 
-      const response = await fetch('/api/payment/checkout', {
-        method: 'POST',
+      const response = await fetch("/api/payment/checkout", {
+        method: "POST",
         headers: {
-          'Content-Type': 'application/json',
+          "Content-Type": "application/json",
         },
         body: JSON.stringify(params),
       });
@@ -330,13 +330,13 @@ export function Pricing({
 
       const { checkoutUrl } = data;
       if (!checkoutUrl) {
-        throw new Error('checkout url not found');
+        throw new Error("checkout url not found");
       }
 
       window.location.href = checkoutUrl;
     } catch (e: any) {
-      console.log('checkout failed: ', e);
-      toast.error('checkout failed: ' + e.message);
+      console.log("checkout failed: ", e);
+      toast.error("checkout failed: " + e.message);
 
       setIsLoading(false);
       setProductId(null);
@@ -354,7 +354,7 @@ export function Pricing({
   return (
     <section
       id={section.id}
-      className={cn('py-24 md:py-36', section.className, className)}
+      className={cn("py-16 md:py-24", section.className, className)}
     >
       <div className="mx-auto mb-12 px-4 text-center md:px-8">
         {section.sr_only_title && (
@@ -364,22 +364,24 @@ export function Pricing({
           <h2 className="text-2xl sm:text-3xl font-bold text-pretty lg:text-4xl break-words">
             {section.title}
           </h2>
-          <TooltipProvider>
+          <TooltipProvider delayDuration={0}>
             <Tooltip>
               <TooltipTrigger asChild>
                 <button
                   type="button"
-                  className="inline-flex items-center justify-center rounded-full border border-transparent bg-muted text-muted-foreground hover:bg-muted/80 transition-colors focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 shrink-0"
-                  aria-label={t('seo_tooltip_label')}
+                  className="inline-flex items-center justify-center rounded-full border border-transparent bg-muted text-muted-foreground hover:bg-muted/80 transition-colors focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 shrink-0 p-1"
+                  aria-label={t("seo_tooltip_label")}
+                  onClick={(e) => e.stopPropagation()}
                 >
                   <HelpCircle className="h-4 w-4 sm:h-5 sm:w-5" />
                 </button>
               </TooltipTrigger>
               <TooltipContent
                 side="right"
-                className="max-w-xs sm:max-w-sm text-sm"
+                className="max-w-xs sm:max-w-sm text-sm z-50"
+                sideOffset={5}
               >
-                <p>{t('seo_tooltip_content')}</p>
+                <p>{t("seo_tooltip_content")}</p>
               </TooltipContent>
             </Tooltip>
           </TooltipProvider>
@@ -387,18 +389,30 @@ export function Pricing({
         <p className="text-muted-foreground mx-auto mb-4 max-w-2xl lg:max-w-3xl text-sm sm:text-base lg:text-lg break-words px-2 sm:px-0">
           {section.description}
         </p>
-        <div className="mt-4 flex items-center justify-center gap-2">
-          <div className="inline-flex items-center gap-2 rounded-full bg-green-50 px-3 py-1.5 text-sm font-medium text-green-700 dark:bg-green-950 dark:text-green-300">
-            <svg className="h-4 w-4" fill="currentColor" viewBox="0 0 20 20">
-              <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+        <div className="mt-4 flex flex-col sm:flex-row items-center justify-center gap-3">
+          <div
+            className="inline-flex items-center gap-2.5 text-base sm:text-lg font-medium"
+            style={{ color: "#2ECC71" }}
+          >
+            <svg
+              className="h-6 w-6 sm:h-7 sm:w-7 flex-shrink-0"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            >
+              <path d="M21.801 10A10 10 0 1 1 17 3.335" />
+              <path d="m9 11 3 3L22 4" />
             </svg>
-            <span>{t('refund_support')}</span>
+            <span className="font-sans">{t("refund_support")}</span>
           </div>
           <Link
             href="/refund"
             className="text-primary hover:underline text-sm font-medium"
           >
-            {t('learn_more')}
+            {t("learn_more")}
           </Link>
         </div>
       </div>
@@ -410,7 +424,7 @@ export function Pricing({
               <TabsList>
                 {section.groups.map((item, i) => {
                   return (
-                    <TabsTrigger key={i} value={item.name || ''}>
+                    <TabsTrigger key={i} value={item.name || ""}>
                       {item.title}
                       {item.label && (
                         <Badge className="ml-2">{item.label}</Badge>
@@ -464,13 +478,13 @@ export function Pricing({
                     <div className="my-3 block text-2xl font-semibold">
                       <span className="text-primary">
                         {displayedItem.price}
-                      </span>{' '}
+                      </span>{" "}
                       {displayedItem.unit ? (
                         <span className="text-muted-foreground text-sm font-normal">
                           {displayedItem.unit}
                         </span>
                       ) : (
-                        ''
+                        ""
                       )}
                     </div>
 
@@ -515,15 +529,15 @@ export function Pricing({
                     onClick={() => handlePayment(item)}
                     disabled={isLoading}
                     className={cn(
-                      'focus-visible:ring-ring inline-flex items-center justify-center gap-2 rounded-md text-sm font-medium whitespace-nowrap transition-colors focus-visible:ring-1 focus-visible:outline-none disabled:pointer-events-none disabled:opacity-50',
-                      'mt-4 h-9 w-full px-4 py-2',
-                      'bg-primary text-primary-foreground hover:bg-primary/90 border-[0.5px] border-white/25 shadow-md shadow-black/20'
+                      "focus-visible:ring-ring inline-flex items-center justify-center gap-2 rounded-md text-sm font-medium whitespace-nowrap transition-colors focus-visible:ring-1 focus-visible:outline-none disabled:pointer-events-none disabled:opacity-50",
+                      "mt-4 h-9 w-full px-4 py-2",
+                      "bg-primary text-primary-foreground hover:bg-primary/90 border-[0.5px] border-white/25 shadow-md shadow-black/20",
                     )}
                   >
                     {isLoading && item.product_id === productId ? (
                       <>
                         <Loader2 className="size-4 animate-spin" />
-                        <span className="block">{t('processing')}</span>
+                        <span className="block">{t("processing")}</span>
                       </>
                     ) : (
                       <>

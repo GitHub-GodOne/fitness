@@ -7,7 +7,8 @@ import {
 import { getUserInfo } from '@/shared/models/user';
 import { getAIService } from '@/shared/services/ai';
 import { uploadVideosInBackground } from '@/shared/services/video-upload';
-import { AITaskStatus } from '@/extensions/ai';
+import { AITaskStatus, AIMediaType } from '@/extensions/ai';
+import { notifyVideoComplete, notifyImageComplete } from '@/shared/services/notification';
 
 // Track ongoing queries to prevent duplicate requests for the same task
 const ongoingQueries = new Map<string, Promise<any>>();
@@ -130,13 +131,46 @@ export async function POST(req: Request) {
           taskResult: result.taskResult ? JSON.stringify(result.taskResult) : null,
           creditId: task.creditId, // credit consumption record id
         };
+
+        const statusChanged = updateAITask.status !== task.status;
+        const isNowSuccess = updateAITask.status === AITaskStatus.SUCCESS;
+
         // Update if taskInfo or taskResult changed
         if (
           updateAITask.taskInfo !== task.taskInfo ||
           updateAITask.taskResult !== task.taskResult ||
-          updateAITask.status !== task.status
+          statusChanged
         ) {
           await updateAITaskById(task.id, updateAITask);
+        }
+
+        // Send notification when task completes successfully
+        if (statusChanged && isNowSuccess && task.userId) {
+          try {
+            if (task.mediaType === AIMediaType.VIDEO) {
+              const videoUrl = result.taskResult?.video || result.taskInfo?.videos?.[0];
+              if (videoUrl) {
+                await notifyVideoComplete({
+                  userId: task.userId,
+                  taskId: task.id,
+                  videoUrl,
+                  prompt: task.prompt || undefined,
+                });
+              }
+            } else if (task.mediaType === AIMediaType.IMAGE) {
+              const imageUrl = result.taskResult?.image || result.taskInfo?.images?.[0];
+              if (imageUrl) {
+                await notifyImageComplete({
+                  userId: task.userId,
+                  taskId: task.id,
+                  imageUrl,
+                  prompt: task.prompt || undefined,
+                });
+              }
+            }
+          } catch (notifyError) {
+            console.error('[AI Query] Failed to send notification:', notifyError);
+          }
         }
 
         task.status = updateAITask.status || '';

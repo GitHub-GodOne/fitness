@@ -1,13 +1,19 @@
-'use client';
+"use client";
 
-import Link from 'next/link';
-import { LazyImage, SmartIcon } from '@/shared/blocks/common';
-import { Button } from '@/shared/components/ui/button';
-import { ScrollAnimation } from '@/shared/components/ui/scroll-animation';
-import { cn } from '@/shared/lib/utils';
-import { Section, SectionItem } from '@/shared/types/blocks/landing';
+import Link from "next/link";
+import { LazyImage, SmartIcon } from "@/shared/blocks/common";
+import { Button } from "@/shared/components/ui/button";
+import { ScrollAnimation } from "@/shared/components/ui/scroll-animation";
+import { cn } from "@/shared/lib/utils";
+import { Section, SectionItem } from "@/shared/types/blocks/landing";
 
-type ButtonVariant = 'default' | 'link' | 'destructive' | 'outline' | 'secondary' | 'ghost';
+type ButtonVariant =
+  | "default"
+  | "link"
+  | "destructive"
+  | "outline"
+  | "secondary"
+  | "ghost";
 
 export function Testimonials({
   section,
@@ -25,8 +31,8 @@ export function Testimonials({
         <div className="flex items-center gap-2 sm:gap-3">
           <div className="ring-foreground/10 aspect-square size-8 sm:size-9 overflow-hidden rounded-lg border border-transparent shadow-md ring-1 shadow-black/15">
             <LazyImage
-              src={item.image?.src || item.avatar?.src || ''}
-              alt={item.image?.alt || item.avatar?.alt || item.name || ''}
+              src={item.image?.src || item.avatar?.src || ""}
+              alt={item.image?.alt || item.avatar?.alt || item.name || ""}
               className="h-full w-full object-cover"
             />
           </div>
@@ -75,24 +81,43 @@ export function Testimonials({
               {section.buttons.map((button, index) => {
                 const btn = button as any;
                 const safeVariant: ButtonVariant =
-                  btn.variant && ['default', 'link', 'destructive', 'outline', 'secondary', 'ghost'].includes(btn.variant)
+                  btn.variant &&
+                  [
+                    "default",
+                    "link",
+                    "destructive",
+                    "outline",
+                    "secondary",
+                    "ghost",
+                  ].includes(btn.variant)
                     ? (btn.variant as ButtonVariant)
-                    : 'default';
+                    : "default";
                 return (
                   <Button
                     key={index}
                     asChild
                     size="default"
                     className={cn(
-                      'h-auto min-h-11 sm:min-h-12 text-sm sm:text-base px-4 sm:px-6 md:px-8 font-semibold shadow-lg hover:shadow-xl transition-all',
-                      'flex items-center justify-center gap-2 whitespace-normal break-words text-center',
-                      'w-full sm:w-auto max-w-full py-2.5 sm:py-3'
+                      "h-auto min-h-11 sm:min-h-12 text-sm sm:text-base px-4 sm:px-6 md:px-8 font-semibold shadow-lg hover:shadow-xl transition-all",
+                      "flex items-center justify-center gap-2 whitespace-normal break-words text-center",
+                      "w-full sm:w-auto max-w-full py-2.5 sm:py-3",
                     )}
                     variant={safeVariant}
                   >
-                    <Link href={btn.url || ''} target={btn.target || '_self'} className="flex items-center justify-center gap-2 w-full sm:w-auto">
-                      {btn.icon && <SmartIcon name={btn.icon} className="h-4 w-4 sm:h-5 sm:w-5 shrink-0" />}
-                      <span className="break-words overflow-wrap-anywhere">{btn.title}</span>
+                    <Link
+                      href={btn.url || ""}
+                      target={btn.target || "_self"}
+                      className="flex items-center justify-center gap-2 w-full sm:w-auto"
+                    >
+                      {btn.icon && (
+                        <SmartIcon
+                          name={btn.icon}
+                          className="h-4 w-4 sm:h-5 sm:w-5 shrink-0"
+                        />
+                      )}
+                      <span className="break-words overflow-wrap-anywhere">
+                        {btn.title}
+                      </span>
                     </Link>
                   </Button>
                 );

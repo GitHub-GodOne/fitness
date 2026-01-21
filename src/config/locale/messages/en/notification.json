@@ -1,0 +1,26 @@
+{
+  "title": "Notifications",
+  "bell_aria_label": "View notifications",
+  "mark_all_read": "Mark all as read",
+  "no_notifications": "No notifications yet",
+  "view_more_hint": "View all notifications in settings",
+  "time": {
+    "just_now": "Just now",
+    "minutes_ago": "{count} minutes ago",
+    "hours_ago": "{count} hours ago",
+    "days_ago": "{count} days ago"
+  },
+  "types": {
+    "comment_reply": "Comment Reply",
+    "video_complete": "Video Complete",
+    "image_complete": "Image Complete"
+  },
+  "messages": {
+    "comment_reply_title": "New reply to your comment",
+    "comment_reply_content": "{userName} replied to your comment",
+    "video_complete_title": "Video generation completed",
+    "video_complete_content": "Your video has been generated successfully",
+    "image_complete_title": "Image generation completed",
+    "image_complete_content": "Your image has been generated successfully"
+  }
+}

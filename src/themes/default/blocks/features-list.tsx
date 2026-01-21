@@ -1,11 +1,11 @@
-'use client';
+"use client";
 
-import { Link } from '@/core/i18n/navigation';
-import { LazyImage, SmartIcon } from '@/shared/blocks/common';
-import { Button } from '@/shared/components/ui/button';
-import { ScrollAnimation } from '@/shared/components/ui/scroll-animation';
-import { cn } from '@/shared/lib/utils';
-import { Section } from '@/shared/types/blocks/landing';
+import { Link } from "@/core/i18n/navigation";
+import { LazyImage, SmartIcon } from "@/shared/blocks/common";
+import { Button } from "@/shared/components/ui/button";
+import { ScrollAnimation } from "@/shared/components/ui/scroll-animation";
+import { cn } from "@/shared/lib/utils";
+import { Section } from "@/shared/types/blocks/landing";
 
 export function FeaturesList({
   section,
@@ -18,9 +18,9 @@ export function FeaturesList({
     // Prevent horizontal scrolling
     <section
       className={cn(
-        'overflow-x-hidden py-16 md:py-24',
+        "overflow-x-hidden py-16 md:py-24",
         section.className,
-        className
+        className,
       )}
     >
       <div className="container overflow-x-hidden">
@@ -28,8 +28,8 @@ export function FeaturesList({
           <ScrollAnimation direction="left">
             <div className="mx-auto w-full max-w-[500px] flex-shrink-0 md:mx-0">
               <LazyImage
-                src={section.image?.src ?? ''}
-                alt={section.image?.alt ?? ''}
+                src={section.image?.src ?? ""}
+                alt={section.image?.alt ?? ""}
                 className="h-auto w-full rounded-lg object-cover"
               />
             </div>
@@ -53,16 +53,16 @@ export function FeaturesList({
                     <Button
                       asChild
                       key={idx}
-                      variant={button.variant || 'default'}
-                      size={button.size || 'default'}
+                      variant={button.variant || "default"}
+                      size={button.size || "default"}
                     >
                       <Link
-                        href={button.url ?? ''}
-                        target={button.target ?? '_self'}
+                        href={button.url ?? ""}
+                        target={button.target ?? "_self"}
                         className={cn(
-                          'focus-visible:ring-ring inline-flex items-center justify-center gap-2 rounded-md text-sm font-medium whitespace-nowrap transition-colors focus-visible:ring-1 focus-visible:outline-none disabled:pointer-events-none disabled:opacity-50',
-                          'h-9 px-4 py-2',
-                          'bg-background ring-foreground/10 hover:bg-muted/50 dark:ring-foreground/15 dark:hover:bg-muted/50 border border-transparent shadow-sm ring-1 shadow-black/15 duration-200'
+                          "focus-visible:ring-ring inline-flex items-center justify-center gap-2 rounded-md text-sm font-medium whitespace-nowrap transition-colors focus-visible:ring-1 focus-visible:outline-none disabled:pointer-events-none disabled:opacity-50",
+                          "h-9 px-4 py-2",
+                          "bg-background ring-foreground/10 hover:bg-muted/50 dark:ring-foreground/15 dark:hover:bg-muted/50 border border-transparent shadow-sm ring-1 shadow-black/15 duration-200",
                         )}
                       >
                         {button.icon && (
@@ -92,7 +92,7 @@ export function FeaturesList({
                   </h3>
                 </div>
                 <p className="text-muted-foreground min-w-0 text-sm break-words">
-                  {item.description ?? ''}
+                  {item.description ?? ""}
                 </p>
               </div>
             ))}

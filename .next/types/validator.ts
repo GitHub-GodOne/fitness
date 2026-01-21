@@ -677,15 +677,6 @@ type RouteHandlerConfig<Route extends AppRouteHandlerRoutes = AppRouteHandlerRou
   type __Unused = __Check
 }
 
-// Validate ../../src/app/api/ai/enhance-prompt/route.ts
-{
-  type __IsExpected<Specific extends RouteHandlerConfig<"/api/ai/enhance-prompt">> = Specific
-  const handler = {} as typeof import("../../src/app/api/ai/enhance-prompt/route.js")
-  type __Check = __IsExpected<typeof handler>
-  // @ts-ignore
-  type __Unused = __Check
-}
-
 // Validate ../../src/app/api/ai/generate/route.ts
 {
   type __IsExpected<Specific extends RouteHandlerConfig<"/api/ai/generate">> = Specific
@@ -852,6 +843,42 @@ type RouteHandlerConfig<Route extends AppRouteHandlerRoutes = AppRouteHandlerRou
 {
   type __IsExpected<Specific extends RouteHandlerConfig<"/api/email/send-email">> = Specific
   const handler = {} as typeof import("../../src/app/api/email/send-email/route.js")
+  type __Check = __IsExpected<typeof handler>
+  // @ts-ignore
+  type __Unused = __Check
+}
+
+// Validate ../../src/app/api/notifications/debug/route.ts
+{
+  type __IsExpected<Specific extends RouteHandlerConfig<"/api/notifications/debug">> = Specific
+  const handler = {} as typeof import("../../src/app/api/notifications/debug/route.js")
+  type __Check = __IsExpected<typeof handler>
+  // @ts-ignore
+  type __Unused = __Check
+}
+
+// Validate ../../src/app/api/notifications/list/route.ts
+{
+  type __IsExpected<Specific extends RouteHandlerConfig<"/api/notifications/list">> = Specific
+  const handler = {} as typeof import("../../src/app/api/notifications/list/route.js")
+  type __Check = __IsExpected<typeof handler>
+  // @ts-ignore
+  type __Unused = __Check
+}
+
+// Validate ../../src/app/api/notifications/mark-read/route.ts
+{
+  type __IsExpected<Specific extends RouteHandlerConfig<"/api/notifications/mark-read">> = Specific
+  const handler = {} as typeof import("../../src/app/api/notifications/mark-read/route.js")
+  type __Check = __IsExpected<typeof handler>
+  // @ts-ignore
+  type __Unused = __Check
+}
+
+// Validate ../../src/app/api/notifications/unread-count/route.ts
+{
+  type __IsExpected<Specific extends RouteHandlerConfig<"/api/notifications/unread-count">> = Specific
+  const handler = {} as typeof import("../../src/app/api/notifications/unread-count/route.js")
   type __Check = __IsExpected<typeof handler>
   // @ts-ignore
   type __Unused = __Check

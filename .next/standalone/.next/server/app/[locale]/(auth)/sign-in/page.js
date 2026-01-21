@@ -11,7 +11,7 @@ R.c("server/chunks/ssr/0a4c4_next_dist_client_components_builtin_global-error_07
 R.c("server/chunks/ssr/[root-of-the-server]__7786c3c3._.js")
 R.c("server/chunks/ssr/[root-of-the-server]__07424b68._.js")
 R.c("server/chunks/ssr/0a4c4_next_8e437eea._.js")
-R.c("server/chunks/ssr/src_config_locale_messages_369b6af6._.js")
+R.c("server/chunks/ssr/src_config_locale_messages_ba39d87d._.js")
 R.c("server/chunks/ssr/node_modules__pnpm_69eae113._.js")
 R.c("server/chunks/ssr/_a863c3ee._.js")
 R.c("server/chunks/ssr/_4c94f320._.js")

@@ -1,13 +1,19 @@
-'use client';
+"use client";
 
-import Link from 'next/link';
-import { SmartIcon } from '@/shared/blocks/common/smart-icon';
-import { Button } from '@/shared/components/ui/button';
-import { ScrollAnimation } from '@/shared/components/ui/scroll-animation';
-import { cn } from '@/shared/lib/utils';
-import { Section } from '@/shared/types/blocks/landing';
+import Link from "next/link";
+import { SmartIcon } from "@/shared/blocks/common/smart-icon";
+import { Button } from "@/shared/components/ui/button";
+import { ScrollAnimation } from "@/shared/components/ui/scroll-animation";
+import { cn } from "@/shared/lib/utils";
+import { Section } from "@/shared/types/blocks/landing";
 
-type ButtonVariant = 'default' | 'link' | 'destructive' | 'outline' | 'secondary' | 'ghost';
+type ButtonVariant =
+  | "default"
+  | "link"
+  | "destructive"
+  | "outline"
+  | "secondary"
+  | "ghost";
 
 export function Features({
   section,
@@ -19,9 +25,15 @@ export function Features({
   return (
     <section
       id={section.id}
-      className={cn('py-8 sm:py-10 md:py-12 lg:py-16', section.className, className)}
+      className={cn(
+        "py-8 sm:py-10 md:py-12 lg:py-16",
+        section.className,
+        className,
+      )}
     >
-      <div className={`container px-4 sm:px-6 space-y-6 sm:space-y-8 md:space-y-12 lg:space-y-16`}>
+      <div
+        className={`container px-4 sm:px-6 space-y-6 sm:space-y-8 md:space-y-12 lg:space-y-16`}
+      >
         <ScrollAnimation>
           <div className="mx-auto max-w-4xl text-center text-balance">
             <h2 className="text-foreground mb-3 text-2xl font-semibold tracking-tight sm:text-3xl md:text-4xl">
@@ -38,15 +50,19 @@ export function Features({
             {section.items?.map((item, idx) => (
               <div className="space-y-2 sm:space-y-3" key={idx}>
                 <div className="flex items-center gap-2">
-                  <SmartIcon name={item.icon as string} size={20} className="sm:w-6 sm:h-6" />
-                  <h3 
+                  <SmartIcon
+                    name={item.icon as string}
+                    size={20}
+                    className="sm:w-6 sm:h-6"
+                  />
+                  <h3
                     className="text-xs sm:text-sm font-medium"
-                    dangerouslySetInnerHTML={{ __html: item.title || '' }}
+                    dangerouslySetInnerHTML={{ __html: item.title || "" }}
                   />
                 </div>
-                <p 
+                <p
                   className="text-xs sm:text-sm text-muted-foreground"
-                  dangerouslySetInnerHTML={{ __html: item.description || '' }}
+                  dangerouslySetInnerHTML={{ __html: item.description || "" }}
                 />
               </div>
             ))}
@@ -85,24 +101,43 @@ export function Features({
               {section.buttons.map((button, index) => {
                 const btn = button as any;
                 const safeVariant: ButtonVariant =
-                  btn.variant && ['default', 'link', 'destructive', 'outline', 'secondary', 'ghost'].includes(btn.variant)
+                  btn.variant &&
+                  [
+                    "default",
+                    "link",
+                    "destructive",
+                    "outline",
+                    "secondary",
+                    "ghost",
+                  ].includes(btn.variant)
                     ? (btn.variant as ButtonVariant)
-                    : 'default';
+                    : "default";
                 return (
                   <Button
                     key={index}
                     asChild
                     size="default"
                     className={cn(
-                      'h-auto min-h-11 sm:min-h-12 text-sm sm:text-base px-4 sm:px-6 md:px-8 font-semibold shadow-lg hover:shadow-xl transition-all',
-                      'flex items-center justify-center gap-2 whitespace-normal break-words text-center',
-                      'w-full sm:w-auto max-w-full py-2.5 sm:py-3'
+                      "h-auto min-h-11 sm:min-h-12 text-sm sm:text-base px-4 sm:px-6 md:px-8 font-semibold shadow-lg hover:shadow-xl transition-all",
+                      "flex items-center justify-center gap-2 whitespace-normal break-words text-center",
+                      "w-full sm:w-auto max-w-full py-2.5 sm:py-3",
                     )}
                     variant={safeVariant}
                   >
-                    <Link href={btn.url || ''} target={btn.target || '_self'} className="flex items-center justify-center gap-2 w-full sm:w-auto">
-                      {btn.icon && <SmartIcon name={btn.icon} className="h-4 w-4 sm:h-5 sm:w-5 shrink-0" />}
-                      <span className="break-words overflow-wrap-anywhere">{btn.title}</span>
+                    <Link
+                      href={btn.url || ""}
+                      target={btn.target || "_self"}
+                      className="flex items-center justify-center gap-2 w-full sm:w-auto"
+                    >
+                      {btn.icon && (
+                        <SmartIcon
+                          name={btn.icon}
+                          className="h-4 w-4 sm:h-5 sm:w-5 shrink-0"
+                        />
+                      )}
+                      <span className="break-words overflow-wrap-anywhere">
+                        {btn.title}
+                      </span>
                     </Link>
                   </Button>
                 );

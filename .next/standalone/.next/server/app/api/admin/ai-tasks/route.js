@@ -1,6 +1,6 @@
 var R=require("../../../../chunks/[turbopack]_runtime.js")("server/app/api/admin/ai-tasks/route.js")
-R.c("server/chunks/_74851ce4._.js")
-R.c("server/chunks/[root-of-the-server]__496614fb._.js")
+R.c("server/chunks/_797ef08b._.js")
+R.c("server/chunks/[root-of-the-server]__f891869f._.js")
 R.c("server/chunks/[root-of-the-server]__143f4e83._.js")
 R.c("server/chunks/0a4c4_next_2dc89980._.js")
 R.c("server/chunks/0a4c4_next_dist_1dc100e8._.js")

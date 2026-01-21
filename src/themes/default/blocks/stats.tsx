@@ -1,7 +1,7 @@
-'use client';
+"use client";
 
-import { ScrollAnimation } from '@/shared/components/ui/scroll-animation';
-import { Section } from '@/shared/types/blocks/landing';
+import { ScrollAnimation } from "@/shared/components/ui/scroll-animation";
+import { Section } from "@/shared/types/blocks/landing";
 
 export function Stats({
   section,

@@ -1,15 +1,15 @@
-'use client';
+"use client";
 
-import Link from 'next/link';
+import Link from "next/link";
 import {
   Accordion,
   AccordionContent,
   AccordionItem,
   AccordionTrigger,
-} from '@/shared/components/ui/accordion';
-import { Button } from '@/shared/components/ui/button';
-import { ScrollAnimation } from '@/shared/components/ui/scroll-animation';
-import { Section } from '@/shared/types/blocks/landing';
+} from "@/shared/components/ui/accordion";
+import { Button } from "@/shared/components/ui/button";
+import { ScrollAnimation } from "@/shared/components/ui/scroll-animation";
+import { Section } from "@/shared/types/blocks/landing";
 
 export function Faq({
   section,
@@ -19,7 +19,10 @@ export function Faq({
   className?: string;
 }) {
   return (
-    <section id={section.id} className={`py-8 sm:py-10 md:py-12 lg:py-16 ${className}`}>
+    <section
+      id={section.id}
+      className={`py-8 sm:py-10 md:py-12 lg:py-16 ${className}`}
+    >
       <div className={`mx-auto max-w-full px-4 sm:px-6 md:max-w-3xl md:px-8`}>
         <ScrollAnimation>
           <div className="mx-auto max-w-2xl text-center text-balance">
@@ -42,15 +45,15 @@ export function Faq({
               {section.items?.map((item, idx) => (
                 <div className="group" key={idx}>
                   <AccordionItem
-                    value={item.question || item.title || ''}
+                    value={item.question || item.title || ""}
                     className="bg-background/90 data-[state=open]:bg-primary/10 peer rounded-lg sm:rounded-xl border-none px-4 sm:px-6 md:px-7 py-1 data-[state=open]:border-none data-[state=open]:shadow-sm transition-colors duration-200"
                   >
                     <AccordionTrigger className="cursor-pointer text-sm sm:text-base hover:no-underline text-foreground font-medium">
-                      {item.question || item.title || ''}
+                      {item.question || item.title || ""}
                     </AccordionTrigger>
                     <AccordionContent>
                       <p className="text-sm sm:text-base text-muted-foreground leading-relaxed">
-                        {item.answer || item.description || ''}
+                        {item.answer || item.description || ""}
                       </p>
                     </AccordionContent>
                   </AccordionItem>
@@ -61,7 +64,7 @@ export function Faq({
 
             <p
               className="text-muted-foreground text-xs sm:text-sm mt-4 sm:mt-6 px-4 sm:px-6 md:px-8"
-              dangerouslySetInnerHTML={{ __html: section.tip || '' }}
+              dangerouslySetInnerHTML={{ __html: section.tip || "" }}
             />
           </div>
         </ScrollAnimation>
@@ -74,9 +77,12 @@ export function Faq({
                   asChild
                   size="default"
                   className="h-11 sm:h-12 text-sm sm:text-base px-6 sm:px-8 font-semibold shadow-lg hover:shadow-xl transition-all"
-                  variant={button.variant || 'default'}
+                  variant={button.variant || "default"}
                 >
-                  <Link href={button.url || ''} target={button.target || '_self'}>
+                  <Link
+                    href={button.url || ""}
+                    target={button.target || "_self"}
+                  >
                     {button.title}
                   </Link>
                 </Button>

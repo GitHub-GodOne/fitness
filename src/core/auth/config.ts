@@ -21,7 +21,15 @@ const authOptions = {
   appName: envConfigs.app_name,
   baseURL: envConfigs.auth_url,
   secret: envConfigs.auth_secret,
-  trustedOrigins: envConfigs.app_url ? [envConfigs.app_url] : [],
+  trustedOrigins: envConfigs.app_url
+    ? [
+      envConfigs.app_url,
+      // Add www subdomain support to avoid CORS issues
+      envConfigs.app_url.replace(/^(https?:\/\/)/, '$1www.'),
+      // Also add non-www version if www is the primary
+      envConfigs.app_url.replace(/^(https?:\/\/)www\./, '$1'),
+    ].filter((url, index, self) => self.indexOf(url) === index) // Remove duplicates
+    : [],
   user: {
     // Allow persisting custom columns on user table.
     // Without this, better-auth may ignore extra properties during create/update.
@@ -69,9 +77,9 @@ export async function getAuthOptions(configs: Record<string, string>) {
     // Add database connection only when actually needed (runtime)
     database: envConfigs.database_url
       ? drizzleAdapter(db(), {
-          provider: getDatabaseProvider(envConfigs.database_provider),
-          schema: schema,
-        })
+        provider: getDatabaseProvider(envConfigs.database_provider),
+        schema: schema,
+      })
       : null,
     databaseHooks: {
       user: {

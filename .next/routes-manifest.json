@@ -630,12 +630,6 @@
       "namedRegex": "^/api/admin/users/search(?:/)?$"
     },
     {
-      "page": "/api/ai/enhance-prompt",
-      "regex": "^/api/ai/enhance\\-prompt(?:/)?$",
-      "routeKeys": {},
-      "namedRegex": "^/api/ai/enhance\\-prompt(?:/)?$"
-    },
-    {
       "page": "/api/ai/generate",
       "regex": "^/api/ai/generate(?:/)?$",
       "routeKeys": {},
@@ -742,6 +736,30 @@
       "regex": "^/api/email/send\\-email(?:/)?$",
       "routeKeys": {},
       "namedRegex": "^/api/email/send\\-email(?:/)?$"
+    },
+    {
+      "page": "/api/notifications/debug",
+      "regex": "^/api/notifications/debug(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/api/notifications/debug(?:/)?$"
+    },
+    {
+      "page": "/api/notifications/list",
+      "regex": "^/api/notifications/list(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/api/notifications/list(?:/)?$"
+    },
+    {
+      "page": "/api/notifications/mark-read",
+      "regex": "^/api/notifications/mark\\-read(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/api/notifications/mark\\-read(?:/)?$"
+    },
+    {
+      "page": "/api/notifications/unread-count",
+      "regex": "^/api/notifications/unread\\-count(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/api/notifications/unread\\-count(?:/)?$"
     },
     {
       "page": "/api/payment/callback",

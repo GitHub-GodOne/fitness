@@ -1,23 +1,24 @@
-'use client';
+"use client";
 
-import { useEffect, useRef, useState } from 'react';
-import { Menu, X } from 'lucide-react';
+import { useEffect, useRef, useState } from "react";
+import { Menu, X } from "lucide-react";
 
-import { Link, usePathname, useRouter } from '@/core/i18n/navigation';
+import { Link, usePathname, useRouter } from "@/core/i18n/navigation";
 import {
   BrandLogo,
   LocaleSelector,
   SignUser,
   SmartIcon,
   ThemeToggler,
-} from '@/shared/blocks/common';
-import { ThemeSwitcher } from '@/shared/components/theme-switcher';
+} from "@/shared/blocks/common";
+import { ThemeSwitcher } from "@/shared/components/theme-switcher";
+import { NotificationBell } from "@/shared/components/notification";
 import {
   Accordion,
   AccordionContent,
   AccordionItem,
   AccordionTrigger,
-} from '@/shared/components/ui/accordion';
+} from "@/shared/components/ui/accordion";
 import {
   NavigationMenu,
   NavigationMenuContent,
@@ -26,15 +27,15 @@ import {
   NavigationMenuList,
   navigationMenuTriggerStyle,
   NavigationMenuTrigger as RawNavigationMenuTrigger,
-} from '@/shared/components/ui/navigation-menu';
-import { useMedia } from '@/shared/hooks/use-media';
-import { cn } from '@/shared/lib/utils';
-import { NavItem } from '@/shared/types/blocks/common';
-import { Header as HeaderType } from '@/shared/types/blocks/landing';
+} from "@/shared/components/ui/navigation-menu";
+import { useMedia } from "@/shared/hooks/use-media";
+import { cn } from "@/shared/lib/utils";
+import { NavItem } from "@/shared/types/blocks/common";
+import { Header as HeaderType } from "@/shared/types/blocks/landing";
 
 // For Next.js hydration mismatch warning, conditionally render NavigationMenuTrigger only after mount to avoid inconsistency between server/client render
 function NavigationMenuTrigger(
-  props: React.ComponentProps<typeof RawNavigationMenuTrigger>
+  props: React.ComponentProps<typeof RawNavigationMenuTrigger>,
 ) {
   const [mounted, setMounted] = useState(false);
   useEffect(() => {
@@ -48,7 +49,7 @@ function NavigationMenuTrigger(
 export function Header({ header }: { header: HeaderType }) {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isScrolled, setIsScrolled] = useState(false);
-  const isLarge = useMedia('(min-width: 64rem)');
+  const isLarge = useMedia("(min-width: 64rem)");
   const router = useRouter();
   const pathname = usePathname();
 
@@ -57,8 +58,8 @@ export function Header({ header }: { header: HeaderType }) {
     const handleScroll = () => {
       setIsScrolled(window.scrollY > 50);
     };
-    window.addEventListener('scroll', handleScroll);
-    return () => window.removeEventListener('scroll', handleScroll);
+    window.addEventListener("scroll", handleScroll);
+    return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
   // Navigation menu for large screens
@@ -72,18 +73,18 @@ export function Header({ header }: { header: HeaderType }) {
         if (!menuNode) return;
 
         const openContent = document.querySelector<HTMLElement>(
-          '[data-slot="navigation-menu-viewport"][data-state="open"]'
+          '[data-slot="navigation-menu-viewport"][data-state="open"]',
         );
 
         if (openContent) {
           const height = openContent.scrollHeight;
           document.documentElement.style.setProperty(
-            '--navigation-menu-viewport-height',
-            `${height}px`
+            "--navigation-menu-viewport-height",
+            `${height}px`,
           );
         } else {
           document.documentElement.style.removeProperty(
-            '--navigation-menu-viewport-height'
+            "--navigation-menu-viewport-height",
           );
         }
       });
@@ -100,12 +101,12 @@ export function Header({ header }: { header: HeaderType }) {
               return (
                 <NavigationMenuLink key={idx} asChild>
                   <Link
-                    href={item.url || ''}
-                    target={item.target || '_self'}
+                    href={item.url || ""}
+                    target={item.target || "_self"}
                     className={`flex flex-row items-center gap-2 px-4 py-1.5 text-sm ${
                       item.is_active || pathname.endsWith(item.url as string)
-                        ? 'bg-muted/40 text-muted-foreground'
-                        : ''
+                        ? "bg-muted/40 text-muted-foreground"
+                        : ""
                     }`}
                   >
                     {item.icon && <SmartIcon name={item.icon as string} />}
@@ -129,10 +130,10 @@ export function Header({ header }: { header: HeaderType }) {
                       {item.children?.map((subItem: NavItem, index: number) => (
                         <ListItem
                           key={index}
-                          href={subItem.url || ''}
-                          target={subItem.target || '_self'}
-                          title={subItem.title || ''}
-                          description={subItem.description || ''}
+                          href={subItem.url || ""}
+                          target={subItem.target || "_self"}
+                          title={subItem.title || ""}
+                          description={subItem.description || ""}
                         >
                           {subItem.icon && (
                             <SmartIcon name={subItem.icon as string} />
@@ -166,7 +167,7 @@ export function Header({ header }: { header: HeaderType }) {
             return (
               <AccordionItem
                 key={idx}
-                value={item.title || ''}
+                value={item.title || ""}
                 className="group relative border-b-0 before:pointer-events-none before:absolute before:inset-x-4 before:bottom-0 before:border-b"
               >
                 {item.children && item.children.length > 0 ? (
@@ -179,7 +180,7 @@ export function Header({ header }: { header: HeaderType }) {
                         {item.children?.map((subItem: NavItem, iidx) => (
                           <li key={iidx}>
                             <Link
-                              href={subItem.url || ''}
+                              href={subItem.url || ""}
                               onClick={closeMenu}
                               className="grid grid-cols-[auto_1fr] items-center gap-2.5 px-4 py-2"
                             >
@@ -200,7 +201,7 @@ export function Header({ header }: { header: HeaderType }) {
                   </>
                 ) : (
                   <Link
-                    href={item.url || ''}
+                    href={item.url || ""}
                     onClick={closeMenu}
                     className="data-[state=open]:bg-muted flex items-center justify-between px-4 py-3 text-lg **:!font-normal"
                   >
@@ -223,7 +224,7 @@ export function Header({ header }: { header: HeaderType }) {
     href,
     target,
     ...props
-  }: React.ComponentPropsWithoutRef<'li'> & {
+  }: React.ComponentPropsWithoutRef<"li"> & {
     href: string;
     title: string;
     description?: string;
@@ -234,7 +235,7 @@ export function Header({ header }: { header: HeaderType }) {
         <NavigationMenuLink asChild>
           <Link
             href={href}
-            target={target || '_self'}
+            target={target || "_self"}
             className="grid grid-cols-[auto_1fr] gap-3.5"
           >
             <div className="bg-background ring-foreground/10 relative flex size-9 items-center justify-center rounded border border-transparent shadow shadow-sm ring-1">
@@ -255,15 +256,15 @@ export function Header({ header }: { header: HeaderType }) {
   return (
     <>
       <header
-        data-state={isMobileMenuOpen ? 'active' : 'inactive'}
-        {...(isScrolled && { 'data-scrolled': true })}
+        data-state={isMobileMenuOpen ? "active" : "inactive"}
+        {...(isScrolled && { "data-scrolled": true })}
         className="has-data-[state=open]:bg-background fixed inset-x-0 top-0 z-50 has-data-[state=open]:h-screen"
       >
         <div
           className={cn(
-            'absolute inset-x-0 top-0 z-50 h-18 bg-background border-b border-border ring-1 ring-transparent transition-all duration-300',
-            'has-data-[state=open]:ring-foreground/5 has-data-[state=open]:bg-card has-data-[state=open]:h-[calc(var(--navigation-menu-viewport-height)+3.4rem)] has-data-[state=open]:shadow-lg has-data-[state=open]:shadow-black/10',
-            'max-lg:in-data-[state=active]:bg-background max-lg:h-14 max-lg:overflow-hidden max-lg:in-data-[state=active]:h-screen'
+            "absolute inset-x-0 top-0 z-50 h-18 bg-background border-b border-border ring-1 ring-transparent transition-all duration-300",
+            "has-data-[state=open]:ring-foreground/5 has-data-[state=open]:bg-card has-data-[state=open]:h-[calc(var(--navigation-menu-viewport-height)+3.4rem)] has-data-[state=open]:shadow-lg has-data-[state=open]:shadow-black/10",
+            "max-lg:in-data-[state=active]:bg-background max-lg:h-14 max-lg:overflow-hidden max-lg:in-data-[state=active]:h-screen",
           )}
         >
           <div className="container">
@@ -278,7 +279,7 @@ export function Header({ header }: { header: HeaderType }) {
                 <button
                   onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
                   aria-label={
-                    isMobileMenuOpen == true ? 'Close Menu' : 'Open Menu'
+                    isMobileMenuOpen == true ? "Close Menu" : "Open Menu"
                   }
                   className="relative z-20 -m-2.5 -mr-3 block cursor-pointer p-2.5 lg:hidden"
                 >
@@ -299,14 +300,14 @@ export function Header({ header }: { header: HeaderType }) {
                     header.buttons.map((button, idx) => (
                       <Link
                         key={idx}
-                        href={button.url || ''}
-                        target={button.target || '_self'}
+                        href={button.url || ""}
+                        target={button.target || "_self"}
                         className={cn(
-                          'focus-visible:ring-ring inline-flex items-center justify-center gap-2 rounded-md text-sm font-medium whitespace-nowrap transition-colors focus-visible:ring-1 focus-visible:outline-none disabled:pointer-events-none disabled:opacity-50',
-                          'h-7 px-3 ring-0',
-                          button.variant === 'outline'
-                            ? 'bg-background border-primary ring-foreground/10 hover:bg-muted/50 dark:ring-foreground/15 dark:hover:bg-muted/50 border border-transparent shadow-sm ring-1 shadow-black/15 duration-200'
-                            : 'bg-primary text-primary-foreground hover:bg-primary/90 border-[0.5px] border-white/25 shadow-md ring-1 shadow-black/20 ring-(--ring-color) [--ring-color:color-mix(in_oklab,var(--color-foreground)15%,var(--color-primary))]'
+                          "focus-visible:ring-ring inline-flex items-center justify-center gap-2 rounded-md text-sm font-medium whitespace-nowrap transition-colors focus-visible:ring-1 focus-visible:outline-none disabled:pointer-events-none disabled:opacity-50",
+                          "h-7 px-3 ring-0",
+                          button.variant === "outline"
+                            ? "bg-background border-primary ring-foreground/10 hover:bg-muted/50 dark:ring-foreground/15 dark:hover:bg-muted/50 border border-transparent shadow-sm ring-1 shadow-black/15 duration-200"
+                            : "bg-primary text-primary-foreground hover:bg-primary/90 border-[0.5px] border-white/25 shadow-md ring-1 shadow-black/20 ring-(--ring-color) [--ring-color:color-mix(in_oklab,var(--color-foreground)15%,var(--color-primary))]",
                         )}
                       >
                         {button.icon && (
@@ -322,6 +323,7 @@ export function Header({ header }: { header: HeaderType }) {
                   <ThemeSwitcher />
                   {header.show_theme ? <ThemeToggler /> : null}
                   {header.show_locale ? <LocaleSelector /> : null}
+                  <NotificationBell />
                   <div className="flex-1 md:hidden"></div>
                   {header.show_sign ? (
                     <SignUser userNav={header.user_nav} />

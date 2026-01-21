@@ -1,19 +1,19 @@
-'use client';
+"use client";
 
-import { useState } from 'react';
-import { AnimatePresence, motion } from 'motion/react';
+import { useState } from "react";
+import { AnimatePresence, motion } from "motion/react";
 
-import { LazyImage, SmartIcon } from '@/shared/blocks/common';
-import { BorderBeam } from '@/shared/components/magicui/border-beam';
+import { LazyImage, SmartIcon } from "@/shared/blocks/common";
+import { BorderBeam } from "@/shared/components/magicui/border-beam";
 import {
   Accordion,
   AccordionContent,
   AccordionItem,
   AccordionTrigger,
-} from '@/shared/components/ui/accordion';
-import { ScrollAnimation } from '@/shared/components/ui/scroll-animation';
-import { cn } from '@/shared/lib/utils';
-import { Section } from '@/shared/types/blocks/landing';
+} from "@/shared/components/ui/accordion";
+import { ScrollAnimation } from "@/shared/components/ui/scroll-animation";
+import { cn } from "@/shared/lib/utils";
+import { Section } from "@/shared/types/blocks/landing";
 
 export function FeaturesAccordion({
   section,
@@ -22,16 +22,16 @@ export function FeaturesAccordion({
   section: Section;
   className?: string;
 }) {
-  const [activeItem, setActiveItem] = useState<string>('item-1');
+  const [activeItem, setActiveItem] = useState<string>("item-1");
 
   // Default Bible book image if no image is provided
-  const defaultBibleImage = '/imgs/bible-book.png';
-  
+  const defaultBibleImage = "/imgs/bible-book.png";
+
   const images: any = {};
   section.items?.forEach((item, idx) => {
     images[`item-${idx + 1}`] = {
       image: item.image?.src ?? section.image?.src ?? defaultBibleImage,
-      alt: item.image?.alt || section.image?.alt || item.title || 'Bible',
+      alt: item.image?.alt || section.image?.alt || item.title || "Bible",
     };
   });
 
@@ -39,9 +39,9 @@ export function FeaturesAccordion({
     // overflow-x-hidden to prevent horizontal scroll
     <section
       className={cn(
-        'overflow-x-hidden py-16 md:py-24',
+        "overflow-x-hidden py-16 md:py-24",
         section.className,
-        className
+        className,
       )}
     >
       {/* add overflow-x-hidden to container */}

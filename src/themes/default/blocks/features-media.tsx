@@ -1,26 +1,26 @@
-'use client';
+"use client";
 
-import { motion } from 'framer-motion';
+import { motion } from "framer-motion";
 
-import { LazyImage, SmartIcon } from '@/shared/blocks/common';
-import { cn } from '@/shared/lib/utils';
-import { Section } from '@/shared/types/blocks/landing';
+import { LazyImage, SmartIcon } from "@/shared/blocks/common";
+import { cn } from "@/shared/lib/utils";
+import { Section } from "@/shared/types/blocks/landing";
 
 export function FeaturesMedia({ section }: { section: Section }) {
-  const imagePosition = section.image_position || 'left';
-  const isImageRight = imagePosition === 'right';
+  const imagePosition = section.image_position || "left";
+  const isImageRight = imagePosition === "right";
 
   return (
     <section
       id={section.id || section.name}
-      className={cn('py-16 md:py-24', section.className)}
+      className={cn("py-16 md:py-24", section.className)}
     >
       <div className="container flex flex-col items-center justify-center space-y-8 px-6 md:space-y-16">
         <motion.div
           className={cn(
-            'grid items-center gap-6 sm:grid-cols-2 md:gap-12 lg:gap-24',
+            "grid items-center gap-6 sm:grid-cols-2 md:gap-12 lg:gap-24",
             isImageRight &&
-              'sm:[&>*:first-child]:order-2 sm:[&>*:last-child]:order-1'
+              "sm:[&>*:first-child]:order-2 sm:[&>*:last-child]:order-1",
           )}
           initial={{
             opacity: 0,
@@ -30,7 +30,7 @@ export function FeaturesMedia({ section }: { section: Section }) {
             opacity: 1,
             y: 0,
           }}
-          viewport={{ once: true, margin: '-100px' }}
+          viewport={{ once: true, margin: "-100px" }}
           transition={{
             duration: 0.6,
             ease: [0.22, 1, 0.36, 1] as const,
@@ -47,9 +47,9 @@ export function FeaturesMedia({ section }: { section: Section }) {
             }}
           >
             <LazyImage
-              src={section.image?.src ?? ''}
+              src={section.image?.src ?? ""}
               className="rounded-2xl"
-              alt={section.image?.alt ?? ''}
+              alt={section.image?.alt ?? ""}
             />
           </motion.div>
 

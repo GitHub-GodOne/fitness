@@ -710,3 +710,29 @@ export const videoMerge = table(
     index('idx_video_merge_user_created').on(table.userId, table.createdAt),
   ]
 );
+
+export const notification = table(
+  'notification',
+  {
+    id: text('id').primaryKey(),
+    userId: text('user_id')
+      .notNull()
+      .references(() => user.id, { onDelete: 'cascade' }),
+    type: text('type').notNull(), // comment_reply, video_complete, image_complete, etc.
+    title: text('title').notNull(),
+    content: text('content').notNull(),
+    link: text('link'), // Link to the related resource
+    isRead: boolean('is_read').notNull().default(false),
+    metadata: text('metadata'), // Additional data (JSON string)
+    createdAt: timestamp('created_at').defaultNow().notNull(),
+    readAt: timestamp('read_at'),
+  },
+  (table) => [
+    // Query user's notifications ordered by creation time
+    index('idx_notification_user_created').on(table.userId, table.createdAt),
+    // Query unread notifications
+    index('idx_notification_user_unread').on(table.userId, table.isRead),
+    // Query by type
+    index('idx_notification_type').on(table.type),
+  ]
+);

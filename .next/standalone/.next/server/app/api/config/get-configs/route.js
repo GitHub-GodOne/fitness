@@ -1,6 +1,6 @@
 var R=require("../../../../chunks/[turbopack]_runtime.js")("server/app/api/config/get-configs/route.js")
-R.c("server/chunks/src_config_locale_messages_3db97cfc._.js")
-R.c("server/chunks/[root-of-the-server]__d04230d0._.js")
+R.c("server/chunks/src_config_locale_messages_c60b8a37._.js")
+R.c("server/chunks/[root-of-the-server]__d160a78d._.js")
 R.c("server/chunks/0a4c4_next_dist_1dc100e8._.js")
 R.c("server/chunks/0a4c4_next_2dc89980._.js")
 R.c("server/chunks/_43703b58._.js")

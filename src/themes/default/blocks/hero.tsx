@@ -1,14 +1,14 @@
-import Image from 'next/image';
-import { ArrowRight } from 'lucide-react';
+import Image from "next/image";
+import { ArrowRight } from "lucide-react";
 
-import { Link } from '@/core/i18n/navigation';
-import { SmartIcon } from '@/shared/blocks/common';
-import { Button } from '@/shared/components/ui/button';
-import { Highlighter } from '@/shared/components/ui/highlighter';
-import { cn } from '@/shared/lib/utils';
-import { Section } from '@/shared/types/blocks/landing';
+import { Link } from "@/core/i18n/navigation";
+import { SmartIcon } from "@/shared/blocks/common";
+import { Button } from "@/shared/components/ui/button";
+import { Highlighter } from "@/shared/components/ui/highlighter";
+import { cn } from "@/shared/lib/utils";
+import { Section } from "@/shared/types/blocks/landing";
 
-import { SocialAvatars } from './social-avatars';
+import { SocialAvatars } from "./social-avatars";
 
 export function Hero({
   section,
@@ -17,7 +17,7 @@ export function Hero({
   section: Section;
   className?: string;
 }) {
-  const highlightText = section.highlight_text ?? '';
+  const highlightText = section.highlight_text ?? "";
   let texts = null;
   if (highlightText) {
     texts = section.title?.split(highlightText, 2);
@@ -27,15 +27,15 @@ export function Hero({
     <section
       id={section.id}
       className={cn(
-        `pt-24 pb-8 md:pt-36 md:pb-8`,
+        `pt-20 pb-12 md:pt-28 md:pb-16`,
         section.className,
-        className
+        className,
       )}
     >
       {section.announcement && (
         <Link
-          href={section.announcement.url || ''}
-          target={section.announcement.target || '_self'}
+          href={section.announcement.url || ""}
+          target={section.announcement.target || "_self"}
           className="hover:bg-background dark:hover:border-t-border bg-muted group mx-auto mb-8 flex w-fit items-center gap-4 rounded-full border p-1 pl-4 shadow-md shadow-zinc-950/5 transition-colors duration-300 dark:border-t-white/5 dark:shadow-zinc-950"
         >
           <span className="text-foreground text-sm">
@@ -73,7 +73,7 @@ export function Hero({
 
         <p
           className="text-muted-foreground mt-8 mb-8 text-lg text-balance"
-          dangerouslySetInnerHTML={{ __html: section.description ?? '' }}
+          dangerouslySetInnerHTML={{ __html: section.description ?? "" }}
         />
 
         {section.buttons && (
@@ -81,12 +81,12 @@ export function Hero({
             {section.buttons.map((button, idx) => (
               <Button
                 asChild
-                size={button.size || 'default'}
-                variant={button.variant || 'default'}
+                size={button.size || "default"}
+                variant={button.variant || "default"}
                 className="px-4 text-sm"
                 key={idx}
               >
-                <Link href={button.url ?? ''} target={button.target ?? '_self'}>
+                <Link href={button.url ?? ""} target={button.target ?? "_self"}>
                   {button.icon && <SmartIcon name={button.icon as string} />}
                   <span>{button.title}</span>
                 </Link>
@@ -98,12 +98,12 @@ export function Hero({
         {section.tip && (
           <p
             className="text-muted-foreground mt-6 block text-center text-sm"
-            dangerouslySetInnerHTML={{ __html: section.tip ?? '' }}
+            dangerouslySetInnerHTML={{ __html: section.tip ?? "" }}
           />
         )}
 
         {section.show_avatars && (
-          <SocialAvatars tip={section.avatars_tip || ''} />
+          <SocialAvatars tip={section.avatars_tip || ""} />
         )}
       </div>
 
@@ -119,7 +119,7 @@ export function Hero({
                 <Image
                   className="border-border/25 relative z-2 hidden w-full border dark:block"
                   src={section.image_invert.src}
-                  alt={section.image_invert.alt || section.image?.alt || ''}
+                  alt={section.image_invert.alt || section.image?.alt || ""}
                   width={
                     section.image_invert.width || section.image?.width || 1200
                   }
@@ -130,14 +130,14 @@ export function Hero({
                   loading="lazy"
                   fetchPriority="high"
                   quality={75}
-                  unoptimized={section.image_invert.src.startsWith('http')}
+                  unoptimized={section.image_invert.src.startsWith("http")}
                 />
               )}
               {section.image?.src && (
                 <Image
                   className="border-border/25 relative z-2 block w-full border dark:hidden"
                   src={section.image.src}
-                  alt={section.image.alt || section.image_invert?.alt || ''}
+                  alt={section.image.alt || section.image_invert?.alt || ""}
                   width={
                     section.image.width || section.image_invert?.width || 1200
                   }
@@ -148,7 +148,7 @@ export function Hero({
                   loading="lazy"
                   fetchPriority="high"
                   quality={75}
-                  unoptimized={section.image.src.startsWith('http')}
+                  unoptimized={section.image.src.startsWith("http")}
                 />
               )}
             </div>
@@ -161,13 +161,13 @@ export function Hero({
           <div className="from-background/80 via-background/80 to-background absolute inset-0 bg-gradient-to-b" />
           <Image
             src={section.background_image.src}
-            alt={section.background_image.alt || ''}
+            alt={section.background_image.alt || ""}
             className="object-cover opacity-80 blur-[0px]"
             fill
             loading="lazy"
             sizes="(max-width: 768px) 0vw, 100vw"
             quality={70}
-            unoptimized={section.background_image.src.startsWith('http')}
+            unoptimized={section.background_image.src.startsWith("http")}
           />
         </div>
       )}

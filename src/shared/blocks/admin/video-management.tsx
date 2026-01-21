@@ -1,12 +1,11 @@
-'use client';
+"use client";
 
-import { useCallback, useEffect, useState } from 'react';
-import { useTranslations } from 'next-intl';
-import { Video, Image, RefreshCw, Loader2 } from 'lucide-react';
-import { toast } from 'sonner';
-
-import { Button } from '@/shared/components/ui/button';
-import { Card, CardContent } from '@/shared/components/ui/card';
+import { useCallback, useEffect, useState } from "react";
+import { useTranslations } from "next-intl";
+import { Video, Image, RefreshCw, Loader2 } from "lucide-react";
+import { toast } from "sonner";
+import { Button } from "@/shared/components/ui/button";
+import { Card, CardContent } from "@/shared/components/ui/card";
 import {
   Table,
   TableBody,
@@ -14,13 +13,13 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from '@/shared/components/ui/table';
+} from "@/shared/components/ui/table";
 import {
   Dialog,
   DialogContent,
   DialogHeader,
   DialogTitle,
-} from '@/shared/components/ui/dialog';
+} from "@/shared/components/ui/dialog";
 import {
   Pagination,
   PaginationContent,
@@ -28,11 +27,11 @@ import {
   PaginationLink,
   PaginationNext,
   PaginationPrevious,
-} from '@/shared/components/ui/pagination';
-import { Checkbox } from '@/shared/components/ui/checkbox';
-import { Copy } from '@/shared/blocks/table/copy';
-import { ShareButton } from '@/shared/blocks/common/share-button';
-import { AITaskStatus } from '@/extensions/ai/types';
+} from "@/shared/components/ui/pagination";
+import { Checkbox } from "@/shared/components/ui/checkbox";
+import { Copy } from "@/shared/blocks/table/copy";
+import { ShareButton } from "@/shared/blocks/common/share-button";
+import { AITaskStatus } from "@/extensions/ai/types";
 
 interface VideoTask {
   id: string;
@@ -68,8 +67,8 @@ function extractVideoUrls(result: any): string[] {
     return videos
       .map((item: any) => {
         if (!item) return null;
-        if (typeof item === 'string') return item;
-        if (typeof item === 'object') {
+        if (typeof item === "string") return item;
+        if (typeof item === "object") {
           return (
             item.url ?? item.uri ?? item.video ?? item.src ?? item.videoUrl
           );
@@ -80,28 +79,39 @@ function extractVideoUrls(result: any): string[] {
   }
 
   // check content.video_url (Volcano Engine format)
-  if (result.content && result.content.video_url && typeof result.content.video_url === 'string') {
+  if (
+    result.content &&
+    result.content.video_url &&
+    typeof result.content.video_url === "string"
+  ) {
     return [result.content.video_url];
   }
 
   // check saved_video_url (CDN URL)
-  if (result.saved_video_url && typeof result.saved_video_url === 'string') {
+  if (result.saved_video_url && typeof result.saved_video_url === "string") {
     return [result.saved_video_url];
   }
 
   // check saved_video_urls array
   if (result.saved_video_urls && Array.isArray(result.saved_video_urls)) {
-    return result.saved_video_urls.filter((url: any) => typeof url === 'string');
+    return result.saved_video_urls.filter(
+      (url: any) => typeof url === "string",
+    );
   }
 
   // check original_video_url
-  if (result.original_video_url && typeof result.original_video_url === 'string') {
+  if (
+    result.original_video_url &&
+    typeof result.original_video_url === "string"
+  ) {
     return [result.original_video_url];
   }
 
   // check original_video_urls array
   if (result.original_video_urls && Array.isArray(result.original_video_urls)) {
-    return result.original_video_urls.filter((url: any) => typeof url === 'string');
+    return result.original_video_urls.filter(
+      (url: any) => typeof url === "string",
+    );
   }
 
   // check output
@@ -111,7 +121,7 @@ function extractVideoUrls(result: any): string[] {
     return [];
   }
 
-  if (typeof output === 'string') {
+  if (typeof output === "string") {
     return [output];
   }
 
@@ -119,21 +129,21 @@ function extractVideoUrls(result: any): string[] {
     return output
       .flatMap((item) => {
         if (!item) return [];
-        if (typeof item === 'string') return [item];
-        if (typeof item === 'object') {
+        if (typeof item === "string") return [item];
+        if (typeof item === "object") {
           const candidate =
             item.url ?? item.uri ?? item.video ?? item.src ?? item.videoUrl;
-          return typeof candidate === 'string' ? [candidate] : [];
+          return typeof candidate === "string" ? [candidate] : [];
         }
         return [];
       })
       .filter(Boolean);
   }
 
-  if (typeof output === 'object') {
+  if (typeof output === "object") {
     const candidate =
       output.url ?? output.uri ?? output.video ?? output.src ?? output.videoUrl;
-    if (typeof candidate === 'string') {
+    if (typeof candidate === "string") {
       return [candidate];
     }
   }
@@ -141,33 +151,67 @@ function extractVideoUrls(result: any): string[] {
   return [];
 }
 
-function extractVideoUrl(taskInfo: string | null, taskResult: string | null): string | null {
-  // Try taskResult first (usually contains the final processed video URL)
+function extractVideoUrl(
+  taskInfo: string | null,
+  taskResult: string | null,
+): string | null {
+  // First try to get saved video URL from taskResult (highest priority)
   if (taskResult) {
     try {
-      const parsed = JSON.parse(taskResult);
-      const videoUrls = extractVideoUrls(parsed);
-      if (videoUrls.length > 0) {
-        return videoUrls[0];
+      const parsedResult = JSON.parse(taskResult);
+      // Priority order: saved_video_url (CDN) > original_video_url (API) > saved_video_urls[0] > original_video_urls[0] > content.video_url
+      // Check for saved_video_url (CDN URL - preferred, permanent)
+      if (
+        parsedResult.saved_video_url &&
+        typeof parsedResult.saved_video_url === "string"
+      ) {
+        return parsedResult.saved_video_url;
       }
-    } catch (e) {
+      // Check for original_video_url (original API URL - fallback for History)
+      if (
+        parsedResult.original_video_url &&
+        typeof parsedResult.original_video_url === "string"
+      ) {
+        return parsedResult.original_video_url;
+      }
+      // Check for saved_video_urls array
+      if (
+        parsedResult.saved_video_urls &&
+        Array.isArray(parsedResult.saved_video_urls) &&
+        parsedResult.saved_video_urls.length > 0
+      ) {
+        return parsedResult.saved_video_urls[0];
+      }
+      // Check for original_video_urls array
+      if (
+        parsedResult.original_video_urls &&
+        Array.isArray(parsedResult.original_video_urls) &&
+        parsedResult.original_video_urls.length > 0
+      ) {
+        return parsedResult.original_video_urls[0];
+      }
+      // Check for content.video_url (Volcano Engine format)
+      if (
+        parsedResult.content &&
+        parsedResult.content.video_url &&
+        typeof parsedResult.content.video_url === "string"
+      ) {
+        return parsedResult.content.video_url;
+      }
+    } catch {
       // Ignore parse errors
     }
   }
-
   // Fallback to taskInfo
   if (taskInfo) {
     try {
       const parsed = JSON.parse(taskInfo);
       const videoUrls = extractVideoUrls(parsed);
-      if (videoUrls.length > 0) {
-        return videoUrls[0];
-      }
-    } catch (e) {
-      // Ignore parse errors
+      return videoUrls.length > 0 ? videoUrls[0] : null;
+    } catch {
+      return null;
     }
   }
-
   return null;
 }
 
@@ -180,17 +224,27 @@ function extractLastFrameImage(taskResult: string | null): string | null {
     const parsed = JSON.parse(taskResult);
 
     // Prefer saved CDN URL
-    if (parsed.saved_last_frame_url && typeof parsed.saved_last_frame_url === 'string') {
+    if (
+      parsed.saved_last_frame_url &&
+      typeof parsed.saved_last_frame_url === "string"
+    ) {
       return parsed.saved_last_frame_url;
     }
 
     // Volcano Engine format
-    if (parsed.content && parsed.content.last_frame_url && typeof parsed.content.last_frame_url === 'string') {
+    if (
+      parsed.content &&
+      parsed.content.last_frame_url &&
+      typeof parsed.content.last_frame_url === "string"
+    ) {
       return parsed.content.last_frame_url;
     }
 
     // Original last frame url
-    if (parsed.original_last_frame_url && typeof parsed.original_last_frame_url === 'string') {
+    if (
+      parsed.original_last_frame_url &&
+      typeof parsed.original_last_frame_url === "string"
+    ) {
       return parsed.original_last_frame_url;
     }
 
@@ -215,8 +269,8 @@ export function VideoManagement({
   initialPage = 1,
   initialLimit = 10,
 }: VideoManagementProps) {
-  const t = useTranslations('admin.videos');
-  const tCommon = useTranslations('ai.video.generator');
+  const t = useTranslations("admin.videos");
+  const tCommon = useTranslations("ai.video.generator");
   const [tasks, setTasks] = useState<VideoTask[]>([]);
   const [total, setTotal] = useState(0);
   const [page, setPage] = useState(initialPage);
@@ -224,14 +278,15 @@ export function VideoManagement({
   const [isLoading, setIsLoading] = useState(true);
   const [previewVideoUrl, setPreviewVideoUrl] = useState<string | null>(null);
   const [isPreviewOpen, setIsPreviewOpen] = useState(false);
+  const [isVideoLoading, setIsVideoLoading] = useState(true);
 
   const fetchTasks = useCallback(async () => {
     setIsLoading(true);
     try {
       const params = new URLSearchParams();
-      params.append('page', String(page));
-      params.append('limit', String(limit));
-      params.append('mediaType', 'video');
+      params.append("page", String(page));
+      params.append("limit", String(limit));
+      params.append("mediaType", "video");
 
       const response = await fetch(`/api/admin/ai-tasks?${params.toString()}`);
       const result = await response.json();
@@ -240,11 +295,11 @@ export function VideoManagement({
         setTasks(result.data.tasks || []);
         setTotal(result.data.total || 0);
       } else {
-        toast.error(result.message || 'Failed to load videos');
+        toast.error(result.message || "Failed to load videos");
       }
     } catch (error: any) {
-      console.error('[VideoManagement] Failed to fetch tasks:', error);
-      toast.error('Failed to load videos');
+      console.error("[VideoManagement] Failed to fetch tasks:", error);
+      toast.error("Failed to load videos");
     } finally {
       setIsLoading(false);
     }
@@ -270,36 +325,46 @@ export function VideoManagement({
         <Table>
           <TableHeader>
             <TableRow>
-              <TableHead className="w-12">{t('fields.order')}</TableHead>
-              <TableHead className="max-w-[120px]">{t('fields.task_id')}</TableHead>
-              <TableHead>{t('fields.user')}</TableHead>
-              <TableHead>{t('fields.prompt')}</TableHead>
-              <TableHead className="max-w-xs">{t('fields.final_prompt')}</TableHead>
-              <TableHead>{t('fields.status')}</TableHead>
-              <TableHead>{t('fields.created')}</TableHead>
+              <TableHead className="w-12">{t("fields.order")}</TableHead>
+              <TableHead className="max-w-[120px]">
+                {t("fields.task_id")}
+              </TableHead>
+              <TableHead>{t("fields.user")}</TableHead>
+              <TableHead>{t("fields.prompt")}</TableHead>
+              <TableHead className="max-w-xs">
+                {t("fields.final_prompt")}
+              </TableHead>
+              <TableHead>{t("fields.status")}</TableHead>
+              <TableHead>{t("fields.created")}</TableHead>
               <TableHead className="text-right w-[220px] sm:w-[260px] sticky right-0 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/75 z-20">
-                {t('fields.actions')}
+                {t("fields.actions")}
               </TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
             {tasks.length === 0 ? (
               <TableRow>
-                <TableCell colSpan={8} className="text-center py-8 text-muted-foreground">
-                  {t('no_videos')}
+                <TableCell
+                  colSpan={8}
+                  className="text-center py-8 text-muted-foreground"
+                >
+                  {t("no_videos")}
                 </TableCell>
               </TableRow>
             ) : (
               tasks.map((task, index) => {
-                const videoUrl = extractVideoUrl(task.taskInfo, task.taskResult);
+                const videoUrl = extractVideoUrl(
+                  task.taskInfo,
+                  task.taskResult,
+                );
                 const lastFrameImage = extractLastFrameImage(task.taskResult);
-                
+
                 // Parse final_prompt
-                let finalPrompt = '';
+                let finalPrompt = "";
                 try {
                   if (task.options) {
                     const options = JSON.parse(task.options);
-                    finalPrompt = options.final_prompt || '';
+                    finalPrompt = options.final_prompt || "";
                   }
                 } catch (e) {
                   // Ignore parse errors
@@ -316,10 +381,13 @@ export function VideoManagement({
                       {task.taskId ? (
                         <Copy
                           value={task.taskId}
-                          metadata={{ message: tCommon('copied') }}
+                          metadata={{ message: tCommon("copied") }}
                           className="cursor-pointer"
                         >
-                          <span className="truncate text-xs" title={task.taskId}>
+                          <span
+                            className="truncate text-xs"
+                            title={task.taskId}
+                          >
                             {task.taskId}
                           </span>
                         </Copy>
@@ -330,8 +398,12 @@ export function VideoManagement({
                     <TableCell>
                       {task.user ? (
                         <div className="flex flex-col">
-                          <span className="text-sm font-medium">{task.user.name || '-'}</span>
-                          <span className="text-xs text-muted-foreground">{task.user.email}</span>
+                          <span className="text-sm font-medium">
+                            {task.user.name || "-"}
+                          </span>
+                          <span className="text-xs text-muted-foreground">
+                            {task.user.email}
+                          </span>
                         </div>
                       ) : (
                         <span className="text-sm text-muted-foreground">-</span>
@@ -341,7 +413,7 @@ export function VideoManagement({
                       {task.prompt ? (
                         <Copy
                           value={task.prompt}
-                          metadata={{ message: tCommon('copied') }}
+                          metadata={{ message: tCommon("copied") }}
                           className="cursor-pointer"
                         >
                           <span className="truncate" title={task.prompt}>
@@ -356,10 +428,13 @@ export function VideoManagement({
                       {finalPrompt ? (
                         <Copy
                           value={finalPrompt}
-                          metadata={{ message: tCommon('copied') }}
+                          metadata={{ message: tCommon("copied") }}
                           className="cursor-pointer"
                         >
-                          <span className="truncate text-xs" title={finalPrompt}>
+                          <span
+                            className="truncate text-xs"
+                            title={finalPrompt}
+                          >
                             {finalPrompt}
                           </span>
                         </Copy>
@@ -371,12 +446,12 @@ export function VideoManagement({
                       <span
                         className={`text-xs ${
                           task.status === AITaskStatus.SUCCESS
-                            ? 'text-green-600'
+                            ? "text-green-600"
                             : task.status === AITaskStatus.FAILED
-                              ? 'text-red-600'
+                              ? "text-red-600"
                               : task.status === AITaskStatus.PROCESSING
-                                ? 'text-blue-600'
-                                : 'text-gray-600'
+                                ? "text-blue-600"
+                                : "text-gray-600"
                         }`}
                       >
                         {task.status}
@@ -385,7 +460,7 @@ export function VideoManagement({
                     <TableCell className="text-sm">
                       {task.createdAt
                         ? new Date(task.createdAt).toLocaleDateString()
-                        : '-'}
+                        : "-"}
                     </TableCell>
                     <TableCell className="text-right w-[220px] sm:w-[260px] sticky right-0 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/75 z-10">
                       <div className="flex items-center justify-end gap-1 sm:gap-2 flex-wrap">
@@ -402,7 +477,9 @@ export function VideoManagement({
                               className="h-8 w-8 p-0 sm:h-9 sm:w-auto sm:px-3"
                             >
                               <Video className="h-4 w-4" />
-                              <span className="hidden sm:inline ml-1">Preview</span>
+                              <span className="hidden sm:inline ml-1">
+                                Preview
+                              </span>
                             </Button>
                             <ShareButton
                               url={videoUrl}
@@ -417,7 +494,7 @@ export function VideoManagement({
                             size="sm"
                             variant="ghost"
                             onClick={() => {
-                              window.open(lastFrameImage, '_blank');
+                              window.open(lastFrameImage, "_blank");
                             }}
                             title="View last frame"
                             className="h-8 w-8 p-0 sm:h-9 sm:w-auto sm:px-3"
@@ -438,7 +515,8 @@ export function VideoManagement({
         {total > 0 && (
           <div className="mt-4 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
             <div className="text-sm text-muted-foreground">
-              Showing {(page - 1) * limit + 1} to {Math.min(page * limit, total)} of {total} results
+              Showing {(page - 1) * limit + 1} to{" "}
+              {Math.min(page * limit, total)} of {total} results
             </div>
             {Math.ceil(total / limit) > 1 && (
               <div className="flex justify-end">
@@ -452,15 +530,23 @@ export function VideoManagement({
                           }
                         }}
                         className={
-                          page === 1 ? 'pointer-events-none opacity-50' : 'cursor-pointer'
+                          page === 1
+                            ? "pointer-events-none opacity-50"
+                            : "cursor-pointer"
                         }
                       />
                     </PaginationItem>
                     {(() => {
                       const totalPages = Math.ceil(total / limit);
                       const maxPagesToShow = 5;
-                      let startPage = Math.max(1, page - Math.floor(maxPagesToShow / 2));
-                      let endPage = Math.min(totalPages, startPage + maxPagesToShow - 1);
+                      let startPage = Math.max(
+                        1,
+                        page - Math.floor(maxPagesToShow / 2),
+                      );
+                      let endPage = Math.min(
+                        totalPages,
+                        startPage + maxPagesToShow - 1,
+                      );
 
                       if (endPage - startPage < maxPagesToShow - 1) {
                         startPage = Math.max(1, endPage - maxPagesToShow + 1);
@@ -493,8 +579,8 @@ export function VideoManagement({
                         }}
                         className={
                           page >= Math.ceil(total / limit)
-                            ? 'pointer-events-none opacity-50'
-                            : 'cursor-pointer'
+                            ? "pointer-events-none opacity-50"
+                            : "cursor-pointer"
                         }
                       />
                     </PaginationItem>
@@ -506,21 +592,89 @@ export function VideoManagement({
         )}
       </div>
 
-      <Dialog open={isPreviewOpen} onOpenChange={setIsPreviewOpen}>
-        <DialogContent className="max-w-4xl">
-          <DialogHeader>
-            <DialogTitle>{t('preview.title')}</DialogTitle>
+      {/* Video Preview Dialog */}
+      <Dialog
+        open={isPreviewOpen}
+        onOpenChange={(open) => {
+          setIsPreviewOpen(open);
+          if (open) {
+            setIsVideoLoading(true);
+          } else {
+            setIsVideoLoading(true);
+          }
+        }}
+      >
+        <DialogContent className="max-w-4xl w-full p-0">
+          <DialogHeader className="px-6 pt-6">
+            <DialogTitle>{t("preview.title")}</DialogTitle>
           </DialogHeader>
-          {previewVideoUrl && (
-            <div className="relative overflow-hidden rounded-lg border">
-              <video
-                src={previewVideoUrl}
-                controls
-                className="h-auto w-full"
-                preload="metadata"
-              />
-            </div>
-          )}
+          <div className="px-6 pb-6">
+            {previewVideoUrl && (
+              <div
+                className="relative w-full rounded-lg overflow-hidden bg-black/5"
+                style={{ minHeight: "400px" }}
+              >
+                {isVideoLoading && (
+                  <div className="absolute inset-0 flex items-center justify-center bg-gradient-to-br from-primary/10 via-primary/5 to-transparent backdrop-blur-sm z-10">
+                    <div className="relative flex items-center justify-center">
+                      {/* Outer rotating ring with gradient */}
+                      <div
+                        className="absolute w-32 h-32 rounded-full border-4 border-transparent border-t-primary/80 border-r-primary/60 animate-spin"
+                        style={{ animationDuration: "1.5s" }}
+                      />
+
+                      {/* Middle pulsing ring */}
+                      <div className="absolute w-28 h-28 rounded-full border-2 border-primary/30 animate-pulse" />
+
+                      {/* Inner rotating ring (opposite direction) */}
+                      <div
+                        className="absolute w-24 h-24 rounded-full border-4 border-transparent border-b-primary/70 border-l-primary/50 animate-spin"
+                        style={{
+                          animationDuration: "2s",
+                          animationDirection: "reverse",
+                        }}
+                      />
+
+                      {/* Center icon with glow effect */}
+                      <div className="relative flex items-center justify-center w-20 h-20 rounded-full bg-primary/20 backdrop-blur-md shadow-lg shadow-primary/30">
+                        <Video
+                          className="w-10 h-10 text-primary animate-pulse"
+                          style={{ animationDuration: "2s" }}
+                        />
+                      </div>
+
+                      {/* Sparkle effects */}
+                      <div
+                        className="absolute w-2 h-2 bg-primary rounded-full top-0 left-1/2 -translate-x-1/2 animate-ping"
+                        style={{ animationDelay: "0s" }}
+                      />
+                      <div
+                        className="absolute w-2 h-2 bg-primary rounded-full bottom-0 left-1/2 -translate-x-1/2 animate-ping"
+                        style={{ animationDelay: "0.5s" }}
+                      />
+                      <div
+                        className="absolute w-2 h-2 bg-primary rounded-full left-0 top-1/2 -translate-y-1/2 animate-ping"
+                        style={{ animationDelay: "1s" }}
+                      />
+                      <div
+                        className="absolute w-2 h-2 bg-primary rounded-full right-0 top-1/2 -translate-y-1/2 animate-ping"
+                        style={{ animationDelay: "1.5s" }}
+                      />
+                    </div>
+                  </div>
+                )}
+                <video
+                  src={previewVideoUrl}
+                  controls
+                  autoPlay
+                  className="w-full h-auto rounded-lg"
+                  style={{ maxHeight: "70vh" }}
+                  onLoadedData={() => setIsVideoLoading(false)}
+                  onError={() => setIsVideoLoading(false)}
+                />
+              </div>
+            )}
+          </div>
         </DialogContent>
       </Dialog>
     </>

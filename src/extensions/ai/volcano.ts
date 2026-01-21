@@ -261,7 +261,7 @@ export class VolcanoProvider implements AIProvider {
 
         // Convert image URL to base64 format to avoid 403 errors
         const base64ImageUrl = await this.convertImageToBase64(imageUrl);
-        console.log('base64ImageUrl', base64ImageUrl);
+        // console.log('base64ImageUrl', base64ImageUrl);
         // Add multimodal user message (image + text)
         messages.push({
             role: 'user',
@@ -598,21 +598,22 @@ export class VolcanoProvider implements AIProvider {
                         throw new Error('Failed to parse enhancement response');
                     }
                 } else {
-                    console.warn('[Volcano] Doubao API key or endpoint not configured, using fallback prompt');
-                    // Use simple fallback prompt if API not configured
-                    // promptText = fallbackPrompt;
-                    throw new Error('API key or endpoint not configured, using fallback prompt');
+                    console.warn('[Volcano] Doubao API key or endpoint not configured, using user feeling as prompt');
+                    // Use user feeling as prompt if API not configured
+                    promptText = `A comforting biblical scene about: ${userFeeling}. Soft golden light, peaceful atmosphere, hopeful mood.`;
                 }
             } catch (error) {
                 console.error('[Volcano] Failed to auto-enhance prompt:', error);
-                // Use simple fallback prompt if enhancement fails
-                // promptText = fallbackPrompt;
-                throw new Error('Failed to auto-enhance prompt');
+                // Use user feeling as prompt if enhancement fails
+                promptText = `A comforting biblical scene about: ${userFeeling}. Soft golden light, peaceful atmosphere, hopeful mood.`;
+                console.warn('[Volcano] Using fallback prompt:', promptText);
             }
         }
         else {
             throw new Error('userFeeling is required');
         }
+
+        promptText += " Subtitles cannot be generated on the screen, and speaking must be in English. ";
         // Add parameters from settings, only if not already in prompt
         if (!promptText.includes('--duration')) {
             promptText += ` --duration ${duration}`;

@@ -1,6 +1,6 @@
 {
   "node": {
-    "60fa800fa6cc3ed4c3e7bf2d9ae0df853b556b118e": {
+    "603b3a88ce5f9bb721c99b3e2be98a5fa93418e28e": {
       "workers": {
         "app/[locale]/(landing)/settings/apikeys/[id]/delete/page": {
           "moduleId": 178496,
@@ -15,7 +15,7 @@
       "exportedName": "$$RSC_SERVER_ACTION_0",
       "filename": "src/app/[locale]/(landing)/settings/apikeys/[id]/delete/page.tsx"
     },
-    "001e690678fd6d4ade1d0be4648d406f8caf165f28": {
+    "00cf3b2c537f0cc1f944b88c7919b6b67ef0f6d736": {
       "workers": {
         "app/[locale]/(landing)/settings/apikeys/[id]/delete/page": {
           "moduleId": 178496,

@@ -8,6 +8,7 @@ import {
     createCommentReply,
     findCommentById,
 } from '@/shared/models/comment';
+import { notifyCommentReply } from '@/shared/services/notification';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
@@ -73,8 +74,9 @@ export async function POST(req: NextRequest) {
         }
 
         // Verify comment exists using model
+        let parentComment;
         try {
-            const parentComment = await findCommentById(commentId);
+            parentComment = await findCommentById(commentId);
             if (!parentComment) {
                 return Response.json(
                     { code: -1, message: 'Comment not found' },
@@ -112,6 +114,21 @@ export async function POST(req: NextRequest) {
                 ipAddress,
                 userAgent,
             });
+
+            // Send notification to comment author (if they have a userId and it's not the same person)
+            if (parentComment.userId && parentComment.userId !== userId) {
+                try {
+                    await notifyCommentReply({
+                        userId: parentComment.userId,
+                        commentId,
+                        replyId: newReply.id,
+                        replyUserName: finalUserName,
+                        commentContent: content.trim(),
+                    });
+                } catch (notifyError) {
+                    console.error('[Comments Reply] Failed to send notification:', notifyError);
+                }
+            }
 
             return respData({
                 id: newReply.id,

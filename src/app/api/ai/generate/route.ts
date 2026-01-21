@@ -118,6 +118,7 @@ export async function POST(request: Request) {
       options,
     };
 
+
     // generate content
     const result = await aiProvider.generate({ params });
     if (!result?.taskId) {

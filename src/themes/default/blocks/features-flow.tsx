@@ -1,21 +1,21 @@
-'use client';
+"use client";
 
-import { motion } from 'framer-motion';
+import { motion } from "framer-motion";
 
-import { LazyImage } from '@/shared/blocks/common';
-import { cn } from '@/shared/lib/utils';
-import { Section } from '@/shared/types/blocks/landing';
+import { LazyImage } from "@/shared/blocks/common";
+import { cn } from "@/shared/lib/utils";
+import { Section } from "@/shared/types/blocks/landing";
 
 const createFadeInVariant = (delay: number) => ({
   initial: {
     opacity: 0,
     y: 20,
-    filter: 'blur(6px)',
+    filter: "blur(6px)",
   },
   animate: {
     opacity: 1,
     y: 0,
-    filter: 'blur(0px)',
+    filter: "blur(0px)",
   },
   transition: {
     duration: 0.6,
@@ -32,7 +32,7 @@ export function FeaturesFlow({ section }: { section: Section }) {
   return (
     <section
       id={section.id || section.name}
-      className={cn('py-16 md:py-24', section.className)}
+      className={cn("py-16 md:py-24", section.className)}
     >
       <motion.div
         className="container mb-12 text-center"
@@ -50,14 +50,14 @@ export function FeaturesFlow({ section }: { section: Section }) {
       </motion.div>
       <div className="container flex flex-col items-center justify-center space-y-8 px-6 md:space-y-16">
         {section.items.map((item, index) => {
-          const isImageRight = item.image_position === 'right';
+          const isImageRight = item.image_position === "right";
           return (
             <motion.div
               key={index}
               className={cn(
-                'grid items-center gap-6 py-16 sm:grid-cols-2 md:gap-12 lg:gap-24',
+                "grid items-center gap-6 py-16 sm:grid-cols-2 md:gap-12 lg:gap-24",
                 isImageRight &&
-                  'sm:[&>*:first-child]:order-2 sm:[&>*:last-child]:order-1'
+                  "sm:[&>*:first-child]:order-2 sm:[&>*:last-child]:order-1",
               )}
               initial={{
                 opacity: 0,
@@ -67,7 +67,7 @@ export function FeaturesFlow({ section }: { section: Section }) {
                 opacity: 1,
                 y: 0,
               }}
-              viewport={{ once: true, margin: '-100px' }}
+              viewport={{ once: true, margin: "-100px" }}
               transition={{
                 duration: 0.6,
                 delay: index * 0.15,
@@ -85,9 +85,9 @@ export function FeaturesFlow({ section }: { section: Section }) {
                 }}
               >
                 <LazyImage
-                  src={item.image?.src ?? ''}
+                  src={item.image?.src ?? ""}
                   className="rounded-2xl"
-                  alt={item.image?.alt ?? ''}
+                  alt={item.image?.alt ?? ""}
                 />
               </motion.div>
 
