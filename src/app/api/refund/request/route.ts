@@ -18,7 +18,7 @@ export async function POST(req: NextRequest) {
     try {
         const user = await getUserInfo();
         if (!user) {
-            return respErr('no auth, please sign in', 401);
+            return respErr('no auth, please sign in');
         }
 
         const { reason, account, creditsAmount, description } = await req.json();

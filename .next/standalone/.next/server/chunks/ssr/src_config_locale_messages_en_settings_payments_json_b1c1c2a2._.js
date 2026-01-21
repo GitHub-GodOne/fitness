@@ -1,0 +1,3 @@
+module.exports=[270854,a=>{a.v({fields:{order_no:"Order No",user:"User",amount:"Amount",product_name:"Product Name",price:"Price",paid_amount:"Paid Amount",discount_amount:"Discount Amount",description:"Description",type:"Type",provider:"Provider",created_at:"Created At",status:"Status",action:"Action",actions:{view_invoice:"View Invoice"}},list:{title:"Payments",description:"View your payments",tabs:{all:"All","one-time":"One-Time",subscription:"Subscription",renew:"Renew"}}})}];
+
+//# sourceMappingURL=src_config_locale_messages_en_settings_payments_json_b1c1c2a2._.js.map

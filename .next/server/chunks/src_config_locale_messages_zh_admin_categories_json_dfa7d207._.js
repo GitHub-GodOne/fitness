@@ -1,0 +1,3 @@
+module.exports=[561278,t=>{t.v({fields:{slug:"路由",title:"标题",description:"描述",status:"状态",created_at:"创建时间",updated_at:"更新时间"},list:{title:"分类",crumbs:{admin:"管理后台",categories:"分类"},buttons:{add:"添加分类",edit:"编辑分类",view:"查看分类",delete:"删除分类"},tabs:{all:"全部",published:"已发布",pending:"待审核",draft:"草稿",archived:"已归档"}},add:{title:"添加分类",crumbs:{admin:"管理后台",categories:"分类",add:"添加分类"},buttons:{submit:"添加分类"}},edit:{title:"编辑分类",crumbs:{admin:"管理后台",categories:"分类",edit:"编辑分类"},buttons:{submit:"编辑分类"}}})}];
+
+//# sourceMappingURL=src_config_locale_messages_zh_admin_categories_json_dfa7d207._.js.map

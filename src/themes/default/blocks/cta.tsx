@@ -7,6 +7,8 @@ import { ScrollAnimation } from '@/shared/components/ui/scroll-animation';
 import { cn } from '@/shared/lib/utils';
 import { Section } from '@/shared/types/blocks/landing';
 
+type ButtonVariant = 'default' | 'link' | 'destructive' | 'outline' | 'secondary' | 'ghost';
+
 export function Cta({
   section,
   className,
@@ -37,11 +39,15 @@ export function Cta({
             <div className="mt-6 sm:mt-8 md:mt-10 lg:mt-12 flex flex-col sm:flex-row flex-wrap justify-center gap-3 sm:gap-4 px-4">
               {section.buttons?.map((button, idx) => {
                 const btn = button as any;
+                const safeVariant: ButtonVariant =
+                  btn.variant && ['default', 'link', 'destructive', 'outline', 'secondary', 'ghost'].includes(btn.variant)
+                    ? (btn.variant as ButtonVariant)
+                    : 'default';
                 return (
                   <Button
                     asChild
                     size={btn.size || 'default'}
-                    variant={btn.variant || 'default'}
+                    variant={safeVariant}
                     key={idx}
                     className={cn(
                       'h-auto min-h-11 text-sm sm:min-h-12 sm:text-base',

@@ -1,0 +1,20 @@
+{
+  "node": {
+    "001e690678fd6d4ade1d0be4648d406f8caf165f28": {
+      "workers": {
+        "app/[locale]/(admin)/admin/page": {
+          "moduleId": 469019,
+          "async": false,
+          "exportedName": "getClientIp",
+          "filename": "src/shared/lib/ip.ts"
+        }
+      },
+      "layer": {
+        "app/[locale]/(admin)/admin/page": "rsc"
+      },
+      "exportedName": "getClientIp",
+      "filename": "src/shared/lib/ip.ts"
+    }
+  },
+  "edge": {}
+}

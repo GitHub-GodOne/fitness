@@ -1,0 +1,11 @@
+User-Agent: *
+Allow: /
+Disallow: /*?*q=
+Disallow: /privacy-policy
+Disallow: /terms-of-service
+Disallow: /settings/*
+Disallow: /activity/*
+Disallow: /admin/*
+Disallow: /api/*
+
+Sitemap: https://www.fearnotforiamwithyou.com//sitemap.xml

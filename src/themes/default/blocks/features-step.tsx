@@ -9,6 +9,8 @@ import { cn } from '@/shared/lib/utils';
 import { Section } from '@/shared/types/blocks/landing';
 import { Link } from '@/core/i18n/navigation';
 
+type ButtonVariant = 'default' | 'link' | 'destructive' | 'outline' | 'secondary' | 'ghost';
+
 interface ButtonWithIcon {
   title: string;
   url: string;
@@ -76,12 +78,16 @@ export function FeaturesStep({
               <div className="mt-8 sm:mt-10 md:mt-12 flex flex-col sm:flex-row justify-center gap-3 sm:gap-4 px-4">
                 {section.buttons.map((button, index) => {
                   const btn = button as ButtonWithIcon;
+                  const safeVariant: ButtonVariant =
+                    btn.variant && ['default', 'link', 'destructive', 'outline', 'secondary', 'ghost'].includes(btn.variant)
+                      ? (btn.variant as ButtonVariant)
+                      : 'default';
                   return (
                     <Button
                       key={index}
                       asChild
                       size="default"
-                      variant={btn.variant || 'default'}
+                      variant={safeVariant}
                       className={cn(
                         'h-auto min-h-11 text-sm font-semibold sm:h-12 sm:text-base',
                         'flex items-center justify-center gap-2 whitespace-normal break-words text-center',

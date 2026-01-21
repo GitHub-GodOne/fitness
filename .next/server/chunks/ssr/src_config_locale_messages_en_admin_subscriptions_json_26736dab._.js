@@ -1,0 +1,3 @@
+module.exports=[292179,a=>{a.v({fields:{subscription_no:"Subscription No",user:"User",amount:"Amount",interval:"Interval",provider:"Provider",created_at:"Created At",current_period_start:"Current Period Start",current_period_end:"Current Period End",status:"Status",description:"Description",action:"Action"},list:{title:"Subscriptions",crumbs:{admin:"Admin",subscriptions:"Subscriptions"},tabs:{all:"All",month:"Month",year:"Year"}}})}];
+
+//# sourceMappingURL=src_config_locale_messages_en_admin_subscriptions_json_26736dab._.js.map

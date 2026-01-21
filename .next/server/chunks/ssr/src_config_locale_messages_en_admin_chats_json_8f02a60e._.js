@@ -1,0 +1,3 @@
+module.exports=[819488,a=>{a.v({fields:{title:"Title",user:"User",status:"Status",model:"Model",provider:"Provider",created_at:"Created At",action:"Action"},list:{title:"AI Chats",crumbs:{admin:"Admin",chats:"AI Chats"},tabs:{all:"All",pending:"Pending",completed:"Completed",failed:"Failed"},buttons:{view:"View Chat",new:"New Chat"},empty_message:"No chats found"}})}];
+
+//# sourceMappingURL=src_config_locale_messages_en_admin_chats_json_8f02a60e._.js.map

@@ -1,0 +1,3 @@
+module.exports=[857646,a=>a.a(async(b,c)=>{try{var d=a.i(903803),e=a.i(310150),f=a.i(524157),g=a.i(332455),h=b([e,f]);function i({section:a,className:b}){return(0,d.jsx)("section",{id:a?.id,className:(0,g.cn)("py-24 md:py-36",a?.className,b),children:(0,d.jsx)("div",{className:"container mx-auto max-w-4xl",children:(0,d.jsx)(f.CommentSection,{})})})}[e,f]=h.then?(await h)():h,a.s(["Comments",()=>i]),c()}catch(a){c(a)}},!1)];
+
+//# sourceMappingURL=src_themes_default_blocks_comments_tsx_5a43879c._.js.map

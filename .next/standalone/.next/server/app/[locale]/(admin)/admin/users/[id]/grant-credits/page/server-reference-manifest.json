@@ -1,0 +1,35 @@
+{
+  "node": {
+    "001e690678fd6d4ade1d0be4648d406f8caf165f28": {
+      "workers": {
+        "app/[locale]/(admin)/admin/users/[id]/grant-credits/page": {
+          "moduleId": 779364,
+          "async": true,
+          "exportedName": "getClientIp",
+          "filename": "src/shared/lib/ip.ts"
+        }
+      },
+      "layer": {
+        "app/[locale]/(admin)/admin/users/[id]/grant-credits/page": "rsc"
+      },
+      "exportedName": "getClientIp",
+      "filename": "src/shared/lib/ip.ts"
+    },
+    "604e3b09257653a7a5e44a241320c36909df4a787f": {
+      "workers": {
+        "app/[locale]/(admin)/admin/users/[id]/grant-credits/page": {
+          "moduleId": 779364,
+          "async": true,
+          "exportedName": "$$RSC_SERVER_ACTION_0",
+          "filename": "src/app/[locale]/(admin)/admin/users/[id]/grant-credits/page.tsx"
+        }
+      },
+      "layer": {
+        "app/[locale]/(admin)/admin/users/[id]/grant-credits/page": "rsc"
+      },
+      "exportedName": "$$RSC_SERVER_ACTION_0",
+      "filename": "src/app/[locale]/(admin)/admin/users/[id]/grant-credits/page.tsx"
+    }
+  },
+  "edge": {}
+}

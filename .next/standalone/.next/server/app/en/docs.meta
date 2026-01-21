@@ -1,0 +1,18 @@
+{
+  "headers": {
+    "x-nextjs-stale-time": "300",
+    "x-nextjs-prerender": "1",
+    "x-next-cache-tags": "_N_T_/layout,_N_T_/[locale]/layout,_N_T_/[locale]/(docs)/layout,_N_T_/[locale]/(docs)/docs/layout,_N_T_/[locale]/(docs)/docs/[[...slug]]/layout,_N_T_/[locale]/(docs)/docs/[[...slug]]/page,_N_T_/en/docs,configs"
+  },
+  "segmentPaths": [
+    "/_tree",
+    "/_full",
+    "/$d$locale/!KGRvY3Mp/docs/$oc$slug/__PAGE__",
+    "/$d$locale/!KGRvY3Mp/docs/$oc$slug",
+    "/$d$locale/!KGRvY3Mp/docs",
+    "/$d$locale/!KGRvY3Mp",
+    "/$d$locale",
+    "/_index",
+    "/_head"
+  ]
+}

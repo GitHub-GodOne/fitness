@@ -7,6 +7,8 @@ import { ScrollAnimation } from '@/shared/components/ui/scroll-animation';
 import { cn } from '@/shared/lib/utils';
 import { Section, SectionItem } from '@/shared/types/blocks/landing';
 
+type ButtonVariant = 'default' | 'link' | 'destructive' | 'outline' | 'secondary' | 'ghost';
+
 export function Testimonials({
   section,
   className,
@@ -72,6 +74,10 @@ export function Testimonials({
             <div className="mt-8 sm:mt-10 md:mt-12 flex flex-col sm:flex-row justify-center gap-3 sm:gap-4 px-4">
               {section.buttons.map((button, index) => {
                 const btn = button as any;
+                const safeVariant: ButtonVariant =
+                  btn.variant && ['default', 'link', 'destructive', 'outline', 'secondary', 'ghost'].includes(btn.variant)
+                    ? (btn.variant as ButtonVariant)
+                    : 'default';
                 return (
                   <Button
                     key={index}
@@ -82,7 +88,7 @@ export function Testimonials({
                       'flex items-center justify-center gap-2 whitespace-normal break-words text-center',
                       'w-full sm:w-auto max-w-full py-2.5 sm:py-3'
                     )}
-                    variant={btn.variant || 'default'}
+                    variant={safeVariant}
                   >
                     <Link href={btn.url || ''} target={btn.target || '_self'} className="flex items-center justify-center gap-2 w-full sm:w-auto">
                       {btn.icon && <SmartIcon name={btn.icon} className="h-4 w-4 sm:h-5 sm:w-5 shrink-0" />}
