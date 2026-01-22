@@ -53,6 +53,7 @@ export class VolcanoSPProvider implements AIProvider {
 
     /**
      * Convert relative URL to absolute public URL
+     * For server-side access (like image-to-image API), use localhost to avoid SSL issues
      */
     private toAbsoluteUrl(url: string): string {
         // Already absolute URL
@@ -67,12 +68,10 @@ export class VolcanoSPProvider implements AIProvider {
 
         // Convert relative URL to absolute
         if (url.startsWith('/')) {
-            const baseUrl = process.env.NEXTAUTH_URL ||
-                process.env.NEXT_PUBLIC_SITE_URL ||
-                `http://localhost:${process.env.PORT || 3000}`;
-            // Remove trailing slash from baseUrl if exists
-            const cleanBaseUrl = baseUrl.endsWith('/') ? baseUrl.slice(0, -1) : baseUrl;
-            return `${cleanBaseUrl}${url}`;
+            // For server-side internal access, always use localhost to avoid SSL issues
+            const port = process.env.PORT || 3000;
+            const baseUrl = `http://localhost:${port}`;
+            return `${baseUrl}${url}`;
         }
 
         return url;
@@ -375,15 +374,15 @@ You must output ONLY a valid JSON object with the following structure:
             throw new Error('Failed to get image dimensions');
         }
 
-        const fontSize = Math.floor(width / 30); // 减小字体大小
-        const lineHeight = fontSize * 1.4;
-        const sidePadding = width * 0.15; // 增加侧边距
+        const fontSize = Math.floor(width / 40); // 进一步减小字体大小（从 /30 改为 /40）
+        const lineHeight = fontSize * 1.5;
+        const sidePadding = width * 0.18; // 增加侧边距（从 0.15 改为 0.18）
         const maxTextWidth = width - sidePadding * 2;
 
         // Wrap text
         const lines = this.wrapTextSafe(text, maxTextWidth, fontSize);
         const totalHeight = lineHeight * (lines.length - 1);
-        const bottomPadding = fontSize * 2.5; // 增加底部边距
+        const bottomPadding = fontSize * 3; // 增加底部边距（从 2.5 改为 3）
         const startY = height - bottomPadding - totalHeight;
 
         const tspans = lines
