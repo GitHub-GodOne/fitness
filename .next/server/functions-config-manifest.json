@@ -2,15 +2,15 @@
   "version": 1,
   "functions": {
     "/api/comments/list": {},
-    "/api/comments/like": {},
     "/api/comments/replies": {},
-    "/api/comments/create": {},
+    "/api/comments/like": {},
     "/api/comments/visibility": {},
-    "/api/comments/reply": {},
-    "/api/notifications/debug": {},
-    "/api/notifications/mark-read": {},
+    "/api/comments/create": {},
     "/api/notifications/unread-count": {},
+    "/api/notifications/debug": {},
     "/api/notifications/list": {},
+    "/api/comments/reply": {},
+    "/api/notifications/mark-read": {},
     "/_middleware": {
       "runtime": "nodejs",
       "matchers": [

@@ -69,7 +69,7 @@ export class VolcanoSPProvider implements AIProvider {
                 const port = process.env.PORT || 3000;
                 fetchUrl = `http://localhost:${port}${imageUrl}`;
             }
-
+            console.log('[SP] Fetching image:', fetchUrl);
             const response = await fetch(fetchUrl);
             if (!response.ok) {
                 throw new Error(`Failed to fetch image: ${response.status}`);
