@@ -140,7 +140,11 @@ You must output ONLY a valid JSON object with the following structure:
 }`;
 
         // Convert relative URL to absolute with public domain for external API
-        const base64Image = await this.convertImageToBase64(imageUrl);
+        const url = new URL(imageUrl);
+        console.log('[SP] Reference image URL:', url);
+        const noDomainUrl = url.pathname + url.search;
+
+        const base64Image = await this.convertImageToBase64(noDomainUrl);
         // const absoluteImageUrl = toAbsoluteUrl(imageUrl, { usePublicDomain: true });
 
         const apiUrl = `${this.baseUrl}/chat/completions`;
@@ -281,7 +285,11 @@ You must output ONLY a valid JSON object with the following structure:
         // Convert relative URL to absolute public URL for external API
         // const absoluteImageUrl = toAbsoluteUrl(referenceImageUrl, { usePublicDomain: true });
         // console.log('[SP] Reference image URL:', referenceImageUrl, '-> Absolute:', absoluteImageUrl);
-        const base64Image = await this.convertImageToBase64(referenceImageUrl);
+        const url = new URL(referenceImageUrl);
+        console.log('[SP] Reference image URL:', url);
+        const noDomainUrl = url.pathname + url.search;
+
+        const base64Image = await this.convertImageToBase64(noDomainUrl);
         // Create array of promises for parallel generation with retry logic
         const generatePromises = Array.from({ length: count }, async (_, i) => {
             const payload = {
