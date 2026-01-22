@@ -322,6 +322,20 @@
     },
     "reactCompiler": true,
     "distDirRoot": ".next",
+    "_originalRewrites": {
+      "beforeFiles": [],
+      "afterFiles": [
+        {
+          "source": "/video/:path*",
+          "destination": "/api/static/video/:path*"
+        },
+        {
+          "source": "/pic/:path*",
+          "destination": "/api/static/pic/:path*"
+        }
+      ],
+      "fallback": []
+    },
     "_originalRedirects": []
   },
   "appDir": "/Users/pikju/program/node/tl_pj/bible-video",

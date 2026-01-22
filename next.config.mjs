@@ -31,6 +31,18 @@ const nextConfig = {
   async redirects() {
     return [];
   },
+  async rewrites() {
+    return [
+      {
+        source: '/video/:path*',
+        destination: '/api/static/video/:path*',
+      },
+      {
+        source: '/pic/:path*',
+        destination: '/api/static/pic/:path*',
+      },
+    ];
+  },
   async headers() {
     return [
       {

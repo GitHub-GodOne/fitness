@@ -27,7 +27,18 @@
   ],
   "rewrites": {
     "beforeFiles": [],
-    "afterFiles": [],
+    "afterFiles": [
+      {
+        "source": "/video/:path*",
+        "destination": "/api/static/video/:path*",
+        "regex": "^/video(?:/((?:[^/]+?)(?:/(?:[^/]+?))*))?(?:/)?$"
+      },
+      {
+        "source": "/pic/:path*",
+        "destination": "/api/static/pic/:path*",
+        "regex": "^/pic(?:/((?:[^/]+?)(?:/(?:[^/]+?))*))?(?:/)?$"
+      }
+    ],
     "fallback": []
   },
   "dynamicRoutes": [
@@ -46,6 +57,14 @@
         "nxtPprovider": "nxtPprovider"
       },
       "namedRegex": "^/api/payment/notify/(?<nxtPprovider>[^/]+?)(?:/)?$"
+    },
+    {
+      "page": "/api/static/[...path]",
+      "regex": "^/api/static/(.+?)(?:/)?$",
+      "routeKeys": {
+        "nxtPpath": "nxtPpath"
+      },
+      "namedRegex": "^/api/static/(?<nxtPpath>.+?)(?:/)?$"
     },
     {
       "page": "/[locale]",

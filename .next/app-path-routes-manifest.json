@@ -102,6 +102,7 @@
   "/api/refund/my-requests/route": "/api/refund/my-requests",
   "/api/refund/request/route": "/api/refund/request",
   "/api/refund/update/route": "/api/refund/update",
+  "/api/static/[...path]/route": "/api/static/[...path]",
   "/api/storage/upload-image/route": "/api/storage/upload-image",
   "/api/user/get-user-credits/route": "/api/user/get-user-credits",
   "/api/user/get-user-info/route": "/api/user/get-user-info",

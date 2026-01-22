@@ -102,6 +102,7 @@
   "/api/refund/my-requests/route": "app/api/refund/my-requests/route.js",
   "/api/refund/request/route": "app/api/refund/request/route.js",
   "/api/refund/update/route": "app/api/refund/update/route.js",
+  "/api/static/[...path]/route": "app/api/static/[...path]/route.js",
   "/api/storage/upload-image/route": "app/api/storage/upload-image/route.js",
   "/api/user/get-user-credits/route": "app/api/user/get-user-credits/route.js",
   "/api/user/get-user-info/route": "app/api/user/get-user-info/route.js",
