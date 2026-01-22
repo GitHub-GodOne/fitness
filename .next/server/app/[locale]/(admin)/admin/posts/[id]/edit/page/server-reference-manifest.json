@@ -1,6 +1,6 @@
 {
   "node": {
-    "00afafd4e31e7f6bca6195ed47fcc0938f532d3a79": {
+    "00273fad059a5384851b45163053c0131b3e07fc01": {
       "workers": {
         "app/[locale]/(admin)/admin/posts/[id]/edit/page": {
           "moduleId": 5426,
@@ -15,7 +15,7 @@
       "exportedName": "getClientIp",
       "filename": "src/shared/lib/ip.ts"
     },
-    "608c6429906cdad272de1fc24ccb77352486af8985": {
+    "60bd672cbc61f3e920bf643936c6c3f8662946c19a": {
       "workers": {
         "app/[locale]/(admin)/admin/posts/[id]/edit/page": {
           "moduleId": 5426,

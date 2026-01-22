@@ -1,6 +1,6 @@
 {
   "node": {
-    "00afafd4e31e7f6bca6195ed47fcc0938f532d3a79": {
+    "00273fad059a5384851b45163053c0131b3e07fc01": {
       "workers": {
         "app/[locale]/(admin)/admin/users/[id]/grant-credits/page": {
           "moduleId": 779364,
@@ -15,7 +15,7 @@
       "exportedName": "getClientIp",
       "filename": "src/shared/lib/ip.ts"
     },
-    "601897df1135549adcc57af58b6e8d301f8079cbc1": {
+    "606e24594b6d01246a5d44378aab55b7606c41739a": {
       "workers": {
         "app/[locale]/(admin)/admin/users/[id]/grant-credits/page": {
           "moduleId": 779364,

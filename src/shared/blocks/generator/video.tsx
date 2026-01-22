@@ -362,16 +362,20 @@ export function VideoGenerator({
   const [userFeeling, setUserFeeling] = useState("");
 
   // Voice gender selection (male or female) - load from cookies
-  const [voiceGender, setVoiceGender] = useState<"male" | "female">(() => {
+  const [voiceGender, setVoiceGender] = useState<"male" | "female">("female");
+
+  // Load voice gender from cookies on client side only (avoid hydration mismatch)
+  useEffect(() => {
     if (typeof document !== "undefined") {
       const savedGender = document.cookie
         .split("; ")
         .find((row) => row.startsWith("voice_gender="))
         ?.split("=")[1] as "male" | "female" | undefined;
-      return savedGender || "female";
+      if (savedGender && savedGender !== voiceGender) {
+        setVoiceGender(savedGender);
+      }
     }
-    return "female";
-  });
+  }, []);
 
   const { user, isCheckSign, setIsShowSignModal, fetchUserCredits } =
     useAppContext();
@@ -1070,6 +1074,8 @@ export function VideoGenerator({
     const expires = new Date();
     expires.setFullYear(expires.getFullYear() + 1);
     document.cookie = `voice_gender=${gender}; expires=${expires.toUTCString()}; path=/`;
+    // Show success toast
+    toast.success(t(`form.voice_gender_${gender}_selected`));
   };
 
   const handleReset = () => {

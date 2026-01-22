@@ -1,6 +1,6 @@
 {
   "node": {
-    "60559b65e5b463344404aa75101f08f423f121e84b": {
+    "603edf75ec611a4e7c483d497f360fe881786362dc": {
       "workers": {
         "app/[locale]/(landing)/settings/security/page": {
           "moduleId": 898895,
@@ -15,7 +15,7 @@
       "exportedName": "$$RSC_SERVER_ACTION_0",
       "filename": "src/app/[locale]/(landing)/settings/security/page.tsx"
     },
-    "00afafd4e31e7f6bca6195ed47fcc0938f532d3a79": {
+    "00273fad059a5384851b45163053c0131b3e07fc01": {
       "workers": {
         "app/[locale]/(landing)/settings/security/page": {
           "moduleId": 898895,

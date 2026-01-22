@@ -29,6 +29,8 @@
       "voice_gender": "语音性别",
       "voice_female": "女声",
       "voice_male": "男声",
+      "voice_gender_female_selected": "已选择女声",
+      "voice_gender_male_selected": "已选择男声",
       "reference_image": "选择图片",
       "reference_image_placeholder": "上传参考图片用于视频生成",
       "reference_video": "参考视频链接",

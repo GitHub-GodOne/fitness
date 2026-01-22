@@ -1,6 +1,6 @@
 {
   "node": {
-    "6078983aaa6e102e14b47b55da704730e39b3338be": {
+    "6099c83d1f7a31b2dbb85181febe6e0329061da830": {
       "workers": {
         "app/[locale]/(landing)/settings/billing/cancel/page": {
           "moduleId": 176522,
@@ -15,7 +15,7 @@
       "exportedName": "$$RSC_SERVER_ACTION_0",
       "filename": "src/app/[locale]/(landing)/settings/billing/cancel/page.tsx"
     },
-    "00afafd4e31e7f6bca6195ed47fcc0938f532d3a79": {
+    "00273fad059a5384851b45163053c0131b3e07fc01": {
       "workers": {
         "app/[locale]/(landing)/settings/billing/cancel/page": {
           "moduleId": 176522,

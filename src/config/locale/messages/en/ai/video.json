@@ -29,6 +29,8 @@
       "voice_gender": "Voice Gender",
       "voice_female": "Female Voice",
       "voice_male": "Male Voice",
+      "voice_gender_female_selected": "Female voice selected",
+      "voice_gender_male_selected": "Male voice selected",
       "reference_image": "Select Image",
       "reference_image_placeholder": "Upload a reference image for video generation",
       "reference_video": "Reference Video URL",
