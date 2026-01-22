@@ -8,7 +8,15 @@ export async function GET(req: NextRequest) {
   }
 
   try {
-    const response = await fetch(url);
+    let fetchUrl = url;
+
+    // Handle relative URLs (local files)
+    if (url.startsWith('/')) {
+      const origin = req.nextUrl.origin || `http://localhost:${process.env.PORT || 3000}`;
+      fetchUrl = `${origin}${url}`;
+    }
+
+    const response = await fetch(fetchUrl);
 
     if (!response.ok) {
       return new NextResponse(`Failed to fetch file: ${response.statusText}`, {
@@ -22,6 +30,7 @@ export async function GET(req: NextRequest) {
     return new NextResponse(response.body, {
       headers: {
         'Content-Type': contentType,
+        'Cache-Control': 'public, max-age=31536000, immutable',
       },
     });
   } catch (error) {

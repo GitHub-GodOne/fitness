@@ -26,6 +26,9 @@
       "user_feeling_placeholder": "Please share your feelings, e.g., I've been feeling very anxious lately due to work pressure...",
       "user_feeling_hint": "✨ Bible verses will be automatically matched and a warm video scene will be created",
       "user_feeling_required": "Please enter your feelings",
+      "voice_gender": "Voice Gender",
+      "voice_female": "Female Voice",
+      "voice_male": "Male Voice",
       "reference_image": "Select Image",
       "reference_image_placeholder": "Upload a reference image for video generation",
       "reference_video": "Reference Video URL",
@@ -37,6 +40,22 @@
     "reset": "Reset",
     "reset_success": "Reset successfully",
     "regenerate": "Regenerate",
+    "download": "Download",
+    "download_video": "Download Video",
+    "download_images_with_watermark": "Download Images with Text",
+    "download_images_without_watermark": "Download Original Images",
+    "download_options": "Download Options",
+    "download_description": "Choose what you want to download",
+    "video_downloaded": "Video downloaded successfully",
+    "images_downloaded": "Images downloaded successfully",
+    "download_failed": "Download failed",
+    "no_video_found": "No video found",
+    "no_watermarked_images": "No images with text found",
+    "no_original_images": "No original images found",
+    "with_text": "With Text",
+    "without_text": "Original",
+    "video": "Video",
+    "cancel": "Cancel",
     "checking_account": "Checking Account...",
     "loading": "Loading...",
     "generating": "Generating...",
@@ -90,4 +109,3 @@
     }
   }
 }
-

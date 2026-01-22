@@ -1,6 +1,6 @@
 {
   "node": {
-    "607bc5b6f2ae068a4edfa51dc8ce361b1932a5f6fe": {
+    "60b1775f0f078161b70d6afff91ac40133e1654d47": {
       "workers": {
         "app/[locale]/(landing)/settings/apikeys/create/page": {
           "moduleId": 212237,
@@ -15,7 +15,7 @@
       "exportedName": "$$RSC_SERVER_ACTION_0",
       "filename": "src/app/[locale]/(landing)/settings/apikeys/create/page.tsx"
     },
-    "00cf3b2c537f0cc1f944b88c7919b6b67ef0f6d736": {
+    "00afafd4e31e7f6bca6195ed47fcc0938f532d3a79": {
       "workers": {
         "app/[locale]/(landing)/settings/apikeys/create/page": {
           "moduleId": 212237,

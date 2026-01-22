@@ -3,14 +3,14 @@
   "functions": {
     "/api/comments/list": {},
     "/api/comments/replies": {},
+    "/api/comments/like": {},
     "/api/comments/create": {},
     "/api/comments/visibility": {},
-    "/api/comments/like": {},
     "/api/notifications/debug": {},
-    "/api/notifications/mark-read": {},
-    "/api/notifications/unread-count": {},
     "/api/comments/reply": {},
     "/api/notifications/list": {},
+    "/api/notifications/mark-read": {},
+    "/api/notifications/unread-count": {},
     "/_middleware": {
       "runtime": "nodejs",
       "matchers": [

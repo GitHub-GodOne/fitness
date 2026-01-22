@@ -25,6 +25,7 @@ import { AIMediaType, AITaskStatus } from "@/extensions/ai/types";
 import { ImageUploader, ImageUploaderValue } from "@/shared/blocks/common";
 import { ShareButton } from "@/shared/blocks/common/share-button";
 import { Copy } from "@/shared/blocks/table/copy";
+import { DownloadDialog } from "@/shared/blocks/generator/download-dialog";
 import { Button } from "@/shared/components/ui/button";
 import {
   Card,
@@ -188,7 +189,7 @@ const MODEL_OPTIONS = [
   {
     value: "doubao-seedance-1-5-pro-251215",
     label: "Doubao Seedance 1.5 Pro",
-    provider: "volcano",
+    provider: "sp",
     scenes: ["image-to-video"],
   },
 ];
@@ -207,7 +208,7 @@ const PROVIDER_OPTIONS = [
     label: "Kie",
   },
   {
-    value: "volcano",
+    value: "sp",
     label: "Volcano Engine",
   },
 ];
@@ -294,7 +295,7 @@ function extractVideoUrls(result: any): string[] {
 }
 
 export function VideoGenerator({
-  maxSizeMB = 50,
+  maxSizeMB = 5,
   srOnlyTitle,
 }: VideoGeneratorProps) {
   const t = useTranslations("ai.video.generator");
@@ -304,7 +305,7 @@ export function VideoGenerator({
 
   const [costCredits, setCostCredits] = useState<number>(textToVideoCredits);
   // Default to Volcano Engine
-  const [provider, setProvider] = useState("volcano");
+  const [provider, setProvider] = useState("sp");
   // Default to Volcano Engine's model for image-to-video
   const [model, setModel] = useState("doubao-seedance-1-5-pro-251215");
   const [referenceImageItems, setReferenceImageItems] = useState<
@@ -324,6 +325,12 @@ export function VideoGenerator({
   const [downloadingVideoId, setDownloadingVideoId] = useState<string | null>(
     null,
   );
+  const [downloadingImageId, setDownloadingImageId] = useState<string | null>(
+    null,
+  );
+  const [downloadDialogOpen, setDownloadDialogOpen] = useState(false);
+  const [selectedTaskForDownload, setSelectedTaskForDownload] =
+    useState<HistoryTask | null>(null);
   const [isMounted, setIsMounted] = useState(false);
   const [historyTasks, setHistoryTasks] = useState<HistoryTask[]>([]);
   const [historyPage, setHistoryPage] = useState(1);
@@ -353,6 +360,18 @@ export function VideoGenerator({
 
   // User feeling (required for Bible video generation)
   const [userFeeling, setUserFeeling] = useState("");
+
+  // Voice gender selection (male or female) - load from cookies
+  const [voiceGender, setVoiceGender] = useState<"male" | "female">(() => {
+    if (typeof document !== "undefined") {
+      const savedGender = document.cookie
+        .split("; ")
+        .find((row) => row.startsWith("voice_gender="))
+        ?.split("=")[1] as "male" | "female" | undefined;
+      return savedGender || "female";
+    }
+    return "female";
+  });
 
   const { user, isCheckSign, setIsShowSignModal, fetchUserCredits } =
     useAppContext();
@@ -1045,8 +1064,17 @@ export function VideoGenerator({
     };
   }, [taskId, isGenerating, pollTaskStatus, isQuerying]);
 
+  const handleVoiceGenderChange = (gender: "male" | "female") => {
+    setVoiceGender(gender);
+    // Save to cookies (expires in 1 year)
+    const expires = new Date();
+    expires.setFullYear(expires.getFullYear() + 1);
+    document.cookie = `voice_gender=${gender}; expires=${expires.toUTCString()}; path=/`;
+  };
+
   const handleReset = () => {
     setUserFeeling("");
+    // Don't reset voice gender - keep user's preference
     setReferenceImageItems([]);
     setReferenceImageUrls([]);
     setReferenceVideoUrl("");
@@ -1112,6 +1140,7 @@ export function VideoGenerator({
         duration,
         generate_audio: generateAudio,
         user_feeling: trimmedFeeling, // Pass user feeling to backend for auto-enhancement
+        voice_gender: voiceGender, // Pass voice gender selection to backend
       };
 
       if (isImageToVideoMode) {
@@ -1221,6 +1250,100 @@ export function VideoGenerator({
     } finally {
       setDownloadingVideoId(null);
     }
+  };
+
+  const handleDownloadTaskVideo = async (task: HistoryTask) => {
+    try {
+      const taskResult = task.taskResult ? JSON.parse(task.taskResult) : {};
+      const videoUrl = taskResult.video_url;
+
+      if (!videoUrl) {
+        toast.error("No video URL found");
+        return;
+      }
+
+      setDownloadingVideoId(task.id);
+      const resp = await fetch(
+        `/api/proxy/file?url=${encodeURIComponent(videoUrl)}`,
+      );
+      if (!resp.ok) {
+        throw new Error("Failed to fetch video");
+      }
+
+      const blob = await resp.blob();
+      const blobUrl = URL.createObjectURL(blob);
+      const link = document.createElement("a");
+      link.href = blobUrl;
+      link.download = `video-${task.id}.mp4`;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      setTimeout(() => URL.revokeObjectURL(blobUrl), 200);
+      toast.success(t("video_downloaded"));
+    } catch (error) {
+      console.error("Failed to download video:", error);
+      toast.error(t("download_failed"));
+    } finally {
+      setDownloadingVideoId(null);
+    }
+  };
+
+  const handleDownloadTaskImages = async (
+    task: HistoryTask,
+    withWatermark: boolean = true,
+  ) => {
+    try {
+      const taskResult = task.taskResult ? JSON.parse(task.taskResult) : {};
+      const imageUrls = withWatermark
+        ? taskResult.image_urls
+        : taskResult.original_image_urls;
+
+      if (!imageUrls || !Array.isArray(imageUrls) || imageUrls.length === 0) {
+        toast.error(
+          withWatermark ? t("no_watermarked_images") : t("no_original_images"),
+        );
+        return;
+      }
+
+      setDownloadingImageId(task.id);
+
+      for (let i = 0; i < imageUrls.length; i++) {
+        const imageUrl = imageUrls[i];
+        const resp = await fetch(
+          `/api/proxy/file?url=${encodeURIComponent(imageUrl)}`,
+        );
+        if (!resp.ok) {
+          throw new Error(`Failed to fetch image ${i + 1}`);
+        }
+
+        const blob = await resp.blob();
+        const blobUrl = URL.createObjectURL(blob);
+        const link = document.createElement("a");
+        link.href = blobUrl;
+        link.download = `image-${task.id}-${i + 1}${withWatermark ? "-watermark" : ""}.png`;
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        setTimeout(() => URL.revokeObjectURL(blobUrl), 200);
+
+        // Add delay between downloads to avoid browser blocking
+        if (i < imageUrls.length - 1) {
+          await new Promise((resolve) => setTimeout(resolve, 300));
+        }
+      }
+
+      toast.success(t("images_downloaded"));
+    } catch (error) {
+      console.error("Failed to download images:", error);
+      toast.error(t("download_failed"));
+    } finally {
+      setDownloadingImageId(null);
+    }
+  };
+
+  const handleOpenDownloadDialog = (task: HistoryTask) => {
+    setSelectedTaskForDownload(task);
+    setDownloadDialogOpen(true);
   };
 
   return (
@@ -1347,6 +1470,35 @@ export function VideoGenerator({
                   <p className="text-xs text-muted-foreground">
                     {t("form.user_feeling_hint")}
                   </p>
+                </div>
+
+                {/* Voice Gender Selection */}
+                <div className="space-y-2">
+                  <Label className="text-sm">{t("form.voice_gender")}</Label>
+                  <div className="grid grid-cols-2 gap-2">
+                    <Button
+                      type="button"
+                      variant={voiceGender === "female" ? "default" : "outline"}
+                      onClick={() => handleVoiceGenderChange("female")}
+                      className="h-9 text-xs px-2 sm:h-10 sm:text-sm sm:px-4"
+                    >
+                      <User className="h-3.5 w-3.5 sm:h-4 sm:w-4 flex-shrink-0" />
+                      <span className="ml-1 sm:ml-1.5 truncate">
+                        {t("form.voice_female")}
+                      </span>
+                    </Button>
+                    <Button
+                      type="button"
+                      variant={voiceGender === "male" ? "default" : "outline"}
+                      onClick={() => handleVoiceGenderChange("male")}
+                      className="h-9 text-xs px-2 sm:h-10 sm:text-sm sm:px-4"
+                    >
+                      <User className="h-3.5 w-3.5 sm:h-4 sm:w-4 flex-shrink-0" />
+                      <span className="ml-1 sm:ml-1.5 truncate">
+                        {t("form.voice_male")}
+                      </span>
+                    </Button>
+                  </div>
                 </div>
 
                 {!isMounted ? (
@@ -1966,30 +2118,18 @@ export function VideoGenerator({
                                       />
                                     </>
                                   )}
-                                  {extractLastFrameImage(task.taskResult) && (
-                                    <Button
-                                      size="sm"
-                                      variant="ghost"
-                                      onClick={() => handleUseLastFrame(task)}
-                                      title="Use last frame image"
-                                      className="w-auto justify-center"
-                                    >
-                                      <Image className="h-4 w-4" />
-                                      <span className="ml-2 hidden sm:inline">
-                                        Frame
-                                      </span>
-                                    </Button>
-                                  )}
                                   <Button
                                     size="sm"
                                     variant="outline"
-                                    onClick={() => handleRegenerate(task)}
-                                    title={t("regenerate")}
+                                    onClick={() =>
+                                      handleOpenDownloadDialog(task)
+                                    }
+                                    title={t("download")}
                                     className="w-auto justify-center"
                                   >
-                                    <RefreshCw className="h-4 w-4" />
+                                    <Download className="h-4 w-4" />
                                     <span className="ml-2 hidden sm:inline">
-                                      {t("regenerate")}
+                                      {t("download")}
                                     </span>
                                   </Button>
                                 </div>
@@ -2476,6 +2616,16 @@ export function VideoGenerator({
 
       {/* Sign Modal */}
       <SignModal callbackUrl={pathname || "/ai-video-generator"} />
+
+      {/* Download Dialog */}
+      {selectedTaskForDownload && (
+        <DownloadDialog
+          open={downloadDialogOpen}
+          onOpenChange={setDownloadDialogOpen}
+          taskId={selectedTaskForDownload.id}
+          taskResult={selectedTaskForDownload.taskResult}
+        />
+      )}
     </section>
   );
 }

@@ -12,12 +12,22 @@ export async function POST(request: Request) {
     let { provider, mediaType, model, prompt, options, scene } =
       await request.json();
 
-    if (!provider || !mediaType || !model) {
+    if (!mediaType || !model) {
       throw new Error('invalid params');
     }
 
     if (!prompt && !options) {
       throw new Error('prompt or options is required');
+    }
+
+    // Force use SP Provider for video generation
+    if (mediaType === AIMediaType.VIDEO) {
+      provider = 'sp';
+      console.log('[AI Generate] Forcing SP Provider for video generation');
+    }
+
+    if (!provider) {
+      throw new Error('invalid params: provider is required');
     }
 
     const aiService = await getAIService();

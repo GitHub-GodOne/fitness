@@ -1,16 +1,16 @@
-'use client';
+"use client";
 
-import { useEffect, useMemo, useRef, useState } from 'react';
-import { IconRefresh, IconUpload, IconX } from '@tabler/icons-react';
-import { ImageIcon } from 'lucide-react';
-import { toast } from 'sonner';
+import { useEffect, useMemo, useRef, useState } from "react";
+import { IconRefresh, IconUpload, IconX } from "@tabler/icons-react";
+import { ImageIcon } from "lucide-react";
+import { toast } from "sonner";
 
-import { Button } from '@/shared/components/ui/button';
-import { cn } from '@/shared/lib/utils';
-import { useAppContext } from '@/shared/contexts/app';
-import { usePathname } from '@/core/i18n/navigation';
+import { Button } from "@/shared/components/ui/button";
+import { cn } from "@/shared/lib/utils";
+import { useAppContext } from "@/shared/contexts/app";
+import { usePathname } from "@/core/i18n/navigation";
 
-export type UploadStatus = 'idle' | 'uploading' | 'uploaded' | 'error';
+export type UploadStatus = "idle" | "uploading" | "uploaded" | "error";
 
 export interface ImageUploaderValue {
   id: string;
@@ -43,7 +43,7 @@ interface UploadItem extends ImageUploaderValue {
 }
 
 const formatBytes = (bytes?: number) => {
-  if (!bytes) return '';
+  if (!bytes) return "";
   if (bytes < 1024) return `${bytes} B`;
   const kb = bytes / 1024;
   if (kb < 1024) return `${kb.toFixed(2)} KB`;
@@ -53,10 +53,10 @@ const formatBytes = (bytes?: number) => {
 
 const uploadImageFile = async (file: File) => {
   const formData = new FormData();
-  formData.append('files', file);
+  formData.append("files", file);
 
-  const response = await fetch('/api/storage/upload-image', {
-    method: 'POST',
+  const response = await fetch("/api/storage/upload-image", {
+    method: "POST",
     body: formData,
   });
 
@@ -66,7 +66,7 @@ const uploadImageFile = async (file: File) => {
 
   const result = await response.json();
   if (result.code !== 0 || !result.data?.urls?.length) {
-    throw new Error(result.message || 'Upload failed');
+    throw new Error(result.message || "Upload failed");
   }
 
   return result.data.urls[0] as string;
@@ -100,7 +100,7 @@ export function ImageUploader({
         id: `preset-${url}-${index}`,
         preview: url,
         url,
-        status: 'uploaded' as UploadStatus,
+        status: "uploaded" as UploadStatus,
       }));
     }
     return [];
@@ -132,7 +132,7 @@ export function ImageUploader({
     // 使用函数式更新来访问最新的 items
     setItems((currentItems) => {
       const currentUrls = currentItems
-        .filter((item) => item.status === 'uploaded' && item.url)
+        .filter((item) => item.status === "uploaded" && item.url)
         .map((item) => item.url as string);
 
       // 比较当前 items 和 defaultPreviews 是否一致
@@ -146,7 +146,7 @@ export function ImageUploader({
           id: `preset-${url}-${index}`,
           preview: url,
           url,
-          status: 'uploaded' as UploadStatus,
+          status: "uploaded" as UploadStatus,
         }));
       }
 
@@ -158,7 +158,7 @@ export function ImageUploader({
   useEffect(() => {
     return () => {
       items.forEach((item) => {
-        if (item.preview.startsWith('blob:')) {
+        if (item.preview.startsWith("blob:")) {
           URL.revokeObjectURL(item.preview);
         }
       });
@@ -183,7 +183,7 @@ export function ImageUploader({
         status,
         size,
         file,
-      }))
+      })),
     );
   }, [items]);
 
@@ -195,7 +195,7 @@ export function ImageUploader({
       setItems((prev) =>
         prev.map((item) => {
           if (item.id !== id) return item;
-          if (item.preview.startsWith('blob:')) {
+          if (item.preview.startsWith("blob:")) {
             URL.revokeObjectURL(item.preview);
           }
           return {
@@ -203,11 +203,13 @@ export function ImageUploader({
             preview: nextPreview,
             size: file.size,
             url: undefined,
-            status: uploadOnSelect ? ('uploading' as UploadStatus) : ('idle' as UploadStatus),
+            status: uploadOnSelect
+              ? ("uploading" as UploadStatus)
+              : ("idle" as UploadStatus),
             uploadKey,
             file: uploadOnSelect ? undefined : file,
           };
-        })
+        }),
       );
 
       if (uploadOnSelect) {
@@ -217,37 +219,39 @@ export function ImageUploader({
               prev.map((item) => {
                 if (item.id !== id) return item;
                 if (item.uploadKey !== uploadKey) return item; // stale upload
-                if (item.preview.startsWith('blob:')) {
+                if (item.preview.startsWith("blob:")) {
                   URL.revokeObjectURL(item.preview);
                 }
                 return {
                   ...item,
                   preview: url,
                   url,
-                  status: 'uploaded' as UploadStatus,
+                  status: "uploaded" as UploadStatus,
                   file: undefined,
                 };
-              })
+              }),
             );
           })
           .catch((error: any) => {
-            console.error('Upload failed:', error);
+            console.error("Upload failed:", error);
             toast.error(
-              error?.message ? `Upload failed: ${error.message}` : 'Upload failed'
+              error?.message
+                ? `Upload failed: ${error.message}`
+                : "Upload failed",
             );
             setItems((prev) =>
               prev.map((item) => {
                 if (item.id !== id) return item;
                 if (item.uploadKey !== uploadKey) return item; // stale upload
-                return { ...item, status: 'error' as UploadStatus };
-              })
+                return { ...item, status: "error" as UploadStatus };
+              }),
             );
           })
           .finally(() => {
-            if (inputRef.current) inputRef.current.value = '';
+            if (inputRef.current) inputRef.current.value = "";
           });
       } else {
-        if (inputRef.current) inputRef.current.value = '';
+        if (inputRef.current) inputRef.current.value = "";
       }
     });
   };
@@ -256,14 +260,14 @@ export function ImageUploader({
     // Check if user is logged in before uploading
     if (!user) {
       // Set callback URL to current page for redirect after login
-      const callbackUrl = pathname || '/ai-video-generator';
+      const callbackUrl = pathname || "/ai-video-generator";
       setIsShowSignModal(true);
       // Store callback URL in sessionStorage for SignModal to use
-      if (typeof window !== 'undefined') {
-        sessionStorage.setItem('signInCallbackUrl', callbackUrl);
+      if (typeof window !== "undefined") {
+        sessionStorage.setItem("signInCallbackUrl", callbackUrl);
       }
-      toast.error('Please sign in to upload images');
-      if (inputRef.current) inputRef.current.value = '';
+      toast.error("Please sign in to upload images");
+      if (inputRef.current) inputRef.current.value = "";
       return;
     }
 
@@ -274,14 +278,14 @@ export function ImageUploader({
 
       const file = selectedFiles[0];
       if (!file) return;
-      if (!file.type?.startsWith('image/')) {
-        toast.error('Only image files are supported');
-        if (inputRef.current) inputRef.current.value = '';
+      if (!file.type?.startsWith("image/")) {
+        toast.error("Only image files are supported");
+        if (inputRef.current) inputRef.current.value = "";
         return;
       }
       if (file.size > maxBytes) {
         toast.error(`"${file.name}" exceeds the ${maxSizeMB}MB limit`);
-        if (inputRef.current) inputRef.current.value = '';
+        if (inputRef.current) inputRef.current.value = "";
         return;
       }
       replaceItems([{ id: replaceTargetId, file }]);
@@ -291,7 +295,7 @@ export function ImageUploader({
     const availableSlots = maxCount - items.length;
     const filesToAdd = selectedFiles
       .filter((file) => {
-        if (!file.type?.startsWith('image/')) {
+        if (!file.type?.startsWith("image/")) {
           toast.error(`"${file.name}" is not an image`);
           return false;
         }
@@ -307,7 +311,7 @@ export function ImageUploader({
       // when full: replace from the end backwards
       if (items.length) {
         const normalized = selectedFiles.filter((file) =>
-          file.type?.startsWith('image/')
+          file.type?.startsWith("image/"),
         );
         if (!normalized.length) return;
 
@@ -326,13 +330,13 @@ export function ImageUploader({
         }
       }
 
-      if (inputRef.current) inputRef.current.value = '';
+      if (inputRef.current) inputRef.current.value = "";
       return;
     }
 
     if (availableSlots < selectedFiles.length) {
       toast.message(
-        `Only the first ${filesToAdd.length} image(s) will be added`
+        `Only the first ${filesToAdd.length} image(s) will be added`,
       );
     }
 
@@ -341,7 +345,9 @@ export function ImageUploader({
       preview: URL.createObjectURL(file),
       file: uploadOnSelect ? undefined : file,
       size: file.size,
-      status: uploadOnSelect ? ('uploading' as UploadStatus) : ('idle' as UploadStatus),
+      status: uploadOnSelect
+        ? ("uploading" as UploadStatus)
+        : ("idle" as UploadStatus),
       uploadKey: `${Date.now()}-${Math.random()}`,
     }));
 
@@ -360,14 +366,14 @@ export function ImageUploader({
                     if (current.uploadKey !== item.uploadKey) return current; // stale upload
                   }
                   // Revoke the blob URL since we have the uploaded URL now
-                  if (current.preview.startsWith('blob:')) {
+                  if (current.preview.startsWith("blob:")) {
                     URL.revokeObjectURL(current.preview);
                   }
                   return {
                     ...current,
                     preview: url, // Replace preview with uploaded URL
                     url,
-                    status: 'uploaded' as UploadStatus,
+                    status: "uploaded" as UploadStatus,
                     file: undefined,
                   };
                 }
@@ -376,9 +382,11 @@ export function ImageUploader({
               return next;
             });
           } catch (error: any) {
-            console.error('Upload failed:', error);
+            console.error("Upload failed:", error);
             toast.error(
-              error?.message ? `Upload failed: ${error.message}` : 'Upload failed'
+              error?.message
+                ? `Upload failed: ${error.message}`
+                : "Upload failed",
             );
             setItems((prev) => {
               const next = prev.map((current) => {
@@ -386,17 +394,17 @@ export function ImageUploader({
                 if (current.uploadKey && current.uploadKey !== item.uploadKey) {
                   return current; // stale upload
                 }
-                return { ...current, status: 'error' as UploadStatus };
+                return { ...current, status: "error" as UploadStatus };
               });
               return next;
             });
           }
-        })
+        }),
       );
     }
 
     if (inputRef.current) {
-      inputRef.current.value = '';
+      inputRef.current.value = "";
     }
   };
 
@@ -409,7 +417,7 @@ export function ImageUploader({
   const handlePaste = (event: React.ClipboardEvent<HTMLDivElement>) => {
     const clipboardItems = Array.from(event.clipboardData?.items || []);
     const files = clipboardItems
-      .filter((item) => item.kind === 'file' && item.type.startsWith('image/'))
+      .filter((item) => item.kind === "file" && item.type.startsWith("image/"))
       .map((item) => item.getAsFile())
       .filter(Boolean) as File[];
 
@@ -428,7 +436,7 @@ export function ImageUploader({
   const handleDragOver = (event: React.DragEvent<HTMLDivElement>) => {
     event.preventDefault();
     event.stopPropagation();
-    event.dataTransfer.dropEffect = 'copy';
+    event.dataTransfer.dropEffect = "copy";
     if (!isDragActive) setIsDragActive(true);
   };
 
@@ -449,7 +457,7 @@ export function ImageUploader({
     setIsDragActive(false);
 
     const files = Array.from(event.dataTransfer?.files || []).filter((file) =>
-      file.type?.startsWith('image/')
+      file.type?.startsWith("image/"),
     );
     if (!files.length) return;
     handleFiles(files);
@@ -459,7 +467,7 @@ export function ImageUploader({
     setItems((prev) => {
       const next = prev.filter((item) => item.id !== id);
       const removed = prev.find((item) => item.id === id);
-      if (removed?.preview.startsWith('blob:')) {
+      if (removed?.preview.startsWith("blob:")) {
         URL.revokeObjectURL(removed.preview);
       }
       return next;
@@ -470,13 +478,13 @@ export function ImageUploader({
     // Check if user is logged in before opening file picker
     if (!user) {
       // Set callback URL to current page for redirect after login
-      const callbackUrl = pathname || '/ai-video-generator';
+      const callbackUrl = pathname || "/ai-video-generator";
       setIsShowSignModal(true);
       // Store callback URL in sessionStorage for SignModal to use
-      if (typeof window !== 'undefined') {
-        sessionStorage.setItem('signInCallbackUrl', callbackUrl);
+      if (typeof window !== "undefined") {
+        sessionStorage.setItem("signInCallbackUrl", callbackUrl);
       }
-      toast.error('Please sign in to upload images');
+      toast.error("Please sign in to upload images");
       return;
     }
     inputRef.current?.click();
@@ -489,16 +497,16 @@ export function ImageUploader({
 
   const countLabel = useMemo(
     () => `${items.length}/${maxCount}`,
-    [items.length, maxCount]
+    [items.length, maxCount],
   );
 
   return (
     <div
       className={cn(
-        'relative focus:outline-none',
+        "relative focus:outline-none",
         isDragActive &&
-          'ring-primary/70 ring-offset-background ring-2 ring-offset-2',
-        className
+          "ring-primary/70 ring-offset-background ring-2 ring-offset-2",
+        className,
       )}
       tabIndex={0}
       onPaste={handlePaste}
@@ -535,8 +543,8 @@ export function ImageUploader({
 
       <div
         className={cn(
-          'flex flex-wrap gap-4',
-          allowMultiple ? 'flex-wrap' : 'flex-nowrap'
+          "flex flex-wrap gap-4",
+          allowMultiple ? "flex-wrap" : "flex-nowrap",
         )}
       >
         {items.map((item) => (
@@ -555,7 +563,7 @@ export function ImageUploader({
                   {formatBytes(item.size)}
                 </span>
               )}
-              {item.status !== 'uploading' && (
+              {item.status !== "uploading" && (
                 <div className="absolute inset-0 z-10 flex items-center justify-center bg-black/35 opacity-0 transition-opacity group-focus-within:opacity-100 group-hover:opacity-100">
                   <Button
                     type="button"
@@ -569,12 +577,12 @@ export function ImageUploader({
                   </Button>
                 </div>
               )}
-              {item.status === 'uploading' && (
+              {item.status === "uploading" && (
                 <div className="absolute inset-0 z-10 flex items-center justify-center bg-black/60 text-sm font-medium text-white">
                   Uploading...
                 </div>
               )}
-              {item.status === 'error' && (
+              {item.status === "error" && (
                 <div className="absolute inset-0 z-10 flex items-center justify-center bg-red-500/70 text-sm font-medium text-white">
                   Failed
                 </div>
@@ -604,6 +612,9 @@ export function ImageUploader({
                   <IconUpload className="h-7 w-7" />
                 </div>
                 <span className="text-sm font-medium">Upload</span>
+                <span className="text-muted-foreground text-xs">
+                  Max {maxSizeMB}MB
+                </span>
               </button>
             </div>
           </div>

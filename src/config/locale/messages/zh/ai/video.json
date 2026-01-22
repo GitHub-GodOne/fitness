@@ -26,6 +26,9 @@
       "user_feeling_placeholder": "请分享您的感受，例如：我最近因为工作压力感到非常焦虑...",
       "user_feeling_hint": "✨ 将自动匹配圣经经文并创建温暖的视频场景",
       "user_feeling_required": "请输入您的感受",
+      "voice_gender": "语音性别",
+      "voice_female": "女声",
+      "voice_male": "男声",
       "reference_image": "选择图片",
       "reference_image_placeholder": "上传参考图片用于视频生成",
       "reference_video": "参考视频链接",
@@ -36,6 +39,23 @@
     "generate": "生成视频",
     "reset": "重置",
     "reset_success": "重置成功",
+    "regenerate": "重新生成",
+    "download": "下载",
+    "download_video": "下载视频",
+    "download_images_with_watermark": "下载带字幕图片",
+    "download_images_without_watermark": "下载原始图片",
+    "download_options": "下载选项",
+    "download_description": "选择您要下载的内容",
+    "video_downloaded": "视频下载成功",
+    "images_downloaded": "图片下载成功",
+    "download_failed": "下载失败",
+    "no_video_found": "未找到视频",
+    "no_watermarked_images": "未找到带字幕的图片",
+    "no_original_images": "未找到原始图片",
+    "with_text": "带字幕",
+    "without_text": "原始",
+    "video": "视频",
+    "cancel": "取消",
     "checking_account": "检查账户...",
     "loading": "加载中...",
     "generating": "生成中...",
@@ -76,7 +96,6 @@
       "insufficient_credits_title": "积分不足"
     },
     "copied": "已复制！",
-    "regenerate": "重新生成",
     "refund_support": "支持退款服务",
     "learn_more": "了解更多",
     "history": {
@@ -90,4 +109,3 @@
     }
   }
 }
-

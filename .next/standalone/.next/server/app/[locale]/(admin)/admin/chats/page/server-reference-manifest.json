@@ -1,6 +1,6 @@
 {
   "node": {
-    "00cf3b2c537f0cc1f944b88c7919b6b67ef0f6d736": {
+    "00afafd4e31e7f6bca6195ed47fcc0938f532d3a79": {
       "workers": {
         "app/[locale]/(admin)/admin/chats/page": {
           "moduleId": 169242,

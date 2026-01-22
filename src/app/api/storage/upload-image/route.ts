@@ -43,8 +43,26 @@ export async function POST(req: Request) {
       return respErr('No files provided');
     }
 
-    const storageService = await getStorageService();
+    // Save to local public/pic/{date} folder
+    const fs = await import('fs/promises');
+    const path = await import('path');
     const uploadResults = [];
+
+    // Get current date in YYYYMMDD format
+    const now = new Date();
+    const year = now.getFullYear();
+    const month = String(now.getMonth() + 1).padStart(2, '0');
+    const day = String(now.getDate()).padStart(2, '0');
+    const dateFolder = `${year}${month}${day}`;
+
+    // Ensure public/pic/{date} directory exists
+    const picDir = path.join(process.cwd(), 'public', 'pic', dateFolder);
+    try {
+      await fs.mkdir(picDir, { recursive: true });
+      console.log('[API] Created pic directory:', picDir);
+    } catch (err) {
+      console.error('[API] Failed to create pic directory:', err);
+    }
 
     for (const file of files) {
       // Validate file type
@@ -54,63 +72,46 @@ export async function POST(req: Request) {
 
       // Convert file to buffer
       const arrayBuffer = await file.arrayBuffer();
-      const body = new Uint8Array(arrayBuffer);
+      const body = Buffer.from(arrayBuffer);
 
       const digest = md5(body);
       const ext = extFromMime(file.type) || file.name.split('.').pop() || 'bin';
-      const key = `${digest}.${ext}`;
+      const filename = `${digest}.${ext}`;
+      const filePath = path.join(picDir, filename);
 
-      // If the same image already exists, reuse its URL to save storage space.
-      // (Still depends on provider supporting signed HEAD + public url generation.)
-      const exists = await storageService.exists({ key });
-      if (exists) {
-        const publicUrl = storageService.getPublicUrl({ key });
-        if (publicUrl) {
-          uploadResults.push({
-            url: publicUrl,
-            key,
-            filename: file.name,
-            deduped: true,
-          });
-          continue;
-        }
+      // Check if file already exists (deduplication)
+      let exists = false;
+      try {
+        await fs.access(filePath);
+        exists = true;
+        console.log('[API] File already exists, reusing:', filename);
+      } catch {
+        // File doesn't exist, will upload
       }
 
-      // Upload to storage
-      const result = await storageService.uploadFile({
-        body,
-        key: key,
-        contentType: file.type,
-        disposition: 'inline',
-      });
-      console.log("result----------->", result);
-      if (!result.success) {
-        console.error('[API] Upload failed:', result.error);
-        return respErr(result.error || 'Upload failed');
+      if (!exists) {
+        // Save file to disk
+        await fs.writeFile(filePath, body);
+        console.log('[API] File saved:', filePath);
       }
 
+      const publicUrl = `/pic/${dateFolder}/${filename}`;
       uploadResults.push({
-        url: result.url,
-        key: result.key,
+        url: publicUrl,
+        key: filename,
         filename: file.name,
-        deduped: false,
+        deduped: exists,
       });
     }
 
-    // Replace URLs in uploadResults using utility function
-    const processedResults = uploadResults.map((r) => ({
-      ...r,
-      url: replaceR2Url(r.url),
-    }));
-
     console.log(
       '[API] All uploads complete. Returning URLs:',
-      processedResults.map((r) => r.url)
+      uploadResults.map((r) => r.url)
     );
 
     return respData({
-      urls: processedResults.map((r) => r.url),
-      results: processedResults,
+      urls: uploadResults.map((r) => r.url),
+      results: uploadResults,
     });
   } catch (e) {
     console.error('upload image failed:', e);

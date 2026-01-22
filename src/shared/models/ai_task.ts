@@ -54,6 +54,21 @@ export async function findAITaskById(id: string) {
   return result;
 }
 
+export async function findAITaskByTaskId(taskId: string) {
+  const [result] = await db().select().from(aiTask).where(eq(aiTask.taskId, taskId));
+  return result;
+}
+
+export async function updateAITaskByTaskId(taskId: string, updateAITask: UpdateAITask) {
+  // First find the task by taskId to get the id
+  const task = await findAITaskByTaskId(taskId);
+  if (!task) {
+    throw new Error(`Task not found with taskId: ${taskId}`);
+  }
+  // Then update using the id
+  return updateAITaskById(task.id, updateAITask);
+}
+
 export async function updateAITaskById(id: string, updateAITask: UpdateAITask) {
   const result = await db().transaction(async (tx) => {
     // task failed, Revoke credit consumption record
