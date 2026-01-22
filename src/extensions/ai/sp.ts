@@ -1,5 +1,6 @@
 import { getUuid } from '@/shared/lib/hash';
 import { replaceR2Url } from '@/shared/lib/url';
+import { toAbsoluteUrl } from '@/shared/lib/url-utils';
 import sharp from 'sharp';
 import { saveFiles } from '.';
 import {
@@ -12,7 +13,6 @@ import {
     AITaskStatus,
     AIVideo,
 } from './types';
-import { task } from 'better-auth/react';
 
 /**
  * Volcano Engine configs for SP (Scripture Picture) provider
@@ -52,31 +52,6 @@ export class VolcanoSPProvider implements AIProvider {
         this.configs = configs;
     }
 
-    /**
-     * Convert relative URL to absolute public URL
-     * For server-side access (like image-to-image API), use localhost to avoid SSL issues
-     */
-    private toAbsoluteUrl(url: string): string {
-        // Already absolute URL
-        if (url.startsWith('http://') || url.startsWith('https://')) {
-            return url;
-        }
-
-        // Already base64 data URL
-        if (url.startsWith('data:')) {
-            return url;
-        }
-
-        // Convert relative URL to absolute
-        if (url.startsWith('/')) {
-            // For server-side internal access, always use localhost to avoid SSL issues
-            const port = process.env.PORT || 3000;
-            const baseUrl = `http://localhost:${port}`;
-            return `${baseUrl}${url}`;
-        }
-
-        return url;
-    }
 
     /**
      * Convert image URL to base64
@@ -164,7 +139,8 @@ You must output ONLY a valid JSON object with the following structure:
   "verse_reference": "String (e.g., Matthew 14:27, NIV)"
 }`;
 
-        // const base64Image = await this.convertImageToBase64(imageUrl);
+        // Convert relative URL to absolute with public domain for external API
+        const absoluteImageUrl = toAbsoluteUrl(imageUrl, { usePublicDomain: true });
 
         const apiUrl = `${this.baseUrl}/chat/completions`;
         const payload = {
@@ -182,7 +158,7 @@ You must output ONLY a valid JSON object with the following structure:
                     content: [
                         {
                             type: 'image_url',
-                            image_url: { url: imageUrl },
+                            image_url: { url: absoluteImageUrl },
                         },
                         {
                             type: 'text',
@@ -302,7 +278,7 @@ You must output ONLY a valid JSON object with the following structure:
         const apiUrl = `${this.baseUrl}/images/generations`;
 
         // Convert relative URL to absolute public URL for external API
-        const absoluteImageUrl = this.toAbsoluteUrl(referenceImageUrl);
+        const absoluteImageUrl = toAbsoluteUrl(referenceImageUrl, { usePublicDomain: true });
         console.log('[SP] Reference image URL:', referenceImageUrl, '-> Absolute:', absoluteImageUrl);
 
         // Create array of promises for parallel generation with retry logic
