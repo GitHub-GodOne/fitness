@@ -1,6 +1,6 @@
 import { getUuid } from '@/shared/lib/hash';
 import { replaceR2Url } from '@/shared/lib/url';
-import { toAbsoluteUrl } from '@/shared/lib/url-utils';
+// import { toAbsoluteUrl } from '@/shared/lib/url-utils';
 import sharp from 'sharp';
 import { saveFiles } from '.';
 import {
@@ -140,7 +140,8 @@ You must output ONLY a valid JSON object with the following structure:
 }`;
 
         // Convert relative URL to absolute with public domain for external API
-        const absoluteImageUrl = toAbsoluteUrl(imageUrl, { usePublicDomain: true });
+        const base64Image = await this.convertImageToBase64(imageUrl);
+        // const absoluteImageUrl = toAbsoluteUrl(imageUrl, { usePublicDomain: true });
 
         const apiUrl = `${this.baseUrl}/chat/completions`;
         const payload = {
@@ -158,7 +159,7 @@ You must output ONLY a valid JSON object with the following structure:
                     content: [
                         {
                             type: 'image_url',
-                            image_url: { url: absoluteImageUrl },
+                            image_url: { url: base64Image },
                         },
                         {
                             type: 'text',
@@ -278,15 +279,15 @@ You must output ONLY a valid JSON object with the following structure:
         const apiUrl = `${this.baseUrl}/images/generations`;
 
         // Convert relative URL to absolute public URL for external API
-        const absoluteImageUrl = toAbsoluteUrl(referenceImageUrl, { usePublicDomain: true });
-        console.log('[SP] Reference image URL:', referenceImageUrl, '-> Absolute:', absoluteImageUrl);
-
+        // const absoluteImageUrl = toAbsoluteUrl(referenceImageUrl, { usePublicDomain: true });
+        // console.log('[SP] Reference image URL:', referenceImageUrl, '-> Absolute:', absoluteImageUrl);
+        const base64Image = await this.convertImageToBase64(referenceImageUrl);
         // Create array of promises for parallel generation with retry logic
         const generatePromises = Array.from({ length: count }, async (_, i) => {
             const payload = {
                 model: 'doubao-seedream-4-5-251128',
                 prompt: prompt,
-                image: absoluteImageUrl,
+                image: base64Image,
                 sequential_image_generation: 'disabled',
                 response_format: 'url',
                 size: '2K',
