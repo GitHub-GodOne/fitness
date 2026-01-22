@@ -182,17 +182,17 @@ export function DownloadDialog({
           onClick={() => handleDownload(option.type)}
           disabled={option.disabled || downloading !== null}
         >
-          <div className="flex items-center gap-3 w-full">
+          <div className="flex items-center gap-2 sm:gap-3 w-full">
             {downloading === option.type ? (
-              <Loader2 className="h-5 w-5 animate-spin flex-shrink-0" />
+              <Loader2 className="h-4 w-4 sm:h-5 sm:w-5 animate-spin flex-shrink-0" />
             ) : (
               <div className="flex-shrink-0">{option.icon}</div>
             )}
-            <span className="text-sm sm:text-base flex-1 text-left">
+            <span className="text-xs sm:text-sm md:text-base flex-1 text-left break-words line-clamp-2">
               {option.label}
             </span>
             {!option.disabled && downloading !== option.type && (
-              <Download className="h-4 w-4 text-muted-foreground flex-shrink-0" />
+              <Download className="h-3.5 w-3.5 sm:h-4 sm:w-4 text-muted-foreground flex-shrink-0" />
             )}
           </div>
         </Button>

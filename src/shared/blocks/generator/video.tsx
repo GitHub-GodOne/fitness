@@ -452,6 +452,28 @@ export function VideoGenerator({
     }
   }, [provider, activeTab, model]);
 
+  const toAbsoluteUrl = (url: string | null): string | null => {
+    if (!url) return null;
+
+    // Already absolute URL
+    if (url.startsWith("http://") || url.startsWith("https://")) {
+      return url;
+    }
+
+    // Convert relative URL to absolute with public domain
+    if (url.startsWith("/")) {
+      const baseUrl =
+        typeof window !== "undefined"
+          ? window.location.origin
+          : process.env.NEXTAUTH_URL ||
+            process.env.NEXT_PUBLIC_SITE_URL ||
+            "https://fearnotforiamwithyou.com";
+      return `${baseUrl}${url}`;
+    }
+
+    return url;
+  };
+
   const extractVideoUrl = (
     taskInfo: string | null,
     taskResult: string | null,
@@ -466,14 +488,14 @@ export function VideoGenerator({
           parsedResult.saved_video_url &&
           typeof parsedResult.saved_video_url === "string"
         ) {
-          return parsedResult.saved_video_url;
+          return toAbsoluteUrl(parsedResult.saved_video_url);
         }
         // Check for original_video_url (original API URL - fallback for History)
         if (
           parsedResult.original_video_url &&
           typeof parsedResult.original_video_url === "string"
         ) {
-          return parsedResult.original_video_url;
+          return toAbsoluteUrl(parsedResult.original_video_url);
         }
         // Check for saved_video_urls array
         if (
@@ -481,7 +503,7 @@ export function VideoGenerator({
           Array.isArray(parsedResult.saved_video_urls) &&
           parsedResult.saved_video_urls.length > 0
         ) {
-          return parsedResult.saved_video_urls[0];
+          return toAbsoluteUrl(parsedResult.saved_video_urls[0]);
         }
         // Check for original_video_urls array
         if (
@@ -489,7 +511,7 @@ export function VideoGenerator({
           Array.isArray(parsedResult.original_video_urls) &&
           parsedResult.original_video_urls.length > 0
         ) {
-          return parsedResult.original_video_urls[0];
+          return toAbsoluteUrl(parsedResult.original_video_urls[0]);
         }
         // Check for content.video_url (Volcano Engine format)
         if (
@@ -497,7 +519,7 @@ export function VideoGenerator({
           parsedResult.content.video_url &&
           typeof parsedResult.content.video_url === "string"
         ) {
-          return parsedResult.content.video_url;
+          return toAbsoluteUrl(parsedResult.content.video_url);
         }
       } catch {
         // Ignore parse errors
@@ -508,7 +530,7 @@ export function VideoGenerator({
       try {
         const parsed = JSON.parse(taskInfo);
         const videoUrls = extractVideoUrls(parsed);
-        return videoUrls.length > 0 ? videoUrls[0] : null;
+        return videoUrls.length > 0 ? toAbsoluteUrl(videoUrls[0]) : null;
       } catch {
         return null;
       }
