@@ -14,7 +14,8 @@
 /.next/dev
 /.next/cache
 /out/
-
+/public/pic/
+/public/video/
 # production
 /build
 

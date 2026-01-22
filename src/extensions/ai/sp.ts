@@ -52,6 +52,33 @@ export class VolcanoSPProvider implements AIProvider {
     }
 
     /**
+     * Convert relative URL to absolute public URL
+     */
+    private toAbsoluteUrl(url: string): string {
+        // Already absolute URL
+        if (url.startsWith('http://') || url.startsWith('https://')) {
+            return url;
+        }
+
+        // Already base64 data URL
+        if (url.startsWith('data:')) {
+            return url;
+        }
+
+        // Convert relative URL to absolute
+        if (url.startsWith('/')) {
+            const baseUrl = process.env.NEXTAUTH_URL ||
+                process.env.NEXT_PUBLIC_SITE_URL ||
+                `http://localhost:${process.env.PORT || 3000}`;
+            // Remove trailing slash from baseUrl if exists
+            const cleanBaseUrl = baseUrl.endsWith('/') ? baseUrl.slice(0, -1) : baseUrl;
+            return `${cleanBaseUrl}${url}`;
+        }
+
+        return url;
+    }
+
+    /**
      * Convert image URL to base64
      */
     private async convertImageToBase64(imageUrl: string): Promise<string> {
@@ -261,13 +288,16 @@ You must output ONLY a valid JSON object with the following structure:
     ): Promise<string[]> {
         const apiUrl = `${this.baseUrl}/images/generations`;
 
+        // Convert relative URL to absolute public URL for external API
+        const absoluteImageUrl = this.toAbsoluteUrl(referenceImageUrl);
+        console.log('[SP] Reference image URL:', referenceImageUrl, '-> Absolute:', absoluteImageUrl);
+
         // Create array of promises for parallel generation with retry logic
         const generatePromises = Array.from({ length: count }, async (_, i) => {
-            console.log("eferenceImageUrl----->", referenceImageUrl);
             const payload = {
                 model: 'doubao-seedream-4-5-251128',
                 prompt: prompt,
-                image: referenceImageUrl,
+                image: absoluteImageUrl,
                 sequential_image_generation: 'disabled',
                 response_format: 'url',
                 size: '2K',
