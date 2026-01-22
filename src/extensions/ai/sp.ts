@@ -844,7 +844,7 @@ You must output ONLY a valid JSON object with the following structure:
                 this.processVideoInBackground(taskId, params, firstImageUrl, userFeeling).catch((error: any) => {
                     console.error('[SP] Background processing failed for task:', taskId, error);
                 });
-            }, 100); // 100ms delay to ensure API route creates the record first
+            }, 1800); // 100ms delay to ensure API route creates the record first
 
             console.log('[SP] Background processing scheduled for task:', taskId);
 

@@ -4,11 +4,11 @@
     "/api/comments/list": {},
     "/api/comments/replies": {},
     "/api/comments/like": {},
+    "/api/comments/create": {},
+    "/api/comments/reply": {},
     "/api/comments/visibility": {},
     "/api/notifications/debug": {},
-    "/api/comments/create": {},
     "/api/notifications/list": {},
-    "/api/comments/reply": {},
     "/api/notifications/mark-read": {},
     "/api/notifications/unread-count": {},
     "/_middleware": {
