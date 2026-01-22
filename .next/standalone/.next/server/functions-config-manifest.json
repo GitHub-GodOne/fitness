@@ -2,14 +2,14 @@
   "version": 1,
   "functions": {
     "/api/comments/list": {},
-    "/api/comments/replies": {},
     "/api/comments/like": {},
-    "/api/comments/visibility": {},
     "/api/comments/create": {},
-    "/api/notifications/unread-count": {},
+    "/api/comments/visibility": {},
     "/api/notifications/debug": {},
-    "/api/notifications/list": {},
     "/api/comments/reply": {},
+    "/api/comments/replies": {},
+    "/api/notifications/unread-count": {},
+    "/api/notifications/list": {},
     "/api/notifications/mark-read": {},
     "/_middleware": {
       "runtime": "nodejs",

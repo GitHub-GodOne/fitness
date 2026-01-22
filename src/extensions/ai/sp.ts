@@ -139,13 +139,9 @@ You must output ONLY a valid JSON object with the following structure:
   "verse_reference": "String (e.g., Matthew 14:27, NIV)"
 }`;
 
-        // Convert relative URL to absolute with public domain for external API
-        const url = new URL(imageUrl);
-        console.log('[SP] Reference image URL:', url);
-        const noDomainUrl = url.pathname + url.search;
-
-        const base64Image = await this.convertImageToBase64(noDomainUrl);
-        // const absoluteImageUrl = toAbsoluteUrl(imageUrl, { usePublicDomain: true });
+        // Convert image URL to base64 for vision API
+        console.log('[SP] Converting image to base64:', imageUrl);
+        const base64Image = await this.convertImageToBase64(imageUrl);
 
         const apiUrl = `${this.baseUrl}/chat/completions`;
         const payload = {
@@ -282,14 +278,9 @@ You must output ONLY a valid JSON object with the following structure:
     ): Promise<string[]> {
         const apiUrl = `${this.baseUrl}/images/generations`;
 
-        // Convert relative URL to absolute public URL for external API
-        // const absoluteImageUrl = toAbsoluteUrl(referenceImageUrl, { usePublicDomain: true });
-        // console.log('[SP] Reference image URL:', referenceImageUrl, '-> Absolute:', absoluteImageUrl);
-        const url = new URL(referenceImageUrl);
-        console.log('[SP] Reference image URL:', url);
-        const noDomainUrl = url.pathname + url.search;
-
-        const base64Image = await this.convertImageToBase64(noDomainUrl);
+        // Convert reference image to base64 for image-to-image API
+        console.log('[SP] Converting reference image to base64:', referenceImageUrl);
+        const base64Image = await this.convertImageToBase64(referenceImageUrl);
         // Create array of promises for parallel generation with retry logic
         const generatePromises = Array.from({ length: count }, async (_, i) => {
             const payload = {
