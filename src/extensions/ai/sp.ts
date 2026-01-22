@@ -12,6 +12,7 @@ import {
     AITaskStatus,
     AIVideo,
 } from './types';
+import { task } from 'better-auth/react';
 
 /**
  * Volcano Engine configs for SP (Scripture Picture) provider
@@ -129,7 +130,8 @@ export class VolcanoSPProvider implements AIProvider {
         imageUrl: string,
         userFeeling: string,
         apiKey: string,
-        visionModel: string
+        visionModel: string,
+        taskId: string
     ): Promise<ImageToTextResponse> {
         const systemPrompt = `# ROLE DEFINITION
 You are a divine digital companion, a "Visual Theologian" designed to comfort people in distress. Your goal is to analyze user input (image + text), understand their pain, and bridge their reality with a Biblical scene that offers hope and peace.
@@ -162,7 +164,7 @@ You must output ONLY a valid JSON object with the following structure:
   "verse_reference": "String (e.g., Matthew 14:27, NIV)"
 }`;
 
-        const base64Image = await this.convertImageToBase64(imageUrl);
+        // const base64Image = await this.convertImageToBase64(imageUrl);
 
         const apiUrl = `${this.baseUrl}/chat/completions`;
         const payload = {
@@ -180,7 +182,7 @@ You must output ONLY a valid JSON object with the following structure:
                     content: [
                         {
                             type: 'image_url',
-                            image_url: { url: base64Image },
+                            image_url: { url: imageUrl },
                         },
                         {
                             type: 'text',
@@ -212,15 +214,29 @@ You must output ONLY a valid JSON object with the following structure:
             throw new Error('Empty response from analysis API');
         }
 
-        // Parse JSON response
+        // Parse JSON response with robust extraction
         let jsonText = responseText.trim();
+        console.log('[SP] Analysis response:', jsonText, " taskId: ", taskId);
+        // Remove markdown code blocks
         if (jsonText.startsWith('```json')) {
             jsonText = jsonText.replace(/^```json\s*/, '').replace(/\s*```$/, '');
         } else if (jsonText.startsWith('```')) {
             jsonText = jsonText.replace(/^```\s*/, '').replace(/\s*```$/, '');
         }
 
-        return JSON.parse(jsonText);
+        // Try to extract JSON object if there's extra text
+        const jsonMatch = jsonText.match(/\{[\s\S]*\}/);
+        if (jsonMatch) {
+            jsonText = jsonMatch[0];
+        }
+
+        try {
+            return JSON.parse(jsonText);
+        } catch (error) {
+            console.error('[SP] Failed to parse JSON response:', jsonText);
+            console.error('[SP] Parse error:', error);
+            throw new Error(`Failed to parse analysis response: ${error instanceof Error ? error.message : 'Invalid JSON'}`);
+        }
     }
 
     /**
@@ -901,7 +917,8 @@ You must output ONLY a valid JSON object with the following structure:
                 firstImageUrl,
                 userFeeling,
                 apiKey,
-                visionModel
+                visionModel,
+                taskId
             );
 
             console.log('[SP] Analysis complete:', analysis);
