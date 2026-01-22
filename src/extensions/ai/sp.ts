@@ -88,12 +88,10 @@ export class VolcanoSPProvider implements AIProvider {
         try {
             let fetchUrl = imageUrl;
 
-            // Handle relative URLs (local files)
+            // Handle relative URLs (local files) - always use localhost for server-side access
             if (imageUrl.startsWith('/')) {
-                const baseUrl = process.env.NEXT_PUBLIC_SITE_URL ||
-                    process.env.NEXTAUTH_URL ||
-                    `http://localhost:${process.env.PORT || 3000}`;
-                fetchUrl = `${baseUrl}${imageUrl}`;
+                const port = process.env.PORT || 3000;
+                fetchUrl = `http://localhost:${port}${imageUrl}`;
             }
 
             const response = await fetch(fetchUrl);

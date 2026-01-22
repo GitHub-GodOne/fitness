@@ -10,10 +10,10 @@ export async function GET(req: NextRequest) {
   try {
     let fetchUrl = url;
 
-    // Handle relative URLs (local files)
+    // Handle relative URLs (local files) - always use localhost for server-side access
     if (url.startsWith('/')) {
-      const origin = req.nextUrl.origin || `http://localhost:${process.env.PORT || 3000}`;
-      fetchUrl = `${origin}${url}`;
+      const port = process.env.PORT || 3000;
+      fetchUrl = `http://localhost:${port}${url}`;
     }
 
     const response = await fetch(fetchUrl);

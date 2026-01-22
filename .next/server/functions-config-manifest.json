@@ -3,13 +3,13 @@
   "functions": {
     "/api/comments/list": {},
     "/api/comments/replies": {},
-    "/api/comments/visibility": {},
     "/api/comments/like": {},
+    "/api/comments/visibility": {},
     "/api/comments/create": {},
     "/api/notifications/debug": {},
-    "/api/comments/reply": {},
-    "/api/notifications/list": {},
     "/api/notifications/unread-count": {},
+    "/api/notifications/list": {},
+    "/api/comments/reply": {},
     "/api/notifications/mark-read": {},
     "/_middleware": {
       "runtime": "nodejs",
