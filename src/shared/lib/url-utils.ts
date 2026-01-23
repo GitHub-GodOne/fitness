@@ -45,10 +45,16 @@ export function toAbsoluteUrl(
 
         if (usePublicDomain) {
             // Use public domain for external access
-            baseUrl =
-                process.env.NEXTAUTH_URL ||
-                process.env.NEXT_PUBLIC_SITE_URL ||
-                `http://localhost:${port}`;
+            // On client-side, use window.location.origin for the actual domain
+            if (typeof window !== 'undefined') {
+                baseUrl = window.location.origin;
+            } else {
+                baseUrl =
+                    process.env.NEXTAUTH_URL ||
+                    process.env.NEXT_PUBLIC_SITE_URL ||
+                    process.env.NEXT_PUBLIC_APP_URL ||
+                    `http://localhost:${port}`;
+            }
         } else {
             // Use localhost for server-side internal access (avoid SSL issues)
             baseUrl = `http://localhost:${port}`;

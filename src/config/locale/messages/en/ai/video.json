@@ -69,7 +69,7 @@
     "checking_account": "Checking Account...",
     "loading": "Loading...",
     "generating": "Generating...",
-    "queue_notice": "High demand detected. Your request is queued, estimated wait time is 20 minutes. You can continue generating other videos during this time.",
+    "queue_notice": "Expected to wait 3-5 minutes. Please wait patiently.",
     "sign_in_to_generate": "Sign In to Generate Video",
     "credits_cost": "Cost {credits} credits",
     "credits_remaining": "Remaining {credits} credits",
