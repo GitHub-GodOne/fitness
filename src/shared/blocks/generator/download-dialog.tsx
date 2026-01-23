@@ -1,15 +1,23 @@
 "use client";
 
-import { useState } from "react";
-import { Download, Image as ImageIcon, Loader2, Video } from "lucide-react";
+import React, { useState, useMemo, useCallback } from "react";
+import {
+  Download,
+  Image as ImageIcon,
+  Loader2,
+  Video,
+  Share2,
+} from "lucide-react";
 import { useTranslations } from "next-intl";
 import { toast } from "sonner";
 
+import { ShareButton } from "@/shared/blocks/common/share-button";
 import { Button } from "@/shared/components/ui/button";
+import { Checkbox } from "@/shared/components/ui/checkbox";
+import { toAbsoluteUrl } from "@/shared/lib/url-utils";
 import {
   Dialog,
   DialogContent,
-  DialogDescription,
   DialogHeader,
   DialogTitle,
 } from "@/shared/components/ui/dialog";
@@ -17,11 +25,16 @@ import {
   Drawer,
   DrawerClose,
   DrawerContent,
-  DrawerDescription,
   DrawerFooter,
   DrawerHeader,
   DrawerTitle,
 } from "@/shared/components/ui/drawer";
+import {
+  Tabs,
+  TabsContent,
+  TabsList,
+  TabsTrigger,
+} from "@/shared/components/ui/tabs";
 import { useMediaQuery } from "@/shared/hooks/use-media-query";
 
 interface DownloadDialogProps {
@@ -31,11 +44,208 @@ interface DownloadDialogProps {
   taskResult: string | null;
 }
 
-interface DownloadOption {
-  type: "video" | "images-with-text" | "images-original";
-  label: string;
-  icon: React.ReactNode;
-  disabled?: boolean;
+interface TaskResultData {
+  video_url?: string;
+  image_urls?: string[];
+  original_image_urls?: string[];
+  audio_url?: string;
+}
+
+type TabType = "video" | "images-with-text" | "images-original";
+
+// 图片预览组件（支持选择下载）
+function ImagePreview({
+  images,
+  taskId,
+  onDownload,
+  onDownloadSelected,
+  renderButtons,
+}: {
+  images: string[];
+  taskId: string;
+  onDownload: (url: string, index: number) => Promise<void>;
+  onDownloadSelected: (selectedUrls: string[]) => Promise<void>;
+  renderButtons?: (props: {
+    selectedCount: number;
+    totalCount: number;
+    onSelectAll: () => void;
+    onDownloadAll: () => void;
+    onDownloadSelected: () => void;
+    downloading: boolean;
+  }) => React.ReactNode;
+}) {
+  const t = useTranslations("ai.video.generator");
+  const [downloading, setDownloading] = useState<number | null>(null);
+  const [downloadingAll, setDownloadingAll] = useState(false);
+  const [selectedImages, setSelectedImages] = useState<Set<number>>(new Set());
+
+  const handleDownload = useCallback(
+    async (url: string, index: number) => {
+      setDownloading(index);
+      try {
+        await onDownload(url, index);
+      } finally {
+        setDownloading(null);
+      }
+    },
+    [onDownload],
+  );
+
+  const handleDownloadAll = useCallback(async () => {
+    setDownloadingAll(true);
+    try {
+      await onDownloadSelected(images);
+    } finally {
+      setDownloadingAll(false);
+    }
+  }, [images, onDownloadSelected]);
+
+  const handleDownloadSelected = useCallback(async () => {
+    if (selectedImages.size === 0) {
+      toast.error(t("no_images_selected"));
+      return;
+    }
+    setDownloadingAll(true);
+    try {
+      const selectedUrls = Array.from(selectedImages).map((i) => images[i]);
+      await onDownloadSelected(selectedUrls);
+      setSelectedImages(new Set());
+    } finally {
+      setDownloadingAll(false);
+    }
+  }, [selectedImages, images, onDownloadSelected, t]);
+
+  const toggleSelection = useCallback((index: number) => {
+    setSelectedImages((prev) => {
+      const newSet = new Set(prev);
+      if (newSet.has(index)) {
+        newSet.delete(index);
+      } else {
+        newSet.add(index);
+      }
+      return newSet;
+    });
+  }, []);
+
+  const toggleSelectAll = useCallback(() => {
+    if (selectedImages.size === images.length) {
+      setSelectedImages(new Set());
+    } else {
+      setSelectedImages(new Set(images.map((_, i) => i)));
+    }
+  }, [selectedImages.size, images.length]);
+
+  return (
+    <>
+      {renderButtons &&
+        renderButtons({
+          selectedCount: selectedImages.size,
+          totalCount: images.length,
+          onSelectAll: toggleSelectAll,
+          onDownloadAll: handleDownloadAll,
+          onDownloadSelected: handleDownloadSelected,
+          downloading: downloadingAll,
+        })}
+      <div className="space-y-3 sm:space-y-4">
+        {images.map((url, index) => (
+          <div key={index} className="relative group border rounded-lg p-2">
+            <div className="flex items-start gap-2">
+              {/* 选择框 */}
+              <Checkbox
+                checked={selectedImages.has(index)}
+                onCheckedChange={() => toggleSelection(index)}
+                className="mt-2"
+              />
+              {/* 图片 */}
+              <div className="flex-1 min-w-0">
+                <img
+                  src={url}
+                  alt={`Image ${index + 1}`}
+                  className="w-full h-auto rounded-lg"
+                  style={{ maxHeight: "40vh", objectFit: "contain" }}
+                />
+                <div className="mt-2 flex gap-2">
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    className="flex-1"
+                    onClick={() => handleDownload(url, index)}
+                    disabled={downloading === index}
+                  >
+                    {downloading === index ? (
+                      <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                    ) : (
+                      <Download className="h-4 w-4 mr-2" />
+                    )}
+                    {t("download")}
+                  </Button>
+                  <ShareButton
+                    url={toAbsoluteUrl(url, { usePublicDomain: true })}
+                    size="sm"
+                    variant="outline"
+                    className="flex-1"
+                  />
+                </div>
+              </div>
+            </div>
+          </div>
+        ))}
+      </div>
+    </>
+  );
+}
+
+// 视频预览组件
+function VideoPreview({
+  videoUrl,
+  taskId,
+  onDownload,
+}: {
+  videoUrl: string;
+  taskId: string;
+  onDownload: () => Promise<void>;
+}) {
+  const t = useTranslations("ai.video.generator");
+  const [downloading, setDownloading] = useState(false);
+
+  const handleDownload = useCallback(async () => {
+    setDownloading(true);
+    try {
+      await onDownload();
+    } finally {
+      setDownloading(false);
+    }
+  }, [onDownload]);
+
+  return (
+    <div className="space-y-4">
+      <video
+        src={videoUrl}
+        controls
+        className="w-full h-auto rounded-lg border"
+        style={{ maxHeight: "50vh" }}
+      />
+      <div className="flex gap-2">
+        <Button
+          className="flex-1"
+          onClick={handleDownload}
+          disabled={downloading}
+        >
+          {downloading ? (
+            <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+          ) : (
+            <Download className="h-4 w-4 mr-2" />
+          )}
+          {t("download_video")}
+        </Button>
+        <ShareButton
+          url={toAbsoluteUrl(videoUrl, { usePublicDomain: true })}
+          variant="outline"
+          className="flex-1"
+        />
+      </div>
+    </div>
+  );
 }
 
 export function DownloadDialog({
@@ -46,169 +256,263 @@ export function DownloadDialog({
 }: DownloadDialogProps) {
   const t = useTranslations("ai.video.generator");
   const isDesktop = useMediaQuery("(min-width: 768px)");
-  const [downloading, setDownloading] = useState<string | null>(null);
 
-  const parseTaskResult = () => {
+  const resultData = useMemo<TaskResultData>(() => {
     try {
       return taskResult ? JSON.parse(taskResult) : {};
     } catch (error) {
       console.error("Failed to parse task result:", error);
       return {};
     }
-  };
+  }, [taskResult]);
 
-  const handleDownload = async (type: string) => {
-    try {
-      setDownloading(type);
-      const result = parseTaskResult();
+  const hasVideo = Boolean(resultData.video_url);
+  const hasImagesWithText = Boolean(resultData.image_urls?.length);
+  const hasOriginalImages = Boolean(resultData.original_image_urls?.length);
 
-      if (type === "video") {
-        await downloadVideo(result.video_url);
-      } else if (type === "images-with-text") {
-        await downloadImages(result.image_urls, true);
-      } else if (type === "images-original") {
-        await downloadImages(result.original_image_urls, false);
+  const defaultTab = useMemo<TabType>(() => {
+    if (hasVideo) return "video";
+    if (hasImagesWithText) return "images-with-text";
+    if (hasOriginalImages) return "images-original";
+    return "video";
+  }, [hasVideo, hasImagesWithText, hasOriginalImages]);
+
+  const downloadFile = useCallback(
+    async (url: string, filename: string) => {
+      try {
+        const resp = await fetch(
+          `/api/proxy/file?url=${encodeURIComponent(url)}`,
+        );
+        if (!resp.ok) throw new Error("Download failed");
+        const blob = await resp.blob();
+        const blobUrl = URL.createObjectURL(blob);
+        const link = document.createElement("a");
+        link.href = blobUrl;
+        link.download = filename;
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        setTimeout(() => URL.revokeObjectURL(blobUrl), 200);
+      } catch (error) {
+        console.error("Download failed:", error);
+        throw error;
       }
-    } catch (error) {
-      console.error("Download failed:", error);
-      toast.error(t("download_failed"));
-    } finally {
-      setDownloading(null);
-    }
-  };
+    },
+    [taskId],
+  );
 
-  const downloadVideo = async (videoUrl: string) => {
-    if (!videoUrl) {
+  const handleDownloadVideo = useCallback(async () => {
+    if (!resultData.video_url) {
       toast.error(t("no_video_found"));
       return;
     }
-
-    const resp = await fetch(
-      `/api/proxy/file?url=${encodeURIComponent(videoUrl)}`,
-    );
-    if (!resp.ok) {
-      throw new Error("Failed to fetch video");
-    }
-
-    const blob = await resp.blob();
-    const blobUrl = URL.createObjectURL(blob);
-    const link = document.createElement("a");
-    link.href = blobUrl;
-    link.download = `video-${taskId}.mp4`;
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
-    setTimeout(() => URL.revokeObjectURL(blobUrl), 200);
+    await downloadFile(resultData.video_url, `video-${taskId}.mp4`);
     toast.success(t("video_downloaded"));
-  };
+  }, [resultData.video_url, downloadFile, t, taskId]);
 
-  const downloadImages = async (
-    imageUrls: string[],
-    withWatermark: boolean,
-  ) => {
-    if (!imageUrls || !Array.isArray(imageUrls) || imageUrls.length === 0) {
-      toast.error(
-        withWatermark ? t("no_watermarked_images") : t("no_original_images"),
-      );
-      return;
-    }
+  const handleDownloadImage = useCallback(
+    async (url: string, index: number) => {
+      await downloadFile(url, `image-${taskId}-${index + 1}.png`);
+      toast.success(t("image_downloaded"));
+    },
+    [downloadFile, t, taskId],
+  );
 
-    for (let i = 0; i < imageUrls.length; i++) {
-      const imageUrl = imageUrls[i];
-      const resp = await fetch(
-        `/api/proxy/file?url=${encodeURIComponent(imageUrl)}`,
-      );
-      if (!resp.ok) {
-        throw new Error(`Failed to fetch image ${i + 1}`);
+  const handleDownloadMultipleImages = useCallback(
+    async (urls: string[]) => {
+      for (let i = 0; i < urls.length; i++) {
+        await downloadFile(urls[i], `image-${taskId}-${i + 1}.png`);
+        if (i < urls.length - 1) {
+          await new Promise((resolve) => setTimeout(resolve, 300));
+        }
       }
-
-      const blob = await resp.blob();
-      const blobUrl = URL.createObjectURL(blob);
-      const link = document.createElement("a");
-      link.href = blobUrl;
-      link.download = `image-${taskId}-${i + 1}${withWatermark ? "-watermark" : ""}.png`;
-      document.body.appendChild(link);
-      link.click();
-      document.body.removeChild(link);
-      setTimeout(() => URL.revokeObjectURL(blobUrl), 200);
-
-      if (i < imageUrls.length - 1) {
-        await new Promise((resolve) => setTimeout(resolve, 300));
-      }
-    }
-
-    toast.success(t("images_downloaded"));
-  };
-
-  const result = parseTaskResult();
-  const hasVideo = !!result.video_url;
-  const hasImagesWithText =
-    result.image_urls &&
-    Array.isArray(result.image_urls) &&
-    result.image_urls.length > 0;
-  const hasOriginalImages =
-    result.original_image_urls &&
-    Array.isArray(result.original_image_urls) &&
-    result.original_image_urls.length > 0;
-
-  const downloadOptions: DownloadOption[] = [
-    {
-      type: "video",
-      label: t("download_video"),
-      icon: <Video className="h-5 w-5" />,
-      disabled: !hasVideo,
+      toast.success(t("images_downloaded"));
     },
-    {
-      type: "images-with-text",
-      label: t("download_images_with_watermark"),
-      icon: <ImageIcon className="h-5 w-5" />,
-      disabled: !hasImagesWithText,
-    },
-    {
-      type: "images-original",
-      label: t("download_images_without_watermark"),
-      icon: <ImageIcon className="h-5 w-5" />,
-      disabled: !hasOriginalImages,
-    },
-  ];
+    [downloadFile, t, taskId],
+  );
 
-  const content = (
-    <div className="space-y-3 py-4">
-      {downloadOptions.map((option) => (
-        <Button
-          key={option.type}
-          variant="outline"
-          className="w-full justify-start h-auto py-3 px-4"
-          onClick={() => handleDownload(option.type)}
-          disabled={option.disabled || downloading !== null}
-        >
-          <div className="flex items-center gap-2 sm:gap-3 w-full">
-            {downloading === option.type ? (
-              <Loader2 className="h-4 w-4 sm:h-5 sm:w-5 animate-spin flex-shrink-0" />
-            ) : (
-              <div className="flex-shrink-0">{option.icon}</div>
-            )}
-            <span className="text-xs sm:text-sm md:text-base flex-1 text-left break-words line-clamp-2">
-              {option.label}
-            </span>
-            {!option.disabled && downloading !== option.type && (
-              <Download className="h-3.5 w-3.5 sm:h-4 sm:w-4 text-muted-foreground flex-shrink-0" />
-            )}
-          </div>
-        </Button>
-      ))}
-    </div>
+  const tabsContent = (
+    <Tabs defaultValue={defaultTab} className="w-full flex flex-col h-full">
+      {/* 固定的 Tab 头部 */}
+      <div className="sticky top-0 z-10 bg-background pb-2">
+        <TabsList className="grid w-full grid-cols-3 h-auto border-b">
+          <TabsTrigger
+            value="video"
+            disabled={!hasVideo}
+            className="text-xs sm:text-sm py-2 px-2 sm:px-3"
+          >
+            <Video className="h-3.5 w-3.5 sm:h-4 sm:w-4 mr-1 sm:mr-2" />
+            <span className="hidden sm:inline">{t("video")}</span>
+            <span className="sm:hidden">{t("video")}</span>
+          </TabsTrigger>
+          <TabsTrigger
+            value="images-with-text"
+            disabled={!hasImagesWithText}
+            className="text-xs sm:text-sm py-2 px-2 sm:px-3"
+          >
+            <ImageIcon className="h-3.5 w-3.5 sm:h-4 sm:w-4 mr-1 sm:mr-2" />
+            <span className="hidden sm:inline">{t("with_text")}</span>
+            <span className="sm:hidden">{t("with_text")}</span>
+          </TabsTrigger>
+          <TabsTrigger
+            value="images-original"
+            disabled={!hasOriginalImages}
+            className="text-xs sm:text-sm py-2 px-2 sm:px-3"
+          >
+            <ImageIcon className="h-3.5 w-3.5 sm:h-4 sm:w-4 mr-1 sm:mr-2" />
+            <span className="hidden sm:inline">{t("without_text")}</span>
+            <span className="sm:hidden">{t("without_text")}</span>
+          </TabsTrigger>
+        </TabsList>
+      </div>
+
+      {/* 可滚动的内容区域 */}
+      <div className="flex-1 overflow-y-auto mt-4">
+        <TabsContent value="video" className="mt-0">
+          {hasVideo && resultData.video_url ? (
+            <VideoPreview
+              videoUrl={resultData.video_url}
+              taskId={taskId}
+              onDownload={handleDownloadVideo}
+            />
+          ) : (
+            <div className="text-center py-8 text-muted-foreground">
+              {t("no_video_found")}
+            </div>
+          )}
+        </TabsContent>
+
+        <TabsContent value="images-with-text" className="mt-0">
+          {hasImagesWithText && resultData.image_urls ? (
+            <ImagePreview
+              images={resultData.image_urls}
+              taskId={taskId}
+              onDownload={handleDownloadImage}
+              onDownloadSelected={handleDownloadMultipleImages}
+              renderButtons={(props) => (
+                <div className="sticky top-0 z-20 bg-background pb-3 border-b mb-4">
+                  <div className="flex gap-2 flex-wrap">
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      onClick={props.onSelectAll}
+                      className="flex-1 sm:flex-none"
+                    >
+                      {props.selectedCount === props.totalCount
+                        ? t("deselect_all")
+                        : t("select_all")}
+                    </Button>
+                    <Button
+                      size="sm"
+                      onClick={props.onDownloadAll}
+                      disabled={props.downloading}
+                      className="flex-1 sm:flex-none"
+                    >
+                      {props.downloading ? (
+                        <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                      ) : (
+                        <Download className="h-4 w-4 mr-2" />
+                      )}
+                      {t("download_all")}
+                    </Button>
+                    {props.selectedCount > 0 && (
+                      <Button
+                        size="sm"
+                        variant="secondary"
+                        onClick={props.onDownloadSelected}
+                        disabled={props.downloading}
+                        className="flex-1 sm:flex-none"
+                      >
+                        {props.downloading ? (
+                          <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                        ) : (
+                          <Download className="h-4 w-4 mr-2" />
+                        )}
+                        {t("download_selected")} ({props.selectedCount})
+                      </Button>
+                    )}
+                  </div>
+                </div>
+              )}
+            />
+          ) : (
+            <div className="text-center py-8 text-muted-foreground">
+              {t("no_watermarked_images")}
+            </div>
+          )}
+        </TabsContent>
+
+        <TabsContent value="images-original" className="mt-0">
+          {hasOriginalImages && resultData.original_image_urls ? (
+            <ImagePreview
+              images={resultData.original_image_urls}
+              taskId={taskId}
+              onDownload={handleDownloadImage}
+              onDownloadSelected={handleDownloadMultipleImages}
+              renderButtons={(props) => (
+                <div className="sticky top-0 z-20 bg-background pb-3 border-b mb-4">
+                  <div className="flex gap-2 flex-wrap">
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      onClick={props.onSelectAll}
+                      className="flex-1 sm:flex-none"
+                    >
+                      {props.selectedCount === props.totalCount
+                        ? t("deselect_all")
+                        : t("select_all")}
+                    </Button>
+                    <Button
+                      size="sm"
+                      onClick={props.onDownloadAll}
+                      disabled={props.downloading}
+                      className="flex-1 sm:flex-none"
+                    >
+                      {props.downloading ? (
+                        <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                      ) : (
+                        <Download className="h-4 w-4 mr-2" />
+                      )}
+                      {t("download_all")}
+                    </Button>
+                    {props.selectedCount > 0 && (
+                      <Button
+                        size="sm"
+                        variant="secondary"
+                        onClick={props.onDownloadSelected}
+                        disabled={props.downloading}
+                        className="flex-1 sm:flex-none"
+                      >
+                        {props.downloading ? (
+                          <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                        ) : (
+                          <Download className="h-4 w-4 mr-2" />
+                        )}
+                        {t("download_selected")} ({props.selectedCount})
+                      </Button>
+                    )}
+                  </div>
+                </div>
+              )}
+            />
+          ) : (
+            <div className="text-center py-8 text-muted-foreground">
+              {t("no_original_images")}
+            </div>
+          )}
+        </TabsContent>
+      </div>
+    </Tabs>
   );
 
   if (isDesktop) {
     return (
       <Dialog open={open} onOpenChange={onOpenChange}>
-        <DialogContent className="sm:max-w-md">
-          <DialogHeader>
+        <DialogContent className="sm:max-w-2xl max-h-[90vh] flex flex-col p-0">
+          <DialogHeader className="px-6 pt-6 pb-0">
             <DialogTitle>{t("download_options")}</DialogTitle>
-            <DialogDescription>{t("download_description")}</DialogDescription>
           </DialogHeader>
-          {content}
+          <div className="flex-1 overflow-y-auto px-6 pb-6">{tabsContent}</div>
         </DialogContent>
       </Dialog>
     );
@@ -216,15 +520,14 @@ export function DownloadDialog({
 
   return (
     <Drawer open={open} onOpenChange={onOpenChange}>
-      <DrawerContent>
+      <DrawerContent className="max-h-[90vh] flex flex-col">
         <DrawerHeader className="text-left">
           <DrawerTitle>{t("download_options")}</DrawerTitle>
-          <DrawerDescription>{t("download_description")}</DrawerDescription>
         </DrawerHeader>
-        <div className="px-4">{content}</div>
+        <div className="flex-1 overflow-y-auto px-4">{tabsContent}</div>
         <DrawerFooter className="pt-2">
           <DrawerClose asChild>
-            <Button variant="outline">{t("cancel")}</Button>
+            <Button variant="outline">{t("close")}</Button>
           </DrawerClose>
         </DrawerFooter>
       </DrawerContent>

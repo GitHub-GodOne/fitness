@@ -589,7 +589,8 @@ You must output ONLY a valid JSON object with the following structure:
     private async mergeToVideo(
         imageBuffers: Buffer[],
         audioBuffer: Buffer,
-        taskId: string
+        taskId: string,
+        customStorage?: boolean
     ): Promise<{ videoUrl: string; imageUrls: string[]; audioUrl: string }> {
         const ffmpeg = require('fluent-ffmpeg');
         const fs = require('fs').promises;
@@ -738,15 +739,64 @@ You must output ONLY a valid JSON object with the following structure:
                     .run();
             });
 
-            // Step 8: Get video public URL
-            const videoUrl = getTaskPublicUrl(taskId, videoFilename);
-            console.log('[SP Video] Video created:', videoUrl);
-            console.log('[SP Video] All files saved to:', workDir);
+            // Step 8: Upload to R2 or use public URLs
+            const publicVideoUrl = getTaskPublicUrl(taskId, videoFilename);
+            let finalVideoUrl = publicVideoUrl;
+            let finalImageUrls = imageUrls;
+            let finalAudioUrl = audioUrl;
+
+            if (customStorage) {
+                console.log('[SP Video] Uploading files to R2...');
+
+                // Prepare files for R2 upload
+                const filesToUpload: AIFile[] = [];
+
+                // Add video
+                filesToUpload.push({
+                    url: publicVideoUrl,
+                    contentType: 'video/mp4',
+                    key: `ai/sp/${taskId}/${videoFilename}`,
+                    index: 0,
+                });
+
+                // Add images with text
+                for (let i = 0; i < imageUrls.length; i++) {
+                    filesToUpload.push({
+                        url: imageUrls[i],
+                        contentType: 'image/png',
+                        key: `ai/sp/${taskId}/image_${i}.png`,
+                        index: i + 1,
+                    });
+                }
+
+                // Add audio
+                filesToUpload.push({
+                    url: audioUrl,
+                    contentType: 'audio/mpeg',
+                    key: `ai/sp/${taskId}/${audioFilename}`,
+                    index: imageUrls.length + 1,
+                });
+
+                const uploadedFiles = await saveFiles(filesToUpload);
+                if (uploadedFiles) {
+                    // Update URLs with R2 URLs
+                    finalVideoUrl = uploadedFiles[0]?.url || publicVideoUrl;
+                    finalImageUrls = uploadedFiles.slice(1, imageUrls.length + 1).map(f => f.url);
+                    finalAudioUrl = uploadedFiles[uploadedFiles.length - 1]?.url || audioUrl;
+
+                    console.log('[SP Video] Files uploaded to R2 successfully');
+                    console.log('[SP Video] R2 Video URL:', finalVideoUrl);
+                }
+            } else {
+                // Use public folder URLs
+                console.log('[SP Video] Video created:', publicVideoUrl);
+                console.log('[SP Video] All files saved to:', workDir);
+            }
 
             return {
-                videoUrl,
-                imageUrls,
-                audioUrl,
+                videoUrl: finalVideoUrl,
+                imageUrls: finalImageUrls,
+                audioUrl: finalAudioUrl,
             };
 
         } catch (error) {
@@ -919,24 +969,52 @@ You must output ONLY a valid JSON object with the following structure:
 
             // Step 2.5: Download and save original generated images (without watermark)
             console.log('[SP] Step 2.5: Saving original generated images...');
-            const { ensureTaskWorkDir } = await import('@/shared/utils/file-manager');
-            const workDir = await ensureTaskWorkDir(taskId);
-            const fs = await import('fs/promises');
-            const path = await import('path');
             const originalImageUrls: string[] = [];
 
-            for (let i = 0; i < generatedImageUrls.length; i++) {
-                const response = await fetch(generatedImageUrls[i]);
-                if (!response.ok) {
-                    throw new Error(`Failed to download generated image ${i + 1}: ${response.status}`);
+            if (this.configs.customStorage) {
+                // Use R2 storage
+                console.log('[SP] Using R2 storage for original images');
+                const filesToSave: AIFile[] = [];
+
+                for (let i = 0; i < generatedImageUrls.length; i++) {
+                    filesToSave.push({
+                        url: generatedImageUrls[i],
+                        contentType: 'image/png',
+                        key: `ai/sp/${taskId}/original_image_${i}.png`,
+                        index: i,
+                    });
                 }
-                const arrayBuffer = await response.arrayBuffer();
-                const buffer = Buffer.from(arrayBuffer);
-                const originalImagePath = path.join(workDir, `original_image_${i}.png`);
-                await fs.writeFile(originalImagePath, buffer);
-                const publicUrl = originalImagePath.replace(/^.*\/public/, '');
-                originalImageUrls.push(publicUrl);
-                console.log(`[SP] Original image ${i + 1} saved: ${publicUrl}`);
+
+                const uploadedFiles = await saveFiles(filesToSave);
+                if (uploadedFiles) {
+                    uploadedFiles.forEach((file: AIFile) => {
+                        if (file && file.url) {
+                            originalImageUrls.push(file.url);
+                            console.log(`[SP] Original image ${file.index! + 1} uploaded to R2: ${file.url}`);
+                        }
+                    });
+                }
+            } else {
+                // Use public folder storage
+                console.log('[SP] Using public folder storage for original images');
+                const { ensureTaskWorkDir } = await import('@/shared/utils/file-manager');
+                const workDir = await ensureTaskWorkDir(taskId);
+                const fs = await import('fs/promises');
+                const path = await import('path');
+
+                for (let i = 0; i < generatedImageUrls.length; i++) {
+                    const response = await fetch(generatedImageUrls[i]);
+                    if (!response.ok) {
+                        throw new Error(`Failed to download generated image ${i + 1}: ${response.status}`);
+                    }
+                    const arrayBuffer = await response.arrayBuffer();
+                    const buffer = Buffer.from(arrayBuffer);
+                    const originalImagePath = path.join(workDir, `original_image_${i}.png`);
+                    await fs.writeFile(originalImagePath, buffer);
+                    const publicUrl = originalImagePath.replace(/^.*\/public/, '');
+                    originalImageUrls.push(publicUrl);
+                    console.log(`[SP] Original image ${i + 1} saved: ${publicUrl}`);
+                }
             }
 
             // Step 3: Add text overlay to images
@@ -973,7 +1051,8 @@ You must output ONLY a valid JSON object with the following structure:
             const { videoUrl, imageUrls: savedImageUrls, audioUrl } = await this.mergeToVideo(
                 imageBuffers,
                 audioBuffer,
-                taskId
+                taskId,
+                this.configs.customStorage
             );
 
             // Save analysis to params.options.final_prompt as requested

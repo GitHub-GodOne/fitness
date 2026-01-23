@@ -112,11 +112,6 @@
         "title": "Settings",
         "url": "/admin/settings/general",
         "icon": "Settings"
-      },
-      {
-        "title": "API Keys",
-        "url": "/admin/apikeys",
-        "icon": "Key"
       }
     ]
   },

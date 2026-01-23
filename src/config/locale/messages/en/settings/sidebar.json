@@ -1,5 +1,5 @@
 {
-  "title": "Settings",
+  "title": "",
   "nav": {
     "items": [
       {
@@ -23,29 +23,13 @@
         "icon": "Coins"
       },
       {
-        "title": "API Keys",
-        "url": "/settings/apikeys",
-        "icon": "RiKeyLine"
-      },
-      {
-        "title": "Merge History",
-        "url": "/settings/merge-history",
-        "icon": "RiVideoLine"
+        "title": "History",
+        "url": "/settings/history",
+        "icon": "History"
       }
     ]
   },
   "top_nav": {
-    "items": [
-      {
-        "title": "Activity",
-        "url": "/activity",
-        "icon": "Activity"
-      },
-      {
-        "title": "Settings",
-        "url": "/settings",
-        "icon": "Settings"
-      }
-    ]
+    "items": []
   }
 }

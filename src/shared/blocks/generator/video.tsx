@@ -4,6 +4,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import {
   CreditCard,
   Download,
+  Eye,
   Loader2,
   RefreshCw,
   Sparkles,
@@ -1151,6 +1152,9 @@ export function VideoGenerator({
     setGeneratedVideos([]);
     setGenerationStartTime(Date.now());
 
+    // 显示排队提示
+    toast.info(t("queue_notice"), { duration: 5000 });
+
     // Scroll to progress card on mobile after a short delay
     setTimeout(() => {
       if (progressCardRef.current) {
@@ -1229,7 +1233,8 @@ export function VideoGenerator({
           );
           toast.success("Video generated successfully");
           setProgress(100);
-          resetTaskState();
+          setTaskStatus(AITaskStatus.SUCCESS);
+          setIsGenerating(false); // 恢复按钮可点击状态
           await fetchUserCredits();
           await fetchHistory();
           return;
@@ -1895,7 +1900,8 @@ export function VideoGenerator({
                       >
                         Clear
                       </Button>
-                      <Button
+                      {/* 合并功能暂时隐藏 */}
+                      {/* <Button
                         variant="default"
                         size="sm"
                         onClick={handleMergeVideos}
@@ -1913,7 +1919,7 @@ export function VideoGenerator({
                             Merge ({selectedVideos.size})
                           </>
                         )}
-                      </Button>
+                      </Button> */}
                     </div>
                   )}
                 </div>
@@ -1932,7 +1938,8 @@ export function VideoGenerator({
                     <Table>
                       <TableHeader>
                         <TableRow>
-                          <TableHead className="w-12">
+                          {/* 选择功能已隐藏 */}
+                          {/* <TableHead className="w-12">
                             <Checkbox
                               checked={
                                 historyTasks.length > 0 &&
@@ -1948,7 +1955,6 @@ export function VideoGenerator({
                               }
                               onCheckedChange={(checked) => {
                                 if (checked) {
-                                  // 全选：按顺序添加所有有视频的任务
                                   const newMap = new Map<string, string>();
                                   historyTasks.forEach((task) => {
                                     const videoUrl = extractVideoUrl(
@@ -1964,16 +1970,12 @@ export function VideoGenerator({
                                   });
                                   setSelectedVideos(newMap);
                                 } else {
-                                  // 取消全选
                                   setSelectedVideos(new Map());
                                 }
                               }}
                               aria-label="Select all"
                             />
-                          </TableHead>
-                          <TableHead className="w-12">
-                            {t("history.order")}
-                          </TableHead>
+                          </TableHead> */}
                           <TableHead>{t("history.status")}</TableHead>
                           <TableHead>{t("history.prompt")}</TableHead>
                           <TableHead className="max-w-xs">
@@ -2017,7 +2019,8 @@ export function VideoGenerator({
 
                           return (
                             <TableRow key={task.id}>
-                              <TableCell>
+                              {/* 选择功能已隐藏 */}
+                              {/* <TableCell>
                                 <Checkbox
                                   checked={isSelected}
                                   onCheckedChange={(checked) => {
@@ -2030,14 +2033,7 @@ export function VideoGenerator({
                                   disabled={!canSelect}
                                   aria-label={`Select task ${task.id}`}
                                 />
-                              </TableCell>
-                              <TableCell className="text-center">
-                                {selectedOrder && (
-                                  <span className="inline-flex items-center justify-center w-6 h-6 rounded-full bg-primary text-primary-foreground text-xs font-medium">
-                                    {selectedOrder}
-                                  </span>
-                                )}
-                              </TableCell>
+                              </TableCell> */}
                               <TableCell>
                                 <span
                                   className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
@@ -2122,29 +2118,7 @@ export function VideoGenerator({
                               <TableCell className="text-right w-auto sm:w-[260px] sticky right-0 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/75 z-10">
                                 <div className="flex flex-col items-end gap-1 sm:flex-row sm:items-center sm:justify-end sm:gap-2">
                                   {videoUrl && (
-                                    <>
-                                      <Button
-                                        size="sm"
-                                        variant="ghost"
-                                        onClick={() => {
-                                          setPreviewVideoUrl(videoUrl);
-                                          setIsPreviewOpen(true);
-                                        }}
-                                        title="Preview video"
-                                        className="w-auto justify-center"
-                                      >
-                                        <Video className="h-4 w-4" />
-                                        <span className="ml-2 hidden sm:inline">
-                                          Preview
-                                        </span>
-                                      </Button>
-                                      <ShareButton
-                                        url={videoUrl}
-                                        size="sm"
-                                        variant="ghost"
-                                        className="w-auto justify-center"
-                                      />
-                                    </>
+                                    <>{/* Preview 和 Share 按钮已移除 */}</>
                                   )}
                                   <Button
                                     size="sm"
@@ -2152,12 +2126,12 @@ export function VideoGenerator({
                                     onClick={() =>
                                       handleOpenDownloadDialog(task)
                                     }
-                                    title={t("download")}
+                                    title="View"
                                     className="w-auto justify-center"
                                   >
-                                    <Download className="h-4 w-4" />
+                                    <Eye className="h-4 w-4" />
                                     <span className="ml-2 hidden sm:inline">
-                                      {t("download")}
+                                      View
                                     </span>
                                   </Button>
                                 </div>
@@ -2267,8 +2241,8 @@ export function VideoGenerator({
         </div>
       </div>
 
-      {/* Video Preview Dialog */}
-      <Dialog
+      {/* Video Preview Dialog - 已隐藏 */}
+      {/* <Dialog
         open={isPreviewOpen}
         onOpenChange={(open) => {
           setIsPreviewOpen(open);
@@ -2292,16 +2266,11 @@ export function VideoGenerator({
                 {isVideoLoading && (
                   <div className="absolute inset-0 flex items-center justify-center bg-gradient-to-br from-primary/10 via-primary/5 to-transparent backdrop-blur-sm z-10">
                     <div className="relative flex items-center justify-center">
-                      {/* Outer rotating ring with gradient */}
                       <div
                         className="absolute w-32 h-32 rounded-full border-4 border-transparent border-t-primary/80 border-r-primary/60 animate-spin"
                         style={{ animationDuration: "1.5s" }}
                       />
-
-                      {/* Middle pulsing ring */}
                       <div className="absolute w-28 h-28 rounded-full border-2 border-primary/30 animate-pulse" />
-
-                      {/* Inner rotating ring (opposite direction) */}
                       <div
                         className="absolute w-24 h-24 rounded-full border-4 border-transparent border-b-primary/70 border-l-primary/50 animate-spin"
                         style={{
@@ -2309,16 +2278,12 @@ export function VideoGenerator({
                           animationDirection: "reverse",
                         }}
                       />
-
-                      {/* Center icon with glow effect */}
                       <div className="relative flex items-center justify-center w-20 h-20 rounded-full bg-primary/20 backdrop-blur-md shadow-lg shadow-primary/30">
                         <Video
                           className="w-10 h-10 text-primary animate-pulse"
                           style={{ animationDuration: "2s" }}
                         />
                       </div>
-
-                      {/* Sparkle effects */}
                       <div
                         className="absolute w-2 h-2 bg-primary rounded-full top-0 left-1/2 -translate-x-1/2 animate-ping"
                         style={{ animationDelay: "0s" }}
@@ -2351,7 +2316,7 @@ export function VideoGenerator({
             )}
           </div>
         </DialogContent>
-      </Dialog>
+      </Dialog> */}
 
       {/* Video Settings Dialog/Drawer */}
       {isDesktop ? (
