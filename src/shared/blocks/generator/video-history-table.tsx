@@ -2,11 +2,31 @@
 
 import { useState, useCallback, useMemo } from "react";
 import { useTranslations } from "next-intl";
-import { Download, Eye, Loader2, RefreshCw, RotateCcw } from "lucide-react";
+import {
+  Download,
+  Eye,
+  Loader2,
+  RefreshCw,
+  RotateCcw,
+  ChevronLeft,
+  ChevronRight,
+} from "lucide-react";
 import { toast } from "sonner";
 
-import { AITask } from "@/shared/models/ai_task";
 import { AITaskStatus } from "@/extensions/ai/types";
+
+interface HistoryTask {
+  id: string;
+  taskId: string | null;
+  status: string;
+  provider: string;
+  model: string;
+  prompt: string | null;
+  taskInfo: string | null;
+  taskResult: string | null;
+  options?: string | null;
+  createdAt: string;
+}
 import { Button } from "@/shared/components/ui/button";
 import { Card, CardContent, CardHeader } from "@/shared/components/ui/card";
 import {
@@ -21,14 +41,14 @@ import { Copy } from "@/shared/blocks/table/copy";
 import { DownloadDialog } from "@/shared/blocks/generator/download-dialog";
 
 interface VideoHistoryTableProps {
-  tasks: AITask[];
+  tasks: HistoryTask[];
   loading: boolean;
   total: number;
   page: number;
   limit: number;
   onPageChange: (page: number) => void;
   onRefresh: () => void;
-  onRegenerate?: (task: AITask) => void;
+  onRegenerate?: (task: HistoryTask) => void;
   showTitle?: boolean;
   className?: string;
 }
@@ -59,7 +79,7 @@ export function VideoHistoryTable({
   const t = useTranslations("ai.video.generator");
   const [downloadDialogOpen, setDownloadDialogOpen] = useState(false);
   const [selectedTaskForDownload, setSelectedTaskForDownload] =
-    useState<AITask | null>(null);
+    useState<HistoryTask | null>(null);
 
   // 提取视频 URL
   const extractVideoUrl = useCallback(
@@ -78,14 +98,14 @@ export function VideoHistoryTable({
   );
 
   // 打开下载对话框
-  const handleOpenDownloadDialog = useCallback((task: AITask) => {
+  const handleOpenDownloadDialog = useCallback((task: HistoryTask) => {
     setSelectedTaskForDownload(task);
     setDownloadDialogOpen(true);
   }, []);
 
   // 处理重新生成
   const handleRegenerate = useCallback(
-    (task: AITask) => {
+    (task: HistoryTask) => {
       if (onRegenerate) {
         onRegenerate(task);
       } else {
@@ -155,10 +175,10 @@ export function VideoHistoryTable({
                         {t("history.final_prompt")}
                       </TableHead>
                       <TableHead>{t("history.created")}</TableHead>
-                      <TableHead className="max-w-[120px]">
+                      <TableHead className="max-w-xs">
                         {t("history.task_id")}
                       </TableHead>
-                      <TableHead className="text-right w-[220px] sm:w-[260px] sticky right-0 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/75 z-10">
+                      <TableHead className="text-right sticky right-0">
                         {t("history.actions")}
                       </TableHead>
                     </TableRow>
@@ -203,14 +223,34 @@ export function VideoHistoryTable({
                             </span>
                           </TableCell>
                           <TableCell>
-                            <div className="max-w-[200px] truncate">
-                              {task.prompt || "-"}
-                            </div>
+                            {task.prompt ? (
+                              <Copy
+                                value={task.prompt}
+                                className="max-w-[200px]"
+                              >
+                                <span className="truncate" title={task.prompt}>
+                                  {task.prompt}
+                                </span>
+                              </Copy>
+                            ) : (
+                              <span>-</span>
+                            )}
                           </TableCell>
                           <TableCell>
-                            <div className="max-w-xs line-clamp-2 text-xs sm:text-sm">
-                              {finalPrompt || "-"}
-                            </div>
+                            {finalPrompt ? (
+                              <Copy value={finalPrompt} className="max-w-xs">
+                                <span
+                                  className="line-clamp-2 text-xs sm:text-sm"
+                                  title={finalPrompt}
+                                >
+                                  {finalPrompt}
+                                </span>
+                              </Copy>
+                            ) : (
+                              <span className="text-xs text-muted-foreground">
+                                -
+                              </span>
+                            )}
                           </TableCell>
                           <TableCell>
                             {task.createdAt ? (
@@ -224,13 +264,13 @@ export function VideoHistoryTable({
                             )}
                           </TableCell>
                           <TableCell>
-                            <Copy value={task.id} className="max-w-[120px]">
+                            <Copy value={task.id} className="max-w-xs">
                               <span className="truncate text-xs sm:text-sm">
-                                {task.id.substring(0, 8)}...
+                                {task.id}
                               </span>
                             </Copy>
                           </TableCell>
-                          <TableCell className="text-right w-auto sm:w-[260px] sticky right-0 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/75 z-10">
+                          <TableCell className="text-right w-auto sm:w-[260px] sticky">
                             <div className="flex flex-col items-end gap-1 sm:flex-row sm:items-center sm:justify-end sm:gap-2">
                               {videoUrl && (
                                 <>{/* Preview 和 Share 按钮已移除 */}</>
@@ -287,9 +327,9 @@ export function VideoHistoryTable({
                       size="sm"
                       onClick={handlePrevPage}
                       disabled={page <= 1 || loading}
-                      className="h-8 px-2 sm:px-3"
+                      className="h-8 w-8 p-0"
                     >
-                      {t("history.previous")}
+                      <ChevronLeft className="h-4 w-4" />
                     </Button>
                     <div className="text-xs sm:text-sm">
                       {page} / {totalPages}
@@ -299,9 +339,9 @@ export function VideoHistoryTable({
                       size="sm"
                       onClick={handleNextPage}
                       disabled={page >= totalPages || loading}
-                      className="h-8 px-2 sm:px-3"
+                      className="h-8 w-8 p-0"
                     >
-                      {t("history.next")}
+                      <ChevronRight className="h-4 w-4" />
                     </Button>
                   </div>
                 </div>

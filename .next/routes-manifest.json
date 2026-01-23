@@ -530,6 +530,14 @@
       "namedRegex": "^/(?<nxtPlocale>[^/]+?)/settings/credits(?:/)?$"
     },
     {
+      "page": "/[locale]/settings/history",
+      "regex": "^/([^/]+?)/settings/history(?:/)?$",
+      "routeKeys": {
+        "nxtPlocale": "nxtPlocale"
+      },
+      "namedRegex": "^/(?<nxtPlocale>[^/]+?)/settings/history(?:/)?$"
+    },
+    {
       "page": "/[locale]/settings/invoices/retrieve",
       "regex": "^/([^/]+?)/settings/invoices/retrieve(?:/)?$",
       "routeKeys": {

@@ -1,3 +1,3 @@
-module.exports=[578116,a=>{a.v({title:"设置",nav:{items:[{title:"个人资料",url:"/settings/profile",icon:"User"},{title:"账单",url:"/settings/billing",icon:"CreditCard"},{title:"支付",url:"/settings/payments",icon:"DollarSign"},{title:"积分",url:"/settings/credits",icon:"Coins"},{title:"API 密钥",url:"/settings/apikeys",icon:"RiKeyLine"},{title:"合并历史",url:"/settings/merge-history",icon:"RiVideoLine"}]},top_nav:{items:[{title:"活动",url:"/activity",icon:"Activity"},{title:"设置",url:"/settings",icon:"Settings"}]}})}];
+module.exports=[578116,a=>{a.v({title:"",nav:{items:[{title:"个人资料",url:"/settings/profile",icon:"User"},{title:"账单",url:"/settings/billing",icon:"CreditCard"},{title:"支付",url:"/settings/payments",icon:"DollarSign"},{title:"积分",url:"/settings/credits",icon:"Coins"},{title:"历史记录",url:"/settings/history",icon:"History"}]},top_nav:{items:[]}})}];
 
 //# sourceMappingURL=src_config_locale_messages_zh_settings_sidebar_json_d89e2299._.js.map

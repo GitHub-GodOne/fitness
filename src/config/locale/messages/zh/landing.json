@@ -48,9 +48,9 @@
           "icon": "CreditCard"
         },
         {
-          "title": "活动",
-          "url": "/activity",
-          "icon": "Activity"
+          "title": "历史记录",
+          "url": "/settings/history",
+          "icon": "History"
         }
       ]
     },

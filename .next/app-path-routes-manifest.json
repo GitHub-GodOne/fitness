@@ -57,6 +57,7 @@
   "/[locale]/(landing)/settings/billing/page": "/[locale]/settings/billing",
   "/[locale]/(landing)/settings/billing/retrieve/page": "/[locale]/settings/billing/retrieve",
   "/[locale]/(landing)/settings/credits/page": "/[locale]/settings/credits",
+  "/[locale]/(landing)/settings/history/page": "/[locale]/settings/history",
   "/[locale]/(landing)/settings/invoices/retrieve/page": "/[locale]/settings/invoices/retrieve",
   "/[locale]/(landing)/settings/merge-history/page": "/[locale]/settings/merge-history",
   "/[locale]/(landing)/settings/page": "/[locale]/settings",

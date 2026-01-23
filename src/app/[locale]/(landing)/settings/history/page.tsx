@@ -3,8 +3,20 @@
 import { useState, useEffect, useCallback } from "react";
 import { useTranslations } from "next-intl";
 
-import { AITask } from "@/shared/models/ai_task";
 import { VideoHistoryTable } from "@/shared/blocks/generator/video-history-table";
+
+interface HistoryTask {
+  id: string;
+  taskId: string | null;
+  status: string;
+  provider: string;
+  model: string;
+  prompt: string | null;
+  taskInfo: string | null;
+  taskResult: string | null;
+  options?: string | null;
+  createdAt: string;
+}
 
 /**
  * Settings 中的历史记录页面
@@ -16,7 +28,7 @@ import { VideoHistoryTable } from "@/shared/blocks/generator/video-history-table
  */
 export default function HistoryPage() {
   const t = useTranslations("ai.video.generator");
-  const [historyTasks, setHistoryTasks] = useState<AITask[]>([]);
+  const [historyTasks, setHistoryTasks] = useState<HistoryTask[]>([]);
   const [historyLoading, setHistoryLoading] = useState(false);
   const [historyPage, setHistoryPage] = useState(1);
   const [historyTotal, setHistoryTotal] = useState(0);
@@ -31,8 +43,29 @@ export default function HistoryPage() {
       );
       if (response.ok) {
         const data = await response.json();
-        setHistoryTasks(data.tasks || []);
-        setHistoryTotal(data.total || 0);
+        // Transform AITask[] to HistoryTask[] (convert Date to string)
+        const transformedTasks: HistoryTask[] = (data.data.data || []).map(
+          (task: any) => ({
+            id: task.id,
+            taskId: task.taskId,
+            status: task.status,
+            provider: task.provider,
+            model: task.model,
+            prompt: task.prompt,
+            taskInfo: task.taskInfo,
+            taskResult: task.taskResult,
+            options: task.options,
+            createdAt:
+              task.createdAt instanceof Date
+                ? task.createdAt.toISOString()
+                : task.createdAt,
+          }),
+        );
+        setHistoryTasks(transformedTasks);
+        setHistoryTotal(data.data.total || 0);
+        console.log(data);
+        console.log(data.data.data);
+        console.log(data.data.total);
       }
     } catch (error) {
       console.error("Failed to fetch history:", error);
@@ -65,7 +98,7 @@ export default function HistoryPage() {
         limit={historyLimit}
         onPageChange={setHistoryPage}
         onRefresh={fetchHistory}
-        showTitle={false}
+        showTitle={true}
       />
     </div>
   );

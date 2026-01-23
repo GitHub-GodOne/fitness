@@ -46,6 +46,11 @@
           "title": "Billing",
           "url": "/settings/billing",
           "icon": "CreditCard"
+        },
+        {
+          "title": "History",
+          "url": "/settings/history",
+          "icon": "History"
         }
       ]
     },

@@ -1,5 +1,5 @@
 "use client";
-
+import { AITask } from "@/shared/models/ai_task";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import {
   CreditCard,
@@ -27,6 +27,7 @@ import { ImageUploader, ImageUploaderValue } from "@/shared/blocks/common";
 import { ShareButton } from "@/shared/blocks/common/share-button";
 import { Copy } from "@/shared/blocks/table/copy";
 import { DownloadDialog } from "@/shared/blocks/generator/download-dialog";
+import { VideoHistoryTable } from "@/shared/blocks/generator/video-history-table";
 import { Button } from "@/shared/components/ui/button";
 import {
   Card,
@@ -89,12 +90,31 @@ interface VideoGeneratorProps {
   srOnlyTitle?: string;
 }
 
+interface HistoryTask {
+  id: string;
+  taskId: string | null;
+  status: string;
+  provider: string;
+  model: string;
+  prompt: string | null;
+  taskInfo: string | null;
+  taskResult: string | null;
+  options?: string | null;
+  createdAt: string;
+}
+
 interface GeneratedVideo {
   id: string;
   url: string;
   provider?: string;
   model?: string;
   prompt?: string;
+}
+
+interface VideoSettings {
+  resolution: "480p" | "720p" | "1080p";
+  ratio: "16:9" | "9:16" | "1:1";
+  duration: number;
 }
 
 interface BackendTask {
@@ -109,25 +129,12 @@ interface BackendTask {
   createdAt?: string;
 }
 
-interface HistoryTask {
-  id: string;
-  taskId: string | null;
-  status: string;
-  provider: string;
-  model: string;
-  prompt: string | null;
-  taskInfo: string | null;
-  taskResult: string | null;
-  options?: string | null;
-  createdAt: string;
-}
-
 interface HistoryResponse {
   list: HistoryTask[];
   total: number;
   page: number;
   limit: number;
-  hasMore: boolean;
+  hasMore?: boolean;
 }
 
 type VideoGeneratorTab = "text-to-video" | "image-to-video" | "video-to-video";
@@ -414,9 +421,27 @@ export function VideoGenerator({
       }
 
       // GET endpoint returns { data: tasks, total, page, limit, hasMore }
-      // Convert to HistoryResponse format
+      // Transform AITask[] to HistoryTask[] (convert Date to string)
+      const transformedTasks: HistoryTask[] = (data.data || []).map(
+        (task: any) => ({
+          id: task.id,
+          taskId: task.taskId,
+          status: task.status,
+          provider: task.provider,
+          model: task.model,
+          prompt: task.prompt,
+          taskInfo: task.taskInfo,
+          taskResult: task.taskResult,
+          options: task.options,
+          createdAt:
+            task.createdAt instanceof Date
+              ? task.createdAt.toISOString()
+              : task.createdAt,
+        }),
+      );
+
       const historyData: HistoryResponse = {
-        list: data.data || [],
+        list: transformedTasks,
         total: data.total || 0,
         page: data.page || historyPage,
         limit: data.limit || historyLimit,
@@ -596,7 +621,7 @@ export function VideoGenerator({
     }
   };
 
-  const handleUseLastFrame = useCallback((task: HistoryTask) => {
+  const handleUseLastFrame = useCallback((task: AITask) => {
     const lastFrameImage = extractLastFrameImage(task.taskResult);
     console.log("[VideoGenerator] handleUseLastFrame:", {
       taskId: task.id,
@@ -624,7 +649,7 @@ export function VideoGenerator({
     }
   }, []);
 
-  const handleRegenerate = useCallback((task: HistoryTask) => {
+  const handleRegenerate = useCallback((task: AITask) => {
     // Extract user_feeling from options and set to feeling input
     if (task.options) {
       try {
@@ -1285,7 +1310,7 @@ export function VideoGenerator({
     }
   };
 
-  const handleDownloadTaskVideo = async (task: HistoryTask) => {
+  const handleDownloadTaskVideo = async (task: AITask) => {
     try {
       const taskResult = task.taskResult ? JSON.parse(task.taskResult) : {};
       const videoUrl = taskResult.video_url;
@@ -1322,7 +1347,7 @@ export function VideoGenerator({
   };
 
   const handleDownloadTaskImages = async (
-    task: HistoryTask,
+    task: AITask,
     withWatermark: boolean = true,
   ) => {
     try {
@@ -1862,381 +1887,19 @@ export function VideoGenerator({
           </div>
 
           {/* History Section */}
+          {/* History Section */}
           {user && (
-            <Card className="mt-8">
-              <CardHeader>
-                <div className="space-y-3">
-                  <div className="flex items-center justify-between">
-                    <CardTitle className="flex items-center gap-2 text-lg sm:text-xl font-semibold">
-                      <Video className="h-4 w-4 sm:h-5 sm:w-5" />
-                      History
-                    </CardTitle>
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      onClick={() => {
-                        setSelectedVideos(new Map());
-                        fetchHistory();
-                      }}
-                      disabled={historyLoading}
-                      className="h-8 w-8 p-0 sm:h-9 sm:w-auto sm:px-3"
-                    >
-                      <RefreshCw
-                        className={`h-3.5 w-3.5 sm:h-4 sm:w-4 ${historyLoading ? "animate-spin" : ""}`}
-                      />
-                    </Button>
-                  </div>
-                  {selectedVideos.size > 0 && (
-                    <div className="flex flex-wrap items-center gap-2">
-                      <span className="text-xs sm:text-sm text-muted-foreground">
-                        {selectedVideos.size} selected
-                      </span>
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        onClick={handleClearSelection}
-                        disabled={isMerging}
-                        className="h-8 text-xs sm:h-9 sm:text-sm"
-                      >
-                        Clear
-                      </Button>
-                      {/* 合并功能暂时隐藏 */}
-                      {/* <Button
-                        variant="default"
-                        size="sm"
-                        onClick={handleMergeVideos}
-                        disabled={isMerging || selectedVideos.size < 2}
-                        className="h-8 text-xs sm:h-9 sm:text-sm"
-                      >
-                        {isMerging ? (
-                          <>
-                            <Loader2 className="mr-1 h-3 w-3 animate-spin sm:mr-2 sm:h-4 sm:w-4" />
-                            Merging...
-                          </>
-                        ) : (
-                          <>
-                            <Merge className="mr-1 h-3 w-3 sm:mr-2 sm:h-4 sm:w-4" />
-                            Merge ({selectedVideos.size})
-                          </>
-                        )}
-                      </Button> */}
-                    </div>
-                  )}
-                </div>
-              </CardHeader>
-              <CardContent>
-                {historyLoading ? (
-                  <div className="flex items-center justify-center py-8">
-                    <Loader2 className="h-6 w-6 animate-spin" />
-                  </div>
-                ) : historyTasks.length === 0 ? (
-                  <div className="py-8 text-center text-muted-foreground">
-                    No history found
-                  </div>
-                ) : (
-                  <>
-                    <Table>
-                      <TableHeader>
-                        <TableRow>
-                          {/* 选择功能已隐藏 */}
-                          {/* <TableHead className="w-12">
-                            <Checkbox
-                              checked={
-                                historyTasks.length > 0 &&
-                                historyTasks.every((task) => {
-                                  const videoUrl = extractVideoUrl(
-                                    task.taskInfo,
-                                    task.taskResult,
-                                  );
-                                  return (
-                                    !videoUrl || selectedVideos.has(task.id)
-                                  );
-                                })
-                              }
-                              onCheckedChange={(checked) => {
-                                if (checked) {
-                                  const newMap = new Map<string, string>();
-                                  historyTasks.forEach((task) => {
-                                    const videoUrl = extractVideoUrl(
-                                      task.taskInfo,
-                                      task.taskResult,
-                                    );
-                                    if (
-                                      videoUrl &&
-                                      task.status === AITaskStatus.SUCCESS
-                                    ) {
-                                      newMap.set(task.id, videoUrl);
-                                    }
-                                  });
-                                  setSelectedVideos(newMap);
-                                } else {
-                                  setSelectedVideos(new Map());
-                                }
-                              }}
-                              aria-label="Select all"
-                            />
-                          </TableHead> */}
-                          <TableHead>{t("history.status")}</TableHead>
-                          <TableHead>{t("history.prompt")}</TableHead>
-                          <TableHead className="max-w-xs">
-                            {t("history.final_prompt")}
-                          </TableHead>
-                          <TableHead>{t("history.created")}</TableHead>
-                          <TableHead className="max-w-[120px]">
-                            {t("history.task_id")}
-                          </TableHead>
-                          <TableHead className="text-right w-[220px] sm:w-[260px] sticky right-0 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/75 z-20">
-                            {t("history.actions")}
-                          </TableHead>
-                        </TableRow>
-                      </TableHeader>
-                      <TableBody>
-                        {historyTasks.map((task) => {
-                          const videoUrl = extractVideoUrl(
-                            task.taskInfo,
-                            task.taskResult,
-                          );
-                          const isSelected = selectedVideos.has(task.id);
-                          // 获取选中顺序（从1开始）
-                          const selectedOrder = isSelected
-                            ? Array.from(selectedVideos.keys()).indexOf(
-                                task.id,
-                              ) + 1
-                            : null;
-                          const canSelect =
-                            videoUrl && task.status === AITaskStatus.SUCCESS;
-
-                          // 解析 final_prompt
-                          let finalPrompt = "";
-                          try {
-                            if (task.options) {
-                              const options = JSON.parse(task.options);
-                              finalPrompt = options.final_prompt || "";
-                            }
-                          } catch (e) {
-                            // 忽略解析错误
-                          }
-
-                          return (
-                            <TableRow key={task.id}>
-                              {/* 选择功能已隐藏 */}
-                              {/* <TableCell>
-                                <Checkbox
-                                  checked={isSelected}
-                                  onCheckedChange={(checked) => {
-                                    handleVideoSelect(
-                                      task.id,
-                                      videoUrl,
-                                      checked as boolean,
-                                    );
-                                  }}
-                                  disabled={!canSelect}
-                                  aria-label={`Select task ${task.id}`}
-                                />
-                              </TableCell> */}
-                              <TableCell>
-                                <span
-                                  className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
-                                    task.status === AITaskStatus.SUCCESS
-                                      ? "bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200"
-                                      : task.status === AITaskStatus.FAILED
-                                        ? "bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200"
-                                        : task.status ===
-                                            AITaskStatus.PROCESSING
-                                          ? "bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200 animate-pulse"
-                                          : "bg-gray-100 text-gray-800 dark:bg-gray-800 dark:text-gray-200"
-                                  }`}
-                                >
-                                  {task.status}
-                                </span>
-                              </TableCell>
-                              <TableCell className="max-w-xs">
-                                {task.prompt ? (
-                                  <Copy
-                                    value={task.prompt}
-                                    metadata={{ message: t("copied") }}
-                                    className="cursor-pointer"
-                                  >
-                                    <span
-                                      className="truncate"
-                                      title={task.prompt}
-                                    >
-                                      {task.prompt}
-                                    </span>
-                                  </Copy>
-                                ) : (
-                                  <span>-</span>
-                                )}
-                              </TableCell>
-                              <TableCell className="max-w-xs">
-                                {finalPrompt ? (
-                                  <Copy
-                                    value={finalPrompt}
-                                    metadata={{ message: t("copied") }}
-                                    className="cursor-pointer"
-                                  >
-                                    <span
-                                      className="truncate text-xs"
-                                      title={finalPrompt}
-                                    >
-                                      {finalPrompt}
-                                    </span>
-                                  </Copy>
-                                ) : (
-                                  <span className="text-xs text-muted-foreground">
-                                    -
-                                  </span>
-                                )}
-                              </TableCell>
-                              <TableCell className="text-sm">
-                                {task.createdAt
-                                  ? new Date(
-                                      task.createdAt,
-                                    ).toLocaleDateString()
-                                  : "-"}
-                              </TableCell>
-                              <TableCell className="max-w-[120px]">
-                                {task.taskId ? (
-                                  <Copy
-                                    value={task.taskId}
-                                    metadata={{ message: t("copied") }}
-                                    className="cursor-pointer"
-                                  >
-                                    <span
-                                      className="truncate text-xs"
-                                      title={task.taskId}
-                                    >
-                                      {task.taskId}
-                                    </span>
-                                  </Copy>
-                                ) : (
-                                  <span className="text-xs text-muted-foreground">
-                                    -
-                                  </span>
-                                )}
-                              </TableCell>
-                              <TableCell className="text-right w-auto sm:w-[260px] sticky right-0 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/75 z-10">
-                                <div className="flex flex-col items-end gap-1 sm:flex-row sm:items-center sm:justify-end sm:gap-2">
-                                  {videoUrl && (
-                                    <>{/* Preview 和 Share 按钮已移除 */}</>
-                                  )}
-                                  <Button
-                                    size="sm"
-                                    variant="outline"
-                                    onClick={() =>
-                                      handleOpenDownloadDialog(task)
-                                    }
-                                    title="View"
-                                    className="w-auto justify-center"
-                                  >
-                                    <Eye className="h-4 w-4" />
-                                    <span className="ml-2 hidden sm:inline">
-                                      View
-                                    </span>
-                                  </Button>
-                                </div>
-                              </TableCell>
-                            </TableRow>
-                          );
-                        })}
-                      </TableBody>
-                    </Table>
-                    {historyTotal > 0 && (
-                      <div className="mt-4 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-                        <div className="text-sm text-muted-foreground">
-                          Showing {(historyPage - 1) * historyLimit + 1} to{" "}
-                          {Math.min(historyPage * historyLimit, historyTotal)}{" "}
-                          of {historyTotal} results
-                        </div>
-                        {Math.ceil(historyTotal / historyLimit) > 1 && (
-                          <div className="flex justify-end">
-                            <Pagination>
-                              <PaginationContent>
-                                <PaginationItem>
-                                  <PaginationPrevious
-                                    onClick={() => {
-                                      if (historyPage > 1) {
-                                        setHistoryPage((p) => p - 1);
-                                      }
-                                    }}
-                                    className={
-                                      historyPage === 1
-                                        ? "pointer-events-none opacity-50"
-                                        : "cursor-pointer"
-                                    }
-                                  />
-                                </PaginationItem>
-                                {(() => {
-                                  const totalPages = Math.ceil(
-                                    historyTotal / historyLimit,
-                                  );
-                                  const maxPagesToShow = 5;
-                                  let startPage = Math.max(
-                                    1,
-                                    historyPage -
-                                      Math.floor(maxPagesToShow / 2),
-                                  );
-                                  let endPage = Math.min(
-                                    totalPages,
-                                    startPage + maxPagesToShow - 1,
-                                  );
-
-                                  // Adjust start page if we're near the end
-                                  if (
-                                    endPage - startPage <
-                                    maxPagesToShow - 1
-                                  ) {
-                                    startPage = Math.max(
-                                      1,
-                                      endPage - maxPagesToShow + 1,
-                                    );
-                                  }
-
-                                  const pages = [];
-                                  for (let i = startPage; i <= endPage; i++) {
-                                    pages.push(i);
-                                  }
-
-                                  return pages.map((pageNum) => (
-                                    <PaginationItem key={pageNum}>
-                                      <PaginationLink
-                                        onClick={() => setHistoryPage(pageNum)}
-                                        isActive={historyPage === pageNum}
-                                        className="cursor-pointer"
-                                      >
-                                        {pageNum}
-                                      </PaginationLink>
-                                    </PaginationItem>
-                                  ));
-                                })()}
-                                <PaginationItem>
-                                  <PaginationNext
-                                    onClick={() => {
-                                      const totalPages = Math.ceil(
-                                        historyTotal / historyLimit,
-                                      );
-                                      if (historyPage < totalPages) {
-                                        setHistoryPage((p) => p + 1);
-                                      }
-                                    }}
-                                    className={
-                                      historyPage >=
-                                      Math.ceil(historyTotal / historyLimit)
-                                        ? "pointer-events-none opacity-50"
-                                        : "cursor-pointer"
-                                    }
-                                  />
-                                </PaginationItem>
-                              </PaginationContent>
-                            </Pagination>
-                          </div>
-                        )}
-                      </div>
-                    )}
-                  </>
-                )}
-              </CardContent>
-            </Card>
+            <VideoHistoryTable
+              tasks={historyTasks}
+              loading={historyLoading}
+              total={historyTotal}
+              page={historyPage}
+              limit={historyLimit}
+              onPageChange={setHistoryPage}
+              onRefresh={fetchHistory}
+              showTitle={true}
+              className="mt-8"
+            />
           )}
         </div>
       </div>

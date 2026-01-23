@@ -57,6 +57,7 @@
   "/[locale]/(landing)/settings/billing/page": "app/[locale]/(landing)/settings/billing/page.js",
   "/[locale]/(landing)/settings/billing/retrieve/page": "app/[locale]/(landing)/settings/billing/retrieve/page.js",
   "/[locale]/(landing)/settings/credits/page": "app/[locale]/(landing)/settings/credits/page.js",
+  "/[locale]/(landing)/settings/history/page": "app/[locale]/(landing)/settings/history/page.js",
   "/[locale]/(landing)/settings/invoices/retrieve/page": "app/[locale]/(landing)/settings/invoices/retrieve/page.js",
   "/[locale]/(landing)/settings/merge-history/page": "app/[locale]/(landing)/settings/merge-history/page.js",
   "/[locale]/(landing)/settings/page": "app/[locale]/(landing)/settings/page.js",
