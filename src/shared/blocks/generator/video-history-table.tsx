@@ -178,7 +178,7 @@ export function VideoHistoryTable({
                       <TableHead className="max-w-xs">
                         {t("history.task_id")}
                       </TableHead>
-                      <TableHead className="text-right sticky right-0">
+                      <TableHead className="text-right sticky right-0 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/75 z-10">
                         {t("history.actions")}
                       </TableHead>
                     </TableRow>
@@ -270,7 +270,7 @@ export function VideoHistoryTable({
                               </span>
                             </Copy>
                           </TableCell>
-                          <TableCell className="text-right w-auto sm:w-[260px] sticky">
+                          <TableCell className="text-right w-auto sm:w-[260px] sticky right-0 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/75 z-10">
                             <div className="flex flex-col items-end gap-1 sm:flex-row sm:items-center sm:justify-end sm:gap-2">
                               {videoUrl && (
                                 <>{/* Preview 和 Share 按钮已移除 */}</>
@@ -313,25 +313,27 @@ export function VideoHistoryTable({
 
               {/* 分页控制 */}
               {totalPages > 0 && (
-                <div className="mt-4 flex items-center justify-between border-t pt-4">
-                  <div className="text-xs sm:text-sm text-muted-foreground">
+                <div className="mt-4 flex flex-col sm:flex-row items-center justify-between gap-3 border-t pt-4">
+                  <div className="text-xs sm:text-sm text-muted-foreground order-2 sm:order-1">
                     {t("history.showing", {
                       start: (page - 1) * limit + 1,
                       end: Math.min(page * limit, total),
                       total: total,
                     })}
                   </div>
-                  <div className="flex items-center gap-2">
+                  <div className="flex items-center gap-2 order-1 sm:order-2">
                     <Button
                       variant="outline"
                       size="sm"
                       onClick={handlePrevPage}
                       disabled={page <= 1 || loading}
-                      className="h-8 w-8 p-0"
+                      className="h-9 w-9 p-0 sm:h-8 sm:w-8"
+                      title={t("history.previous")}
                     >
                       <ChevronLeft className="h-4 w-4" />
+                      <span className="sr-only">{t("history.previous")}</span>
                     </Button>
-                    <div className="text-xs sm:text-sm">
+                    <div className="text-sm sm:text-xs font-medium min-w-[60px] text-center">
                       {page} / {totalPages}
                     </div>
                     <Button
@@ -339,9 +341,11 @@ export function VideoHistoryTable({
                       size="sm"
                       onClick={handleNextPage}
                       disabled={page >= totalPages || loading}
-                      className="h-8 w-8 p-0"
+                      className="h-9 w-9 p-0 sm:h-8 sm:w-8"
+                      title={t("history.next")}
                     >
                       <ChevronRight className="h-4 w-4" />
+                      <span className="sr-only">{t("history.next")}</span>
                     </Button>
                   </div>
                 </div>

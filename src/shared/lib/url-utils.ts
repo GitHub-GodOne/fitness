@@ -45,15 +45,16 @@ export function toAbsoluteUrl(
 
         if (usePublicDomain) {
             // Use public domain for external access
-            // On client-side, use window.location.origin for the actual domain
+            // ALWAYS use window.location.origin on client-side for actual domain
             if (typeof window !== 'undefined') {
                 baseUrl = window.location.origin;
             } else {
-                baseUrl =
-                    process.env.NEXTAUTH_URL ||
+                // Server-side: try environment variables, fallback to localhost
+                const envUrl = process.env.NEXTAUTH_URL ||
                     process.env.NEXT_PUBLIC_SITE_URL ||
-                    process.env.NEXT_PUBLIC_APP_URL ||
-                    `http://localhost:${port}`;
+                    process.env.NEXT_PUBLIC_APP_URL;
+                // Remove trailing slash from env URL if present
+                baseUrl = envUrl ? envUrl.replace(/\/$/, '') : `http://localhost:${port}`;
             }
         } else {
             // Use localhost for server-side internal access (avoid SSL issues)

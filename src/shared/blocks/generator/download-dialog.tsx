@@ -58,26 +58,17 @@ function ImagePreview({
   images,
   taskId,
   onDownload,
-  onDownloadSelected,
-  renderButtons,
+  selectedImages,
+  onToggleSelection,
 }: {
   images: string[];
   taskId: string;
   onDownload: (url: string, index: number) => Promise<void>;
-  onDownloadSelected: (selectedUrls: string[]) => Promise<void>;
-  renderButtons?: (props: {
-    selectedCount: number;
-    totalCount: number;
-    onSelectAll: () => void;
-    onDownloadAll: () => void;
-    onDownloadSelected: () => void;
-    downloading: boolean;
-  }) => React.ReactNode;
+  selectedImages: Set<number>;
+  onToggleSelection: (index: number) => void;
 }) {
   const t = useTranslations("ai.video.generator");
   const [downloading, setDownloading] = useState<number | null>(null);
-  const [downloadingAll, setDownloadingAll] = useState(false);
-  const [selectedImages, setSelectedImages] = useState<Set<number>>(new Set());
 
   const handleDownload = useCallback(
     async (url: string, index: number) => {
@@ -91,107 +82,52 @@ function ImagePreview({
     [onDownload],
   );
 
-  const handleDownloadAll = useCallback(async () => {
-    setDownloadingAll(true);
-    try {
-      await onDownloadSelected(images);
-    } finally {
-      setDownloadingAll(false);
-    }
-  }, [images, onDownloadSelected]);
-
-  const handleDownloadSelected = useCallback(async () => {
-    if (selectedImages.size === 0) {
-      toast.error(t("no_images_selected"));
-      return;
-    }
-    setDownloadingAll(true);
-    try {
-      const selectedUrls = Array.from(selectedImages).map((i) => images[i]);
-      await onDownloadSelected(selectedUrls);
-      setSelectedImages(new Set());
-    } finally {
-      setDownloadingAll(false);
-    }
-  }, [selectedImages, images, onDownloadSelected, t]);
-
-  const toggleSelection = useCallback((index: number) => {
-    setSelectedImages((prev) => {
-      const newSet = new Set(prev);
-      if (newSet.has(index)) {
-        newSet.delete(index);
-      } else {
-        newSet.add(index);
-      }
-      return newSet;
-    });
-  }, []);
-
-  const toggleSelectAll = useCallback(() => {
-    if (selectedImages.size === images.length) {
-      setSelectedImages(new Set());
-    } else {
-      setSelectedImages(new Set(images.map((_, i) => i)));
-    }
-  }, [selectedImages.size, images.length]);
-
   return (
-    <>
-      {renderButtons &&
-        renderButtons({
-          selectedCount: selectedImages.size,
-          totalCount: images.length,
-          onSelectAll: toggleSelectAll,
-          onDownloadAll: handleDownloadAll,
-          onDownloadSelected: handleDownloadSelected,
-          downloading: downloadingAll,
-        })}
-      <div className="space-y-3 sm:space-y-4">
-        {images.map((url, index) => (
-          <div key={index} className="relative group border rounded-lg p-2">
-            <div className="flex items-start gap-2">
-              {/* 选择框 */}
-              <Checkbox
-                checked={selectedImages.has(index)}
-                onCheckedChange={() => toggleSelection(index)}
-                className="mt-2"
+    <div className="space-y-3 sm:space-y-4">
+      {images.map((url, index) => (
+        <div key={index} className="relative group border rounded-lg p-2">
+          <div className="flex items-start gap-2">
+            {/* 选择框 */}
+            <Checkbox
+              checked={selectedImages.has(index)}
+              onCheckedChange={() => onToggleSelection(index)}
+              className="mt-2"
+            />
+            {/* 图片 */}
+            <div className="flex-1 min-w-0">
+              <img
+                src={url}
+                alt={`Image ${index + 1}`}
+                className="w-full h-auto rounded-lg"
+                style={{ maxHeight: "40vh", objectFit: "contain" }}
               />
-              {/* 图片 */}
-              <div className="flex-1 min-w-0">
-                <img
-                  src={url}
-                  alt={`Image ${index + 1}`}
-                  className="w-full h-auto rounded-lg"
-                  style={{ maxHeight: "40vh", objectFit: "contain" }}
+              <div className="mt-2 flex gap-2">
+                <Button
+                  size="sm"
+                  variant="outline"
+                  className="flex-1"
+                  onClick={() => handleDownload(url, index)}
+                  disabled={downloading === index}
+                >
+                  {downloading === index ? (
+                    <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                  ) : (
+                    <Download className="h-4 w-4 mr-2" />
+                  )}
+                  {t("download")}
+                </Button>
+                <ShareButton
+                  url={toAbsoluteUrl(url, { usePublicDomain: true })}
+                  size="sm"
+                  variant="outline"
+                  className="flex-1"
                 />
-                <div className="mt-2 flex gap-2">
-                  <Button
-                    size="sm"
-                    variant="outline"
-                    className="flex-1"
-                    onClick={() => handleDownload(url, index)}
-                    disabled={downloading === index}
-                  >
-                    {downloading === index ? (
-                      <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-                    ) : (
-                      <Download className="h-4 w-4 mr-2" />
-                    )}
-                    {t("download")}
-                  </Button>
-                  <ShareButton
-                    url={toAbsoluteUrl(url, { usePublicDomain: true })}
-                    size="sm"
-                    variant="outline"
-                    className="flex-1"
-                  />
-                </div>
               </div>
             </div>
           </div>
-        ))}
-      </div>
-    </>
+        </div>
+      ))}
+    </div>
   );
 }
 
@@ -257,6 +193,16 @@ export function DownloadDialog({
   const t = useTranslations("ai.video.generator");
   const isDesktop = useMediaQuery("(min-width: 768px)");
 
+  // State for tracking current tab and selected images
+  const [currentTab, setCurrentTab] = useState<TabType>("video");
+  const [selectedImagesWithText, setSelectedImagesWithText] = useState<
+    Set<number>
+  >(new Set());
+  const [selectedImagesOriginal, setSelectedImagesOriginal] = useState<
+    Set<number>
+  >(new Set());
+  const [downloadingAll, setDownloadingAll] = useState(false);
+
   const resultData = useMemo<TaskResultData>(() => {
     try {
       return taskResult ? JSON.parse(taskResult) : {};
@@ -276,6 +222,11 @@ export function DownloadDialog({
     if (hasOriginalImages) return "images-original";
     return "video";
   }, [hasVideo, hasImagesWithText, hasOriginalImages]);
+
+  // Update currentTab when defaultTab changes
+  useState(() => {
+    setCurrentTab(defaultTab);
+  });
 
   const downloadFile = useCallback(
     async (url: string, filename: string) => {
@@ -320,22 +271,82 @@ export function DownloadDialog({
 
   const handleDownloadMultipleImages = useCallback(
     async (urls: string[]) => {
-      for (let i = 0; i < urls.length; i++) {
-        await downloadFile(urls[i], `image-${taskId}-${i + 1}.png`);
-        if (i < urls.length - 1) {
-          await new Promise((resolve) => setTimeout(resolve, 300));
+      setDownloadingAll(true);
+      try {
+        for (let i = 0; i < urls.length; i++) {
+          await downloadFile(urls[i], `image-${taskId}-${i + 1}.png`);
+          if (i < urls.length - 1) {
+            await new Promise((resolve) => setTimeout(resolve, 300));
+          }
         }
+        toast.success(t("images_downloaded"));
+      } finally {
+        setDownloadingAll(false);
       }
-      toast.success(t("images_downloaded"));
     },
     [downloadFile, t, taskId],
   );
 
+  // Get current selected images based on active tab
+  const currentSelectedImages =
+    currentTab === "images-with-text"
+      ? selectedImagesWithText
+      : selectedImagesOriginal;
+  const setCurrentSelectedImages =
+    currentTab === "images-with-text"
+      ? setSelectedImagesWithText
+      : setSelectedImagesOriginal;
+  const currentImages =
+    currentTab === "images-with-text"
+      ? resultData.image_urls || []
+      : resultData.original_image_urls || [];
+
+  // Action handlers for header buttons
+  const handleSelectAll = useCallback(() => {
+    if (currentSelectedImages.size === currentImages.length) {
+      setCurrentSelectedImages(new Set());
+    } else {
+      setCurrentSelectedImages(new Set(currentImages.map((_, i) => i)));
+    }
+  }, [
+    currentSelectedImages.size,
+    currentImages.length,
+    setCurrentSelectedImages,
+    currentImages,
+  ]);
+
+  const handleDownloadAll = useCallback(async () => {
+    await handleDownloadMultipleImages(currentImages);
+  }, [currentImages, handleDownloadMultipleImages]);
+
+  const handleDownloadSelected = useCallback(async () => {
+    if (currentSelectedImages.size === 0) {
+      toast.error(t("no_images_selected"));
+      return;
+    }
+    const selectedUrls = Array.from(currentSelectedImages).map(
+      (i) => currentImages[i],
+    );
+    await handleDownloadMultipleImages(selectedUrls);
+    setCurrentSelectedImages(new Set());
+  }, [
+    currentSelectedImages,
+    currentImages,
+    handleDownloadMultipleImages,
+    t,
+    setCurrentSelectedImages,
+  ]);
+
   const tabsContent = (
-    <Tabs defaultValue={defaultTab} className="w-full flex flex-col h-full">
+    <Tabs
+      defaultValue={defaultTab}
+      value={currentTab}
+      onValueChange={(v) => setCurrentTab(v as TabType)}
+      className="w-full flex flex-col h-full"
+    >
       {/* 固定的 Tab 头部 */}
-      <div className="sticky top-0 z-10 bg-background pb-2">
-        <TabsList className="grid w-full grid-cols-3 h-auto border-b">
+      <div className="sticky top-0 z-30 bg-background pb-2 border-b">
+        <TabsList className="grid w-full grid-cols-3 h-auto border-b mb-2">
           <TabsTrigger
             value="video"
             disabled={!hasVideo}
@@ -364,6 +375,40 @@ export function DownloadDialog({
             <span className="sm:hidden">{t("without_text")}</span>
           </TabsTrigger>
         </TabsList>
+
+        {/* Action buttons for image tabs */}
+        {(currentTab === "images-with-text" ||
+          currentTab === "images-original") &&
+          currentImages.length > 0 && (
+            <div className="flex gap-2 flex-wrap pt-2">
+              <Button
+                size="sm"
+                variant="outline"
+                onClick={handleSelectAll}
+                className="flex-1 sm:flex-none"
+              >
+                {currentSelectedImages.size === currentImages.length
+                  ? t("deselect_all")
+                  : t("select_all")}
+              </Button>
+              {currentSelectedImages.size > 0 && (
+                <Button
+                  size="sm"
+                  variant="secondary"
+                  onClick={handleDownloadSelected}
+                  disabled={downloadingAll}
+                  className="flex-1 sm:flex-none"
+                >
+                  {downloadingAll ? (
+                    <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                  ) : (
+                    <Download className="h-4 w-4 mr-2" />
+                  )}
+                  {t("download_selected")} ({currentSelectedImages.size})
+                </Button>
+              )}
+            </div>
+          )}
       </div>
 
       {/* 可滚动的内容区域 */}
@@ -388,52 +433,18 @@ export function DownloadDialog({
               images={resultData.image_urls}
               taskId={taskId}
               onDownload={handleDownloadImage}
-              onDownloadSelected={handleDownloadMultipleImages}
-              renderButtons={(props) => (
-                <div className="sticky top-0 z-20 bg-background pb-3 border-b mb-4">
-                  <div className="flex gap-2 flex-wrap">
-                    <Button
-                      size="sm"
-                      variant="outline"
-                      onClick={props.onSelectAll}
-                      className="flex-1 sm:flex-none"
-                    >
-                      {props.selectedCount === props.totalCount
-                        ? t("deselect_all")
-                        : t("select_all")}
-                    </Button>
-                    <Button
-                      size="sm"
-                      onClick={props.onDownloadAll}
-                      disabled={props.downloading}
-                      className="flex-1 sm:flex-none"
-                    >
-                      {props.downloading ? (
-                        <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-                      ) : (
-                        <Download className="h-4 w-4 mr-2" />
-                      )}
-                      {t("download_all")}
-                    </Button>
-                    {props.selectedCount > 0 && (
-                      <Button
-                        size="sm"
-                        variant="secondary"
-                        onClick={props.onDownloadSelected}
-                        disabled={props.downloading}
-                        className="flex-1 sm:flex-none"
-                      >
-                        {props.downloading ? (
-                          <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-                        ) : (
-                          <Download className="h-4 w-4 mr-2" />
-                        )}
-                        {t("download_selected")} ({props.selectedCount})
-                      </Button>
-                    )}
-                  </div>
-                </div>
-              )}
+              selectedImages={selectedImagesWithText}
+              onToggleSelection={(index) => {
+                setSelectedImagesWithText((prev) => {
+                  const newSet = new Set(prev);
+                  if (newSet.has(index)) {
+                    newSet.delete(index);
+                  } else {
+                    newSet.add(index);
+                  }
+                  return newSet;
+                });
+              }}
             />
           ) : (
             <div className="text-center py-8 text-muted-foreground">
@@ -448,52 +459,18 @@ export function DownloadDialog({
               images={resultData.original_image_urls}
               taskId={taskId}
               onDownload={handleDownloadImage}
-              onDownloadSelected={handleDownloadMultipleImages}
-              renderButtons={(props) => (
-                <div className="sticky top-0 z-20 bg-background pb-3 border-b mb-4">
-                  <div className="flex gap-2 flex-wrap">
-                    <Button
-                      size="sm"
-                      variant="outline"
-                      onClick={props.onSelectAll}
-                      className="flex-1 sm:flex-none"
-                    >
-                      {props.selectedCount === props.totalCount
-                        ? t("deselect_all")
-                        : t("select_all")}
-                    </Button>
-                    <Button
-                      size="sm"
-                      onClick={props.onDownloadAll}
-                      disabled={props.downloading}
-                      className="flex-1 sm:flex-none"
-                    >
-                      {props.downloading ? (
-                        <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-                      ) : (
-                        <Download className="h-4 w-4 mr-2" />
-                      )}
-                      {t("download_all")}
-                    </Button>
-                    {props.selectedCount > 0 && (
-                      <Button
-                        size="sm"
-                        variant="secondary"
-                        onClick={props.onDownloadSelected}
-                        disabled={props.downloading}
-                        className="flex-1 sm:flex-none"
-                      >
-                        {props.downloading ? (
-                          <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-                        ) : (
-                          <Download className="h-4 w-4 mr-2" />
-                        )}
-                        {t("download_selected")} ({props.selectedCount})
-                      </Button>
-                    )}
-                  </div>
-                </div>
-              )}
+              selectedImages={selectedImagesOriginal}
+              onToggleSelection={(index) => {
+                setSelectedImagesOriginal((prev) => {
+                  const newSet = new Set(prev);
+                  if (newSet.has(index)) {
+                    newSet.delete(index);
+                  } else {
+                    newSet.add(index);
+                  }
+                  return newSet;
+                });
+              }}
             />
           ) : (
             <div className="text-center py-8 text-muted-foreground">
@@ -508,7 +485,7 @@ export function DownloadDialog({
   if (isDesktop) {
     return (
       <Dialog open={open} onOpenChange={onOpenChange}>
-        <DialogContent className="sm:max-w-2xl max-h-[90vh] flex flex-col p-0">
+        <DialogContent className="!max-w-none !w-screen !h-screen !max-h-screen flex flex-col p-0 !m-0 !top-0 !left-0 !translate-x-0 !translate-y-0 !rounded-none">
           <DialogHeader className="px-6 pt-6 pb-0">
             <DialogTitle>{t("download_options")}</DialogTitle>
           </DialogHeader>
@@ -520,7 +497,7 @@ export function DownloadDialog({
 
   return (
     <Drawer open={open} onOpenChange={onOpenChange}>
-      <DrawerContent className="max-h-[90vh] flex flex-col">
+      <DrawerContent className="!h-screen !max-h-screen flex flex-col">
         <DrawerHeader className="text-left">
           <DrawerTitle>{t("download_options")}</DrawerTitle>
         </DrawerHeader>
