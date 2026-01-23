@@ -532,7 +532,7 @@ export function ImageUploader({
       />
 
       {title && (
-        <div className="text-foreground flex items-center justify-between text-sm font-medium">
+        <div className="text-foreground flex items-center justify-between text-sm font-medium pb-2">
           <div className="flex items-center gap-2">
             <ImageIcon className="text-primary h-4 w-4" />
             <span>{title}</span>

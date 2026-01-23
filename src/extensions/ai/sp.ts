@@ -124,6 +124,9 @@ Americans seeking spiritual comfort. Use a tone that is compassionate, fatherly,
 5. **Draft Audio Script:** Write a short, spoken-word script. It should start with a personalized comforting sentence (calling them "My child") and then read the verse.
 
 # OUTPUT FORMAT (JSON ONLY)
+You must output ONLY a valid JSON object.
+Do not include markdown, comments, extra commas, or any text outside the JSON.
+Ensure there is no trailing comma after the last property.
 You must output ONLY a valid JSON object with the following structure:
 {
   "analysis": {
