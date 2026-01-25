@@ -11,18 +11,26 @@ import {
   DropdownMenuTrigger,
 } from "@/shared/components/ui/dropdown-menu";
 import { NotificationList } from "./notification-list";
+import { useAppContext } from "@/shared/contexts/app";
 
 interface NotificationBellProps {
   className?: string;
 }
 
 export function NotificationBell({ className }: NotificationBellProps) {
+  const { user } = useAppContext();
   const t = useTranslations("notification");
   const [unreadCount, setUnreadCount] = useState(0);
   const [isOpen, setIsOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
 
   const fetchUnreadCount = useCallback(async () => {
+    // Skip API call if user is not logged in
+    if (!user) {
+      setUnreadCount(0);
+      return;
+    }
+
     try {
       const response = await fetch("/api/notifications/unread-count");
       if (response.ok) {
@@ -34,7 +42,7 @@ export function NotificationBell({ className }: NotificationBellProps) {
     } catch (error) {
       console.error("Failed to fetch unread count:", error);
     }
-  }, []);
+  }, [user]);
 
   useEffect(() => {
     fetchUnreadCount();

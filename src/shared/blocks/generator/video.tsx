@@ -324,6 +324,7 @@ export function VideoGenerator({
   const [generatedVideos, setGeneratedVideos] = useState<GeneratedVideo[]>([]);
   const [isGenerating, setIsGenerating] = useState(false);
   const [progress, setProgress] = useState(0);
+  const [stepMessage, setStepMessage] = useState<string>("");
   const [taskId, setTaskId] = useState<string | null>(null);
   const [generationStartTime, setGenerationStartTime] = useState<number | null>(
     null,
@@ -880,66 +881,9 @@ export function VideoGenerator({
     [referenceImageItems],
   );
 
-  // Upload image file (used when deferring upload until generate)
-  const uploadImageFile = useCallback(async (file: File) => {
-    const formData = new FormData();
-    formData.append("files", file);
 
-    const response = await fetch("/api/storage/upload-image", {
-      method: "POST",
-      body: formData,
-    });
 
-    if (!response.ok) {
-      throw new Error(`Upload failed with status ${response.status}`);
-    }
 
-    const result = await response.json();
-    if (result.code !== 0 || !result.data?.urls?.length) {
-      throw new Error(result.message || "Upload failed");
-    }
-
-    return result.data.urls[0] as string;
-  }, []);
-
-  // Ensure reference images are uploaded before generate; uploads only pending local files.
-  const ensureReferenceImagesUploaded = useCallback(async () => {
-    const updatedItems = [...referenceImageItems];
-    const uploadedUrls: string[] = [];
-
-    for (let i = 0; i < updatedItems.length; i += 1) {
-      const item = updatedItems[i];
-      if (item.url) {
-        uploadedUrls.push(item.url);
-        continue;
-      }
-
-      if (item.file) {
-        // mark uploading for UI
-        updatedItems[i] = { ...item, status: "uploading" };
-        setReferenceImageItems([...updatedItems]);
-        try {
-          const url = await uploadImageFile(item.file);
-          updatedItems[i] = {
-            ...updatedItems[i],
-            url,
-            preview: url,
-            status: "uploaded",
-            file: undefined,
-          };
-          uploadedUrls.push(url);
-          setReferenceImageItems([...updatedItems]);
-        } catch (err) {
-          updatedItems[i] = { ...updatedItems[i], status: "error" };
-          setReferenceImageItems([...updatedItems]);
-          throw err;
-        }
-      }
-    }
-
-    setReferenceImageUrls(uploadedUrls);
-    return uploadedUrls;
-  }, [referenceImageItems, uploadImageFile]);
 
   const hasReferenceUploadError = useMemo(
     () => referenceImageItems.some((item) => item.status === "error"),
@@ -998,10 +942,23 @@ export function VideoGenerator({
         setTaskStatus(currentStatus);
 
         const parsedResult = parseTaskResult(task.taskInfo);
+        
+        // Update progress from backend if available
+        if (parsedResult?.progress) {
+          if (typeof parsedResult.progress.progress === 'number') {
+            setProgress(parsedResult.progress.progress);
+          }
+          if (parsedResult.progress.stepMessage) {
+            setStepMessage(parsedResult.progress.stepMessage);
+          }
+        }
+
         const videoUrls = extractVideoUrls(parsedResult);
 
         if (currentStatus === AITaskStatus.PENDING) {
-          setProgress((prev) => Math.max(prev, 20));
+          if (!parsedResult?.progress) {
+             setProgress((prev) => Math.max(prev, 20));
+          }
           setIsQuerying(false);
           return false;
         }
@@ -1019,7 +976,9 @@ export function VideoGenerator({
             );
             setProgress((prev) => Math.max(prev, 85));
           } else {
-            setProgress((prev) => Math.min(prev + 5, 80));
+            if (!parsedResult?.progress) {
+               setProgress((prev) => Math.min(prev + 5, 80));
+            }
           }
           setIsQuerying(false);
           return false;
@@ -1059,13 +1018,16 @@ export function VideoGenerator({
           return true;
         }
 
-        setProgress((prev) => Math.min(prev + 3, 95));
+        if (!parsedResult?.progress) {
+           setProgress((prev) => Math.min(prev + 3, 95));
+        }
         setIsQuerying(false);
         return false;
       } catch (error: any) {
         console.error("Error polling video task:", error);
         toast.error(`Query task failed: ${error.message}`);
         resetTaskState();
+        setStepMessage("");
 
         fetchUserCredits();
 
@@ -1201,31 +1163,52 @@ export function VideoGenerator({
       };
 
       if (isImageToVideoMode) {
-        // Upload images only when generating (deferred upload)
-        const uploadedUrls = await ensureReferenceImagesUploaded();
-        if (!uploadedUrls.length) {
-          throw new Error("Please add at least one reference image.");
+        // Validation moved to form submission, file will be sent via FormData
+        if (referenceImageUrls.length === 0 && !referenceImageItems.some((item) => item.file)) {
+           throw new Error("Please add at least one reference image.");
         }
-        options.image_input = uploadedUrls;
       }
 
       if (isVideoToVideoMode) {
         options.video_input = [referenceVideoUrl];
       }
 
+      // Build FormData for merged request
+      const body: any = {
+        provider,
+        mediaType: AIMediaType.VIDEO,
+        model,
+        prompt: "", // Prompt will be auto-generated from user feeling by Volcano provider
+        options: {
+          ...options,
+          user_feeling: trimmedFeeling, // Add user_feeling to options
+          voice_gender: voiceGender, // Add voice_gender to options
+        },
+        scene: activeTab,
+      };
+
+      const formData = new FormData();
+      formData.append("body", JSON.stringify(body));
+
+      // Append file if exists in reference images
+      if (isImageToVideoMode && referenceImageItems.length > 0) {
+        const item = referenceImageItems[0];
+        if (item.file) {
+          formData.append("file", item.file);
+        } else if (item.url) {
+          // If URL exists (e.g. preset or re-selection), pass it in options
+          body.options.image_input = [item.url];
+          // Update body json in formData
+          formData.set("body", JSON.stringify(body));
+        }
+      }
+
+      console.log("Sending generate request:", body);
+
       const resp = await fetch("/api/ai/generate", {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          mediaType: AIMediaType.VIDEO,
-          scene: activeTab,
-          provider,
-          model,
-          prompt: "", // Prompt will be auto-generated from user feeling by Volcano provider
-          options,
-        }),
+        // Do not set Content-Type header when sending FormData, browser sets it with boundary
+        body: formData,
       });
 
       if (!resp.ok) {
@@ -1481,7 +1464,6 @@ export function VideoGenerator({
                       maxImages={1}
                       maxSizeMB={maxSizeMB}
                       onChange={handleReferenceImagesChange}
-                      defaultPreviews={referenceImageUrls}
                       uploadOnSelect={false}
                     />
 
@@ -1782,9 +1764,9 @@ export function VideoGenerator({
                       </span>
                     </div>
                     <Progress value={progress} className="h-2.5 sm:h-3" />
-                    {taskStatusLabel && (
+                    {(stepMessage || taskStatusLabel) && (
                       <p className="text-center text-xs font-medium text-muted-foreground sm:text-sm">
-                        {taskStatusLabel}
+                        {stepMessage || taskStatusLabel}
                       </p>
                     )}
                     <div className="flex justify-center">

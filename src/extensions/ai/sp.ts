@@ -3,6 +3,7 @@ import { replaceR2Url } from '@/shared/lib/url';
 // import { toAbsoluteUrl } from '@/shared/lib/url-utils';
 import sharp from 'sharp';
 import { saveFiles } from '.';
+import { jsonrepair } from 'jsonrepair';
 import {
     AIConfigs,
     AIFile,
@@ -20,6 +21,33 @@ import {
 export interface VolcanoSPConfigs extends AIConfigs {
     apiKey: string;
     customStorage?: boolean;
+}
+
+/**
+ * SP Task Step enum - defines each step in the video generation workflow
+ */
+export enum SPTaskStep {
+    PENDING = 'pending',
+    ANALYZING = 'analyzing',
+    GENERATING_IMAGES = 'generating_images',
+    SAVING_ORIGINAL_IMAGES = 'saving_original_images',
+    ADDING_TEXT_OVERLAY = 'adding_text_overlay',
+    GENERATING_AUDIO = 'generating_audio',
+    MERGING_VIDEO = 'merging_video',
+    UPLOADING_TO_R2 = 'uploading_to_r2',
+    COMPLETED = 'completed',
+    FAILED = 'failed',
+}
+
+/**
+ * SP Task Progress info stored in taskInfo
+ */
+export interface SPTaskProgress {
+    currentStep: SPTaskStep;
+    stepMessage: string;
+    progress: number; // 0-100
+    startedAt: string;
+    updatedAt: string;
 }
 
 /**
@@ -50,6 +78,23 @@ export class VolcanoSPProvider implements AIProvider {
 
     constructor(configs: VolcanoSPConfigs) {
         this.configs = configs;
+    }
+
+    /**
+     * Get date string for R2 path (YYYYMMDD format)
+     * This ensures R2 paths match public folder structure for easier management
+     */
+    private getDateString(): string {
+        const today = new Date();
+        return today.toISOString().split('T')[0].replace(/-/g, '');
+    }
+
+    /**
+     * Get R2 key path for a file (matches public folder structure: video/YYYYMMDD/taskId/filename)
+     */
+    private getR2Key(taskId: string, filename: string): string {
+        const dateStr = this.getDateString();
+        return `video/${dateStr}/${taskId}/${filename}`;
     }
 
 
@@ -108,7 +153,8 @@ export class VolcanoSPProvider implements AIProvider {
         visionModel: string,
         taskId: string
     ): Promise<ImageToTextResponse> {
-        const systemPrompt = `# ROLE DEFINITION
+        const systemPrompt = `
+        # ROLE DEFINITION
 You are a divine digital companion, a "Visual Theologian" designed to comfort people in distress. Your goal is to analyze user input (image + text), understand their pain, and bridge their reality with a Biblical scene that offers hope and peace.
 
 # TARGET AUDIENCE
@@ -149,7 +195,7 @@ You must output ONLY a valid JSON object with the following structure:
         const apiUrl = `${this.baseUrl}/chat/completions`;
         const payload = {
             model: visionModel,
-            temperature: 0.7,
+            temperature: 0.2,
             top_p: 0.95,
             max_tokens: 4096,
             messages: [
@@ -170,7 +216,8 @@ You must output ONLY a valid JSON object with the following structure:
                         },
                     ],
                 },
-            ],
+            ]
+
         };
 
         const resp = await fetch(apiUrl, {
@@ -188,32 +235,34 @@ You must output ONLY a valid JSON object with the following structure:
         }
 
         const data = await resp.json();
+        console.log('[SP] Analysis response:', data, " taskId: ", taskId);
         const responseText = data.choices?.[0]?.message?.content || '';
 
-        if (!responseText) {
-            throw new Error('Empty response from analysis API');
-        }
+        // if (!responseText) {
+        //     throw new Error('Empty response from analysis API');
+        // }
 
         // Parse JSON response with robust extraction
-        let jsonText = responseText.trim();
-        console.log('[SP] Analysis response:', jsonText, " taskId: ", taskId);
-        // Remove markdown code blocks
-        if (jsonText.startsWith('```json')) {
-            jsonText = jsonText.replace(/^```json\s*/, '').replace(/\s*```$/, '');
-        } else if (jsonText.startsWith('```')) {
-            jsonText = jsonText.replace(/^```\s*/, '').replace(/\s*```$/, '');
-        }
+        // let jsonText = responseText.trim();
+        // console.log('[SP] Analysis response:', jsonText, " taskId: ", taskId);
+        // // Remove markdown code blocks
+        // if (jsonText.startsWith('```json')) {
+        //     jsonText = jsonText.replace(/^```json\s*/, '').replace(/\s*```$/, '');
+        // } else if (jsonText.startsWith('```')) {
+        //     jsonText = jsonText.replace(/^```\s*/, '').replace(/\s*```$/, '');
+        // }
 
-        // Try to extract JSON object if there's extra text
-        const jsonMatch = jsonText.match(/\{[\s\S]*\}/);
-        if (jsonMatch) {
-            jsonText = jsonMatch[0];
-        }
+        // // Try to extract JSON object if there's extra text
+        // const jsonMatch = jsonText.match(/\{[\s\S]*\}/);
+        // if (jsonMatch) {
+        //     jsonText = jsonMatch[0];
+        // }
 
         try {
-            return JSON.parse(jsonText);
+            // const repaired = jsonrepair(responseText);
+            return JSON.parse(responseText);
         } catch (error) {
-            console.error('[SP] Failed to parse JSON response:', jsonText);
+            console.error('[SP] Failed to parse JSON response:', responseText);
             console.error('[SP] Parse error:', error);
             throw new Error(`Failed to parse analysis response: ${error instanceof Error ? error.message : 'Invalid JSON'}`);
         }
@@ -742,59 +791,14 @@ You must output ONLY a valid JSON object with the following structure:
                     .run();
             });
 
-            // Step 8: Upload to R2 or use public URLs
-            const publicVideoUrl = getTaskPublicUrl(taskId, videoFilename);
-            let finalVideoUrl = publicVideoUrl;
-            let finalImageUrls = imageUrls;
-            let finalAudioUrl = audioUrl;
+            // Step 8: Return public URLs
+            const finalVideoUrl = getTaskPublicUrl(taskId, videoFilename);
+            const finalImageUrls = imageUrls;
+            const finalAudioUrl = audioUrl;
 
-            if (customStorage) {
-                console.log('[SP Video] Uploading files to R2...');
-
-                // Prepare files for R2 upload
-                const filesToUpload: AIFile[] = [];
-
-                // Add video
-                filesToUpload.push({
-                    url: publicVideoUrl,
-                    contentType: 'video/mp4',
-                    key: `ai/sp/${taskId}/${videoFilename}`,
-                    index: 0,
-                });
-
-                // Add images with text
-                for (let i = 0; i < imageUrls.length; i++) {
-                    filesToUpload.push({
-                        url: imageUrls[i],
-                        contentType: 'image/png',
-                        key: `ai/sp/${taskId}/image_${i}.png`,
-                        index: i + 1,
-                    });
-                }
-
-                // Add audio
-                filesToUpload.push({
-                    url: audioUrl,
-                    contentType: 'audio/mpeg',
-                    key: `ai/sp/${taskId}/${audioFilename}`,
-                    index: imageUrls.length + 1,
-                });
-
-                const uploadedFiles = await saveFiles(filesToUpload);
-                if (uploadedFiles) {
-                    // Update URLs with R2 URLs
-                    finalVideoUrl = uploadedFiles[0]?.url || publicVideoUrl;
-                    finalImageUrls = uploadedFiles.slice(1, imageUrls.length + 1).map(f => f.url);
-                    finalAudioUrl = uploadedFiles[uploadedFiles.length - 1]?.url || audioUrl;
-
-                    console.log('[SP Video] Files uploaded to R2 successfully');
-                    console.log('[SP Video] R2 Video URL:', finalVideoUrl);
-                }
-            } else {
-                // Use public folder URLs
-                console.log('[SP Video] Video created:', publicVideoUrl);
-                console.log('[SP Video] All files saved to:', workDir);
-            }
+            // Use public folder URLs
+            console.log('[SP Video] Video created:', finalVideoUrl);
+            console.log('[SP Video] All files saved to:', workDir);
 
             return {
                 videoUrl: finalVideoUrl,
@@ -859,7 +863,7 @@ You must output ONLY a valid JSON object with the following structure:
         }
 
         // Generate task ID first
-        const taskId = getUuid();
+        const taskId = params.taskId;
 
         params.async = true;
         // Check if async mode is enabled
@@ -869,11 +873,10 @@ You must output ONLY a valid JSON object with the following structure:
             // Note: The actual AI task record will be created by the API route
             // We add a small delay to ensure the API route creates the record first
             // before background processing starts updating it
-            setTimeout(() => {
-                this.processVideoInBackground(taskId, params, firstImageUrl, userFeeling).catch((error: any) => {
-                    console.error('[SP] Background processing failed for task:', taskId, error);
-                });
-            }, 1800); // 100ms delay to ensure API route creates the record first
+
+            this.processVideoInBackground(taskId, params, firstImageUrl, userFeeling).catch((error: any) => {
+                console.error('[SP] Background processing failed for task:', taskId, error);
+            });
 
             console.log('[SP] Background processing scheduled for task:', taskId);
 
@@ -932,14 +935,97 @@ You must output ONLY a valid JSON object with the following structure:
 
         console.log('[SP] Starting Scripture Picture generation workflow...');
 
+        // Track task start time
+        const taskStartedAt = new Date().toISOString();
+
+        // Helper function to update task progress
+        const updateProgress = async (
+            step: SPTaskStep,
+            message: string,
+            progress: number,
+            additionalInfo?: any
+        ) => {
+            if (!updateDatabase || !updateAITaskByTaskId) return;
+
+            const progressInfo: SPTaskProgress = {
+                currentStep: step,
+                stepMessage: message,
+                progress,
+                startedAt: taskStartedAt,
+                updatedAt: new Date().toISOString(),
+            };
+
+            const taskInfo = {
+                progress: progressInfo,
+                ...additionalInfo,
+            };
+
+            await updateAITaskByTaskId(taskId, {
+                status: step === SPTaskStep.COMPLETED ? AITaskStatus.SUCCESS : AITaskStatus.PROCESSING,
+                taskInfo: JSON.stringify(taskInfo),
+            });
+            console.log(`[SP Progress] ${step}: ${message} (${progress}%)`);
+        };
+
         try {
-            // Update status to processing if database update is enabled
-            if (updateDatabase && updateAITaskByTaskId) {
-                await updateAITaskByTaskId(taskId, {
-                    status: AITaskStatus.PROCESSING,
-                });
-                console.log('[SP] Task', taskId, 'status updated to PROCESSING');
+            // Prepare work directory and save input image
+            const { ensureTaskWorkDir, getTaskPublicUrl } = await import('@/shared/utils/file-manager');
+            const workDir = await ensureTaskWorkDir(taskId);
+            const fs = await import('fs/promises');
+            const path = await import('path');
+
+            // Save input image if it's a URL (http or relative)
+            if (firstImageUrl) {
+                try {
+                    console.log('[SP] Saving input image to task directory...');
+                    let fetchUrl = firstImageUrl;
+                    // Handle relative URLs
+                    if (firstImageUrl.startsWith('/')) {
+                        const port = process.env.PORT || 3000;
+                        fetchUrl = `http://localhost:${port}${firstImageUrl}`;
+
+                        // Check if the file is already in the task directory to avoid re-downloading (and potential overwrite issues)
+                        if (firstImageUrl.includes(taskId) && firstImageUrl.includes('input_image')) {
+                            console.log('[SP] Input image already in task directory, skipping download:', firstImageUrl);
+                            fetchUrl = '';
+                        }
+                    } else if (!firstImageUrl.startsWith('http')) {
+                        // Skip if not http and not relative (e.g. data uri might be too large or handled differently, strictly logic focused on url here)
+                        console.warn('[SP] Input image URL format not supported for saving:', firstImageUrl.substring(0, 50));
+                        fetchUrl = '';
+                    }
+
+                    if (fetchUrl) {
+                        const response = await fetch(fetchUrl);
+                        if (response.ok) {
+                            const arrayBuffer = await response.arrayBuffer();
+                            const buffer = Buffer.from(arrayBuffer);
+                            // Determine extension likely png or jpg
+                            // If content-type is missing or octet-stream, try to guess from url
+                            let contentType = response.headers.get('content-type') || '';
+                            let ext = 'png';
+                            if (contentType.includes('jpeg') || contentType.includes('jpg')) {
+                                ext = 'jpg';
+                            } else if (firstImageUrl.toLowerCase().endsWith('.jpg') || firstImageUrl.toLowerCase().endsWith('.jpeg')) {
+                                ext = 'jpg';
+                            }
+
+                            const inputFilename = `input_image.${ext}`;
+                            const inputImagePath = path.join(workDir, inputFilename);
+                            await fs.writeFile(inputImagePath, buffer);
+                            console.log('[SP] Input image saved:', inputImagePath);
+                        } else {
+                            console.warn(`[SP] Failed to fetch input image: ${response.status}`);
+                        }
+                    }
+                } catch (error) {
+                    console.warn('[SP] Failed to save input image locally:', error);
+                }
             }
+
+            // Update status to processing with initial progress
+            await updateProgress(SPTaskStep.ANALYZING, 'Analyzing image and text...', 5);
+
             // Step 1: Analyze image and text
             console.log('[SP] Step 1: Analyzing image and text...');
             const analysis = await this.analyzeImageAndText(
@@ -960,6 +1046,9 @@ You must output ONLY a valid JSON object with the following structure:
             params.options.original_prompt = params.prompt || '';
             params.options.user_feeling = userFeeling;
 
+            // Update progress after analysis
+            await updateProgress(SPTaskStep.GENERATING_IMAGES, 'Generating 3 images from reference...', 15);
+
             // Step 2: Generate 3 images from reference image (图生图)
             console.log('[SP] Step 2: Generating 3 images from reference image...');
             const generatedImageUrls = await this.generateImagesFromImage(
@@ -970,55 +1059,38 @@ You must output ONLY a valid JSON object with the following structure:
             );
             console.log('[SP] Images generated from reference:', generatedImageUrls);
 
+            // Update progress after image generation
+            await updateProgress(SPTaskStep.SAVING_ORIGINAL_IMAGES, 'Saving original generated images...', 35);
+
             // Step 2.5: Download and save original generated images (without watermark)
             console.log('[SP] Step 2.5: Saving original generated images...');
             const originalImageUrls: string[] = [];
 
-            if (this.configs.customStorage) {
-                // Use R2 storage
-                console.log('[SP] Using R2 storage for original images');
-                const filesToSave: AIFile[] = [];
+            // Use public folder storage first
+            console.log('[SP] Using public folder storage for original images');
+            // Variables already declared at start of try block
+            // const { ensureTaskWorkDir, getTaskPublicUrl } = await import('@/shared/utils/file-manager');
+            // const workDir = await ensureTaskWorkDir(taskId);
+            // const fs = await import('fs/promises');
+            // const path = await import('path');
 
-                for (let i = 0; i < generatedImageUrls.length; i++) {
-                    filesToSave.push({
-                        url: generatedImageUrls[i],
-                        contentType: 'image/png',
-                        key: `ai/sp/${taskId}/original_image_${i}.png`,
-                        index: i,
-                    });
+            for (let i = 0; i < generatedImageUrls.length; i++) {
+                const response = await fetch(generatedImageUrls[i]);
+                if (!response.ok) {
+                    throw new Error(`Failed to download generated image ${i + 1}: ${response.status}`);
                 }
-
-                const uploadedFiles = await saveFiles(filesToSave);
-                if (uploadedFiles) {
-                    uploadedFiles.forEach((file: AIFile) => {
-                        if (file && file.url) {
-                            originalImageUrls.push(file.url);
-                            console.log(`[SP] Original image ${file.index! + 1} uploaded to R2: ${file.url}`);
-                        }
-                    });
-                }
-            } else {
-                // Use public folder storage
-                console.log('[SP] Using public folder storage for original images');
-                const { ensureTaskWorkDir } = await import('@/shared/utils/file-manager');
-                const workDir = await ensureTaskWorkDir(taskId);
-                const fs = await import('fs/promises');
-                const path = await import('path');
-
-                for (let i = 0; i < generatedImageUrls.length; i++) {
-                    const response = await fetch(generatedImageUrls[i]);
-                    if (!response.ok) {
-                        throw new Error(`Failed to download generated image ${i + 1}: ${response.status}`);
-                    }
-                    const arrayBuffer = await response.arrayBuffer();
-                    const buffer = Buffer.from(arrayBuffer);
-                    const originalImagePath = path.join(workDir, `original_image_${i}.png`);
-                    await fs.writeFile(originalImagePath, buffer);
-                    const publicUrl = originalImagePath.replace(/^.*\/public/, '');
-                    originalImageUrls.push(publicUrl);
-                    console.log(`[SP] Original image ${i + 1} saved: ${publicUrl}`);
-                }
+                const arrayBuffer = await response.arrayBuffer();
+                const buffer = Buffer.from(arrayBuffer);
+                const filename = `original_image_${i}.png`;
+                const originalImagePath = path.join(workDir, filename);
+                await fs.writeFile(originalImagePath, buffer);
+                const publicUrl = getTaskPublicUrl(taskId, filename);
+                originalImageUrls.push(publicUrl);
+                console.log(`[SP] Original image ${i + 1} saved: ${publicUrl}`);
             }
+
+            // Update progress after saving original images
+            await updateProgress(SPTaskStep.ADDING_TEXT_OVERLAY, 'Adding text overlay to images...', 50);
 
             // Step 3: Add text overlay to images
             console.log('[SP] Step 3: Adding text overlay to images...');
@@ -1031,6 +1103,9 @@ You must output ONLY a valid JSON object with the following structure:
                 imageBuffers.push(buffer);
                 console.log(`[SP] Text added to image ${i + 1}/3`);
             }
+
+            // Update progress after text overlay
+            await updateProgress(SPTaskStep.GENERATING_AUDIO, 'Generating audio from script...', 60);
 
             // Step 4: Generate 1 audio
             console.log('[SP] Step 4: Generating audio...');
@@ -1048,6 +1123,9 @@ You must output ONLY a valid JSON object with the following structure:
                 voiceType
             );
             console.log('[SP] Audio generated');
+
+            // Update progress after audio generation
+            await updateProgress(SPTaskStep.MERGING_VIDEO, 'Merging images and audio into video...', 75);
 
             // Step 5: Merge to video and save all files (using taskId from function parameter)
             console.log('[SP] Step 5: Merging 3 images with 1 audio into video...');
@@ -1070,12 +1148,24 @@ You must output ONLY a valid JSON object with the following structure:
             console.log('[SP] Original Image URLs (without watermark):', originalImageUrls);
             console.log('[SP] Audio URL:', audioUrl);
 
+            // Update progress - completing task locally first
+            // if (this.configs.customStorage) {
+            //     await updateProgress(SPTaskStep.UPLOADING_TO_R2, 'Uploading files to R2 storage...', 90);
+            // }
+
             const result = {
                 taskStatus: AITaskStatus.SUCCESS,
                 taskId: taskId,
                 taskInfo: {
                     images: savedImageUrls.map(url => ({ imageUrl: url })),
                     videos: [{ videoUrl: videoUrl }],
+                    progress: {
+                        currentStep: SPTaskStep.COMPLETED,
+                        stepMessage: 'Video generation completed successfully',
+                        progress: 100,
+                        startedAt: taskStartedAt,
+                        updatedAt: new Date().toISOString(),
+                    } as SPTaskProgress,
                 },
                 taskResult: {
                     analysis: analysis,
@@ -1098,23 +1188,47 @@ You must output ONLY a valid JSON object with the following structure:
                     options: params.options ? JSON.stringify(params.options) : null,
                 });
                 console.log('[SP] Task', taskId, 'status updated to SUCCESS');
+                try {
+                    // Trigger background upload if custom storage is enabled
+                    if (this.configs.customStorage) {
+                        console.log('[SP] Triggering background upload to R2...');
+                        // Fire and forget - do not await
+                        this.uploadTaskFilesToR2(taskId, result).catch(err => {
+                            console.error('[SP] Background upload failed:', err);
+                        });
+                    }
+                } catch (err) {
+                    // 上传失败不进行积分的扣除
+                    console.error('[SP] Background upload failed:', err);
+                }
+
             }
 
             return result;
 
         } catch (error: any) {
-            console.error('[SP] Generation failed:', error);
-
+            console.error('[SP] Generation failed:', error, updateDatabase, updateAITaskByTaskId);
+            console.log('[SP] Task', taskId, 'status updated to FAILED');
+            console.log('[SP] updateDatabase', updateDatabase);
+            console.log('[SP] updateAITaskByTaskId', updateAITaskByTaskId);
             // Update database with failure status if enabled
             if (updateDatabase && updateAITaskByTaskId) {
+                // 获取任务记录以获取 creditId，用于积分返还
+                const { findAITaskByTaskId } = await import('@/shared/models/ai_task');
+                const task = await findAITaskByTaskId(taskId);
+                const creditId = task?.creditId || null;
+
+                console.log('[SP] Found task for refund, creditId:', creditId);
+
                 await updateAITaskByTaskId(taskId, {
                     status: AITaskStatus.FAILED,
+                    creditId: creditId, // 传入 creditId 以触发积分返还逻辑
                     taskResult: JSON.stringify({
                         error: error.message,
                         stack: error.stack,
                     }),
                 });
-                console.log('[SP] Task', taskId, 'status updated to FAILED');
+                console.log('[SP] Task', taskId, 'status updated to FAILED with credit refund');
             }
 
             throw new Error(`SP generation failed: ${error.message}`);
@@ -1141,6 +1255,179 @@ You must output ONLY a valid JSON object with the following structure:
         } catch (error: any) {
             console.error('[SP Background] ✗ Task', taskId, 'failed:', error);
             // Error is already handled in processVideoSync
+        }
+    }
+
+    /**
+     * Upload task files to R2 in background
+     */
+    private async uploadTaskFilesToR2(taskId: string, result: AITaskResult): Promise<void> {
+        try {
+            console.log(`[SP Background Upload] Starting upload for task ${taskId}`);
+
+            // Import only needed modules
+            const { updateAITaskByTaskId } = await import('@/shared/models/ai_task');
+            const { getTaskWorkDir } = await import('@/shared/utils/file-manager');
+            const fs = await import('fs/promises');
+            const path = await import('path');
+
+            const workDir = getTaskWorkDir(taskId);
+
+            // Define files to upload based on what we expect in the directory
+            // We need to look for:
+            // - final_video.mp4
+            // - audio.mp3
+            // - image_*.png (text overlay images)
+            // - original_image_*.png (original images)
+
+            const files = await fs.readdir(workDir);
+            const filesToUpload: AIFile[] = [];
+
+            // Helper to get file content and create AIFile object
+            const processFile = async (filename: string, contentType: string, key: string, index?: number) => {
+                const filePath = path.join(workDir, filename);
+                // We don't read the file here, saveFiles handles it if we pass a URL, 
+                // but since we have local files and want to use saveFiles which might expect remote URLs or Buffers, 
+                // we should check how saveFiles is implemented.
+                // Looking at shared/services/storage.ts, it uses storageManager.uploadFile.
+                // The current saveFiles in index.ts takes AIFile which has 'url'.
+                // If we want to support local file upload via saveFiles, we might need to adjust it or read file content here.
+                // However, the requested change implies we should iterate and upload.
+
+                // Let's read the file buffer directly and use storageManager directly to be safe and efficient
+                const { getStorageService } = await import('@/shared/services/storage');
+                const storageService = await getStorageService();
+
+                const fileBuffer = await fs.readFile(filePath);
+
+                // Use storageService directly instead of saveFiles wrapper to support buffer
+                // This assumes we have access to storageService
+                const uploadResult = await storageService.uploadFile({
+                    body: fileBuffer,
+                    key: key,
+                    contentType: contentType,
+                    bucket: this.configs.r2_bucket_name
+                });
+
+                if (uploadResult.url || uploadResult.key) {
+                    const finalUrl = uploadResult.url || uploadResult.location || '';
+                    return {
+                        filename,
+                        url: replaceR2Url(finalUrl), // Ensure CDN URL
+                        key
+                    };
+                }
+                return null;
+            };
+
+            const uploadedAssets: Record<string, string> = {};
+            const uploadedImages: string[] = []; // Store by index if needed, or just list
+            const uploadedOriginalImages: string[] = [];
+
+            // Process files
+            for (const file of files) {
+                let contentType = 'application/octet-stream';
+                let key = '';
+
+                if (file === 'final_video.mp4') {
+                    contentType = 'video/mp4';
+                    key = this.getR2Key(taskId, file);
+                    const uploaded = await processFile(file, contentType, key);
+                    if (uploaded) uploadedAssets['video_url'] = uploaded.url;
+                }
+                else if (file === 'video_only.mp4') {
+                    contentType = 'video/mp4';
+                    key = this.getR2Key(taskId, file);
+                    const uploaded = await processFile(file, contentType, key);
+                    if (uploaded) uploadedAssets['video_only_url'] = uploaded.url;
+                }
+                else if (file === 'audio.mp3') {
+                    contentType = 'audio/mpeg';
+                    key = this.getR2Key(taskId, file);
+                    const uploaded = await processFile(file, contentType, key);
+                    if (uploaded) uploadedAssets['audio_url'] = uploaded.url;
+                }
+                else if (file.startsWith('input_image.')) {
+                    contentType = file.endsWith('.jpg') ? 'image/jpeg' : 'image/png';
+                    key = this.getR2Key(taskId, file);
+                    const uploaded = await processFile(file, contentType, key);
+                    if (uploaded) uploadedAssets['input_image_url'] = uploaded.url;
+                }
+                else if (file.startsWith('image_') && file.endsWith('.png')) {
+                    contentType = 'image/png';
+                    key = this.getR2Key(taskId, file);
+                    const uploaded = await processFile(file, contentType, key);
+                    if (uploaded) {
+                        // Extract index from filename image_0.png
+                        const match = file.match(/image_(\d+)\.png/);
+                        if (match) {
+                            const idx = parseInt(match[1]);
+                            uploadedImages[idx] = uploaded.url;
+                        }
+                    }
+                }
+                else if (file.startsWith('original_image_') && file.endsWith('.png')) {
+                    contentType = 'image/png';
+                    key = this.getR2Key(taskId, file);
+                    const uploaded = await processFile(file, contentType, key);
+                    if (uploaded) {
+                        const match = file.match(/original_image_(\d+)\.png/);
+                        if (match) {
+                            const idx = parseInt(match[1]);
+                            uploadedOriginalImages[idx] = uploaded.url;
+                        }
+                    }
+                }
+            }
+
+            // Filter out empty slots if any
+            const finalImageUrls = uploadedImages.filter(u => u);
+            const finalOriginalImageUrls = uploadedOriginalImages.filter(u => u);
+
+            console.log(`[SP Background Upload] Uploaded ${Object.keys(uploadedAssets).length + finalImageUrls.length + finalOriginalImageUrls.length} files`);
+
+            // Update database with new URLs
+            if (Object.keys(uploadedAssets).length > 0) {
+                // Construct updated result info
+                const currentTaskResult = typeof result.taskResult === 'string' ? JSON.parse(result.taskResult) : result.taskResult;
+                const currentTaskInfo = result.taskInfo || {};
+
+                const updatedTaskResult = {
+                    ...currentTaskResult,
+                    video_url: uploadedAssets['video_url'] || currentTaskResult.video_url,
+                    video_only_url: uploadedAssets['video_only_url'] || currentTaskResult.video_only_url, // Add video_only_url result
+                    audio_url: uploadedAssets['audio_url'] || currentTaskResult.audio_url,
+                    image_urls: finalImageUrls.length > 0 ? finalImageUrls : currentTaskResult.image_urls,
+                    original_image_urls: finalOriginalImageUrls.length > 0 ? finalOriginalImageUrls : currentTaskResult.original_image_urls,
+                    input_image_url: uploadedAssets['input_image_url'] || currentTaskResult.input_image_url,
+                    saved_video_url: uploadedAssets['video_url'], // Explicitly save as saved_video_url for frontend
+                    saved_video_urls: uploadedAssets['video_url'] ? [uploadedAssets['video_url']] : undefined,
+                };
+
+                const updatedTaskInfo = {
+                    ...currentTaskInfo,
+                    images: finalImageUrls.map(url => ({ imageUrl: url })),
+                    videos: uploadedAssets['video_url'] ? [{ videoUrl: uploadedAssets['video_url'] }] : currentTaskInfo.videos,
+                    inputImageUrl: uploadedAssets['input_image_url'], // Also update taskInfo
+                    progress: {
+                        ...(currentTaskInfo.progress || {}),
+                        currentStep: SPTaskStep.COMPLETED, // Ensure it says completed
+                        stepMessage: 'Video generation and upload completed',
+                        updatedAt: new Date().toISOString()
+                    }
+                };
+
+                await updateAITaskByTaskId(taskId, {
+                    taskResult: JSON.stringify(updatedTaskResult),
+                    taskInfo: JSON.stringify(updatedTaskInfo)
+                });
+
+                console.log(`[SP Background Upload] Task ${taskId} updated with CDN URLs`);
+            }
+
+        } catch (error) {
+            console.error(`[SP Background Upload] Failed for task ${taskId}:`, error);
+            // We don't fail the task itself since generation was successful
         }
     }
 

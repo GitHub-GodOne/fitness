@@ -10,9 +10,8 @@
 /coverage
 
 # next.js
-# /.next/
-/.next/dev
-/.next/cache
+/.next/
+
 /out/
 /public/pic/
 /public/video/

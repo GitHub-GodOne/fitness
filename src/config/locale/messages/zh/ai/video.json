@@ -127,6 +127,18 @@
       "previous": "上一页",
       "next": "下一页"
     },
-    "regenerate_not_available": "重新生成功能暂不可用"
+    "regenerate_not_available": "重新生成功能暂不可用",
+    "progress_steps": {
+      "pending": "准备中...",
+      "analyzing": "分析图片和文本中...",
+      "generating_images": "生成图片中...",
+      "saving_original_images": "保存原始图片中...",
+      "adding_text_overlay": "添加文字水印中...",
+      "generating_audio": "生成音频中...",
+      "merging_video": "视频合成中...",
+      "uploading_to_r2": "上传文件中...",
+      "completed": "完成!",
+      "failed": "生成失败"
+    }
   }
 }

@@ -103,3 +103,48 @@ export function getTaskFilePath(taskId: string, filename: string): string {
     const workDir = getTaskWorkDir(taskId);
     return path.join(workDir, filename);
 }
+
+/**
+ * Save a generic file to public/pic directory (similar to upload-image route)
+ */
+export async function savePublicFile(file: File): Promise<string> {
+    const { md5 } = await import('@/shared/lib/hash');
+
+    // Get current date in YYYYMMDD format
+    const now = new Date();
+    const year = now.getFullYear();
+    const month = String(now.getMonth() + 1).padStart(2, '0');
+    const day = String(now.getDate()).padStart(2, '0');
+    const dateFolder = `${year}${month}${day}`;
+
+    // Ensure public/pic/{date} directory exists
+    const picDir = path.join(process.cwd(), 'public', 'pic', dateFolder);
+    try {
+        await fs.mkdir(picDir, { recursive: true });
+    } catch (err) {
+        console.error('[FileManager] Failed to create pic directory:', err);
+    }
+
+    // Determine extension
+    const nameParts = file.name.split('.');
+    const ext = nameParts.length > 1 ? nameParts.pop() : 'bin';
+
+    // Convert file to buffer and hash
+    const arrayBuffer = await file.arrayBuffer();
+    const body = Buffer.from(arrayBuffer);
+    const digest = md5(body);
+
+    const filename = `${digest}.${ext}`;
+    const filePath = path.join(picDir, filename);
+
+    // Save file if not exists
+    try {
+        await fs.access(filePath);
+        // File exists, skip write
+    } catch {
+        await fs.writeFile(filePath, body);
+        console.log('[FileManager] Saved public file:', filePath);
+    }
+
+    return `/pic/${dateFolder}/${filename}`;
+}

@@ -198,6 +198,9 @@ importers:
       github-slugger:
         specifier: ^2.0.0
         version: 2.0.0
+      jsonrepair:
+        specifier: ^3.13.2
+        version: 3.13.2
       lucide-react:
         specifier: ^0.543.0
         version: 0.543.0(react@19.2.1)
@@ -4446,6 +4449,10 @@ packages:
   json5@2.2.3:
     resolution: {integrity: sha512-XmOWe7eyHYH14cLdVPoyg+GOH3rYX++KpzrylJwSW98t3Nk+U8XOl8FWKOgwtzdb8lXGf6zYwDUzeHMWfxasyg==}
     engines: {node: '>=6'}
+    hasBin: true
+
+  jsonrepair@3.13.2:
+    resolution: {integrity: sha512-Leuly0nbM4R+S5SVJk3VHfw1oxnlEK9KygdZvfUtEtTawNDyzB4qa1xWTmFt1aeoA7sXZkVTRuIixJ8bAvqVUg==}
     hasBin: true
 
   jsx-ast-utils@3.3.5:
@@ -10388,6 +10395,8 @@ snapshots:
       minimist: 1.2.8
 
   json5@2.2.3: {}
+
+  jsonrepair@3.13.2: {}
 
   jsx-ast-utils@3.3.5:
     dependencies:

@@ -127,6 +127,18 @@
       "previous": "Previous",
       "next": "Next"
     },
-    "regenerate_not_available": "Regenerate feature is not available"
+    "regenerate_not_available": "Regenerate feature is not available",
+    "progress_steps": {
+      "pending": "Preparing...",
+      "analyzing": "Analyzing image and text...",
+      "generating_images": "Generating images...",
+      "saving_original_images": "Saving original images...",
+      "adding_text_overlay": "Adding text overlay...",
+      "generating_audio": "Generating audio...",
+      "merging_video": "Merging video...",
+      "uploading_to_r2": "Uploading files...",
+      "completed": "Completed!",
+      "failed": "Generation failed"
+    }
   }
 }

@@ -61,7 +61,9 @@ export async function findAITaskByTaskId(taskId: string) {
 
 export async function updateAITaskByTaskId(taskId: string, updateAITask: UpdateAITask) {
   // First find the task by taskId to get the id
+  console.log('updateAITaskByTaskId----->任务失败 返还积分 进来了');
   const task = await findAITaskByTaskId(taskId);
+  console.log('updateAITaskByTaskId----->任务失败 返还积分', task, taskId);
   if (!task) {
     throw new Error(`Task not found with taskId: ${taskId}`);
   }
@@ -73,6 +75,7 @@ export async function updateAITaskById(id: string, updateAITask: UpdateAITask) {
   const result = await db().transaction(async (tx) => {
     // task failed, Revoke credit consumption record
     if (updateAITask.status === AITaskStatus.FAILED && updateAITask.creditId) {
+      console.log('updateAITaskById----->任务失败 返还积分', updateAITask);
       // get consumed credit record
       const [consumedCredit] = await tx
         .select()
@@ -86,6 +89,7 @@ export async function updateAITaskById(id: string, updateAITask: UpdateAITask) {
         // add back consumed credits
         await Promise.all(
           consumedItems.map((item: any) => {
+            console.log('updateAITaskById----->任务失败 返还积分:', item.creditsConsumed);
             if (item && item.creditId && item.creditsConsumed > 0) {
               return tx
                 .update(credit)

@@ -36,7 +36,7 @@ export function FeaturesStep({
     <section
       id={section.id}
       className={cn(
-        "py-8 sm:py-10 md:py-12 lg:py-16",
+        "",
         section.className,
         className,
       )}

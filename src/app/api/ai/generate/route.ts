@@ -1,5 +1,5 @@
 import { envConfigs } from '@/config';
-import { AIMediaType } from '@/extensions/ai';
+import { AIMediaType, AITaskStatus } from '@/extensions/ai';
 import { getUuid } from '@/shared/lib/hash';
 import { respData, respErr } from '@/shared/lib/resp';
 import { createAITask, NewAITask } from '@/shared/models/ai_task';
@@ -9,8 +9,55 @@ import { getAIService } from '@/shared/services/ai';
 
 export async function POST(request: Request) {
   try {
-    let { provider, mediaType, model, prompt, options, scene } =
-      await request.json();
+    // get current user
+    const user = await getUserInfo();
+    if (!user) {
+      throw new Error('no auth, please sign in');
+    }
+
+    let provider, mediaType, model, prompt, options, scene;
+    const taskId = getUuid(); // Generate taskId early
+
+    // Check content type for multipart/form-data
+    const contentType = request.headers.get('content-type') || '';
+
+    if (contentType.includes('multipart/form-data')) {
+      const formData = await request.formData();
+      // Extract JSON params from 'body' field
+      const bodyJson = formData.get('body') as string;
+      if (bodyJson) {
+        const parsedBody = JSON.parse(bodyJson);
+        ({ provider, mediaType, model, prompt, options, scene } = parsedBody);
+      }
+
+      // Handle file upload
+      const file = formData.get('file') as File;
+      if (file && file.size > 0) {
+        const { saveTaskFile } = await import('@/shared/utils/file-manager');
+        const buffer = Buffer.from(await file.arrayBuffer());
+
+        // Determine extension
+        let ext = 'png'; // Default
+        const mimeType = file.type;
+        if (mimeType === 'image/jpeg' || mimeType === 'image/jpg') ext = 'jpg';
+        else if (mimeType === 'image/png') ext = 'png';
+        else {
+          // Try to get from filename
+          const parts = file.name.split('.');
+          if (parts.length > 1) ext = parts.pop() || 'png';
+        }
+
+        const filename = `input_image.${ext}`;
+        const fileUrl = await saveTaskFile(taskId, filename, buffer);
+
+        // Update options with image input
+        if (!options) options = {};
+        options.image_input = [fileUrl];
+      }
+    } else {
+      // Standard JSON request
+      ({ provider, mediaType, model, prompt, options, scene } = await request.json());
+    }
 
     if (!mediaType || !model) {
       throw new Error('invalid params');
@@ -43,11 +90,7 @@ export async function POST(request: Request) {
       throw new Error('invalid provider');
     }
 
-    // get current user
-    const user = await getUserInfo();
-    if (!user) {
-      throw new Error('no auth, please sign in');
-    }
+
 
     // todo: get cost credits from settings
     let costCredits = 2;
@@ -119,23 +162,15 @@ export async function POST(request: Request) {
     }
 
     const callbackUrl = `${envConfigs.app_url}/api/ai/notify/${provider}`;
-
     const params: any = {
       mediaType,
       model,
       prompt,
       callbackUrl,
       options,
+      taskId
     };
 
-
-    // generate content
-    const result = await aiProvider.generate({ params });
-    if (!result?.taskId) {
-      throw new Error(
-        `ai generate failed, mediaType: ${mediaType}, provider: ${provider}, model: ${model}`
-      );
-    }
 
     // create ai task
     // If user_feeling is provided in options, save it to prompt field for history display
@@ -153,13 +188,21 @@ export async function POST(request: Request) {
       prompt: taskPrompt, // Use user_feeling as prompt if available
       scene,
       options: options ? JSON.stringify(options) : null,
-      status: result.taskStatus,
+      status: AITaskStatus.PENDING,
       costCredits,
-      taskId: result.taskId,
-      taskInfo: result.taskInfo ? JSON.stringify(result.taskInfo) : null,
-      taskResult: result.taskResult ? JSON.stringify(result.taskResult) : null,
+      taskId: taskId,
+
     };
     await createAITask(newAITask);
+
+
+    // generate content
+    const result = await aiProvider.generate({ params });
+    if (!result?.taskId) {
+      throw new Error(
+        `ai generate failed, mediaType: ${mediaType}, provider: ${provider}, model: ${model}`
+      );
+    }
 
     return respData(newAITask);
   } catch (e: any) {

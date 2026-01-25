@@ -139,27 +139,44 @@ export class R2Provider implements StorageProvider {
       });
 
       let response;
-      try {
-        response = await client.fetch(request);
-      } catch (fetchError) {
-        console.error('[R2 Provider] Fetch error:', fetchError);
-        return {
-          success: false,
-          error: `Fetch failed: ${fetchError instanceof Error ? fetchError.message : 'Unknown error'}`,
-          provider: this.name,
-        };
+      let lastError;
+      const MAX_RETRIES = 3;
+
+      for (let attempt = 1; attempt <= MAX_RETRIES; attempt++) {
+        try {
+          if (attempt > 1) {
+            console.log(`[R2 Provider] Retry attempt ${attempt}/${MAX_RETRIES} for ${options.key}...`);
+            // Add a small delay between retries
+            await new Promise(resolve => setTimeout(resolve, 1000 * attempt));
+          }
+
+          // Re-create request for each attempt to avoid "body used" issues if possible
+          // Note: bodyArray is Uint8Array matching R2 expectations so it should be replayable
+          const request = new Request(url, {
+            method: 'PUT',
+            headers,
+            body: bodyArray as any,
+          });
+
+          response = await client.fetch(request);
+
+          if (response.ok) {
+            break; // Success, exit loop
+          } else {
+            const errorText = await response.text().catch(() => 'Unable to read error response');
+            lastError = new Error(`Upload failed: ${response.statusText} (${response.status}) - ${errorText}`);
+            console.error(`[R2 Provider] Attempt ${attempt} failed:`, lastError.message);
+          }
+        } catch (fetchError) {
+          lastError = fetchError;
+          console.error(`[R2 Provider] Attempt ${attempt} fetch error:`, fetchError);
+        }
       }
 
-      if (!response.ok) {
-        const errorText = await response.text().catch(() => 'Unable to read error response');
-        console.error('[R2 Provider] Upload failed:', {
-          status: response.status,
-          statusText: response.statusText,
-          error: errorText,
-        });
+      if (!response || !response.ok) {
         return {
           success: false,
-          error: `Upload failed: ${response.statusText} (${response.status}) - ${errorText}`,
+          error: lastError ? (lastError instanceof Error ? lastError.message : String(lastError)) : 'Upload failed after retries',
           provider: this.name,
         };
       }

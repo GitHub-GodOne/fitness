@@ -50,6 +50,7 @@ export interface AIVideo {
  * AI generate params
  */
 export interface AIGenerateParams {
+  taskId: string;
   mediaType: AIMediaType;
   prompt: string;
   model?: string;
@@ -72,6 +73,17 @@ export enum AITaskStatus {
 }
 
 /**
+ * AI task progress info
+ */
+export interface AITaskProgress {
+  currentStep: string;
+  stepMessage: string;
+  progress: number; // 0-100
+  startedAt?: string;
+  updatedAt?: string;
+}
+
+/**
  * AI task info
  */
 export interface AITaskInfo {
@@ -82,6 +94,7 @@ export interface AITaskInfo {
   errorCode?: string;
   errorMessage?: string;
   createTime?: Date;
+  progress?: AITaskProgress; // task progress info
 }
 
 /**

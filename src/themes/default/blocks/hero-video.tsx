@@ -102,12 +102,11 @@ export function HeroVideo({
       </>
     );
   };
-
   return (
     <section
       id={section.id}
       className={cn(
-        "relative overflow-hidden min-h-screen flex items-center pt-20",
+        "flex pt-20",
         section.className,
         className,
       )}
