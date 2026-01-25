@@ -197,18 +197,17 @@ export class GWAPIProvider implements AIProvider {
                         required: ["scene", "reasoning"],
                         properties: {
                             scene: { type: "string", maxLength: 80 },
-                            reasoning: { type: "string", maxLength: 120 }
+                            reasoning: { type: "string", maxLength: 300 }
                         },
                         additionalProperties: false
                     },
-                    image_generation_prompt: { type: "string", maxLength: 200 },
-                    audio_script: { type: "string", maxLength: 100 },
+                    image_generation_prompt: { type: "string", maxLength: 700 },
+                    audio_script: { type: "string", maxLength: 400 },
                     verse_reference: { type: "string", maxLength: 25 }
                 },
                 additionalProperties: false
             }
         };
-
         const systemPrompt = `
             # ROLE DEFINITION
             You are a divine digital companion, a "Visual Theologian" designed to comfort people in distress. Your goal is to analyze user input (image + text), understand their pain, and bridge their reality with a Biblical scene that offers hope and peace.
