@@ -187,8 +187,8 @@ export class GWAPIProvider implements AIProvider {
                         type: "object",
                         required: ["emotion", "visual_summary"],
                         properties: {
-                            emotion: { type: "string" },
-                            visual_summary: { type: "string" }
+                            emotion: { type: "string", maxLength: 60 },
+                            visual_summary: { type: "string", maxLength: 120 }
                         },
                         additionalProperties: false
                     },
@@ -196,14 +196,14 @@ export class GWAPIProvider implements AIProvider {
                         type: "object",
                         required: ["scene", "reasoning"],
                         properties: {
-                            scene: { type: "string" },
-                            reasoning: { type: "string" }
+                            scene: { type: "string", maxLength: 80 },
+                            reasoning: { type: "string", maxLength: 120 }
                         },
                         additionalProperties: false
                     },
-                    image_generation_prompt: { type: "string" },
-                    audio_script: { type: "string" },
-                    verse_reference: { type: "string" }
+                    image_generation_prompt: { type: "string", maxLength: 200 },
+                    audio_script: { type: "string", maxLength: 100 },
+                    verse_reference: { type: "string", maxLength: 25 }
                 },
                 additionalProperties: false
             }
