@@ -61,9 +61,7 @@ export async function findAITaskByTaskId(taskId: string) {
 
 export async function updateAITaskByTaskId(taskId: string, updateAITask: UpdateAITask) {
   // First find the task by taskId to get the id
-  console.log('updateAITaskByTaskId----->任务失败 返还积分 进来了');
   const task = await findAITaskByTaskId(taskId);
-  console.log('updateAITaskByTaskId----->任务失败 返还积分', task, taskId);
   if (!task) {
     throw new Error(`Task not found with taskId: ${taskId}`);
   }

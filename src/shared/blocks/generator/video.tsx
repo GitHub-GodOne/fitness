@@ -1268,7 +1268,7 @@ export function VideoGenerator({
     try {
       setDownloadingVideoId(video.id);
       // fetch video directly with cache busting
-      const urlObj = new URL(video.url);
+      const urlObj = new URL(video.url, window.location.origin);
       urlObj.searchParams.append("t", Date.now().toString());
       const resp = await fetch(urlObj.toString());
       if (!resp.ok) {
@@ -1304,7 +1304,7 @@ export function VideoGenerator({
       }
 
       setDownloadingVideoId(task.id);
-      const urlObj = new URL(videoUrl);
+      const urlObj = new URL(videoUrl, window.location.origin);
       urlObj.searchParams.append("t", Date.now().toString());
       const resp = await fetch(urlObj.toString());
       if (!resp.ok) {
@@ -1350,7 +1350,7 @@ export function VideoGenerator({
 
       for (let i = 0; i < imageUrls.length; i++) {
         const imageUrl = imageUrls[i];
-        const urlObj = new URL(imageUrl);
+        const urlObj = new URL(imageUrl, window.location.origin);
         urlObj.searchParams.append("t", Date.now().toString());
         const resp = await fetch(urlObj.toString());
         if (!resp.ok) {

@@ -231,7 +231,7 @@ export function DownloadDialog({
   const downloadFile = useCallback(
     async (url: string, filename: string) => {
       try {
-        const urlObj = new URL(url);
+        const urlObj = new URL(url, window.location.origin);
         urlObj.searchParams.append("t", Date.now().toString());
         const resp = await fetch(urlObj.toString());
         if (!resp.ok) throw new Error("Download failed");
