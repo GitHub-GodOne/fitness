@@ -333,6 +333,7 @@ Rules:
 
     /**
      * Step 3: Generate Audio Script (text-only, no JSON, safe)
+     * Split into two parts to avoid content_filter on Bible text
      */
     private async generateAudioScript(
         analysis: VisualAnalysis,
@@ -341,17 +342,14 @@ Rules:
         // First, get the actual Bible verse text
         const verseText = await this.getBibleVerse(analysis.verse_reference, apiKey);
 
-        const prompt = `Write a short spoken message of comfort.
+        // Generate only the intro part (without Bible verse to avoid content_filter)
+        const prompt = `Write ONE short comforting sentence for someone in distress.
 
+Emotion context: ${analysis.emotion}
 Tone: gentle, calm, pastoral
-Audience: one person in distress
-Length: max 80 words for intro
+Length: max 30 words
 
-Structure:
-1. One comforting sentence (no "My child")
-2. Then directly read this Bible verse: "${verseText}"
-
-Output the COMPLETE script as one paragraph. Do NOT add "Listen to these words" or any introduction to the verse.`;
+Do NOT use "My child". Do NOT mention Bible or verses. Just one comforting sentence.`;
 
         const resp = await fetch(this.visionApiUrl, {
             method: "POST",
@@ -362,7 +360,7 @@ Output the COMPLETE script as one paragraph. Do NOT add "Listen to these words" 
             body: JSON.stringify({
                 model: this.visionModel,
                 messages: [{ role: "user", content: prompt }],
-                max_output_tokens: 400
+                max_output_tokens: 100
             })
         });
 
@@ -372,14 +370,22 @@ Output the COMPLETE script as one paragraph. Do NOT add "Listen to these words" 
         }
 
         const data = await resp.json();
-        console.log('[GW-API] Audio script response:', JSON.stringify(data, null, 2));
-        const result = data.choices?.[0]?.message?.content || '';
-        if (!result) {
-            console.error('[GW-API] Empty audio script response, full data:', data);
-            throw new Error('Audio script generation returned empty content');
+        const choice = data.choices?.[0];
+
+        // Handle content_filter
+        if (choice?.finish_reason === 'content_filter') {
+            console.warn('[GW-API] Content filter triggered on intro, using fallback');
+            const intro = 'You are not alone in this moment.';
+            return `${intro} ${verseText}`.trim();
         }
-        console.log('[GW-API] Audio script generated:', result.substring(0, 100));
-        return result.trim();
+
+        const intro = choice?.message?.content?.trim() || 'You are not alone in this moment.';
+        console.log('[GW-API] Audio intro generated:', intro);
+
+        // Combine intro + verse (verse is fetched separately, not generated)
+        const fullScript = `${intro} ${verseText}`;
+        console.log('[GW-API] Audio script complete, length:', fullScript.length);
+        return fullScript.trim();
     }
 
     /**
