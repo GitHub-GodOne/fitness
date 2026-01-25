@@ -278,7 +278,7 @@ export class GWAPIProvider implements AIProvider {
         if (!choice) {
             throw new Error("No choices returned");
         }
-
+        console.log('[GW-API] Analysis choice:', choice, choice.message?.content || '');
         if (choice.finish_reason !== 'stop') {
             throw new Error(
                 `Generation aborted: ${choice.finish_reason}`
