@@ -272,7 +272,7 @@ Rules:
             body: JSON.stringify({
                 model: this.visionModel,
                 messages: [{ role: "user", content: prompt }],
-                max_tokens: 600
+                max_output_tokens: 600
             })
         });
 
@@ -282,7 +282,12 @@ Rules:
         }
 
         const data = await resp.json();
+        console.log('[GW-API] Image prompt response:', JSON.stringify(data, null, 2));
         const result = data.choices?.[0]?.message?.content || '';
+        if (!result) {
+            console.error('[GW-API] Empty image prompt response, full data:', data);
+            throw new Error('Image prompt generation returned empty content');
+        }
         console.log('[GW-API] Image prompt generated:', result.substring(0, 100));
         return result.trim();
     }
@@ -314,7 +319,7 @@ Do NOT invent scripture text.`;
             body: JSON.stringify({
                 model: this.visionModel,
                 messages: [{ role: "user", content: prompt }],
-                max_tokens: 300
+                max_output_tokens: 300
             })
         });
 
@@ -324,7 +329,12 @@ Do NOT invent scripture text.`;
         }
 
         const data = await resp.json();
+        console.log('[GW-API] Audio script response:', JSON.stringify(data, null, 2));
         const result = data.choices?.[0]?.message?.content || '';
+        if (!result) {
+            console.error('[GW-API] Empty audio script response, full data:', data);
+            throw new Error('Audio script generation returned empty content');
+        }
         console.log('[GW-API] Audio script generated:', result.substring(0, 100));
         return result.trim();
     }
