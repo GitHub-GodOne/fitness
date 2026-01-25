@@ -231,9 +231,9 @@ export function DownloadDialog({
   const downloadFile = useCallback(
     async (url: string, filename: string) => {
       try {
-        const resp = await fetch(
-          `/api/proxy/file?url=${encodeURIComponent(url)}`,
-        );
+        const urlObj = new URL(url);
+        urlObj.searchParams.append("t", Date.now().toString());
+        const resp = await fetch(urlObj.toString());
         if (!resp.ok) throw new Error("Download failed");
         const blob = await resp.blob();
         const blobUrl = URL.createObjectURL(blob);

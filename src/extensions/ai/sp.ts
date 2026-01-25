@@ -1,9 +1,6 @@
-import { getUuid } from '@/shared/lib/hash';
 import { replaceR2Url } from '@/shared/lib/url';
 // import { toAbsoluteUrl } from '@/shared/lib/url-utils';
 import sharp from 'sharp';
-import { saveFiles } from '.';
-import { jsonrepair } from 'jsonrepair';
 import {
     AIConfigs,
     AIFile,
@@ -12,7 +9,6 @@ import {
     AIProvider,
     AITaskResult,
     AITaskStatus,
-    AIVideo,
 } from './types';
 
 /**
@@ -1309,7 +1305,7 @@ You must output ONLY a valid JSON object with the following structure:
                     bucket: this.configs.r2_bucket_name
                 });
 
-                if (uploadResult.url || uploadResult.key) {
+                if (uploadResult.success && (uploadResult.url || uploadResult.key)) {
                     const finalUrl = uploadResult.url || uploadResult.location || '';
                     return {
                         filename,
@@ -1317,7 +1313,15 @@ You must output ONLY a valid JSON object with the following structure:
                         key
                     };
                 }
-                return null;
+
+                // Fallback to local public URL if upload failed after all retries
+                console.warn(`[SP Background Upload] R2 upload failed for ${filename} after retries. Falling back to local public URL.`);
+                const { getTaskPublicUrl } = await import('@/shared/utils/file-manager');
+                return {
+                    filename,
+                    url: getTaskPublicUrl(taskId, filename),
+                    key
+                };
             };
 
             const uploadedAssets: Record<string, string> = {};

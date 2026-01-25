@@ -1267,10 +1267,10 @@ export function VideoGenerator({
 
     try {
       setDownloadingVideoId(video.id);
-      // fetch video via proxy
-      const resp = await fetch(
-        `/api/proxy/file?url=${encodeURIComponent(video.url)}`,
-      );
+      // fetch video directly with cache busting
+      const urlObj = new URL(video.url);
+      urlObj.searchParams.append("t", Date.now().toString());
+      const resp = await fetch(urlObj.toString());
       if (!resp.ok) {
         throw new Error("Failed to fetch video");
       }
@@ -1304,9 +1304,9 @@ export function VideoGenerator({
       }
 
       setDownloadingVideoId(task.id);
-      const resp = await fetch(
-        `/api/proxy/file?url=${encodeURIComponent(videoUrl)}`,
-      );
+      const urlObj = new URL(videoUrl);
+      urlObj.searchParams.append("t", Date.now().toString());
+      const resp = await fetch(urlObj.toString());
       if (!resp.ok) {
         throw new Error("Failed to fetch video");
       }
@@ -1350,9 +1350,9 @@ export function VideoGenerator({
 
       for (let i = 0; i < imageUrls.length; i++) {
         const imageUrl = imageUrls[i];
-        const resp = await fetch(
-          `/api/proxy/file?url=${encodeURIComponent(imageUrl)}`,
-        );
+        const urlObj = new URL(imageUrl);
+        urlObj.searchParams.append("t", Date.now().toString());
+        const resp = await fetch(urlObj.toString());
         if (!resp.ok) {
           throw new Error(`Failed to fetch image ${i + 1}`);
         }
