@@ -5,7 +5,7 @@ import {
   KieProvider,
   ReplicateProvider,
   VolcanoProvider,
-  VolcanoSPProvider,
+  GWAPIProvider,
 } from '@/extensions/ai';
 import { Configs, getAllConfigs } from '@/shared/models/config';
 
@@ -59,11 +59,12 @@ export function getAIManagerWithConfigs(configs: Configs) {
     );
   }
 
-  // Register SP Provider for Scripture Picture video generation
-  if (configs.volcano_engine_api_key) {
+  // Register GW-API Provider for Scripture Picture video generation
+  const comflyApiKey = process.env.COMFLY_API_KEY || configs.COMFLY_API_KEY;
+  if (comflyApiKey) {
     aiManager.addProvider(
-      new VolcanoSPProvider({
-        apiKey: configs.volcano_engine_api_key,
+      new GWAPIProvider({
+        apiKey: comflyApiKey,
         customStorage: configs.volcano_custom_storage === 'true',
       })
     );

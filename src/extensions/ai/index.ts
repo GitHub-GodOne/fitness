@@ -80,3 +80,4 @@ export * from './replicate';
 export * from './gemini';
 export * from './fal';
 export * from './sp';
+export * from './gw-api';

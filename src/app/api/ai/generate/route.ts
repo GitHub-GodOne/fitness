@@ -67,10 +67,10 @@ export async function POST(request: Request) {
       throw new Error('prompt or options is required');
     }
 
-    // Force use SP Provider for video generation
+    // Force use GW-API Provider for video generation
     if (mediaType === AIMediaType.VIDEO) {
-      provider = 'sp';
-      console.log('[AI Generate] Forcing SP Provider for video generation');
+      provider = 'gw-api';
+      console.log('[AI Generate] Forcing GW-API Provider for video generation');
     }
 
     if (!provider) {

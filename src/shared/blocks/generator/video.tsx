@@ -303,7 +303,7 @@ function extractVideoUrls(result: any): string[] {
 }
 
 export function VideoGenerator({
-  maxSizeMB = 5,
+  maxSizeMB = 20,
   srOnlyTitle,
 }: VideoGeneratorProps) {
   const t = useTranslations("ai.video.generator");
@@ -881,10 +881,6 @@ export function VideoGenerator({
     [referenceImageItems],
   );
 
-
-
-
-
   const hasReferenceUploadError = useMemo(
     () => referenceImageItems.some((item) => item.status === "error"),
     [referenceImageItems],
@@ -942,10 +938,10 @@ export function VideoGenerator({
         setTaskStatus(currentStatus);
 
         const parsedResult = parseTaskResult(task.taskInfo);
-        
+
         // Update progress from backend if available
         if (parsedResult?.progress) {
-          if (typeof parsedResult.progress.progress === 'number') {
+          if (typeof parsedResult.progress.progress === "number") {
             setProgress(parsedResult.progress.progress);
           }
           if (parsedResult.progress.stepMessage) {
@@ -957,7 +953,7 @@ export function VideoGenerator({
 
         if (currentStatus === AITaskStatus.PENDING) {
           if (!parsedResult?.progress) {
-             setProgress((prev) => Math.max(prev, 20));
+            setProgress((prev) => Math.max(prev, 20));
           }
           setIsQuerying(false);
           return false;
@@ -977,7 +973,7 @@ export function VideoGenerator({
             setProgress((prev) => Math.max(prev, 85));
           } else {
             if (!parsedResult?.progress) {
-               setProgress((prev) => Math.min(prev + 5, 80));
+              setProgress((prev) => Math.min(prev + 5, 80));
             }
           }
           setIsQuerying(false);
@@ -1019,7 +1015,7 @@ export function VideoGenerator({
         }
 
         if (!parsedResult?.progress) {
-           setProgress((prev) => Math.min(prev + 3, 95));
+          setProgress((prev) => Math.min(prev + 3, 95));
         }
         setIsQuerying(false);
         return false;
@@ -1164,8 +1160,11 @@ export function VideoGenerator({
 
       if (isImageToVideoMode) {
         // Validation moved to form submission, file will be sent via FormData
-        if (referenceImageUrls.length === 0 && !referenceImageItems.some((item) => item.file)) {
-           throw new Error("Please add at least one reference image.");
+        if (
+          referenceImageUrls.length === 0 &&
+          !referenceImageItems.some((item) => item.file)
+        ) {
+          throw new Error("Please add at least one reference image.");
         }
       }
 
