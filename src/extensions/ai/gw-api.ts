@@ -1041,7 +1041,7 @@ export class GWAPIProvider implements AIProvider {
             // Get voice gender from params (default: alloy)
             // Available voices: alloy, echo, fable, onyx, nova, shimmer
             const voiceGender = params.options?.voice_gender || 'female';
-            const voiceType = voiceGender === 'male' ? 'onyx' : 'alloy';
+            const voiceType = voiceGender === 'male' ? 'onyx' : 'shimmer';
             console.log('[GW-API] Using voice type:', voiceType);
 
             const audioBuffer = await this.generateAudio(
