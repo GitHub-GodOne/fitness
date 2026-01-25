@@ -293,22 +293,19 @@ Rules:
     }
 
     /**
-     * Step 3: Generate Audio Script (text-only, no JSON, safe)
+     * Helper: Get Bible verse text from reference
      */
-    private async generateAudioScript(
-        analysis: VisualAnalysis,
+    private async getBibleVerse(
+        verseReference: string,
         apiKey: string
     ): Promise<string> {
-        const prompt = `Write a short spoken message of comfort.
+        const prompt = `Return ONLY the Bible verse text for: ${verseReference}
 
-Tone: gentle, calm, pastoral
-Audience: one person in distress
-Length: max 120 words
-
-Structure:
-1. One comforting sentence (no "My child")
-2. Read this verse reference: ${analysis.verse_reference}
-Do NOT invent scripture text.`;
+Rules:
+- Use NIV or KJV translation
+- Return ONLY the verse text, no reference, no quotes
+- If multiple verses, include all
+- Maximum 100 words`;
 
         const resp = await fetch(this.visionApiUrl, {
             method: "POST",
@@ -319,7 +316,53 @@ Do NOT invent scripture text.`;
             body: JSON.stringify({
                 model: this.visionModel,
                 messages: [{ role: "user", content: prompt }],
-                max_output_tokens: 300
+                max_output_tokens: 200
+            })
+        });
+
+        if (!resp.ok) {
+            console.warn(`[GW-API] Failed to fetch verse ${verseReference}, using reference only`);
+            return verseReference;
+        }
+
+        const data = await resp.json();
+        const verseText = data.choices?.[0]?.message?.content?.trim() || verseReference;
+        console.log(`[GW-API] Bible verse fetched: ${verseReference} -> ${verseText.substring(0, 50)}...`);
+        return verseText;
+    }
+
+    /**
+     * Step 3: Generate Audio Script (text-only, no JSON, safe)
+     */
+    private async generateAudioScript(
+        analysis: VisualAnalysis,
+        apiKey: string
+    ): Promise<string> {
+        // First, get the actual Bible verse text
+        const verseText = await this.getBibleVerse(analysis.verse_reference, apiKey);
+
+        const prompt = `Write a short spoken message of comfort.
+
+Tone: gentle, calm, pastoral
+Audience: one person in distress
+Length: max 80 words for intro
+
+Structure:
+1. One comforting sentence (no "My child")
+2. Then directly read this Bible verse: "${verseText}"
+
+Output the COMPLETE script as one paragraph. Do NOT add "Listen to these words" or any introduction to the verse.`;
+
+        const resp = await fetch(this.visionApiUrl, {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+                "Authorization": `Bearer ${apiKey}`
+            },
+            body: JSON.stringify({
+                model: this.visionModel,
+                messages: [{ role: "user", content: prompt }],
+                max_output_tokens: 400
             })
         });
 
