@@ -172,6 +172,7 @@ export class GWAPIProvider implements AIProvider {
     ): Promise<ImageToTextResponse> {
         const visualTheologySchema = {
             name: "visual_theology_response",
+            strict: true,   // ⭐⭐⭐ 非常重要
             schema: {
                 type: "object",
                 required: [
@@ -272,7 +273,18 @@ export class GWAPIProvider implements AIProvider {
         }
         const data = await resp.json();
         console.log('[SP] Analysis response:', data, " taskId: ", taskId);
-        const responseText = data.choices?.[0]?.message?.content || '';
+        const choice = data.choices?.[0];
+
+        if (!choice) {
+            throw new Error("No choices returned");
+        }
+
+        if (choice.finish_reason !== 'stop') {
+            throw new Error(
+                `Generation aborted: ${choice.finish_reason}`
+            );
+        }
+        const responseText = choice.message?.content || '';
 
         try {
             console.log('[GW-API] Response text:', responseText);
