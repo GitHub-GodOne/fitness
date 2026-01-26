@@ -88,7 +88,7 @@ export class GWAPIProvider implements AIProvider {
     constructor(configs: GWAPIConfigs) {
         this.configs = configs;
         this.baseUrl = configs.baseUrl || 'https://ai.comfly.chat';
-        this.visionModel = configs.visionModel || 'gpt-4o-2024-08-06';
+        this.visionModel = configs.visionModel || 'gemini-3-flash-preview';
         this.imageModel = configs.imageModel || 'nano-banana';
         this.ttsModel = configs.ttsModel || 'gpt-4o-mini-tts';
         this.visionApiUrl = configs.visionApiUrl || `${this.baseUrl}/v1/chat/completions`;
@@ -410,6 +410,92 @@ export class GWAPIProvider implements AIProvider {
 
         // Wait for all images to be generated in parallel
         const imageUrls = await Promise.all(generatePromises);
+        return imageUrls;
+    }
+
+    /**
+     * Generate images from reference image and text prompt using gemini-2.5-flash-image
+     * Uses messages format (like chat completion API)
+     * @param imageUrl - Reference image URL
+     * @param textPrompt - Text prompt for image generation
+     * @param apiKey - API key
+     * @param count - Number of images to generate (default: 1)
+     * @returns Array of generated image URLs
+     */
+    async generateImageFromImageAndText(
+        textPrompt: string,
+        imageUrl: string,
+        apiKey: string,
+        count: number = 3
+    ): Promise<string[]> {
+        console.log(`[GW-API] Generating ${count} image(s) from image and text with gemini-2.5-flash-image...`);
+        console.log('[GW-API] Reference image:', imageUrl);
+        console.log('[GW-API] Text prompt:', textPrompt);
+
+        const imageUrls: string[] = [];
+
+        // Generate images sequentially
+        for (let i = 0; i < count; i++) {
+            console.log(`[GW-API] Generating image ${i + 1}/${count}...`);
+
+            const payload = {
+                model: 'gemini-2.5-flash-image',
+                stream: false,
+                messages: [
+                    {
+                        role: 'user',
+                        content: [
+                            {
+                                type: 'text',
+                                text: textPrompt
+                            },
+                            {
+                                type: 'image_url',
+                                image_url: {
+                                    url: imageUrl
+                                }
+                            }
+                        ]
+                    }
+                ]
+            };
+
+            const resp = await fetch(this.visionApiUrl, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${apiKey}`,
+                },
+                body: JSON.stringify(payload),
+            });
+
+            if (!resp.ok) {
+                const errorText = await resp.text();
+                throw new Error(`Image generation ${i + 1}/${count} failed: ${resp.status}, ${errorText}`);
+            }
+
+            const data = await resp.json();
+            let generatedImageUrl = data.data?.[0]?.url || data.url || data.choices?.[0]?.message?.content;
+
+            if (!generatedImageUrl) {
+                console.error('[GW-API] No image URL in response:', data);
+                throw new Error(`No image URL in response for image ${i + 1}/${count}`);
+            }
+
+            // Extract image URL from markdown format if needed
+            // Format: ![image](https://files.closeai.fans/...)
+            if (typeof generatedImageUrl === 'string' && generatedImageUrl.includes('![image](')) {
+                const match = generatedImageUrl.match(/!\[image\]\((https?:\/\/[^\)]+)\)/);
+                if (match && match[1]) {
+                    generatedImageUrl = match[1];
+                    console.log(`[GW-API] Extracted image URL from markdown: ${generatedImageUrl}`);
+                }
+            }
+
+            imageUrls.push(generatedImageUrl);
+            console.log(`[GW-API] Image ${i + 1}/${count} generated:`, generatedImageUrl);
+        }
+
         return imageUrls;
     }
 
@@ -950,6 +1036,7 @@ export class GWAPIProvider implements AIProvider {
             }
             console.log("[GW-API] Input image saved: ", firstImageUrl);
             firstImageUrl = "https://fearnotforiamwithyou.com" + firstImageUrl;
+            // firstImageUrl = "https://public.pikju.top/uploads/video/20260125/66dbabf2-6b97-4b60-b254-6759a7c6f891/input_image.jpg";
             // Update status to processing with initial progress
             await updateProgress(GWTaskStep.ANALYZING, 'Analyzing image and text...', 5);
             // throw new Error('Input image is required for GW-API provider');
@@ -978,7 +1065,7 @@ export class GWAPIProvider implements AIProvider {
 
             // Step 2: Generate 3 images from reference image using gemini-3-pro-image-preview
             console.log('[GW-API] Step 2: Generating 3 images from reference image with gemini-3-pro-image-preview...');
-            const generatedImageUrls = await this.generateImagesFromImage(
+            const generatedImageUrls = await this.generateImageFromImageAndText(
                 analysis.image_generation_prompt,
                 firstImageUrl,
                 apiKey,
