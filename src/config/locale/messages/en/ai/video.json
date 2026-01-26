@@ -114,6 +114,7 @@
       "order": "Order",
       "task_id": "Task ID",
       "prompt": "Prompt",
+      "verse_reference": "Bible Verse",
       "final_prompt": "Final Prompt",
       "status": "Status",
       "created": "Created",

@@ -114,6 +114,7 @@
       "order": "顺序",
       "task_id": "任务ID",
       "prompt": "提示词",
+      "verse_reference": "圣经经文",
       "final_prompt": "最终提示词",
       "status": "状态",
       "created": "创建时间",

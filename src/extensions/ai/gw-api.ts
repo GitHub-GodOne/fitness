@@ -678,7 +678,8 @@ export class GWAPIProvider implements AIProvider {
 
         try {
             console.log('[GW-API Video] Starting video merge process...');
-            console.log('[GW-API Video] Images:', imageBuffers.length, 'Audio: 1');
+            console.log('[GW-API Video] Number of image buffers:', imageBuffers.length);
+            console.log('[GW-API Video] Image buffer sizes:', imageBuffers.map(b => b.length));
 
             // Step 1: Save all images to work directory
             const imagePaths: string[] = [];
@@ -689,8 +690,9 @@ export class GWAPIProvider implements AIProvider {
                 await fs.writeFile(imagePath, imageBuffers[i]);
                 imagePaths.push(imagePath);
                 imageUrls.push(getTaskPublicUrl(taskId, filename));
-                console.log(`[GW-API Video] Saved image ${i + 1}:`, imagePath);
+                console.log(`[GW-API Video] Saved image ${i + 1}/${imageBuffers.length}:`, imagePath);
             }
+            console.log('[GW-API Video] Total images saved:', imagePaths.length);
 
             // Step 2: Save audio file
             const audioFilename = 'audio.mp3';
@@ -1103,15 +1105,19 @@ export class GWAPIProvider implements AIProvider {
 
             // Step 3: Add text overlay to images
             console.log('[GW-API] Step 3: Adding text overlay to images...');
+            console.log('[GW-API] Number of generated images:', generatedImageUrls.length);
+            console.log('[GW-API] Generated image URLs:', generatedImageUrls);
             const imageBuffers: Buffer[] = [];
             for (let i = 0; i < generatedImageUrls.length; i++) {
+                console.log(`[GW-API] Processing image ${i + 1}/${generatedImageUrls.length}: ${generatedImageUrls[i]}`);
                 const buffer = await this.addTextToImage(
                     generatedImageUrls[i],
                     analysis.audio_script
                 );
                 imageBuffers.push(buffer);
-                console.log(`[GW-API] Text added to image ${i + 1}/3`);
+                console.log(`[GW-API] Text added to image ${i + 1}/${generatedImageUrls.length}, buffer size: ${buffer.length} bytes`);
             }
+            console.log('[GW-API] Total image buffers created:', imageBuffers.length);
 
             // Update progress after text overlay
             await updateProgress(GWTaskStep.GENERATING_AUDIO, 'Generating audio from script...', 60);

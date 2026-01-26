@@ -20,12 +20,15 @@
     "account": "Account",
     "requested_credits": "Requested Credits",
     "approved_credits": "Approved Credits",
+    "deducted_credits": "Deducted Credits",
+    "deduct_credits": "Deduct Credits",
     "remaining_credits": "Remaining Credits",
     "status": "Status",
     "admin_notes": "Admin Notes",
     "created_at": "Created At",
     "processed_at": "Processed At",
-    "actions": "Actions"
+    "actions": "Actions",
+    "description": "Description"
   },
   "status": {
     "pending": "Pending",
@@ -42,6 +45,7 @@
     "title": "Edit Refund Request",
     "description": "Update the refund request status and approved credits amount.",
     "approved_credits_hint": "Leave empty to use requested amount",
+    "deduct_credits_hint": "Credits to deduct from user (Available: {available}). Will be deducted when status is set to Completed.",
     "admin_notes_placeholder": "Add admin notes (optional)"
   },
   "update": {

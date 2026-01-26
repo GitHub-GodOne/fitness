@@ -5,6 +5,7 @@ import { getUserInfo } from '@/shared/models/user';
 import { findRefundRequestById, updateRefundRequestById } from '@/shared/models/refund-request';
 import { RefundRequestStatus } from '@/shared/types/refund';
 import { hasPermission } from '@/shared/services/rbac';
+import { consumeCredits, getRemainingCredits } from '@/shared/models/credit';
 
 /**
  * Update refund request (admin only)
@@ -22,7 +23,7 @@ export async function POST(req: NextRequest) {
             return respErr('no permission', 403);
         }
 
-        const { requestId, status, approvedCreditsAmount, adminNotes } = await req.json();
+        const { requestId, status, approvedCreditsAmount, deductCreditsAmount, adminNotes } = await req.json();
 
         if (!requestId) {
             return respErr('requestId is required', 400);
@@ -45,6 +46,48 @@ export async function POST(req: NextRequest) {
             }
         }
 
+        // Validate deduct credits amount
+        if (deductCreditsAmount !== undefined && deductCreditsAmount !== null) {
+            if (typeof deductCreditsAmount !== 'number' || deductCreditsAmount < 0) {
+                return respErr('deductCreditsAmount must be a non-negative number', 400);
+            }
+        }
+
+        // If approving refund (status = completed), deduct credits from user
+        let creditDeductionResult = null;
+        if (status === RefundRequestStatus.COMPLETED && deductCreditsAmount && deductCreditsAmount > 0) {
+            // Check if user has enough credits
+            const userRemainingCredits = await getRemainingCredits(refundRequest.userId);
+            if (userRemainingCredits < deductCreditsAmount) {
+                return respErr(`User has insufficient credits. Available: ${userRemainingCredits}, Required: ${deductCreditsAmount}`, 400);
+            }
+
+            // Deduct credits
+            try {
+                creditDeductionResult = await consumeCredits({
+                    userId: refundRequest.userId,
+                    credits: deductCreditsAmount,
+                    scene: 'refund_deduction',
+                    description: `Refund approved - Credits deducted for refund request ${requestId}`,
+                    metadata: JSON.stringify({
+                        refundRequestId: requestId,
+                        approvedCreditsAmount: approvedCreditsAmount || 0,
+                        deductedCreditsAmount: deductCreditsAmount,
+                        processedBy: user.id,
+                        processedAt: new Date().toISOString(),
+                    }),
+                });
+                console.log('[Refund Update] Credits deducted successfully:', {
+                    userId: refundRequest.userId,
+                    deductedAmount: deductCreditsAmount,
+                    transactionId: creditDeductionResult.id,
+                });
+            } catch (creditError: any) {
+                console.error('[Refund Update] Failed to deduct credits:', creditError);
+                return respErr(`Failed to deduct credits: ${creditError.message}`, 500);
+            }
+        }
+
         // Update refund request
         const updateData: any = {};
         if (status) {
@@ -57,6 +100,9 @@ export async function POST(req: NextRequest) {
         if (approvedCreditsAmount !== undefined) {
             updateData.approvedCreditsAmount = approvedCreditsAmount;
         }
+        if (deductCreditsAmount !== undefined) {
+            updateData.deductedCreditsAmount = deductCreditsAmount;
+        }
         if (adminNotes !== undefined) {
             updateData.adminNotes = adminNotes;
         }
@@ -66,7 +112,13 @@ export async function POST(req: NextRequest) {
             return respErr('failed to update refund request', 500);
         }
 
-        return respData(updated);
+        return respData({
+            ...updated,
+            creditDeduction: creditDeductionResult ? {
+                transactionId: creditDeductionResult.id,
+                deductedAmount: deductCreditsAmount,
+            } : null,
+        });
     } catch (e: any) {
         console.error('[Refund Update] Failed:', e);
         return respErr(e.message || 'Failed to update refund request', 500);

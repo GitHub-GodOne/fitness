@@ -1,0 +1,8 @@
+{
+  "wp-json": {
+    "wc": {
+      "v3": "WooCommerce API v3"
+    }
+  },
+  "magento_version": "Magento 版本"
+}

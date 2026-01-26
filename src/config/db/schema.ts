@@ -661,6 +661,7 @@ export const refundRequest = table(
     account: text('account').notNull(), // account information for refund
     requestedCreditsAmount: integer('requested_credits_amount').notNull(), // requested credits amount
     approvedCreditsAmount: integer('approved_credits_amount'), // approved credits amount (can be modified by admin)
+    deductedCreditsAmount: integer('deducted_credits_amount'), // credits deducted from user when refund is approved
     description: text('description'), // additional description
     status: text('status').notNull().default('pending'), // pending, completed, rejected
     remainingCredits: integer('remaining_credits'), // user's remaining credits at request time

@@ -171,6 +171,7 @@ export function VideoHistoryTable({
                     <TableRow>
                       <TableHead>{t("history.status")}</TableHead>
                       <TableHead>{t("history.prompt")}</TableHead>
+                      <TableHead>{t("history.verse_reference")}</TableHead>
                       <TableHead className="max-w-xs">
                         {t("history.final_prompt")}
                       </TableHead>
@@ -190,10 +191,20 @@ export function VideoHistoryTable({
                         task.taskResult,
                       );
                       let finalPrompt = "";
+                      let verseReference = "";
                       try {
                         if (task.options) {
                           const options = JSON.parse(task.options);
                           finalPrompt = options.final_prompt || "";
+                          // Extract verse_reference from final_prompt JSON
+                          if (finalPrompt) {
+                            try {
+                              const analysis = JSON.parse(finalPrompt);
+                              verseReference = analysis.verse_reference || "";
+                            } catch (e) {
+                              // Ignore parse error
+                            }
+                          }
                         }
                       } catch (e) {
                         // 忽略解析错误
@@ -234,6 +245,20 @@ export function VideoHistoryTable({
                               </Copy>
                             ) : (
                               <span>-</span>
+                            )}
+                          </TableCell>
+                          <TableCell>
+                            {verseReference ? (
+                              <Copy value={verseReference} className="">
+                                <span
+                                  className="truncate font-medium text-blue-600 dark:text-blue-400"
+                                  title={verseReference}
+                                >
+                                  {verseReference}
+                                </span>
+                              </Copy>
+                            ) : (
+                              <span className="text-muted-foreground">-</span>
                             )}
                           </TableCell>
                           <TableCell>
