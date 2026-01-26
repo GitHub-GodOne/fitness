@@ -53,17 +53,7 @@ export interface GWTaskProgress {
 }
 
 /**
- * Visual Analysis response (Step 1 - stable JSON only)
- */
-interface VisualAnalysis {
-    emotion: string;
-    visual_summary: string;
-    biblical_scene: string;
-    verse_reference: string;
-}
-
-/**
- * Legacy interface for backward compatibility
+ * Image-to-Text response format
  */
 interface ImageToTextResponse {
     analysis: {
@@ -170,222 +160,120 @@ export class GWAPIProvider implements AIProvider {
     }
 
     /**
-     * Step 1: Image + Text -> Visual Analysis (stable JSON only)
-     * Only does understanding, no creative writing
+     * Step 1: Image + Text -> Analysis (图文生文)
+     * Using gpt-5.2 model
      */
     private async analyzeImageAndText(
         imageUrl: string,
         userFeeling: string,
-        apiKey: string
-    ): Promise<VisualAnalysis> {
-        const schema = {
-            name: "visual_analysis",
-            strict: true,
+        apiKey: string,
+        visionModel: string,
+        taskId: string
+    ): Promise<ImageToTextResponse> {
+        const visualTheologySchema = {
+            name: "visual_theology_response",
+            strict: true,   // ⭐⭐⭐ 非常重要
             schema: {
                 type: "object",
-                required: ["emotion", "visual_summary", "biblical_scene", "verse_reference"],
+                required: [
+                    "image_generation_prompt",
+                    "audio_script",
+                    "verse_reference"
+                ],
                 properties: {
-                    emotion: { type: "string", maxLength: 50 },
-                    visual_summary: { type: "string", maxLength: 120 },
-                    biblical_scene: { type: "string", maxLength: 80 },
-                    verse_reference: { type: "string", maxLength: 25 }
+                    image_generation_prompt: { type: "string" },
+                    audio_script: { type: "string" },
+                    verse_reference: { type: "string" }
                 },
                 additionalProperties: false
             }
         };
 
+        const systemPrompt = `
+            # ROLE DEFINITION
+            You are a divine digital companion, a "Visual Theologian" designed to comfort people in distress. Your goal is to analyze user input (image + text), understand their pain, and bridge their reality with a Biblical scene that offers hope and peace.
+
+            # TARGET AUDIENCE
+            Americans seeking spiritual comfort. Use a tone that is compassionate, fatherly, and authoritative yet gentle (like the voice of God or a wise elder).
+
+            # TASKS
+            1. **Analyze:** deeply understand the emotion and context from the user's text and the visual elements of their uploaded image.
+            2. **Match:** Select a specific Biblical scene or concept that directly addresses their specific struggle (e.g., Fear -> Jesus calming the storm; Loneliness -> The Good Shepherd; Exhaustion -> Elijah under the broom tree).
+            3. **Draft Image Prompt:** Create a detailed prompt for an image generation AI (like Midjourney/SDXL).
+            - **Logic:** Keep the *composition* or *subject* of the user's image but transform the *environment* and *atmosphere* into the chosen Biblical scene.
+            - **Style:** Cinematic, Renaissance oil painting style, warm divine lighting, ethereal, 8k resolution, highly detailed.
+            4. **Select Scripture:** Choose the most comforting Bible verse (NIV or KJV version) fitting the situation.
+            5. **Draft Audio Script:** Write a short, spoken-word script. It should start with a personalized comforting sentence (calling them "My child") and then read the verse.
+        `;
+
+        // Convert image URL to base64 for vision API
+        // console.log('[GW-API] Converting image to base64:', imageUrl);
+        // const base64Image = await this.convertImageToBase64(imageUrl);
+        console.log('[GW-API] Analyzing image:', imageUrl, apiKey, visionModel, taskId);
+
         const payload = {
-            model: this.visionModel,
-            response_format: {
+            "model": this.visionModel,
+            "response_format": {
                 type: "json_schema",
-                json_schema: schema
+                json_schema: visualTheologySchema
             },
-            messages: [
+            "messages": [
                 {
-                    role: "developer",
-                    content: `You are a calm visual analyst.
-Describe emotion, scene, and pick ONE fitting Bible verse reference.
-Do NOT write the verse text.
-Be concise.`
+                    "role": "developer",
+                    "content": systemPrompt
                 },
                 {
                     role: "user",
                     content: [
-                        { type: "text", text: userFeeling },
-                        { type: "image_url", image_url: imageUrl }
+                        {
+                            type: "text",
+                            text: userFeeling
+                        },
+                        {
+                            type: "image_url",
+                            image_url: imageUrl
+                        }
                     ]
                 }
-            ]
+            ],
         };
 
         const resp = await fetch(this.visionApiUrl, {
-            method: "POST",
+            method: 'POST',
             headers: {
-                "Content-Type": "application/json",
-                "Authorization": `Bearer ${apiKey}`
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${apiKey}`,
             },
-            body: JSON.stringify(payload)
+            body: JSON.stringify(payload),
         });
 
         if (!resp.ok) {
             const errorText = await resp.text();
             throw new Error(`Analysis failed: ${resp.status}, ${errorText}`);
         }
-
         const data = await resp.json();
+        console.log('[SP] Analysis response:', data, " taskId: ", taskId);
         const choice = data.choices?.[0];
 
-        if (!choice || choice.finish_reason !== "stop") {
-            console.error('[GW-API] Analysis aborted:', choice?.finish_reason, data);
-            throw new Error(`Analysis aborted: ${choice?.finish_reason || 'no response'}`);
+        if (!choice) {
+            throw new Error("No choices returned");
         }
 
-        console.log('[GW-API] Analysis complete:', choice.message.content);
-        return JSON.parse(choice.message.content);
-    }
-
-    /**
-     * Step 2: Generate Image Prompt (text-only, no JSON)
-     */
-    private async generateImagePrompt(
-        analysis: VisualAnalysis,
-        apiKey: string
-    ): Promise<string> {
-        const prompt = `Create ONE image generation prompt.
-
-Scene: ${analysis.biblical_scene}
-Original image summary: ${analysis.visual_summary}
-
-Rules:
-- Max 450 characters
-- No quotes
-- No newlines
-- Cinematic Renaissance oil painting
-- Preserve original composition`;
-
-        const resp = await fetch(this.visionApiUrl, {
-            method: "POST",
-            headers: {
-                "Content-Type": "application/json",
-                "Authorization": `Bearer ${apiKey}`
-            },
-            body: JSON.stringify({
-                model: this.visionModel,
-                messages: [{ role: "user", content: prompt }],
-                max_output_tokens: 600
-            })
-        });
-
-        if (!resp.ok) {
-            const errorText = await resp.text();
-            throw new Error(`Image prompt generation failed: ${resp.status}, ${errorText}`);
+        if (choice.finish_reason !== 'stop') {
+            throw new Error(
+                `Generation aborted: ${choice.finish_reason}`
+            );
         }
+        const responseText = choice.message?.content || '';
 
-        const data = await resp.json();
-        console.log('[GW-API] Image prompt response:', JSON.stringify(data, null, 2));
-        const result = data.choices?.[0]?.message?.content || '';
-        if (!result) {
-            console.error('[GW-API] Empty image prompt response, full data:', data);
-            throw new Error('Image prompt generation returned empty content');
+        try {
+            console.log('[GW-API] Response text:', responseText);
+            return JSON.parse(responseText);
+        } catch (error) {
+            console.error('[GW-API] Failed to parse JSON response:', data);
+            console.error('[GW-API] Parse error:', error);
+            throw new Error(`Failed to parse analysis response: ${error instanceof Error ? error.message : 'Invalid JSON'}`);
         }
-        console.log('[GW-API] Image prompt generated:', result.substring(0, 100));
-        return result.trim();
-    }
-
-    /**
-     * Helper: Get Bible verse text from reference
-     */
-    private async getBibleVerse(
-        verseReference: string,
-        apiKey: string
-    ): Promise<string> {
-        const prompt = `Return ONLY the Bible verse text for: ${verseReference}
-
-Rules:
-- Use NIV or KJV translation
-- Return ONLY the verse text, no reference, no quotes
-- If multiple verses, include all
-- Maximum 100 words`;
-
-        const resp = await fetch(this.visionApiUrl, {
-            method: "POST",
-            headers: {
-                "Content-Type": "application/json",
-                "Authorization": `Bearer ${apiKey}`
-            },
-            body: JSON.stringify({
-                model: this.visionModel,
-                messages: [{ role: "user", content: prompt }],
-                max_output_tokens: 200
-            })
-        });
-
-        if (!resp.ok) {
-            console.warn(`[GW-API] Failed to fetch verse ${verseReference}, using reference only`);
-            return verseReference;
-        }
-
-        const data = await resp.json();
-        const verseText = data.choices?.[0]?.message?.content?.trim() || verseReference;
-        console.log(`[GW-API] Bible verse fetched: ${verseReference} -> ${verseText.substring(0, 50)}...`);
-        return verseText;
-    }
-
-    /**
-     * Step 3: Generate Audio Script (text-only, no JSON, safe)
-     * Split into two parts to avoid content_filter on Bible text
-     */
-    private async generateAudioScript(
-        analysis: VisualAnalysis,
-        apiKey: string
-    ): Promise<string> {
-        // First, get the actual Bible verse text
-        const verseText = await this.getBibleVerse(analysis.verse_reference, apiKey);
-
-        // Generate only the intro part (without Bible verse to avoid content_filter)
-        const prompt = `Write ONE short comforting sentence for someone in distress.
-
-Emotion context: ${analysis.emotion}
-Tone: gentle, calm, pastoral
-Length: max 30 words
-
-Do NOT use "My child". Do NOT mention Bible or verses. Just one comforting sentence.`;
-
-        const resp = await fetch(this.visionApiUrl, {
-            method: "POST",
-            headers: {
-                "Content-Type": "application/json",
-                "Authorization": `Bearer ${apiKey}`
-            },
-            body: JSON.stringify({
-                model: this.visionModel,
-                messages: [{ role: "user", content: prompt }],
-                max_output_tokens: 100
-            })
-        });
-
-        if (!resp.ok) {
-            const errorText = await resp.text();
-            throw new Error(`Audio script generation failed: ${resp.status}, ${errorText}`);
-        }
-
-        const data = await resp.json();
-        const choice = data.choices?.[0];
-
-        // Handle content_filter
-        if (choice?.finish_reason === 'content_filter') {
-            console.warn('[GW-API] Content filter triggered on intro, using fallback');
-            const intro = 'You are not alone in this moment.';
-            return `${intro} ${verseText}`.trim();
-        }
-
-        const intro = choice?.message?.content?.trim() || 'You are not alone in this moment.';
-        console.log('[GW-API] Audio intro generated:', intro);
-
-        // Combine intro + verse (verse is fetched separately, not generated)
-        const fullScript = `${intro} ${verseText}`;
-        console.log('[GW-API] Audio script complete, length:', fullScript.length);
-        return fullScript.trim();
     }
 
     /**
@@ -1064,47 +952,33 @@ Do NOT use "My child". Do NOT mention Bible or verses. Just one comforting sente
             // Update status to processing with initial progress
             await updateProgress(GWTaskStep.ANALYZING, 'Analyzing image and text...', 5);
             // throw new Error('Input image is required for GW-API provider');
-            // Step 1: Analyze image and text (stable JSON only)
-            console.log('[GW-API] Step 1: Analyzing image and text...');
+            // Step 1: Analyze image and text using gpt-5.2
+            console.log('[GW-API] Step 1: Analyzing image and text with gpt-5.2...');
             const analysis = await this.analyzeImageAndText(
                 firstImageUrl,
                 userFeeling,
-                apiKey
+                apiKey,
+                visionModel,
+                taskId
             );
-            console.log('[GW-API] Step 1 complete:', analysis);
 
-            // Update progress after analysis
-            await updateProgress(GWTaskStep.GENERATING_IMAGES, 'Generating image prompt...', 10);
+            console.log('[GW-API] Analysis complete:', analysis);
 
-            // Step 2: Generate image prompt (text-only)
-            console.log('[GW-API] Step 2: Generating image prompt...');
-            const imagePrompt = await this.generateImagePrompt(analysis, apiKey);
-            console.log('[GW-API] Step 2 complete, prompt length:', imagePrompt.length);
-
-            // Step 3: Generate audio script (text-only)
-            console.log('[GW-API] Step 3: Generating audio script...');
-            const audioScript = await this.generateAudioScript(analysis, apiKey);
-            console.log('[GW-API] Step 3 complete, script length:', audioScript.length);
-
-            // Save all results to params.options
+            // Save analysis to params.options.final_prompt
             if (!params.options) {
                 params.options = {};
             }
-            params.options.final_prompt = JSON.stringify({
-                analysis,
-                image_prompt: imagePrompt,
-                audio_script: audioScript
-            }, null, 2);
+            params.options.final_prompt = JSON.stringify(analysis, null, 2);
             params.options.original_prompt = params.prompt || '';
             params.options.user_feeling = userFeeling;
 
-            // Update progress after all analysis steps
+            // Update progress after analysis
             await updateProgress(GWTaskStep.GENERATING_IMAGES, 'Generating 3 images from reference...', 15);
 
-            // Step 4: Generate 3 images from reference image
-            console.log('[GW-API] Step 4: Generating 3 images from reference image...');
+            // Step 2: Generate 3 images from reference image using gemini-3-pro-image-preview
+            console.log('[GW-API] Step 2: Generating 3 images from reference image with gemini-3-pro-image-preview...');
             const generatedImageUrls = await this.generateImagesFromImage(
-                imagePrompt,
+                analysis.image_generation_prompt,
                 firstImageUrl,
                 apiKey,
                 3
@@ -1139,13 +1013,13 @@ Do NOT use "My child". Do NOT mention Bible or verses. Just one comforting sente
             // Update progress after saving original images
             await updateProgress(GWTaskStep.ADDING_TEXT_OVERLAY, 'Adding text overlay to images...', 50);
 
-            // Step 5: Add text overlay to images
-            console.log('[GW-API] Step 5: Adding text overlay to images...');
+            // Step 3: Add text overlay to images
+            console.log('[GW-API] Step 3: Adding text overlay to images...');
             const imageBuffers: Buffer[] = [];
             for (let i = 0; i < generatedImageUrls.length; i++) {
                 const buffer = await this.addTextToImage(
                     generatedImageUrls[i],
-                    audioScript
+                    analysis.audio_script
                 );
                 imageBuffers.push(buffer);
                 console.log(`[GW-API] Text added to image ${i + 1}/3`);
@@ -1154,8 +1028,8 @@ Do NOT use "My child". Do NOT mention Bible or verses. Just one comforting sente
             // Update progress after text overlay
             await updateProgress(GWTaskStep.GENERATING_AUDIO, 'Generating audio from script...', 60);
 
-            // Step 6: Generate 1 audio using gpt-4o-mini-tts
-            console.log('[GW-API] Step 6: Generating audio with gpt-4o-mini-tts...');
+            // Step 4: Generate 1 audio using gpt-4o-mini-tts
+            console.log('[GW-API] Step 4: Generating audio with gpt-4o-mini-tts...');
             // Get voice gender from params (default: alloy)
             // Available voices: alloy, echo, fable, onyx, nova, shimmer
             const voiceGender = params.options?.voice_gender || 'female';
@@ -1163,7 +1037,7 @@ Do NOT use "My child". Do NOT mention Bible or verses. Just one comforting sente
             console.log('[GW-API] Using voice type:', voiceType);
 
             const audioBuffer = await this.generateAudio(
-                audioScript,
+                analysis.audio_script,
                 apiKey,
                 voiceType
             );
