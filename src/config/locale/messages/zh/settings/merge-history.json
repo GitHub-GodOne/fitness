@@ -1,0 +1,39 @@
+{
+  "metadata": {
+    "title": "合并历史",
+    "description": "查看您的视频合并历史记录"
+  },
+  "page": {
+    "title": "合并历史",
+    "description": "查看您所有的视频合并记录",
+    "empty": "没有找到合并历史记录",
+    "loading": "加载合并历史中...",
+    "table": {
+      "headers": {
+        "id": "ID",
+        "videoCount": "视频数量",
+        "status": "状态",
+        "createdAt": "创建时间",
+        "actions": "操作"
+      },
+      "status": {
+        "success": "成功",
+        "failed": "失败",
+        "processing": "处理中"
+      },
+      "actions": {
+        "view": "查看",
+        "download": "下载"
+      }
+    },
+    "details": {
+      "title": "合并详情",
+      "sourceVideos": "源视频",
+      "mergedVideo": "合并后的视频",
+      "videoCount": "视频数量",
+      "status": "状态",
+      "createdAt": "创建时间",
+      "error": "错误"
+    }
+  }
+}

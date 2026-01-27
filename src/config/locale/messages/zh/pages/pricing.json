@@ -1,0 +1,108 @@
+{
+  "metadata": {
+    "title": "价格",
+    "description": "选择适合你的方案，为心灵带来平安和安慰"
+  },
+  "page": {
+    "title": "Fear Not 价格",
+    "sections": {
+      "pricing": {
+        "id": "pricing",
+        "title": "价格",
+        "description": "创建个性化的圣经安慰视频，为你的心灵带来平安、温暖和属灵的安慰。选择适合你需求的方案，今天就开始你的平安之旅。",
+        "groups": [],
+        "items": [
+          {
+            "title": "免费方案",
+            "description": "开始你的平安与安慰之旅。非常适合尝试我们的服务，体验个性化圣经视频带来的温暖。",
+            "features_title": "包含内容",
+            "features": [
+              "新注册的用户首次授予 3 个积分"
+            ],
+            "interval": "one-time",
+            "amount": 0,
+            "currency": "USD",
+            "price": "免费",
+            "original_price": "",
+            "unit": "",
+            "is_featured": false,
+            "tip": "无需信用卡。立即开始创建安慰视频。",
+            "button": {
+              "title": "免费开始",
+              "url": "/ai-video-generator",
+              "icon": "RiHeartLine"
+            },
+            "product_id": "free",
+            "product_name": "免费方案",
+            "credits": 3,
+            "valid_days": 30
+          },
+          {
+            "title": "20 积分",
+            "description": "非常适合偶尔使用。当你需要安慰、平安或想要表达感恩时，创建有意义的圣经视频。",
+            "features_title": "包含内容",
+            "features": [
+              "20 次视频生成",
+              "积分永不过期"
+            ],
+            "interval": "one-time",
+            "amount": 990,
+            "currency": "USD",
+            "price": "$9.9",
+            "original_price": "",
+            "unit": "",
+            "is_featured": false,
+            "tip": "一次性购买。积分永不过期，随时使用。",
+            "button": {
+              "title": "获取 20 积分",
+              "url": "/#pricing",
+              "icon": "RiCoinsLine"
+            },
+            "product_id": "credits_20",
+            "product_name": "20 积分",
+            "credits": 20,
+            "valid_days": 0
+          },
+          {
+            "title": "60 积分",
+            "description": "最受欢迎 - 为经常使用的用户提供最佳价值。定期创建安慰视频，与所爱的人分享平安。",
+            "label": "最受欢迎",
+            "popular": "最受欢迎",
+            "features_title": "包含 20 积分的所有功能，此外",
+            "features": [
+              "60 次视频生成",
+              "积分永不过期",
+              "相比购买三次 20 积分节省 33%",
+              "与家人和朋友分享视频"
+            ],
+            "interval": "one-time",
+            "amount": 1990,
+            "currency": "USD",
+            "price": "$19.9",
+            "original_price": "$29.7",
+            "unit": "",
+            "is_featured": true,
+            "tip": "最佳价值！节省 33%，再也不用担心积分用完。",
+            "button": {
+              "title": "获取 60 积分",
+              "url": "/#pricing",
+              "icon": "RiStarLine"
+            },
+            "product_id": "credits_60",
+            "product_name": "60 积分",
+            "credits": 60,
+            "valid_days": 0
+          }
+        ]
+      }
+    }
+  },
+  "messages": {
+    "current_plan": "当前方案",
+    "processing": "处理中",
+    "seo_tooltip_label": "了解我们的定价",
+    "seo_tooltip_content": "我们的定价旨在提供价值和安心。我们提供灵活的积分制方案，积分永不过期，让您随时创建个性化的圣经安慰视频。透明的定价确保您只为使用的内容付费，没有隐藏费用或定期订阅。非常适合寻求属灵安慰和平安的个人和家庭。",
+    "refund_support": "支持退款服务",
+    "learn_more": "了解更多"
+  }
+}

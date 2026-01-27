@@ -1,0 +1,55 @@
+{
+  "list": {
+    "title": "Refund Requests",
+    "crumbs": {
+      "admin": "Admin",
+      "refunds": "Refunds"
+    },
+    "tabs": {
+      "all": "All",
+      "pending": "Pending",
+      "completed": "Completed",
+      "rejected": "Rejected"
+    }
+  },
+  "fields": {
+    "id": "ID",
+    "user": "User",
+    "user_email": "User Email",
+    "reason": "Reason",
+    "account": "Account",
+    "requested_credits": "Requested Credits",
+    "approved_credits": "Approved Credits",
+    "deducted_credits": "Deducted Credits",
+    "deduct_credits": "Deduct Credits",
+    "remaining_credits": "Remaining Credits",
+    "status": "Status",
+    "admin_notes": "Admin Notes",
+    "created_at": "Created At",
+    "processed_at": "Processed At",
+    "actions": "Actions",
+    "description": "Description"
+  },
+  "status": {
+    "pending": "Pending",
+    "completed": "Completed",
+    "rejected": "Rejected"
+  },
+  "actions": {
+    "edit": "Edit",
+    "cancel": "Cancel",
+    "save": "Save",
+    "updating": "Updating..."
+  },
+  "edit": {
+    "title": "Edit Refund Request",
+    "description": "Update the refund request status and approved credits amount.",
+    "approved_credits_hint": "Leave empty to use requested amount",
+    "deduct_credits_hint": "Credits to deduct from user (Available: {available}). Will be deducted when status is set to Completed.",
+    "admin_notes_placeholder": "Add admin notes (optional)"
+  },
+  "update": {
+    "success": "Refund request updated successfully",
+    "failed": "Failed to update refund request"
+  }
+}

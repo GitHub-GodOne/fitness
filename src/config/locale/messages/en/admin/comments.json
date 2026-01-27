@@ -1,0 +1,34 @@
+{
+  "list": {
+    "title": "Comment Management",
+    "crumbs": {
+      "admin": "Admin",
+      "comments": "Comments"
+    },
+    "tabs": {
+      "all": "All",
+      "visible": "Visible",
+      "hidden": "Hidden"
+    }
+  },
+  "fields": {
+    "user": "User",
+    "email": "Email",
+    "content": "Content",
+    "status": "Status",
+    "likes": "Likes",
+    "replies": "Replies",
+    "created_at": "Created At",
+    "actions": "Actions"
+  },
+  "status": {
+    "visible": "Visible",
+    "hidden": "Hidden"
+  },
+  "actions": {
+    "view_details": "View Details",
+    "hide": "Hide",
+    "show": "Show",
+    "delete": "Delete"
+  }
+}

@@ -1,0 +1,175 @@
+{
+  "header": {
+    "id": "header",
+    "brand": {
+      "title": "Object2Workout",
+      "logo": {
+        "src": "/logo-icon.png",
+        "alt": "Object2Workout",
+        "width": 100,
+        "height": 100
+      },
+      "url": "/"
+    },
+    "nav": {
+      "items": [
+        {
+          "title": "Create",
+          "description": "Use AI to generate videos",
+          "url": "/ai-video-generator",
+          "icon": "Zap"
+        },
+        {
+          "title": "Pricing",
+          "url": "/pricing",
+          "icon": "DollarSign"
+        },
+        {
+          "title": "Comments",
+          "url": "/comments",
+          "icon": "MessageSquare"
+        },
+        {
+          "title": "Refund",
+          "url": "/refund",
+          "icon": "RotateCcw"
+        }
+      ]
+    },
+    "buttons": [],
+    "user_nav": {
+      "show_name": true,
+      "show_credits": true,
+      "show_sign_out": true,
+      "items": [
+        {
+          "title": "Billing",
+          "url": "/settings/billing",
+          "icon": "CreditCard"
+        },
+        {
+          "title": "History",
+          "url": "/settings/history",
+          "icon": "History"
+        }
+      ]
+    },
+    "show_sign": true,
+    "show_theme": true,
+    "show_locale": true,
+    "topbanner": {
+      "text": "Fear Not 是一个 AI 驱动的圣经安慰视频生成平台。通过个性化的圣经朗读视频，为你的心灵带来平安、温暖和属灵的安慰。"
+    }
+  },
+  "footer": {
+    "id": "footer",
+    "brand": {
+      "title": "Fear Not",
+      "description": "Fear Not is an AI-powered Bible comfort video generator. Create personalized Bible reading videos that bring peace, warmth, and spiritual comfort to your heart.",
+      "logo": {
+        "src": "/logo-icon.png",
+        "alt": "Fear Not",
+        "width": 1024,
+        "height": 1024
+      },
+      "url": "/"
+    },
+    "nav": {
+      "items": [
+        {
+          "title": "About",
+          "children": [
+            {
+              "title": "Features",
+              "url": "/#features",
+              "target": "_self"
+            },
+            {
+              "title": "Showcases",
+              "url": "/showcases",
+              "target": "_self"
+            },
+            {
+              "title": "Pricing",
+              "url": "/pricing",
+              "target": "_self"
+            }
+          ]
+        },
+        {
+          "title": "Resources",
+          "children": [
+            {
+              "title": "Documents",
+              "url": "/docs",
+              "target": "_self"
+            },
+            {
+              "title": "Blog",
+              "url": "/blog",
+              "target": "_self"
+            },
+            {
+              "title": "Chat",
+              "url": "/chat",
+              "target": "_self"
+            }
+          ]
+        },
+        {
+          "title": "Friends",
+          "children": [
+            {
+              "title": "",
+              "url": "",
+              "target": ""
+            }
+          ]
+        }
+      ]
+    },
+    "social": {
+      "items": [
+        {
+          "title": "X",
+          "icon": "RiTwitterXFill",
+          "url": "https://x.com/your-app-name",
+          "target": "_blank"
+        },
+        {
+          "title": "Github",
+          "icon": "Github",
+          "url": "https://github.com/your-app-name",
+          "target": "_blank"
+        },
+        {
+          "title": "Discord",
+          "icon": "RiDiscordFill",
+          "url": "https://discord.gg/your-app-name",
+          "target": "_blank"
+        },
+        {
+          "title": "Email",
+          "icon": "Mail",
+          "url": "mailto:support@your-domain.com",
+          "target": "_self"
+        }
+      ]
+    },
+    "agreement": {
+      "items": [
+        {
+          "title": "Privacy Policy",
+          "url": "/privacy-policy"
+        },
+        {
+          "title": "Terms of Service",
+          "url": "/terms-of-service"
+        }
+      ]
+    },
+    "show_theme": true,
+    "show_locale": true,
+    "className": "bg-gradient-to-b from-amber-50/15 via-amber-50/10 to-amber-50/5 dark:from-amber-950/10 dark:via-amber-950/8 dark:to-amber-950/5"
+  }
+}

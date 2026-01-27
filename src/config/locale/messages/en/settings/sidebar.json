@@ -1,0 +1,35 @@
+{
+  "title": "",
+  "nav": {
+    "items": [
+      {
+        "title": "Profile",
+        "url": "/settings/profile",
+        "icon": "User"
+      },
+      {
+        "title": "Billing",
+        "url": "/settings/billing",
+        "icon": "CreditCard"
+      },
+      {
+        "title": "Payments",
+        "url": "/settings/payments",
+        "icon": "DollarSign"
+      },
+      {
+        "title": "Credits",
+        "url": "/settings/credits",
+        "icon": "Coins"
+      },
+      {
+        "title": "History",
+        "url": "/settings/history",
+        "icon": "History"
+      }
+    ]
+  },
+  "top_nav": {
+    "items": []
+  }
+}

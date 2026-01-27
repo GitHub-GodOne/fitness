@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Object2Workout.com</title>
+    <link href="https://fonts.googleapis.com/css2?family=Anton&family=Inter:wght@400;500;600;700&display=swap"
+        rel="stylesheet">
+    <style>
+        /* Reset */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body,
+        html {
+            height: 100%;
+            font-family: 'Inter', sans-serif;
+            background: #000;
+            color: #fff;
+            overflow-x: hidden;
+        }
+
+        /* Hero Container */
+        .hero {
+            position: relative;
+            width: 100%;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            overflow: hidden;
+        }
+
+        /* Video Background */
+        .hero video {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            min-width: 100%;
+            min-height: 100%;
+            transform: translate(-50%, -50%);
+            object-fit: cover;
+            z-index: 0;
+            filter: brightness(0.6) contrast(1.2);
+        }
+
+        /* Overlay */
+        .hero::after {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(180deg, rgba(0, 0, 0, 0.3) 0%, rgba(0, 0, 0, 0.85) 80%);
+            z-index: 1;
+        }
+
+        /* Hero Content */
+        .hero-content {
+            position: relative;
+            z-index: 2;
+            max-width: 900px;
+            padding: 0 1.5rem;
+            animation: fadeInUp 1.5s ease-out forwards;
+            opacity: 0;
+        }
+
+        .hero-eyebrow {
+            font-size: 14px;
+            letter-spacing: 2px;
+            font-weight: 600;
+            color: #fff;
+            opacity: 0.8;
+            margin-bottom: 1rem;
+            text-transform: uppercase;
+            animation: fadeIn 1s ease forwards;
+        }
+
+        .hero-quote {
+            font-size: 1.5rem;
+            font-weight: 500;
+            margin-bottom: 1.5rem;
+            opacity: 0.9;
+            font-style: italic;
+            animation: fadeIn 1.2s ease forwards;
+        }
+
+        .hero-headline {
+            font-family: 'Anton', sans-serif;
+            font-size: clamp(2.5rem, 6vw, 4.5rem);
+            font-weight: 800;
+            line-height: 1.1;
+            margin-bottom: 2rem;
+            letter-spacing: -1px;
+            animation: fadeInScale 1.5s ease forwards;
+            opacity: 0;
+        }
+
+        /* CTA Button */
+        .hero-cta {
+            padding: 1rem 2.5rem;
+            font-size: 1rem;
+            font-weight: 700;
+            border-radius: 999px;
+            background: #ffcc00;
+            color: #000;
+            text-decoration: none;
+            cursor: pointer;
+            display: inline-block;
+            transform: scale(0.8);
+            opacity: 0;
+            animation: ctaBounce 1s ease forwards 2s;
+        }
+
+        .hero-cta:hover {
+            transform: scale(0.95);
+            box-shadow: 0 15px 35px rgba(255, 204, 0, 0.5);
+        }
+
+        /* Animations */
+        @keyframes fadeInUp {
+            0% {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+
+            100% {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+            }
+
+            to {
+                opacity: 1;
+            }
+        }
+
+        @keyframes fadeInScale {
+            0% {
+                opacity: 0;
+                transform: scale(0.8);
+            }
+
+            100% {
+                opacity: 1;
+                transform: scale(1);
+            }
+        }
+
+        @keyframes ctaBounce {
+            0% {
+                opacity: 0;
+                transform: scale(0.8);
+            }
+
+            50% {
+                transform: scale(1.05);
+            }
+
+            100% {
+                opacity: 1;
+                transform: scale(1);
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <section class="hero">
+        <!-- 视频背景 -->
+        <video autoplay muted loop playsinline>
+            <source src="hero-video.mp4" type="video/mp4">
+        </video>
+
+        <div class="hero-content">
+            <div class="hero-eyebrow">THE #1 AI FITNESS VIDEO PLATFORM</div>
+            <div class="hero-quote">“This Replaced My Personal Trainer.”</div>
+            <h1 class="hero-headline">把身边的一切，变成你的专属训练视频</h1>
+            <a href="#" class="hero-cta">生成我的训练视频</a>
+        </div>
+    </section>
+</body>
+
+</html>

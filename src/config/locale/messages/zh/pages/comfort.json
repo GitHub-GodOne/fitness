@@ -1,0 +1,312 @@
+{
+  "page": {
+    "show_sections": [
+      "hero",
+      "introduce",
+      "benefits",
+      "usage",
+      "features",
+      "stats",
+      "testimonials",
+      "showcases",
+      "faq",
+      "cta"
+    ],
+    "sections": {
+      "hero": {
+        "block": "hero-comfort",
+        "id": "hero",
+        "title": "不要惧怕因为我与你同在",
+        "description": "创建 AI 驱动的圣经朗读视频，为你的心灵带来平安、安慰和希望。",
+        "buttons": [
+          {
+            "title": "🕊 立即创建你的安慰视频",
+            "icon": "",
+            "url": "/pricing",
+            "target": "_self",
+            "variant": "default"
+          }
+        ],
+        "tip": "✨ 新用户可免费试用",
+        "background_image": {
+          "src": "/imgs/bg/hello.png",
+          "alt": "平静的背景"
+        }
+      },
+      "introduce": {
+        "block": "features-list",
+        "id": "introduce",
+        "title": "什么是这个安慰视频体验？",
+        "description": "一个温柔、充满同理心的平台，创建个性化的圣经朗读视频，旨在为你的心灵带来平安和属灵的安慰。",
+        "items": [
+          {
+            "title": "AI 生成的圣经视频",
+            "description": "通过精美制作的视频体验神的话语，由先进的 AI 技术生成，理解你的情感需求。",
+            "icon": "RiVideoLine"
+          },
+          {
+            "title": "基于情感的个人化",
+            "description": "分享你的感受——无论你是悲伤、焦虑、孤独还是感恩——都会收到一个为你量身定制的视频，为你的心带来安慰。",
+            "icon": "RiHeartLine"
+          },
+          {
+            "title": "视觉化的圣经场景",
+            "description": "观看圣经场景栩栩如生地呈现，平静的视觉效果帮助你感受神的同在，在他的应许中找到安慰。",
+            "icon": "RiImageLine"
+          },
+          {
+            "title": "属灵的医治",
+            "description": "专为情感医治和安慰而设计，帮助你在挣扎的时刻找到平安，在喜乐的时刻表达感恩。",
+            "icon": "RiHeartsLine"
+          }
+        ],
+        "className": "bg-gradient-to-b from-amber-50/30 to-olive-50/20 dark:from-amber-950/10 dark:to-olive-950/10"
+      },
+      "benefits": {
+        "block": "features-accordion",
+        "id": "benefits",
+        "title": "为什么这个体验能带来平安",
+        "description": "了解我们的 AI 驱动的圣经视频如何为你的生活带来安慰、希望和属灵的保证。",
+        "items": [
+          {
+            "title": "先进的 AI 视频和语音生成",
+            "description": "体验最先进的 AI 技术，创建自然、平静的圣经朗读视频，配有温柔的旁白，直击你的心灵。",
+            "icon": "RiRobot2Line"
+          },
+          {
+            "title": "基于经文的安慰",
+            "description": "每个视频都根植于圣经经文，精心挑选以应对你的情感状态，将神的话语直接带到你的心中。",
+            "icon": "RiBookOpenLine"
+          },
+          {
+            "title": "受圣经启发的视觉场景",
+            "description": "美丽、平静的视觉效果重现圣经场景，帮助你在日常生活中视觉化和感受神的同在。",
+            "icon": "RiLandscapeLine"
+          },
+          {
+            "title": "感受神的同在",
+            "description": "旨在帮助你体验神的爱和同在，为焦虑的心带来平安，为困扰的灵魂带来安慰。",
+            "icon": "RiLightbulbLine"
+          },
+          {
+            "title": "情感医治和安慰",
+            "description": "专为情感医治而创建，帮助你在困难时期从神的应许中找到力量、希望和安慰。",
+            "icon": "RiHeartsLine"
+          }
+        ],
+        "className": "bg-gradient-to-b from-cream-50/40 to-amber-50/30 dark:from-amber-950/20 dark:to-olive-950/20"
+      },
+      "usage": {
+        "block": "features-step",
+        "id": "usage",
+        "title": "如何使用",
+        "description": "创建你的个性化安慰视频简单而温柔，就像神对你的爱一样。",
+        "text_align": "center",
+        "items": [
+          {
+            "title": "上传一张图片（或跳过）",
+            "description": "分享一张对你有意义的人物、回忆或场景的图片。这有助于个性化你的安慰视频体验。",
+            "icon": "RiImageAddLine"
+          },
+          {
+            "title": "描述你的感受",
+            "description": "告诉我们你的心——你感到悲伤、焦虑、感恩、迷失还是喜乐？你今天需要视频为你做什么？",
+            "icon": "RiEmotionLine"
+          },
+          {
+            "title": "选择圣经体验",
+            "description": "从经文朗读、圣经场景重现或带有平静视觉效果的温柔旁白中选择——任何能触动你心灵的内容。",
+            "icon": "RiBookMarkedLine"
+          },
+          {
+            "title": "等待你的安慰视频",
+            "description": "我们的 AI 为你创建个性化的圣经视频。片刻之后，你将收到一个旨在为你的心带来平安和安慰的视频。",
+            "icon": "RiVideoAddLine"
+          }
+        ],
+        "className": "bg-gradient-to-b from-olive-50/30 to-cream-50/20 dark:from-olive-950/10 dark:to-amber-950/10"
+      },
+      "features": {
+        "id": "features",
+        "title": "每个时刻的强大功能",
+        "description": "无论你是在寻求平安、安慰还是感恩，我们的功能都旨在在你所在的地方与你相遇。",
+        "items": [
+          {
+            "title": "文本转视频圣经朗读",
+            "description": "将圣经经文转化为美丽的视频体验，配有 AI 生成的旁白，让经文栩栩如生。",
+            "icon": "RiTextWrap"
+          },
+          {
+            "title": "图片转视频安慰场景",
+            "description": "上传你有意义的图片，观看它们转化为平静的圣经场景，带来安慰和希望。",
+            "icon": "RiImageEditLine"
+          },
+          {
+            "title": "基于情感的经文选择",
+            "description": "我们的 AI 根据你的情感状态智能选择圣经经文，确保为你的心提供完美的信息。",
+            "icon": "RiEmotionHappyLine"
+          },
+          {
+            "title": "平静的 AI 语音朗读",
+            "description": "体验温柔、平静的 AI 语音，以温暖和同理心朗读经文，旨在抚慰你的灵魂。",
+            "icon": "RiVolumeUpLine"
+          },
+          {
+            "title": "属灵的视觉氛围",
+            "description": "沉浸在平静、神圣的视觉环境中，帮助你感受神的同在并找到属灵的安息。",
+            "icon": "RiLandscapeLine"
+          }
+        ],
+        "tip": "适合：当你感到悲伤时 • 当你感到迷失时 • 当你想要平安时 • 当你想要感谢神时",
+        "quote": {
+          "text": "你不要害怕，因为我与你同在；不要惊惶，因为我是你的神。",
+          "source": "以赛亚书 41:10"
+        },
+        "className": "bg-gradient-to-b from-amber-50/20 to-olive-50/30 dark:from-amber-950/10 dark:to-olive-950/20"
+      },
+      "stats": {
+        "id": "stats",
+        "title": "受寻求平安的人们信赖",
+        "description": "加入数千名通过我们的 AI 驱动的圣经视频找到安慰和希望的人们。",
+        "items": [
+          {
+            "title": "10,000+",
+            "description": "已创建的安慰视频"
+          },
+          {
+            "title": "5,000+",
+            "description": "被触动的生命"
+          },
+          {
+            "title": "98%",
+            "description": "满意度"
+          }
+        ],
+        "className": "bg-gradient-to-b from-cream-50/40 to-amber-50/30 dark:from-cream-950/20 dark:to-amber-950/20"
+      },
+      "testimonials": {
+        "id": "testimonials",
+        "title": "来自我们安慰过的人们的话语",
+        "description": "听听那些通过我们的安慰视频找到平安、希望和安慰的人们的心声。",
+        "items": [
+          {
+            "name": "莎拉 M.",
+            "role": "寻求平安",
+            "quote": "在我最焦虑的黑暗时刻，这些视频给我带来了如此大的平安。温柔的旁白和美丽的视觉效果在我最需要的时候帮助我感受到了神的同在。",
+            "image": {
+              "src": "/imgs/avatars/1.png",
+              "alt": "莎拉"
+            }
+          },
+          {
+            "name": "迈克尔 T.",
+            "role": "寻找希望",
+            "quote": "我感到迷失和孤独，但我收到的个性化圣经视频提醒我，我永远不会孤单。神的话语通过这个美丽的体验直接对我说话。",
+            "image": {
+              "src": "/imgs/avatars/2.png",
+              "alt": "迈克尔"
+            }
+          },
+          {
+            "name": "艾米丽 R.",
+            "role": "感恩的心",
+            "quote": "我想表达对神的感恩，这个平台帮助我创建了一个美丽的视频，捕捉了我的感受。它已成为我每天安慰和灵感的来源。",
+            "image": {
+              "src": "/imgs/avatars/3.png",
+              "alt": "艾米丽"
+            }
+          },
+          {
+            "name": "大卫 L.",
+            "role": "医治之旅",
+            "quote": "在失去所爱的人之后，我努力寻找平安。这些 AI 生成的圣经视频一直是我医治之旅中的温柔伴侣，以一种真正安慰我灵魂的方式让经文栩栩如生。",
+            "image": {
+              "src": "/imgs/avatars/4.png",
+              "alt": "大卫"
+            }
+          }
+        ],
+        "className": "bg-gradient-to-b from-olive-50/30 to-cream-50/20 dark:from-olive-950/10 dark:to-cream-950/10"
+      },
+      "showcases": {
+        "id": "showcases",
+        "title": "安慰视频示例",
+        "description": "看看我们的 AI 如何创建个性化的圣经视频，为心灵带来平安和安慰。",
+        "items": [
+          {
+            "title": "焦虑中的平安",
+            "description": "一个温柔的视频，以诗篇 23 为特色，旨在通过平静的视觉效果和舒缓的旁白为焦虑的心带来平静。",
+            "image": {
+              "src": "/imgs/features/1.png",
+              "alt": "平安视频"
+            }
+          },
+          {
+            "title": "悲伤中的希望",
+            "description": "以赛亚书 41:10 通过安慰的视觉效果栩栩如生，提醒观众即使在困难时期，神也始终与他们同在。",
+            "image": {
+              "src": "/imgs/features/2.png",
+              "alt": "希望视频"
+            }
+          },
+          {
+            "title": "感恩与喜乐",
+            "description": "通过诗篇 100 庆祝神的祝福，配有喜乐的视觉效果和令人振奋的旁白，适合感恩的时刻。",
+            "image": {
+              "src": "/imgs/features/3.png",
+              "alt": "感恩视频"
+            }
+          }
+        ],
+        "className": "bg-gradient-to-b from-amber-50/20 to-olive-50/30 dark:from-amber-950/10 dark:to-olive-950/20"
+      },
+      "faq": {
+        "id": "faq",
+        "title": "常见问题",
+        "description": "找到关于创建你的安慰视频的常见问题的答案。",
+        "items": [
+          {
+            "question": "如果我的视频生成失败怎么办？",
+            "answer": "如果由于技术问题导致你的视频生成失败，你不会失去任何积分。我们会自动退还你的积分，你可以重试。如果你遇到任何问题，我们的支持团队随时为你提供帮助。"
+          },
+          {
+            "question": "如果生成失败，我会失去积分吗？",
+            "answer": "不会，如果视频生成失败，你不会失去积分。我们有一个强大的错误处理系统，可以自动检测失败并退还你的积分。然后你可以重试创建视频，无需额外费用。"
+          },
+          {
+            "question": "计费是如何工作的？",
+            "answer": "我们提供灵活的基于积分的定价。你购买积分，可用于生成安慰视频。每次视频生成根据视频的复杂性和长度使用一定数量的积分。未使用的积分永不过期，所以你可以在需要安慰时随时使用它们。"
+          },
+          {
+            "question": "我可以重新生成我的视频吗？",
+            "answer": "是的，如果你对结果不满意，可以重新生成你的视频。只需使用重新生成功能，我们会为你创建新版本。每次重新生成都会使用积分，但你可以完全控制何时重新生成。"
+          },
+          {
+            "question": "生成视频需要多长时间？",
+            "answer": "通常，你的安慰视频将在 2-5 分钟内准备好。确切时间取决于你请求的复杂性和当前系统负载。当你的视频准备好时，我们会通过电子邮件通知你。"
+          },
+          {
+            "question": "我可以自定义使用的圣经经文吗？",
+            "answer": "可以！虽然我们的 AI 会根据你的情感智能选择经文，但你也可以指定你希望在视频中看到的特定圣经经文或主题。我们想确保视频直接对你的心说话。"
+          }
+        ],
+        "className": "bg-gradient-to-b from-cream-50/30 to-amber-50/20 dark:from-cream-950/10 dark:to-amber-950/10"
+      },
+      "cta": {
+        "id": "cta",
+        "title": "你不要害怕，因为我与你同在；不要惊惶，因为我是你的神。",
+        "description": "— 以赛亚书 41:10",
+        "buttons": [
+          {
+            "title": "🕊 创建你的安慰视频",
+            "url": "/pricing",
+            "target": "_self",
+            "icon": "🕊"
+          }
+        ],
+        "className": "bg-gradient-to-b from-amber-50/40 via-olive-50/30 to-cream-50/40 dark:from-amber-950/20 dark:via-olive-950/20 dark:to-cream-950/20 py-24"
+      }
+    }
+  }
+}
+

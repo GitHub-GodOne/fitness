@@ -1,0 +1,175 @@
+{
+  "header": {
+    "id": "header",
+    "brand": {
+      "title": "Object2Workout",
+      "logo": {
+        "src": "/logo-icon.png",
+        "alt": "Object2Workout",
+        "width": 100,
+        "height": 100
+      },
+      "url": "/"
+    },
+    "nav": {
+      "items": [
+        {
+          "title": "创造",
+          "description": "使用 AI 生成视频",
+          "url": "/ai-video-generator",
+          "icon": "Zap"
+        },
+        {
+          "title": "价格",
+          "url": "/pricing",
+          "icon": "DollarSign"
+        },
+        {
+          "title": "评论",
+          "url": "/comments",
+          "icon": "MessageSquare"
+        },
+        {
+          "title": "退款",
+          "url": "/refund",
+          "icon": "RotateCcw"
+        }
+      ]
+    },
+    "buttons": [],
+    "user_nav": {
+      "show_name": true,
+      "show_credits": true,
+      "show_sign_out": true,
+      "items": [
+        {
+          "title": "账单",
+          "url": "/settings/billing",
+          "icon": "CreditCard"
+        },
+        {
+          "title": "历史记录",
+          "url": "/settings/history",
+          "icon": "History"
+        }
+      ]
+    },
+    "show_sign": true,
+    "show_theme": true,
+    "show_locale": true,
+    "topbanner": {
+      "text": "Fear Not 是一个 AI 驱动的圣经安慰视频生成平台。通过个性化的圣经朗读视频，为你的心灵带来平安、温暖和属灵的安慰。"
+    }
+  },
+  "footer": {
+    "id": "footer",
+    "brand": {
+      "title": "Fear Not",
+      "description": "Fear Not 是一个 AI 驱动的圣经安慰视频生成平台。通过个性化的圣经朗读视频，为你的心灵带来平安、温暖和属灵的安慰。",
+      "logo": {
+        "src": "/logo-icon.png",
+        "alt": "Fear Not",
+        "width": 100,
+        "height": 100
+      },
+      "url": "/"
+    },
+    "nav": {
+      "items": [
+        {
+          "title": "关于我们",
+          "children": [
+            {
+              "title": "功能亮点",
+              "url": "/#features",
+              "target": "_self"
+            },
+            {
+              "title": "案例展示",
+              "url": "/showcases",
+              "target": "_self"
+            },
+            {
+              "title": "价格",
+              "url": "/pricing",
+              "target": "_self"
+            }
+          ]
+        },
+        {
+          "title": "资源",
+          "children": [
+            {
+              "title": "文档",
+              "url": "/docs",
+              "target": "_self"
+            },
+            {
+              "title": "博客",
+              "url": "/blog",
+              "target": "_self"
+            },
+            {
+              "title": "对话",
+              "url": "/chat",
+              "target": "_blank"
+            }
+          ]
+        },
+        {
+          "title": "合作伙伴",
+          "children": [
+            {
+              "title": "",
+              "url": "",
+              "target": ""
+            }
+          ]
+        }
+      ]
+    },
+    "social": {
+      "items": [
+        {
+          "title": "X",
+          "icon": "RiTwitterXFill",
+          "url": "https://x.com/your-app-name",
+          "target": "_blank"
+        },
+        {
+          "title": "Github",
+          "icon": "Github",
+          "url": "https://github.com/your-app-name",
+          "target": "_blank"
+        },
+        {
+          "title": "Discord",
+          "icon": "RiDiscordFill",
+          "url": "https://discord.gg/your-app-name",
+          "target": "_blank"
+        },
+        {
+          "title": "邮箱",
+          "icon": "Mail",
+          "url": "mailto:support@your-domain.com",
+          "target": "_self"
+        }
+      ]
+    },
+    "agreement": {
+      "items": [
+        {
+          "title": "隐私政策",
+          "url": "/privacy-policy"
+        },
+        {
+          "title": "服务条款",
+          "url": "/terms-of-service"
+        }
+      ]
+    },
+    "show_theme": true,
+    "show_locale": true,
+    "className": "bg-gradient-to-b from-amber-50/15 via-amber-50/10 to-amber-50/5 dark:from-amber-950/10 dark:via-amber-950/8 dark:to-amber-950/5"
+  }
+}

@@ -1,0 +1,26 @@
+{
+  "title": "通知",
+  "bell_aria_label": "查看通知",
+  "mark_all_read": "全部标记为已读",
+  "no_notifications": "暂无通知",
+  "view_more_hint": "在设置中查看所有通知",
+  "time": {
+    "just_now": "刚刚",
+    "minutes_ago": "{count} 分钟前",
+    "hours_ago": "{count} 小时前",
+    "days_ago": "{count} 天前"
+  },
+  "types": {
+    "comment_reply": "评论回复",
+    "video_complete": "视频完成",
+    "image_complete": "图片完成"
+  },
+  "messages": {
+    "comment_reply_title": "收到新的评论回复",
+    "comment_reply_content": "{userName} 回复了你的评论",
+    "video_complete_title": "视频生成完成",
+    "video_complete_content": "你的视频已成功生成",
+    "image_complete_title": "图片生成完成",
+    "image_complete_content": "你的图片已成功生成"
+  }
+}

@@ -1,0 +1,52 @@
+{
+  "metadata": {
+    "title": "Refund Request",
+    "description": "Request a refund for your credits. We process refund requests via email."
+  },
+  "title": "Refund Request",
+  "description": "Fill out the form below to request a refund. We will review your request and contact you via email.",
+  "sign_in_required": "Please sign in to request a refund",
+  "fields": {
+    "reason": "Refund Reason",
+    "reason_placeholder": "Please explain why you are requesting a refund...",
+    "account": "Account Information",
+    "account_placeholder": "Please provide your account details (e.g., email, payment method, transaction ID)...",
+    "credits_amount": "Credits Amount",
+    "credits_amount_placeholder": "Enter the number of credits to refund",
+    "credits_amount_hint": "Current credits: {current}. Maximum refundable: {max} credits",
+    "description": "Additional Description (Optional)",
+    "description_placeholder": "Any additional information you would like to provide..."
+  },
+  "submit": "Submit Refund Request",
+  "submitting": "Submitting...",
+  "submit_success": "Refund request submitted successfully. We will process your request and contact you via email.",
+  "submit_failed": "Failed to submit refund request. Please try again later.",
+  "invalid_credits_amount": "Please enter a valid credits amount",
+  "insufficient_credits_for_refund": "You must have more than 3 credits to request a refund",
+  "insufficient_credits_message_prefix": "You currently have",
+  "insufficient_credits_message_suffix": "credits. You need more than 3 credits to request a refund.",
+  "note": "Note: Refund requests are processed via email. Please allow 3-5 business days for processing.",
+  "view_my_requests": "View My Refund Requests",
+  "my_requests": {
+    "title": "My Refund Requests",
+    "fetch_failed": "Failed to load refund requests",
+    "no_requests": "You haven't submitted any refund requests yet.",
+    "request_id": "Request ID",
+    "created_at": "Created At",
+    "status": {
+      "pending": "Pending",
+      "completed": "Completed",
+      "rejected": "Rejected"
+    },
+    "fields": {
+      "requested_credits": "Requested Credits",
+      "approved_credits": "Approved Credits",
+      "remaining_credits": "Remaining Credits",
+      "reason": "Reason",
+      "account": "Account",
+      "description": "Description",
+      "admin_notes": "Admin Notes",
+      "processed_at": "Processed At"
+    }
+  }
+}

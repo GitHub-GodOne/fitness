@@ -1,0 +1,39 @@
+{
+  "metadata": {
+    "title": "Merge History",
+    "description": "View your video merge history"
+  },
+  "page": {
+    "title": "Merge History",
+    "description": "View all your video merge records",
+    "empty": "No merge history found",
+    "loading": "Loading merge history...",
+    "table": {
+      "headers": {
+        "id": "ID",
+        "videoCount": "Videos",
+        "status": "Status",
+        "createdAt": "Created At",
+        "actions": "Actions"
+      },
+      "status": {
+        "success": "Success",
+        "failed": "Failed",
+        "processing": "Processing"
+      },
+      "actions": {
+        "view": "View",
+        "download": "Download"
+      }
+    },
+    "details": {
+      "title": "Merge Details",
+      "sourceVideos": "Source Videos",
+      "mergedVideo": "Merged Video",
+      "videoCount": "Video Count",
+      "status": "Status",
+      "createdAt": "Created At",
+      "error": "Error"
+    }
+  }
+}

@@ -1,0 +1,52 @@
+{
+  "metadata": {
+    "title": "退款申请",
+    "description": "申请积分退款。我们通过邮件处理退款申请。"
+  },
+  "title": "退款申请",
+  "description": "请填写下面的表单来申请退款。我们将审核您的申请并通过邮件与您联系。",
+  "sign_in_required": "请先登录以申请退款",
+  "fields": {
+    "reason": "退款理由",
+    "reason_placeholder": "请说明您申请退款的原因...",
+    "account": "账户信息",
+    "account_placeholder": "请提供您的账户详情（例如：邮箱、支付方式、交易ID）...",
+    "credits_amount": "退款积分数量",
+    "credits_amount_placeholder": "输入要退款的积分数量",
+    "credits_amount_hint": "当前积分：{current}。最大可退款：{max} 积分",
+    "description": "补充说明（可选）",
+    "description_placeholder": "您想要提供的任何其他信息..."
+  },
+  "submit": "提交退款申请",
+  "submitting": "提交中...",
+  "submit_success": "退款申请已成功提交。我们将处理您的申请并通过邮件与您联系。",
+  "submit_failed": "提交退款申请失败。请稍后重试。",
+  "invalid_credits_amount": "请输入有效的积分数量",
+  "insufficient_credits_for_refund": "您必须拥有超过3个积分才能申请退款",
+  "insufficient_credits_message_prefix": "您当前有",
+  "insufficient_credits_message_suffix": "个积分。您需要拥有超过3个积分才能申请退款。",
+  "note": "注意：退款申请通过邮件处理。请允许3-5个工作日进行处理。",
+  "view_my_requests": "查看我的退款申请",
+  "my_requests": {
+    "title": "我的退款申请",
+    "fetch_failed": "加载退款申请失败",
+    "no_requests": "您还没有提交任何退款申请。",
+    "request_id": "申请ID",
+    "created_at": "创建时间",
+    "status": {
+      "pending": "待处理",
+      "completed": "已完成",
+      "rejected": "已拒绝"
+    },
+    "fields": {
+      "requested_credits": "申请积分",
+      "approved_credits": "批准积分",
+      "remaining_credits": "剩余积分",
+      "reason": "退款理由",
+      "account": "账户信息",
+      "description": "补充说明",
+      "admin_notes": "管理员备注",
+      "processed_at": "处理时间"
+    }
+  }
+}

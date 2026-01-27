@@ -1,0 +1,15 @@
+{
+  "metadata": {
+    "title": "Showcases",
+    "description": "View amazing AI-generated content from our users"
+  },
+  "page": {
+    "title": "Showcases",
+    "sections": {
+      "showcases-flow": {
+        "type": "showcases-flow",
+        "id": "showcases-flow"
+      }
+    }
+  }
+}

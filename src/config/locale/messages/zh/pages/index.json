@@ -1,0 +1,349 @@
+{
+  "page": {
+    "show_sections": [
+      "hero",
+      "how-it-works",
+      "features",
+      "testimonials",
+      "faq"
+    ],
+    "sections": {
+      "hero": {
+        "block": "hero",
+        "id": "hero",
+        "eyebrow": "全球第一AI健身视频平台",
+        "quote": "「这取代了我的私人教练。」",
+        "title_line1": "把身边的一切",
+        "title_line2": "变成你的专属训练视频",
+        "cta": "生成我的训练视频",
+        "title": "把身边的一切，变成你的专属训练视频",
+        "description": "上传任何日常物品的照片。选择目标肌肉群。几秒钟内获得AI生成的个性化训练视频。",
+        "buttons": [
+          {
+            "title": "生成我的训练视频",
+            "url": "/ai-video-generator",
+            "target": "_self",
+            "variant": "default"
+          }
+        ]
+      },
+      "how-it-works": {
+        "block": "features-step",
+        "id": "how-it-works",
+        "title": "工作原理",
+        "description": "3个简单步骤获得个性化训练",
+        "items": [
+          {
+            "title": "上传你的照片",
+            "description": "拍摄任何房间或户外空间的照片，包含日常物品",
+            "icon": "Camera"
+          },
+          {
+            "title": "选择目标肌肉",
+            "description": "选择要训练的肌肉群（胸部、手臂、腿部、核心等）",
+            "icon": "Target"
+          },
+          {
+            "title": "获得AI训练视频",
+            "description": "接收使用你照片中物品的定制训练视频",
+            "icon": "Play"
+          }
+        ],
+        "buttons": [
+          {
+            "title": "立即试用",
+            "url": "/ai-video-generator",
+            "target": "_self",
+            "variant": "default"
+          }
+        ],
+        "className": "bg-background"
+      },
+      "features": {
+        "block": "features",
+        "id": "features",
+        "title": "为什么选择AI健身教练",
+        "description": "革命性的方式，用身边的物品进行锻炼",
+        "items": [
+          {
+            "title": "无需器械",
+            "description": "将日常物品变成健身器材。水瓶、椅子、毛巾 - 任何东西都可以！",
+            "icon": "Dumbbell"
+          },
+          {
+            "title": "个性化计划",
+            "description": "AI分析你的照片，根据可用物品和你的目标创建定制运动。",
+            "icon": "User"
+          },
+          {
+            "title": "视频指导",
+            "description": "清晰的视频演示，展示如何安全有效地完成每个动作。",
+            "icon": "Video"
+          },
+          {
+            "title": "进度跟踪",
+            "description": "通过详细的分析和成就跟踪监控你的健身旅程。",
+            "icon": "TrendingUp"
+          }
+        ],
+        "className": "bg-background"
+      },
+      "testimonials": {
+        "id": "testimonials",
+        "title": "健身用户评价",
+        "description": "",
+        "items": [
+          {
+            "name": "迈克·约翰逊",
+            "role": "健身爱好者",
+            "quote": "游戏规则改变者！我用我的水瓶和办公椅进行日常锻炼。AI完全知道什么运动适合我的设置。",
+            "image": {
+              "src": "/imgs/avatars/14.jpg",
+              "alt": "迈克"
+            },
+            "rating": 5
+          },
+          {
+            "name": "莎拉·陈",
+            "role": "忙碌的专业人士",
+            "quote": "非常适合我的小公寓。不需要健身器材，只需要我的咖啡桌和毛巾。2个月减了15磅！",
+            "image": {
+              "src": "/imgs/avatars/15.jpg",
+              "alt": "莎拉"
+            },
+            "rating": 5
+          },
+          {
+            "name": "大卫·马丁内斯",
+            "role": "私人教练",
+            "quote": "我向所有客户推荐这个。AI使用日常物品创建安全有效的锻炼。出色的技术！",
+            "image": {
+              "src": "/imgs/avatars/16.jpg",
+              "alt": "大卫"
+            },
+            "rating": 5
+          }
+        ],
+        "buttons": [
+          {
+            "title": "开始免费训练",
+            "url": "/ai-video-generator",
+            "target": "_self",
+            "variant": "default",
+            "icon": "Video"
+          }
+        ],
+        "className": "bg-background"
+      },
+      "use-cases": {
+        "block": "features-media",
+        "id": "use-cases",
+        "title": "为任何时刻创建圣经视频",
+        "description": "无论是为自己还是所爱的人，让神的话语活起来",
+        "items": [
+          {
+            "title": "送给伴侣",
+            "description": "通过经文表达你的爱",
+            "icon": "RiHeart3Line",
+            "image": {
+              "src": "/imgs/cases/1.png",
+              "alt": "送给伴侣"
+            }
+          },
+          {
+            "title": "送给孩子",
+            "description": "通过美丽的视频教导信仰",
+            "icon": "RiUserSmileLine",
+            "image": {
+              "src": "/imgs/cases/2.png",
+              "alt": "送给孩子"
+            }
+          },
+          {
+            "title": "哀悼失去",
+            "description": "在悲伤时找到安慰",
+            "icon": "RiHandHeartLine",
+            "image": {
+              "src": "/imgs/cases/3.png",
+              "alt": "哀悼失去"
+            }
+          },
+          {
+            "title": "送给父母",
+            "description": "用神的祝福尊荣他们",
+            "icon": "RiParentLine",
+            "image": {
+              "src": "/imgs/cases/4.png",
+              "alt": "送给父母"
+            }
+          },
+          {
+            "title": "祈求医治",
+            "description": "祷告恢复和平安",
+            "icon": "RiHeartsLine",
+            "image": {
+              "src": "/imgs/cases/5.png",
+              "alt": "祈求医治"
+            }
+          },
+          {
+            "title": "寻求力量",
+            "description": "在神的应许中找到勇气",
+            "icon": "RiShieldStarLine",
+            "image": {
+              "src": "/imgs/cases/6.png",
+              "alt": "寻求力量"
+            }
+          },
+          {
+            "title": "祷告",
+            "description": "通过视频举起你的祷告",
+            "icon": "RiHandsPrayLine",
+            "image": {
+              "src": "/imgs/cases/7.png",
+              "alt": "祷告"
+            }
+          },
+          {
+            "title": "突破",
+            "description": "庆祝神的奇迹",
+            "icon": "RiSparklingLine",
+            "image": {
+              "src": "/imgs/cases/8.png",
+              "alt": "突破"
+            }
+          }
+        ],
+        "buttons": [
+          {
+            "title": "开始创建你的视频",
+            "url": "/ai-video-generator",
+            "target": "_self"
+          }
+        ],
+        "className": "bg-background"
+      },
+      "what-you-get": {
+        "block": "features",
+        "id": "what-you-get",
+        "title": "你将获得什么",
+        "description": "",
+        "items": [
+          {
+            "title": "专业品质视频",
+            "description": "融入<em>\"不要惧怕，因为我与你同在\"</em>—用于敬拜或反思",
+            "icon": "RiVideoLine"
+          },
+          {
+            "title": "定制经文",
+            "description": "根据你的故事和属灵需求量身定制",
+            "icon": "RiBookOpenLine"
+          },
+          {
+            "title": "快速邮件交付",
+            "description": "几分钟内获得你的视频，直接发送到你的收件箱",
+            "icon": "RiTimeLine"
+          }
+        ],
+        "buttons": [
+          {
+            "title": "今天就制作你的\"不要惧怕，因为我与你同在\"视频",
+            "url": "/ai-video-generator",
+            "target": "_self",
+            "variant": "default",
+            "icon": "Zap"
+          }
+        ],
+        "className": "bg-background"
+      },
+      "showcases": {
+        "block": "showcases-flow",
+        "id": "showcases",
+        "title": "圣经视频示例",
+        "description": "看看我们的 AI 如何创建美丽的个性化视频",
+        "items": [
+          {
+            "title": "以赛亚书 41:10",
+            "description": "你不要害怕，因为我与你同在",
+            "video": {
+              "src": "/1.mp4"
+            }
+          },
+          {
+            "title": "诗篇 46:5",
+            "description": "神在其中，城必不动摇",
+            "video": {
+              "src": "/2.mp4"
+            }
+          },
+          {
+            "title": "诗篇 9:2",
+            "description": "我要因你欢喜快乐",
+            "video": {
+              "src": "/3.mp4"
+            }
+          },
+          {
+            "title": "诗篇 23:6",
+            "description": "恩惠慈爱必随着我",
+            "video": {
+              "src": "/4.mp4"
+            }
+          }
+        ],
+        "className": "bg-background"
+      },
+      "faq": {
+        "id": "faq",
+        "title": "常见问题",
+        "description": "",
+        "items": [
+          {
+            "question": "什么类型的物品最有效？",
+            "answer": "几乎任何家庭物品都有效！水瓶、椅子、毛巾、书籍、背包。AI会识别适合运动的物品。"
+          },
+          {
+            "question": "这适合初学者吗？",
+            "answer": "绝对适合！AI会根据你的健身水平创建锻炼，并相应调整强度。"
+          },
+          {
+            "question": "运动推荐有多准确？",
+            "answer": "我们的AI由认证教练训练，遵循安全准则。每个运动都经过有效性和安全性的验证。"
+          },
+          {
+            "question": "我可以在户外使用吗？",
+            "answer": "可以！上传公园、后院或任何户外空间的照片。AI会将自然元素融入你的锻炼中。"
+          }
+        ],
+        "buttons": [
+          {
+            "title": "开始免费训练",
+            "url": "/ai-video-generator",
+            "target": "_self",
+            "variant": "default",
+            "icon": "Play"
+          }
+        ],
+        "className": "bg-background"
+      },
+      "cta": {
+        "id": "cta",
+        "title": "不要惧怕，因为我与你同在",
+        "description": "今天就创建你的个性化圣经视频，体验神的平安",
+        "buttons": [
+          {
+            "title": "创建你的圣经视频",
+            "url": "/ai-video-generator",
+            "target": "_self",
+            "icon": "Heart"
+          }
+        ],
+        "quote": {
+          "text": "你不要害怕，因为我与你同在；不要惊惶，因为我是你的神。",
+          "source": "— 以赛亚书 41:10"
+        },
+        "className": "bg-muted/30"
+      }
+    }
+  }
+}

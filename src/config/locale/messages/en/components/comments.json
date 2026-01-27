@@ -1,0 +1,75 @@
+{
+  "section": {
+    "title": "Comments",
+    "sort": {
+      "latest": "Latest",
+      "hot": "Hot"
+    },
+    "empty": "No comments yet. Be the first to comment!",
+    "loadMore": "Load More",
+    "loading": "Loading..."
+  },
+  "input": {
+    "placeholder": "Share your thoughts...",
+    "placeholderAnonymous": "Share your thoughts... (Name and email required for guests)",
+    "userName": "Name",
+    "userEmail": "Email",
+    "referenceAI": "Reference AI Video",
+    "submit": "Post Comment",
+    "submitting": "Posting...",
+    "cancel": "Cancel",
+    "characterCount": "{count} / 5000"
+  },
+  "item": {
+    "expand": "Expand",
+    "collapse": "Collapse",
+    "like": "Like",
+    "reply": "Reply",
+    "replies": "{count} replies",
+    "viewReplies": "View Replies",
+    "hideReplies": "Hide Replies",
+    "justNow": "Just now",
+    "minutesAgo": "{count} minutes ago",
+    "hoursAgo": "{count} hours ago",
+    "daysAgo": "{count} days ago",
+    "referenced": "Referenced AI content",
+    "playVideo": "Play",
+    "viewImage": "View",
+    "videoPreview": "Video Preview",
+    "imagePreview": "Image Preview"
+  },
+  "reply": {
+    "placeholder": "Write your reply...",
+    "submit": "Post Reply",
+    "submitting": "Posting...",
+    "characterCount": "{count} / 2000",
+    "writeReply": "Write reply...",
+    "justNow": "Just now",
+    "minutesAgo": "{count} minutes ago",
+    "hoursAgo": "{count} hours ago",
+    "daysAgo": "{count} days ago"
+  },
+  "aiSelector": {
+    "title": "Select AI Generated Content",
+    "empty": "No content generated yet",
+    "close": "Close",
+    "retry": "Retry"
+  },
+  "selector": {
+    "title": "Select AI Generated Content",
+    "empty": "No content generated yet",
+    "close": "Close"
+  },
+  "toast": {
+    "commentRequired": "Please enter comment content",
+    "nameEmailRequired": "Name and email are required",
+    "emailInvalid": "Invalid email format",
+    "commentSuccess": "Comment posted successfully",
+    "commentFailed": "Failed to post comment",
+    "replyRequired": "Please enter reply content",
+    "replySuccess": "Reply posted successfully",
+    "replyFailed": "Failed to post reply",
+    "likeFailed": "Operation failed",
+    "loadFailed": "Failed to load"
+  }
+}

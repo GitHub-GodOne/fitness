@@ -1,0 +1,369 @@
+{
+  "page": {
+    "show_sections": [
+      "hero",
+      "how-it-works",
+      "features",
+      "testimonials",
+      "faq"
+    ],
+    "sections": {
+      "hero": {
+        "block": "hero",
+        "id": "hero",
+        "eyebrow": "THE #1 AI FITNESS VIDEO PLATFORM",
+        "quote": "\"This Replaced My Personal Trainer.\"",
+        "title_line1": "Turn Anything Around You",
+        "title_line2": "Into a Real Workout",
+        "cta": "Generate My AI Workout",
+        "title": "Turn Anything Around You Into a Real Workout",
+        "description": "Upload a photo of any everyday object. Choose your target muscle group. Get an AI-generated personalized workout video in seconds.",
+        "buttons": [
+          {
+            "title": "Generate My AI Workout",
+            "url": "/ai-video-generator",
+            "target": "_self",
+            "variant": "default"
+          }
+        ]
+      },
+      "social-proof": {
+        "block": "social-avatars",
+        "id": "social-proof",
+        "title": "Loved by 1000+ families",
+        "avatars": [
+          { "src": "/imgs/avatars/1.png", "alt": "User 1" },
+          { "src": "/imgs/avatars/2.png", "alt": "User 2" },
+          { "src": "/imgs/avatars/3.png", "alt": "User 3" },
+          { "src": "/imgs/avatars/4.png", "alt": "User 4" },
+          { "src": "/imgs/avatars/5.png", "alt": "User 5" }
+        ],
+        "className": "pt-0"
+      },
+      "how-it-works": {
+        "block": "features-step",
+        "id": "how-it-works",
+        "title": "How It Works",
+        "description": "Get your personalized workout in 3 simple steps",
+        "items": [
+          {
+            "title": "Upload Your Photo",
+            "description": "Take a picture of any room or outdoor space with everyday objects",
+            "icon": "Camera"
+          },
+          {
+            "title": "Choose Target Muscles",
+            "description": "Select the muscle groups you want to train (chest, arms, legs, core, etc.)",
+            "icon": "Target"
+          },
+          {
+            "title": "Get AI Workout Video",
+            "description": "Receive a custom workout video using objects from your photo",
+            "icon": "Play"
+          }
+        ],
+        "buttons": [
+          {
+            "title": "Try It Now",
+            "url": "/ai-video-generator",
+            "target": "_self",
+            "variant": "default"
+          }
+        ],
+        "className": "bg-background"
+      },
+      "features": {
+        "block": "features",
+        "id": "features",
+        "title": "Why Choose AI Fitness Trainer",
+        "description": "Revolutionary way to workout with objects around you",
+        "items": [
+          {
+            "title": "No Equipment Needed",
+            "description": "Transform everyday objects into workout tools. Water bottles, chairs, towels - anything works!",
+            "icon": "Dumbbell"
+          },
+          {
+            "title": "Personalized Plans",
+            "description": "AI analyzes your photo and creates custom exercises based on available objects and your goals.",
+            "icon": "User"
+          },
+          {
+            "title": "Video Instructions",
+            "description": "Clear video demonstrations showing exactly how to perform each exercise safely and effectively.",
+            "icon": "Video"
+          },
+          {
+            "title": "Track Progress",
+            "description": "Monitor your fitness journey with detailed analytics and achievement tracking.",
+            "icon": "TrendingUp"
+          }
+        ],
+        "className": "bg-background"
+      },
+      "testimonials": {
+        "id": "testimonials",
+        "title": "Real Results From Real Users",
+        "description": "",
+        "items": [
+          {
+            "name": "Mike Johnson",
+            "role": "Fitness Enthusiast",
+            "quote": "Game changer! I use my water bottle and desk chair for daily workouts. The AI knows exactly what exercises work with my setup.",
+            "image": {
+              "src": "/imgs/avatars/14.jpg",
+              "alt": "Mike"
+            },
+            "rating": 5
+          },
+          {
+            "name": "Sarah Chen",
+            "role": "Busy Professional",
+            "quote": "Perfect for my small apartment. No gym equipment needed, just my coffee table and towels. Lost 15 lbs in 2 months!",
+            "image": {
+              "src": "/imgs/avatars/15.jpg",
+              "alt": "Sarah"
+            },
+            "rating": 5
+          },
+          {
+            "name": "David Martinez",
+            "role": "Personal Trainer",
+            "quote": "I recommend this to all my clients. The AI creates safe, effective workouts using everyday items. Brilliant technology!",
+            "image": {
+              "src": "/imgs/avatars/16.jpg",
+              "alt": "David"
+            },
+            "rating": 5
+          }
+        ],
+        "buttons": [
+          {
+            "title": "Start Your Free Workout",
+            "url": "/ai-video-generator",
+            "target": "_self",
+            "variant": "default",
+            "size": "default"
+          }
+        ],
+        "className": "bg-background"
+      },
+      "use-cases": {
+        "block": "features-media",
+        "id": "use-cases",
+        "title": "Create a Bible Video for Any Moment",
+        "description": "Whether for yourself or a loved one, bring God's Word to life",
+        "items": [
+          {
+            "title": "For Your Partner",
+            "description": "Express your love through Scripture",
+            "icon": "RiHeart3Line",
+            "image": {
+              "src": "/imgs/cases/1.png",
+              "alt": "For Partner"
+            }
+          },
+          {
+            "title": "For Children",
+            "description": "Teach faith through beautiful videos",
+            "icon": "RiUserSmileLine",
+            "image": {
+              "src": "/imgs/cases/2.png",
+              "alt": "For Children"
+            }
+          },
+          {
+            "title": "For Loss",
+            "description": "Find comfort in times of grief",
+            "icon": "RiHandHeartLine",
+            "image": {
+              "src": "/imgs/cases/3.png",
+              "alt": "For Loss"
+            }
+          },
+          {
+            "title": "For Parents",
+            "description": "Honor them with God's blessings",
+            "icon": "RiParentLine",
+            "image": {
+              "src": "/imgs/cases/4.png",
+              "alt": "For Parents"
+            }
+          },
+          {
+            "title": "For Healing",
+            "description": "Pray for restoration and peace",
+            "icon": "RiHeartsLine",
+            "image": {
+              "src": "/imgs/cases/5.png",
+              "alt": "For Healing"
+            }
+          },
+          {
+            "title": "For Strength",
+            "description": "Find courage in God's promises",
+            "icon": "RiShieldStarLine",
+            "image": {
+              "src": "/imgs/cases/6.png",
+              "alt": "For Strength"
+            }
+          },
+          {
+            "title": "For Prayers",
+            "description": "Lift your prayers through video",
+            "icon": "RiHandsPrayLine",
+            "image": {
+              "src": "/imgs/cases/7.png",
+              "alt": "For Prayers"
+            }
+          },
+          {
+            "title": "For Breakthroughs",
+            "description": "Celebrate God's miracles",
+            "icon": "RiSparklingLine",
+            "image": {
+              "src": "/imgs/cases/8.png",
+              "alt": "For Breakthroughs"
+            }
+          }
+        ],
+        "buttons": [
+          {
+            "title": "Make Your “Fear Not For I Am With You” Video Today",
+            "url": "/ai-video-generator",
+            "target": "_self"
+          }
+        ],
+        "className": "bg-background"
+      },
+      "what-you-get": {
+        "block": "features",
+        "id": "what-you-get",
+        "title": "What You Get",
+        "description": "",
+        "items": [
+          {
+            "title": "Pro-Quality Video",
+            "description": "Woven with <em>\"fear not, for I am with you\"</em>—for worship or reflection",
+            "icon": "RiVideoLine"
+          },
+          {
+            "title": "Custom Scripture",
+            "description": "Tailored to your story & spiritual needs",
+            "icon": "RiBookOpenLine"
+          },
+          {
+            "title": "Fast Email Delivery",
+            "description": "Get your video in minutes, straight to your inbox",
+            "icon": "RiTimeLine"
+          }
+        ],
+        "buttons": [
+          {
+            "title": "Make Your “Fear Not For I Am With You” Video Today",
+            "url": "/ai-video-generator",
+            "target": "_self",
+            "variant": "default"
+          }
+        ],
+        "className": "bg-background"
+      },
+      "showcases": {
+        "block": "showcases-flow",
+        "id": "showcases",
+        "title": "Example Bible Videos",
+        "description": "See how our AI creates beautiful personalized videos",
+        "items": [
+          {
+            "title": "Isaiah 41:10",
+            "description": "So do not fear, for I am with you",
+            "video": {
+              "src": "/1.mp4"
+            }
+          },
+          {
+            "title": "Psalm 46:5",
+            "description": "God is within her, she will not fall",
+            "video": {
+              "src": "/2.mp4"
+            }
+          },
+          {
+            "title": "Psalms 9:2",
+            "description": "I will be glad and rejoice in you",
+            "video": {
+              "src": "/3.mp4"
+            }
+          },
+          {
+            "title": "Psalm 23:6",
+            "description": "Surely your goodness and love",
+            "video": {
+              "src": "/4.mp4"
+            }
+          }
+        ],
+        "className": "bg-background"
+      },
+      "faq": {
+        "id": "faq",
+        "title": "Frequently Asked Questions",
+        "description": "Everything you need to know about creating your Bible video",
+        "items": [
+          {
+            "question": "What makes these videos special?",
+            "answer": "Each video is custom-created from your story. It is a one-of-a-kind gift rooted in Scripture, prayer, and genuine care - designed to bring comfort and peace to your heart."
+          },
+          {
+            "question": "How long does it take to receive the video?",
+            "answer": "Your finished Bible video is delivered in just 2-5 minutes. We use advanced AI technology to create your personalized video quickly while maintaining the highest quality."
+          },
+          {
+            "question": "What themes can I create videos about?",
+            "answer": "Anything that honors God: birthdays, anniversaries, weddings, grief, encouragement, testimonies, or prayers for strength and healing. Share your heart, and we'll create a video that speaks to it."
+          },
+          {
+            "question": "How will I receive the finished video?",
+            "answer": "You will receive a secure link via email to play your Bible video on any device and to easily share it with family and friends."
+          },
+          {
+            "question": "Can I use the video at church or events?",
+            "answer": "Yes, you may share and play your Bible video at private events and church gatherings to inspire and comfort others."
+          },
+          {
+            "question": "What if generation fails?",
+            "answer": "If your video fails to generate due to a technical issue, you will not lose any credits. We automatically refund your credits, and you can try again immediately."
+          }
+        ],
+        "buttons": [
+          {
+            "title": "Create Your Bible Video",
+            "url": "/ai-video-generator",
+            "target": "_self",
+            "variant": "default",
+            "icon": "Play"
+          }
+        ],
+        "className": "bg-background"
+      },
+      "cta": {
+        "id": "cta",
+        "title": "Fear not, for I am with you",
+        "description": "Create your personalized Bible video today and experience God's peace",
+        "buttons": [
+          {
+            "title": "Create Your Bible Video",
+            "url": "/ai-video-generator",
+            "target": "_self",
+            "icon": "Heart"
+          }
+        ],
+        "quote": {
+          "text": "Fear not, for I am with you; be not dismayed, for I am your God.",
+          "source": "— Isaiah 41:10"
+        },
+        "className": "bg-muted/30"
+      }
+    }
+  }
+}
