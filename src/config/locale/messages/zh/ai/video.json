@@ -1,14 +1,14 @@
 {
   "metadata": {
-    "title": "创建你的安慰视频",
-    "description": "创建个性化的圣经安慰视频，为你的心灵带来平安和属灵的安慰。"
+    "title": "AI健身视频生成器",
+    "description": "使用身边的日常物品创建个性化的健身训练视频。"
   },
   "page": {
-    "title": "创建你的安慰视频",
-    "description": "创建个性化的圣经安慰视频，为你的心灵带来平安和属灵的安慰。"
+    "title": "AI健身视频生成器",
+    "description": "使用身边的日常物品创建个性化的健身训练视频。"
   },
   "generator": {
-    "title": "创建你的安慰视频",
+    "title": "AI健身视频生成器",
     "description": "使用 AI 模型生成视频，支持文本到视频、图片到视频和视频到视频。",
     "tabs": {
       "text-to-video": "文生视频",
@@ -22,17 +22,31 @@
       "select_model": "选择模型",
       "prompt": "描述",
       "prompt_placeholder": "描述场景、感受或想要展现的圣经经文",
-      "user_feeling": "您的感受",
-      "user_feeling_placeholder": "请分享您的感受，例如：我最近因为工作压力感到非常焦虑...",
-      "user_feeling_hint": "✨ 将自动匹配圣经经文并创建温暖的视频场景",
-      "user_feeling_required": "请输入您的感受",
+      "user_feeling": "目标肌肉群",
+      "user_feeling_placeholder": "选择要锻炼的肌肉群，例如：胸部、手臂、腿部、核心、背部、全身...",
+      "user_feeling_hint": "✨ AI将分析你的环境并创建个性化的健身视频",
+      "user_feeling_required": "请选择目标肌肉群",
+      "aspect_ratio": "视频方向",
+      "aspect_ratio_portrait": "竖屏 (9:16)",
+      "aspect_ratio_landscape": "横屏 (16:9)",
+      "aspect_ratio_hint": "竖屏更适合手机观看",
+      "target_muscle_groups": {
+        "chest": "胸部",
+        "arms": "手臂",
+        "legs": "腿部",
+        "core": "核心/腹肌",
+        "back": "背部",
+        "shoulders": "肩部",
+        "full_body": "全身",
+        "cardio": "有氧"
+      },
       "voice_gender": "语音性别",
       "voice_female": "女声",
       "voice_male": "男声",
       "voice_gender_female_selected": "已选择女声",
       "voice_gender_male_selected": "已选择男声",
-      "reference_image": "选择图片",
-      "reference_image_placeholder": "上传参考图片用于视频生成",
+      "reference_image": "上传你的空间",
+      "reference_image_placeholder": "拍摄你的房间或户外空间，包含可用于锻炼的物品",
       "reference_video": "参考视频链接",
       "reference_video_placeholder": "输入参考视频的链接",
       "some_images_failed_to_upload": "图片上传失败，请删除并重新上传",
@@ -76,7 +90,10 @@
     "buy_credits": "购买积分",
     "progress": "进度",
     "generated_videos": "视频预览",
-    "do_not_close_page": "视频生成过程中，请不要关闭此页面。生成过程将在后台继续进行。",
+    "do_not_close_page": "视频生成大约需要15-20分钟。您可以离开此页面，稍后回来查看，或继续生成更多视频。",
+    "generation_time_notice": "健身视频生成大约需要15-20分钟。您可以离开页面，稍后在历史记录中查看。",
+    "check_back_later": "20分钟后查看",
+    "continue_generating": "继续生成",
     "ready_to_generate": "准备生成",
     "ready_for_generating": "准备生成",
     "no_videos_generated": "没有生成视频",
@@ -114,8 +131,9 @@
       "order": "顺序",
       "task_id": "任务ID",
       "prompt": "提示词",
-      "verse_reference": "圣经经文",
+      "verse_reference": "目标肌肉",
       "final_prompt": "最终提示词",
+      "current_step": "当前步骤",
       "status": "状态",
       "created": "创建时间",
       "actions": "操作",
@@ -131,14 +149,15 @@
     "regenerate_not_available": "重新生成功能暂不可用",
     "progress_steps": {
       "pending": "准备中...",
-      "analyzing": "分析图片和文本中...",
-      "generating_images": "生成图片中...",
-      "saving_original_images": "保存原始图片中...",
-      "adding_text_overlay": "添加文字水印中...",
-      "generating_audio": "生成音频中...",
-      "merging_video": "视频合成中...",
+      "analyzing": "分析你的环境中...",
+      "generating_scripts": "创建训练计划中...",
+      "generating_video_1": "生成视频片段 1...",
+      "generating_video_2": "生成视频片段 2...",
+      "generating_video_3": "生成视频片段 3...",
+      "extracting_last_frame": "准备下一片段...",
+      "merging_videos": "合并视频片段中...",
       "uploading_to_r2": "上传文件中...",
-      "completed": "完成!",
+      "completed": "训练视频已就绪!",
       "failed": "生成失败"
     }
   }

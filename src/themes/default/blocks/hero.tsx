@@ -1,7 +1,7 @@
 "use client";
 
 import { motion, useMotionValue, useTransform, useSpring } from "framer-motion";
-import { useEffect, useState, useRef } from "react";
+import { useEffect, useState, useRef, useMemo } from "react";
 import { Zap } from "lucide-react";
 
 import { Link } from "@/core/i18n/navigation";
@@ -17,6 +17,30 @@ interface HeroSection extends Section {
   cta?: string;
 }
 
+// 预定义的粒子位置，避免hydration mismatch
+const PARTICLE_POSITIONS = [
+  { left: 15, top: 20, duration: 3.2, delay: 0.1 },
+  { left: 85, top: 10, duration: 4.1, delay: 0.5 },
+  { left: 45, top: 80, duration: 3.8, delay: 1.2 },
+  { left: 25, top: 60, duration: 4.5, delay: 0.3 },
+  { left: 75, top: 40, duration: 3.5, delay: 1.8 },
+  { left: 55, top: 15, duration: 4.2, delay: 0.7 },
+  { left: 35, top: 90, duration: 3.9, delay: 1.5 },
+  { left: 65, top: 70, duration: 4.0, delay: 0.9 },
+  { left: 10, top: 45, duration: 3.6, delay: 1.1 },
+  { left: 90, top: 55, duration: 4.3, delay: 0.4 },
+  { left: 20, top: 85, duration: 3.4, delay: 1.7 },
+  { left: 80, top: 25, duration: 4.4, delay: 0.2 },
+  { left: 50, top: 50, duration: 3.7, delay: 1.0 },
+  { left: 30, top: 35, duration: 4.6, delay: 0.6 },
+  { left: 70, top: 75, duration: 3.3, delay: 1.4 },
+  { left: 40, top: 5, duration: 4.7, delay: 0.8 },
+  { left: 60, top: 95, duration: 3.1, delay: 1.6 },
+  { left: 5, top: 65, duration: 4.8, delay: 1.3 },
+  { left: 95, top: 30, duration: 3.0, delay: 1.9 },
+  { left: 48, top: 42, duration: 4.9, delay: 0.0 },
+];
+
 export function Hero({
   section,
   className,
@@ -25,6 +49,7 @@ export function Hero({
   className?: string;
 }) {
   const containerRef = useRef<HTMLDivElement>(null);
+  const [mounted, setMounted] = useState(false);
   const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 });
 
   // 鼠标跟踪效果
@@ -37,6 +62,10 @@ export function Hero({
   // 视差效果
   const rotateX = useTransform(springY, [-300, 300], [5, -5]);
   const rotateY = useTransform(springX, [-300, 300], [-5, 5]);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
   useEffect(() => {
     const handleMouseMove = (e: MouseEvent) => {
@@ -66,7 +95,7 @@ export function Hero({
     >
       {/* 视频背景 */}
       <div className="absolute inset-0 z-0">
-        <video
+        {/* <video
           autoPlay
           muted
           loop
@@ -75,7 +104,7 @@ export function Hero({
           style={{ filter: "brightness(0.5) contrast(1.2)" }}
         >
           <source src="/1.mp4" type="video/mp4" />
-        </video>
+        </video> */}
 
         {/* 渐变遮罩 */}
         <div className="absolute inset-0 bg-gradient-to-b from-background/40 via-background/60 to-background/90" />
@@ -98,30 +127,32 @@ export function Hero({
         />
       </div>
 
-      {/* 动态粒子效果 */}
-      <div className="absolute inset-0 z-1 overflow-hidden pointer-events-none">
-        {[...Array(20)].map((_, i) => (
-          <motion.div
-            key={i}
-            className="absolute w-1 h-1 rounded-full bg-primary"
-            style={{
-              left: `${Math.random() * 100}%`,
-              top: `${Math.random() * 100}%`,
-            }}
-            animate={{
-              y: [0, -100, 0],
-              opacity: [0, 1, 0],
-              scale: [0, 1.5, 0],
-            }}
-            transition={{
-              duration: 3 + Math.random() * 2,
-              repeat: Infinity,
-              delay: Math.random() * 2,
-              ease: "easeInOut",
-            }}
-          />
-        ))}
-      </div>
+      {/* 动态粒子效果 - 仅在客户端渲染 */}
+      {mounted && (
+        <div className="absolute inset-0 z-1 overflow-hidden pointer-events-none">
+          {PARTICLE_POSITIONS.map((particle, i) => (
+            <motion.div
+              key={i}
+              className="absolute w-1 h-1 rounded-full bg-primary"
+              style={{
+                left: `${particle.left}%`,
+                top: `${particle.top}%`,
+              }}
+              animate={{
+                y: [0, -100, 0],
+                opacity: [0, 1, 0],
+                scale: [0, 1.5, 0],
+              }}
+              transition={{
+                duration: particle.duration,
+                repeat: Infinity,
+                delay: particle.delay,
+                ease: "easeInOut",
+              }}
+            />
+          ))}
+        </div>
+      )}
 
       {/* 主内容区域 */}
       <div className="relative z-10 flex flex-col items-center justify-center min-h-screen px-4 sm:px-6">
@@ -140,7 +171,7 @@ export function Hero({
             transition={{ duration: 0.8, delay: 0.2 }}
             className="mb-4"
           >
-            <span className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white/10 backdrop-blur-sm border border-white/20 text-xs md:text-sm font-semibold tracking-wider uppercase text-white/80">
+            <span className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-foreground/10 backdrop-blur-sm border border-foreground/20 text-xs md:text-sm font-semibold tracking-wider uppercase text-foreground/80">
               <Zap className="w-4 h-4 text-primary" />
               {section.eyebrow || "THE #1 AI FITNESS VIDEO PLATFORM"}
             </span>
@@ -170,7 +201,7 @@ export function Hero({
             }}
             className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-black leading-tight mb-8"
           >
-            <span className="block text-white">
+            <span className="block text-foreground">
               {section.title_line1 || "把身边的一切"}
             </span>
             <motion.span
@@ -217,7 +248,7 @@ export function Hero({
                   backgroundSize: "200% 200%",
                 }}
               />
-              <span className="relative z-10 text-white flex items-center gap-2">
+              <span className="relative z-10 text-primary-foreground flex items-center gap-2">
                 <Zap className="w-5 h-5" />
                 {section.cta || "生成我的训练视频"}
               </span>
@@ -234,7 +265,7 @@ export function Hero({
           </motion.div>
 
           {/* 滚动提示 */}
-          <motion.div
+          {/* <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             transition={{ delay: 1.5 }}
@@ -243,7 +274,7 @@ export function Hero({
             <motion.div
               animate={{ y: [0, 10, 0] }}
               transition={{ duration: 2, repeat: Infinity, ease: "easeInOut" }}
-              className="w-6 h-10 rounded-full border-2 border-white/30 flex justify-center pt-2"
+              className="w-6 h-10 rounded-full border-2 border-foreground/30 flex justify-center pt-2"
             >
               <motion.div
                 animate={{ opacity: [1, 0, 1], y: [0, 8, 0] }}
@@ -255,7 +286,7 @@ export function Hero({
                 className="w-1.5 h-3 rounded-full bg-primary"
               />
             </motion.div>
-          </motion.div>
+          </motion.div> */}
         </motion.div>
       </div>
     </section>

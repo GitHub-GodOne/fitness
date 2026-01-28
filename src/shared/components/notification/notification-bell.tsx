@@ -75,7 +75,7 @@ export function NotificationBell({ className }: NotificationBellProps) {
         <Button
           variant="ghost"
           size="icon"
-          className={`relative ${className}`}
+          className={`relative text-foreground hover:text-primary ${className}`}
           aria-label={t("bell_aria_label")}
         >
           <Bell className="h-5 w-5" />

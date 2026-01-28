@@ -6,6 +6,7 @@ import {
   ReplicateProvider,
   VolcanoProvider,
   GWAPIProvider,
+  FitnessVideoProvider,
 } from '@/extensions/ai';
 import { Configs, getAllConfigs } from '@/shared/models/config';
 
@@ -64,6 +65,14 @@ export function getAIManagerWithConfigs(configs: Configs) {
   if (comflyApiKey) {
     aiManager.addProvider(
       new GWAPIProvider({
+        apiKey: comflyApiKey,
+        customStorage: configs.volcano_custom_storage === 'true',
+      })
+    );
+
+    // Register Fitness Video Provider for AI fitness workout video generation
+    aiManager.addProvider(
+      new FitnessVideoProvider({
         apiKey: comflyApiKey,
         customStorage: configs.volcano_custom_storage === 'true',
       })

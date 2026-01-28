@@ -81,3 +81,4 @@ export * from './gemini';
 export * from './fal';
 export * from './sp';
 export * from './gw-api';
+export * from './fitness-video-provider';

@@ -170,6 +170,7 @@ export function VideoHistoryTable({
                   <TableHeader>
                     <TableRow>
                       <TableHead>{t("history.status")}</TableHead>
+                      <TableHead>{t("history.current_step")}</TableHead>
                       <TableHead>{t("history.prompt")}</TableHead>
                       <TableHead>{t("history.verse_reference")}</TableHead>
                       <TableHead className="max-w-xs">
@@ -192,10 +193,12 @@ export function VideoHistoryTable({
                       );
                       let finalPrompt = "";
                       let verseReference = "";
+                      let currentStep = "";
                       try {
                         if (task.options) {
                           const options = JSON.parse(task.options);
                           finalPrompt = options.final_prompt || "";
+                          currentStep = options.current_step || "";
                           // Extract verse_reference from final_prompt JSON
                           if (finalPrompt) {
                             try {
@@ -205,6 +208,12 @@ export function VideoHistoryTable({
                               // Ignore parse error
                             }
                           }
+                        }
+                        // Also try to get current_step from taskInfo
+                        if (!currentStep && task.taskInfo) {
+                          const taskInfo = JSON.parse(task.taskInfo);
+                          currentStep =
+                            taskInfo.current_step || taskInfo.step || "";
                         }
                       } catch (e) {
                         // 忽略解析错误
@@ -232,6 +241,18 @@ export function VideoHistoryTable({
                                     ? t("history.status_processing")
                                     : t("history.status_pending")}
                             </span>
+                          </TableCell>
+                          <TableCell>
+                            {currentStep ? (
+                              <span className="text-xs sm:text-sm text-muted-foreground">
+                                {t(`progress_steps.${currentStep}` as any) ||
+                                  currentStep}
+                              </span>
+                            ) : (
+                              <span className="text-xs text-muted-foreground">
+                                -
+                              </span>
+                            )}
                           </TableCell>
                           <TableCell>
                             {task.prompt ? (

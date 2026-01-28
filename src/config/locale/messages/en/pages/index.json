@@ -99,6 +99,15 @@
             "icon": "TrendingUp"
           }
         ],
+        "buttons": [
+          {
+            "title": "Get Started Free",
+            "url": "/ai-video-generator",
+            "target": "_self",
+            "variant": "default",
+            "icon": "Zap"
+          }
+        ],
         "className": "bg-background"
       },
       "testimonials": {
@@ -308,27 +317,27 @@
       "faq": {
         "id": "faq",
         "title": "Frequently Asked Questions",
-        "description": "Everything you need to know about creating your Bible video",
+        "description": "Everything you need to know about AI Fitness Trainer",
         "items": [
           {
-            "question": "What makes these videos special?",
-            "answer": "Each video is custom-created from your story. It is a one-of-a-kind gift rooted in Scripture, prayer, and genuine care - designed to bring comfort and peace to your heart."
+            "question": "What makes these workout videos special?",
+            "answer": "Each video is custom-created based on your environment and available objects. Our AI analyzes your photo and creates personalized exercises that you can do with everyday items around you."
           },
           {
             "question": "How long does it take to receive the video?",
-            "answer": "Your finished Bible video is delivered in just 2-5 minutes. We use advanced AI technology to create your personalized video quickly while maintaining the highest quality."
+            "answer": "Your personalized workout video is generated in just 2-5 minutes. We use advanced AI technology to create your custom workout quickly while ensuring exercise safety and effectiveness."
           },
           {
-            "question": "What themes can I create videos about?",
-            "answer": "Anything that honors God: birthdays, anniversaries, weddings, grief, encouragement, testimonies, or prayers for strength and healing. Share your heart, and we'll create a video that speaks to it."
+            "question": "What objects can I use for workouts?",
+            "answer": "Almost anything! Water bottles, chairs, towels, backpacks, stairs, walls - our AI can create effective exercises using common household items. Just take a photo of your space."
           },
           {
-            "question": "How will I receive the finished video?",
-            "answer": "You will receive a secure link via email to play your Bible video on any device and to easily share it with family and friends."
+            "question": "Is this suitable for beginners?",
+            "answer": "Absolutely! Our AI creates workouts tailored to all fitness levels. You can specify your experience level and any limitations, and we'll generate appropriate exercises."
           },
           {
-            "question": "Can I use the video at church or events?",
-            "answer": "Yes, you may share and play your Bible video at private events and church gatherings to inspire and comfort others."
+            "question": "Can I target specific muscle groups?",
+            "answer": "Yes! You can choose to focus on chest, arms, legs, core, back, or full body workouts. The AI will create exercises targeting your selected muscle groups."
           },
           {
             "question": "What if generation fails?",
@@ -337,11 +346,11 @@
         ],
         "buttons": [
           {
-            "title": "Create Your Bible Video",
+            "title": "Start Your AI Workout",
             "url": "/ai-video-generator",
             "target": "_self",
             "variant": "default",
-            "icon": "Play"
+            "icon": "Zap"
           }
         ],
         "className": "bg-background"

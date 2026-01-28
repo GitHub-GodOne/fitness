@@ -1,14 +1,14 @@
 {
   "metadata": {
-    "title": "Create Your Comfort Video",
-    "description": "Create personalized Bible comfort videos that bring peace and spiritual comfort to your heart."
+    "title": "AI Fitness Video Generator",
+    "description": "Create personalized workout videos using everyday objects around you."
   },
   "page": {
-    "title": "Create Your Comfort Video",
-    "description": "Create personalized Bible comfort videos that bring peace and spiritual comfort to your heart."
+    "title": "AI Fitness Video Generator",
+    "description": "Create personalized workout videos using everyday objects around you."
   },
   "generator": {
-    "title": "Create Your Comfort Video",
+    "title": "AI Fitness Video Generator",
     "description": "Generate videos with AI models, support text-to-video, image-to-video and video-to-video.",
     "tabs": {
       "text-to-video": "Text to Video",
@@ -22,17 +22,31 @@
       "select_model": "Select Model",
       "prompt": "Description",
       "prompt_placeholder": "Describe the scene, feelings, or Bible verse you want to visualize",
-      "user_feeling": "Your Feelings",
-      "user_feeling_placeholder": "Please share your feelings, e.g., I've been feeling very anxious lately due to work pressure...",
-      "user_feeling_hint": "✨ Bible verses will be automatically matched and a warm video scene will be created",
-      "user_feeling_required": "Please enter your feelings",
+      "user_feeling": "Target Muscle Group",
+      "user_feeling_placeholder": "Select the muscle group you want to train, e.g., chest, arms, legs, core, back, full body...",
+      "user_feeling_hint": "✨ AI will analyze your environment and create personalized workout videos",
+      "user_feeling_required": "Please select a target muscle group",
+      "aspect_ratio": "Video Orientation",
+      "aspect_ratio_portrait": "Portrait (9:16)",
+      "aspect_ratio_landscape": "Landscape (16:9)",
+      "aspect_ratio_hint": "Portrait is recommended for mobile viewing",
+      "target_muscle_groups": {
+        "chest": "Chest",
+        "arms": "Arms",
+        "legs": "Legs",
+        "core": "Core/Abs",
+        "back": "Back",
+        "shoulders": "Shoulders",
+        "full_body": "Full Body",
+        "cardio": "Cardio"
+      },
       "voice_gender": "Voice Gender",
       "voice_female": "Female Voice",
       "voice_male": "Male Voice",
       "voice_gender_female_selected": "Female voice selected",
       "voice_gender_male_selected": "Male voice selected",
-      "reference_image": "Select Image",
-      "reference_image_placeholder": "Upload a reference image for video generation",
+      "reference_image": "Upload Your Space",
+      "reference_image_placeholder": "Take a photo of your room or outdoor space with objects you can use for exercise",
       "reference_video": "Reference Video URL",
       "reference_video_placeholder": "Enter the URL of the reference video",
       "some_images_failed_to_upload": "Image failed to upload, please delete and re-upload",
@@ -76,7 +90,10 @@
     "buy_credits": "Buy Credits",
     "progress": "Progress",
     "generated_videos": "Video Preview",
-    "do_not_close_page": "Please do not close this page while the video is being generated. The process will continue in the background.",
+    "do_not_close_page": "Video generation takes about 15-20 minutes. You can leave this page and check back later, or continue generating more videos.",
+    "generation_time_notice": "Fitness video generation takes approximately 15-20 minutes. Feel free to leave and check your history later.",
+    "check_back_later": "Check back in 20 minutes",
+    "continue_generating": "Continue Generating",
     "ready_to_generate": "Ready to Generate",
     "ready_for_generating": "Ready for Generating",
     "no_videos_generated": "No Videos Generated",
@@ -114,8 +131,9 @@
       "order": "Order",
       "task_id": "Task ID",
       "prompt": "Prompt",
-      "verse_reference": "Bible Verse",
+      "verse_reference": "Target Muscle",
       "final_prompt": "Final Prompt",
+      "current_step": "Current Step",
       "status": "Status",
       "created": "Created",
       "actions": "Actions",
@@ -131,14 +149,15 @@
     "regenerate_not_available": "Regenerate feature is not available",
     "progress_steps": {
       "pending": "Preparing...",
-      "analyzing": "Analyzing image and text...",
-      "generating_images": "Generating images...",
-      "saving_original_images": "Saving original images...",
-      "adding_text_overlay": "Adding text overlay...",
-      "generating_audio": "Generating audio...",
-      "merging_video": "Merging video...",
+      "analyzing": "Analyzing your environment...",
+      "generating_scripts": "Creating workout plan...",
+      "generating_video_1": "Generating video segment 1...",
+      "generating_video_2": "Generating video segment 2...",
+      "generating_video_3": "Generating video segment 3...",
+      "extracting_last_frame": "Preparing next segment...",
+      "merging_videos": "Merging video segments...",
       "uploading_to_r2": "Uploading files...",
-      "completed": "Completed!",
+      "completed": "Workout video ready!",
       "failed": "Generation failed"
     }
   }

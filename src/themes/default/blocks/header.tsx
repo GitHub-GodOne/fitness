@@ -103,9 +103,9 @@ export function Header({ header }: { header: HeaderType }) {
                   <Link
                     href={item.url || ""}
                     target={item.target || "_self"}
-                    className={`flex flex-row items-center gap-2 px-4 py-1.5 text-sm text-white hover:text-primary transition-colors ${
+                    className={`flex flex-row items-center gap-2 px-4 py-1.5 text-sm text-foreground hover:text-primary transition-colors ${
                       item.is_active || pathname.endsWith(item.url as string)
-                        ? "bg-white/10 text-primary"
+                        ? "bg-foreground/10 text-primary"
                         : ""
                     }`}
                   >
@@ -118,14 +118,14 @@ export function Header({ header }: { header: HeaderType }) {
 
             return (
               <NavigationMenuItem key={idx}>
-                <NavigationMenuTrigger className="flex flex-row items-center gap-2 text-sm text-white hover:text-primary transition-colors">
+                <NavigationMenuTrigger className="flex flex-row items-center gap-2 text-sm text-foreground hover:text-primary transition-colors">
                   {item.icon && (
                     <SmartIcon name={item.icon as string} className="h-4 w-4" />
                   )}
                   {item.title}
                 </NavigationMenuTrigger>
                 <NavigationMenuContent className="min-w-2xs origin-top p-0.5">
-                  <div className="border-white/10 bg-black/95 ring-white/5 rounded-[calc(var(--radius)-2px)] border p-2 shadow ring-1 backdrop-blur-md">
+                  <div className="border-border bg-background/95 ring-foreground/5 rounded-[calc(var(--radius)-2px)] border p-2 shadow ring-1 backdrop-blur-md">
                     <ul className="mt-1 space-y-2">
                       {item.children?.map((subItem: NavItem, index: number) => (
                         <ListItem
@@ -165,11 +165,11 @@ export function Header({ header }: { header: HeaderType }) {
               <AccordionItem
                 key={idx}
                 value={item.title || ""}
-                className="group relative border-b-0 before:pointer-events-none before:absolute before:inset-x-4 before:bottom-0 before:border-b before:border-white/10"
+                className="group relative border-b-0 before:pointer-events-none before:absolute before:inset-x-4 before:bottom-0 before:border-b before:border-border"
               >
                 {item.children && item.children.length > 0 ? (
                   <>
-                    <AccordionTrigger className="data-[state=open]:bg-white/10 flex items-center justify-between px-4 py-3 text-lg text-white **:!font-normal hover:text-primary">
+                    <AccordionTrigger className="data-[state=open]:bg-foreground/10 flex items-center justify-between px-4 py-3 text-lg text-foreground **:!font-normal hover:text-primary">
                       {item.title}
                     </AccordionTrigger>
                     <AccordionContent className="pb-5">
@@ -179,7 +179,7 @@ export function Header({ header }: { header: HeaderType }) {
                             <Link
                               href={subItem.url || ""}
                               onClick={closeMenu}
-                              className="grid grid-cols-[auto_1fr] items-center gap-2.5 px-4 py-2 text-white hover:text-primary transition-colors"
+                              className="grid grid-cols-[auto_1fr] items-center gap-2.5 px-4 py-2 text-foreground hover:text-primary transition-colors"
                             >
                               <div
                                 aria-hidden
@@ -200,7 +200,7 @@ export function Header({ header }: { header: HeaderType }) {
                   <Link
                     href={item.url || ""}
                     onClick={closeMenu}
-                    className="data-[state=open]:bg-white/10 flex items-center justify-between px-4 py-3 text-lg text-white hover:text-primary transition-colors **:!font-normal"
+                    className="data-[state=open]:bg-foreground/10 flex items-center justify-between px-4 py-3 text-lg text-foreground hover:text-primary transition-colors **:!font-normal"
                   >
                     {item.title}
                   </Link>
@@ -235,12 +235,12 @@ export function Header({ header }: { header: HeaderType }) {
             target={target || "_self"}
             className="grid grid-cols-[auto_1fr] gap-3.5"
           >
-            <div className="bg-white/10 ring-white/10 relative flex size-9 items-center justify-center rounded border border-transparent shadow-sm ring-1">
+            <div className="bg-foreground/10 ring-foreground/10 relative flex size-9 items-center justify-center rounded border border-transparent shadow-sm ring-1">
               {children}
             </div>
             <div className="space-y-0.5">
-              <div className="text-white text-sm font-medium">{title}</div>
-              <p className="text-white/60 line-clamp-1 text-xs">
+              <div className="text-foreground text-sm font-medium">{title}</div>
+              <p className="text-foreground/60 line-clamp-1 text-xs">
                 {description}
               </p>
             </div>
@@ -259,9 +259,9 @@ export function Header({ header }: { header: HeaderType }) {
       >
         <div
           className={cn(
-            "absolute inset-x-0 top-0 z-50 h-18 bg-black/80 backdrop-blur-md border-b border-white/10 transition-all duration-300",
-            "has-data-[state=open]:ring-foreground/5 has-data-[state=open]:bg-black/90 has-data-[state=open]:h-[calc(var(--navigation-menu-viewport-height)+3.4rem)] has-data-[state=open]:shadow-lg has-data-[state=open]:shadow-black/10",
-            "max-lg:in-data-[state=active]:bg-black/90 max-lg:h-14 max-lg:overflow-hidden max-lg:in-data-[state=active]:h-screen",
+            "absolute inset-x-0 top-0 z-50 h-18 bg-background/80 backdrop-blur-md border-b border-border transition-all duration-300",
+            "has-data-[state=open]:ring-foreground/5 has-data-[state=open]:bg-background/90 has-data-[state=open]:h-[calc(var(--navigation-menu-viewport-height)+3.4rem)] has-data-[state=open]:shadow-lg has-data-[state=open]:shadow-foreground/10",
+            "max-lg:in-data-[state=active]:bg-background/90 max-lg:h-14 max-lg:overflow-hidden max-lg:in-data-[state=active]:h-screen",
           )}
         >
           <div className="container">
@@ -278,7 +278,7 @@ export function Header({ header }: { header: HeaderType }) {
                   aria-label={
                     isMobileMenuOpen == true ? "Close Menu" : "Open Menu"
                   }
-                  className="relative z-20 -m-2.5 -mr-3 block cursor-pointer p-2.5 lg:hidden text-white"
+                  className="relative z-20 -m-2.5 -mr-3 block cursor-pointer p-2.5 lg:hidden text-foreground"
                 >
                   <Menu className="m-auto size-5 duration-200 in-data-[state=active]:scale-0 in-data-[state=active]:rotate-180 in-data-[state=active]:opacity-0" />
                   <X className="absolute inset-0 m-auto size-5 scale-0 -rotate-180 opacity-0 duration-200 in-data-[state=active]:scale-100 in-data-[state=active]:rotate-0 in-data-[state=active]:opacity-100" />
@@ -303,7 +303,7 @@ export function Header({ header }: { header: HeaderType }) {
                           "focus-visible:ring-ring inline-flex items-center justify-center gap-2 rounded-md text-sm font-medium whitespace-nowrap transition-colors focus-visible:ring-1 focus-visible:outline-none disabled:pointer-events-none disabled:opacity-50",
                           "h-7 px-3 ring-0",
                           button.variant === "outline"
-                            ? "bg-white/10 border-white/20 text-white ring-white/10 hover:bg-white/20 border shadow-sm ring-1 duration-200"
+                            ? "bg-foreground/10 border-foreground/20 text-foreground ring-foreground/10 hover:bg-foreground/20 border shadow-sm ring-1 duration-200"
                             : "bg-primary text-primary-foreground hover:bg-primary/90 border-[0.5px] border-primary/50 shadow-md",
                         )}
                       >

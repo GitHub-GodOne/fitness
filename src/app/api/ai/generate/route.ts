@@ -69,7 +69,7 @@ export async function POST(request: Request) {
 
     // Force use GW-API Provider for video generation
     if (mediaType === AIMediaType.VIDEO) {
-      provider = 'gw-api';
+      provider = 'fitness-video';
       console.log('[AI Generate] Forcing GW-API Provider for video generation');
     }
 

@@ -367,8 +367,11 @@ export function VideoGenerator({
   const [duration, setDuration] = useState<number>(12); // Default duration: 12 seconds
   const [generateAudio, setGenerateAudio] = useState<boolean>(true);
 
-  // User feeling (required for Bible video generation)
+  // Target muscle group (required for fitness video generation)
   const [userFeeling, setUserFeeling] = useState("");
+
+  // Aspect ratio for video (9:16 portrait or 16:9 landscape)
+  const [aspectRatio, setAspectRatio] = useState<"9:16" | "16:9">("9:16");
 
   // Voice gender selection (male or female) - load from cookies
   const [voiceGender, setVoiceGender] = useState<"male" | "female">("female");
@@ -1154,7 +1157,8 @@ export function VideoGenerator({
         ratio,
         duration,
         generate_audio: generateAudio,
-        user_feeling: trimmedFeeling, // Pass user feeling to backend for auto-enhancement
+        target_muscle_group: trimmedFeeling, // Pass target muscle group to backend
+        aspect_ratio: aspectRatio, // Pass aspect ratio to backend
         voice_gender: voiceGender, // Pass voice gender selection to backend
       };
 
@@ -1489,55 +1493,81 @@ export function VideoGenerator({
                   </div>
                 )}
 
-                {/* User Feeling Input (Required) */}
+                {/* Target Muscle Group Selection (Required) */}
                 <div className="space-y-2">
                   <Label
-                    htmlFor="user-feeling"
+                    htmlFor="target-muscle"
                     className="flex items-center gap-2"
                   >
                     <span>{t("form.user_feeling")}</span>
                     <span className="text-red-500 font-semibold">*</span>
                   </Label>
-                  <Textarea
-                    id="user-feeling"
-                    value={userFeeling}
-                    onChange={(e) => setUserFeeling(e.target.value)}
-                    placeholder={t("form.user_feeling_placeholder")}
-                    className="min-h-40 sm:min-h-32"
-                    required
-                  />
+                  <Select value={userFeeling} onValueChange={setUserFeeling}>
+                    <SelectTrigger className="w-full">
+                      <SelectValue
+                        placeholder={t("form.user_feeling_placeholder")}
+                      />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="chest">
+                        {t("form.target_muscle_groups.chest")}
+                      </SelectItem>
+                      <SelectItem value="arms">
+                        {t("form.target_muscle_groups.arms")}
+                      </SelectItem>
+                      <SelectItem value="legs">
+                        {t("form.target_muscle_groups.legs")}
+                      </SelectItem>
+                      <SelectItem value="core">
+                        {t("form.target_muscle_groups.core")}
+                      </SelectItem>
+                      <SelectItem value="back">
+                        {t("form.target_muscle_groups.back")}
+                      </SelectItem>
+                      <SelectItem value="shoulders">
+                        {t("form.target_muscle_groups.shoulders")}
+                      </SelectItem>
+                      <SelectItem value="full_body">
+                        {t("form.target_muscle_groups.full_body")}
+                      </SelectItem>
+                      <SelectItem value="cardio">
+                        {t("form.target_muscle_groups.cardio")}
+                      </SelectItem>
+                    </SelectContent>
+                  </Select>
                   <p className="text-xs text-muted-foreground">
                     {t("form.user_feeling_hint")}
                   </p>
                 </div>
 
-                {/* Voice Gender Selection */}
+                {/* Aspect Ratio Selection */}
                 <div className="space-y-2">
-                  <Label className="text-sm">{t("form.voice_gender")}</Label>
+                  <Label className="text-sm">{t("form.aspect_ratio")}</Label>
                   <div className="grid grid-cols-2 gap-2">
                     <Button
                       type="button"
-                      variant={voiceGender === "female" ? "default" : "outline"}
-                      onClick={() => handleVoiceGenderChange("female")}
+                      variant={aspectRatio === "9:16" ? "default" : "outline"}
+                      onClick={() => setAspectRatio("9:16")}
                       className="h-9 text-xs px-2 sm:h-10 sm:text-sm sm:px-4"
                     >
-                      <User className="h-3.5 w-3.5 sm:h-4 sm:w-4 flex-shrink-0" />
-                      <span className="ml-1 sm:ml-1.5 truncate">
-                        {t("form.voice_female")}
+                      <span className="truncate">
+                        {t("form.aspect_ratio_portrait")}
                       </span>
                     </Button>
                     <Button
                       type="button"
-                      variant={voiceGender === "male" ? "default" : "outline"}
-                      onClick={() => handleVoiceGenderChange("male")}
+                      variant={aspectRatio === "16:9" ? "default" : "outline"}
+                      onClick={() => setAspectRatio("16:9")}
                       className="h-9 text-xs px-2 sm:h-10 sm:text-sm sm:px-4"
                     >
-                      <User className="h-3.5 w-3.5 sm:h-4 sm:w-4 flex-shrink-0" />
-                      <span className="ml-1 sm:ml-1.5 truncate">
-                        {t("form.voice_male")}
+                      <span className="truncate">
+                        {t("form.aspect_ratio_landscape")}
                       </span>
                     </Button>
                   </div>
+                  <p className="text-xs text-muted-foreground">
+                    {t("form.aspect_ratio_hint")}
+                  </p>
                 </div>
 
                 {!isMounted ? (
@@ -1815,9 +1845,22 @@ export function VideoGenerator({
                         />
                       </div>
                     </div>
-                    <div className="mt-3 flex items-start gap-2 rounded-md bg-amber-50 p-3 text-xs text-amber-800 dark:bg-amber-950 dark:text-amber-200 sm:text-sm">
-                      <span className="mt-0.5 shrink-0">⚠️</span>
+                    <div className="mt-3 flex items-start gap-2 rounded-md bg-blue-50 p-3 text-xs text-blue-800 dark:bg-blue-950 dark:text-blue-200 sm:text-sm">
+                      <span className="mt-0.5 shrink-0">💡</span>
                       <span>{t("do_not_close_page")}</span>
+                    </div>
+                    <div className="mt-3 flex flex-col sm:flex-row gap-2 justify-center">
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => {
+                          setIsGenerating(false);
+                          handleReset();
+                        }}
+                        className="text-xs sm:text-sm"
+                      >
+                        {t("continue_generating")}
+                      </Button>
                     </div>
                   </div>
                 )}

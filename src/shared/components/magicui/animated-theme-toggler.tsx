@@ -53,7 +53,7 @@ export const AnimatedThemeToggler = ({ className }: props) => {
         duration: 700,
         easing: "ease-in-out",
         pseudoElement: "::view-transition-new(root)",
-      }
+      },
     );
   };
   if (!mounted) {
@@ -64,10 +64,17 @@ export const AnimatedThemeToggler = ({ className }: props) => {
     <button
       ref={buttonRef}
       onClick={changeTheme}
-      className={cn(className)}
-      aria-label={isDarkMode ? 'Switch to light mode' : 'Switch to dark mode'}
+      className={cn(
+        "text-foreground hover:text-primary transition-colors",
+        className,
+      )}
+      aria-label={isDarkMode ? "Switch to light mode" : "Switch to dark mode"}
     >
-      {isDarkMode ? <SunDim /> : <Moon />}
+      {isDarkMode ? (
+        <SunDim className="h-5 w-5" />
+      ) : (
+        <Moon className="h-5 w-5" />
+      )}
     </button>
   );
 };
