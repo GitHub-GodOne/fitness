@@ -90,10 +90,56 @@ export class GWAPIProvider implements AIProvider {
         this.baseUrl = configs.baseUrl || 'https://ai.comfly.chat';
         this.visionModel = configs.visionModel || 'gemini-3-flash-preview';
         this.imageModel = configs.imageModel || 'nano-banana';
-        this.ttsModel = configs.ttsModel || 'gpt-4o-mini-tts';
+        this.ttsModel = configs.ttsModel || 'tts-1';
         this.visionApiUrl = configs.visionApiUrl || `${this.baseUrl}/v1/chat/completions`;
         this.imageApiUrl = configs.imageApiUrl || `${this.baseUrl}/v1/images/edits`;
         this.ttsApiUrl = configs.ttsApiUrl || `${this.baseUrl}/v1/audio/speech`;
+    }
+
+    /**
+     * Fetch with retry mechanism
+     * Retries up to maxRetries times with exponential backoff
+     * @param url - URL to fetch
+     * @param options - Fetch options
+     * @param maxRetries - Maximum number of retries (default: 3)
+     * @param retryDelay - Base delay in ms for exponential backoff (default: 1000)
+     * @returns Promise<Response>
+     */
+    private async fetchWithRetry(
+        url: string,
+        options?: RequestInit,
+        maxRetries: number = 3,
+        retryDelay: number = 1000
+    ): Promise<Response> {
+        let lastError: Error | null = null;
+
+        for (let attempt = 1; attempt <= maxRetries; attempt++) {
+            try {
+                console.log(`[GW-API Fetch] Attempt ${attempt}/${maxRetries} for ${url}`);
+                const response = await fetch(url, options);
+
+                // Return response even if not ok, let caller handle status codes
+                if (response.ok || attempt === maxRetries) {
+                    return response;
+                }
+
+                // If response is not ok and we have retries left, throw to retry
+                throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+            } catch (error: any) {
+                lastError = error;
+                console.error(`[GW-API Fetch] Attempt ${attempt}/${maxRetries} failed:`, error.message);
+
+                // If this is not the last attempt, wait before retrying
+                if (attempt < maxRetries) {
+                    const waitTime = retryDelay * attempt; // Exponential backoff: 1s, 2s, 3s
+                    console.log(`[GW-API Fetch] Waiting ${waitTime}ms before retry...`);
+                    await new Promise(resolve => setTimeout(resolve, waitTime));
+                }
+            }
+        }
+
+        // All retries exhausted
+        throw new Error(`Fetch failed after ${maxRetries} attempts: ${lastError?.message}`);
     }
 
     /**
@@ -131,7 +177,7 @@ export class GWAPIProvider implements AIProvider {
                 fetchUrl = `http://localhost:${port}${imageUrl}`;
             }
             console.log('[GW-API] Fetching image:', fetchUrl);
-            const response = await fetch(fetchUrl);
+            const response = await this.fetchWithRetry(fetchUrl);
             if (!response.ok) {
                 throw new Error(`Failed to fetch image: ${response.status}`);
             }
@@ -239,7 +285,7 @@ export class GWAPIProvider implements AIProvider {
             ],
         };
 
-        const resp = await fetch(this.visionApiUrl, {
+        const resp = await this.fetchWithRetry(this.visionApiUrl, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
@@ -300,7 +346,7 @@ export class GWAPIProvider implements AIProvider {
                 watermark: false,
             };
 
-            const resp = await fetch(apiUrl, {
+            const resp = await this.fetchWithRetry(apiUrl, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -347,7 +393,7 @@ export class GWAPIProvider implements AIProvider {
             fetchUrl = `http://localhost:${port}${referenceImageUrl}`;
         }
 
-        const imageResponse = await fetch(fetchUrl);
+        const imageResponse = await this.fetchWithRetry(fetchUrl);
         if (!imageResponse.ok) {
             throw new Error(`Failed to download reference image: ${imageResponse.status}`);
         }
@@ -370,7 +416,7 @@ export class GWAPIProvider implements AIProvider {
                     formData.append('response_format', 'url');
                     formData.append('image_size', '4K');
 
-                    const resp = await fetch(this.imageApiUrl, {
+                    const resp = await this.fetchWithRetry(this.imageApiUrl, {
                         method: 'POST',
                         headers: {
                             'Authorization': `Bearer ${apiKey}`,
@@ -460,7 +506,7 @@ export class GWAPIProvider implements AIProvider {
                 ]
             };
 
-            const resp = await fetch(this.visionApiUrl, {
+            const resp = await this.fetchWithRetry(this.visionApiUrl, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -507,7 +553,7 @@ export class GWAPIProvider implements AIProvider {
         text: string
     ): Promise<Buffer> {
         // Download image
-        const response = await fetch(imageUrl);
+        const response = await this.fetchWithRetry(imageUrl);
         const arrayBuffer = await response.arrayBuffer();
         const imageBuffer = Buffer.from(arrayBuffer);
 
@@ -616,45 +662,81 @@ export class GWAPIProvider implements AIProvider {
     }
 
     /**
-     * Step 4: Generate audio (文生音频) - Using gpt-4o-mini-tts model
+     * Step 4: Generate audio (文生音频) - Using TTS models with fallback and retry
      * Using REST API /v1/audio/speech endpoint
+     * Fallback order: gpt-4o-mini-tts -> tts-1-1106 -> tts-1-hd-1106 -> tts-1-hd
+     * Each model will be retried up to 3 times before falling back to the next model
      */
     private async generateAudio(
         text: string,
         apiKey: string,
         voiceType: string = 'alloy'
     ): Promise<Buffer> {
-        console.log('[GW-API TTS] Generating audio with model:', this.ttsModel);
+        const ttsModels = [this.ttsModel, 'gpt-4o-mini-tts', 'tts-1-1106', 'tts-1-hd-1106', 'tts-1-hd'];
+        const maxRetries = 3;
+
+        console.log('[GW-API TTS] Starting TTS generation with fallback chain:', ttsModels);
         console.log('[GW-API TTS] Voice type:', voiceType);
         console.log('[GW-API TTS] Text length:', text.length);
 
-        const payload = {
-            model: this.ttsModel,
-            input: text,
-            voice: voiceType,
-        };
+        let lastError: Error | null = null;
 
-        const resp = await fetch(this.ttsApiUrl, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'Authorization': `Bearer ${apiKey}`,
-            },
-            body: JSON.stringify(payload),
-        });
+        // Try each model in the fallback chain
+        for (const model of ttsModels) {
+            console.log(`[GW-API TTS] Attempting with model: ${model}`);
 
-        if (!resp.ok) {
-            const errorText = await resp.text();
-            throw new Error(`TTS generation failed: ${resp.status}, ${errorText}`);
+            // Retry up to maxRetries times for each model
+            for (let attempt = 1; attempt <= maxRetries; attempt++) {
+                try {
+                    console.log(`[GW-API TTS] Model: ${model}, Attempt: ${attempt}/${maxRetries}`);
+
+                    const payload = {
+                        model: model,
+                        input: text,
+                        voice: voiceType,
+                    };
+
+                    const resp = await this.fetchWithRetry(this.ttsApiUrl, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'Authorization': `Bearer ${apiKey}`,
+                        },
+                        body: JSON.stringify(payload),
+                    });
+
+                    if (!resp.ok) {
+                        const errorText = await resp.text();
+                        throw new Error(`TTS API error: ${resp.status}, ${errorText}`);
+                    }
+
+                    // Response should be audio/mpeg binary data
+                    const arrayBuffer = await resp.arrayBuffer();
+                    const audioBuffer = Buffer.from(arrayBuffer);
+
+                    console.log(`[GW-API TTS] ✅ Success with model ${model} on attempt ${attempt}`);
+                    console.log('[GW-API TTS] Audio generated:', audioBuffer.length, 'bytes');
+
+                    return audioBuffer;
+                } catch (error: any) {
+                    lastError = error;
+                    console.error(`[GW-API TTS] ❌ Failed with model ${model}, attempt ${attempt}/${maxRetries}:`, error.message);
+
+                    // If this is not the last attempt for this model, wait before retrying
+                    if (attempt < maxRetries) {
+                        const waitTime = attempt * 1000; // Exponential backoff: 1s, 2s, 3s
+                        console.log(`[GW-API TTS] Waiting ${waitTime}ms before retry...`);
+                        await new Promise(resolve => setTimeout(resolve, waitTime));
+                    }
+                }
+            }
+
+            // All retries failed for this model, try next model
+            console.log(`[GW-API TTS] All ${maxRetries} attempts failed for model ${model}, trying next model...`);
         }
 
-        // Response should be audio/mpeg binary data
-        const arrayBuffer = await resp.arrayBuffer();
-        const audioBuffer = Buffer.from(arrayBuffer);
-
-        console.log('[GW-API TTS] Audio generated:', audioBuffer.length, 'bytes');
-
-        return audioBuffer;
+        // All models and retries exhausted
+        throw new Error(`TTS generation failed after trying all models (${ttsModels.join(', ')}) with ${maxRetries} retries each. Last error: ${lastError?.message}`);
     }
 
     /**
@@ -1012,7 +1094,7 @@ export class GWAPIProvider implements AIProvider {
                     }
 
                     if (fetchUrl) {
-                        const response = await fetch(fetchUrl);
+                        const response = await this.fetchWithRetry(fetchUrl);
                         if (response.ok) {
                             const arrayBuffer = await response.arrayBuffer();
                             const buffer = Buffer.from(arrayBuffer);
@@ -1086,7 +1168,7 @@ export class GWAPIProvider implements AIProvider {
             console.log('[GW-API] Using public folder storage for original images');
 
             for (let i = 0; i < generatedImageUrls.length; i++) {
-                const response = await fetch(generatedImageUrls[i]);
+                const response = await this.fetchWithRetry(generatedImageUrls[i]);
                 if (!response.ok) {
                     throw new Error(`Failed to download generated image ${i + 1}: ${response.status}`);
                 }

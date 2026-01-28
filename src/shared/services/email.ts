@@ -6,7 +6,7 @@ import { Configs, getAllConfigs } from '@/shared/models/config';
  */
 export function getEmailServiceWithConfigs(configs: Configs) {
   const emailManager = new EmailManager();
-
+  console.log('configs', configs);
   if (configs.resend_api_key) {
     emailManager.addProvider(
       new ResendProvider({
