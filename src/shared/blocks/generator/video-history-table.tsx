@@ -197,7 +197,8 @@ export function VideoHistoryTable({
                       try {
                         if (task.options) {
                           const options = JSON.parse(task.options);
-                          finalPrompt = options.final_prompt || "";
+                          console.log("options", options.analysis);
+                          finalPrompt = JSON.stringify(options.analysis) || "";
                           currentStep = options.current_step || "";
                           // Extract verse_reference from final_prompt JSON
                           if (finalPrompt) {

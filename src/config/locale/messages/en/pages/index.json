@@ -18,6 +18,8 @@
         "cta": "Generate My AI Workout",
         "title": "Turn Anything Around You Into a Real Workout",
         "description": "Upload a photo of any everyday object. Choose your target muscle group. Get an AI-generated personalized workout video in seconds.",
+        "trusted_by": "Trusted by {count}+ Fitness Enthusiasts",
+        "demo_video_title": "AI Generated Workout Demo",
         "buttons": [
           {
             "title": "Generate My AI Workout",

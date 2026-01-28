@@ -180,6 +180,72 @@ export class FitnessVideoProvider implements AIProvider {
     }
 
     /**
+ * Download file with retry logic - includes both fetch and body reading
+ * This handles Body Timeout errors that occur during arrayBuffer() reading
+ */
+    private async downloadWithRetry(
+        url: string,
+        maxRetries: number = 3,
+        retryDelayMs: number = 5000,
+        timeoutMs: number = 300000
+    ): Promise<Buffer> {
+        let lastError: Error | null = null;
+
+        for (let attempt = 1; attempt <= maxRetries; attempt++) {
+            try {
+                console.log(`[Fitness] Download attempt ${attempt}/${maxRetries} for ${url.substring(0, 80)}...`);
+
+                // Create AbortController for timeout (covers both fetch and body reading)
+                const controller = new AbortController();
+                const timeoutId = setTimeout(() => controller.abort(), timeoutMs);
+
+                const response = await fetch(url, { signal: controller.signal });
+
+                if (!response.ok) {
+                    clearTimeout(timeoutId);
+                    throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+                }
+
+                // Read body - this is where Body Timeout usually occurs
+                const arrayBuffer = await response.arrayBuffer();
+                clearTimeout(timeoutId);
+
+                console.log(`[Fitness] Download successful, size: ${arrayBuffer.byteLength} bytes`);
+                return Buffer.from(arrayBuffer);
+
+            } catch (error) {
+                lastError = error instanceof Error ? error : new Error(String(error));
+                const errorMessage = lastError.message || '';
+                const causeString = lastError.cause?.toString() || '';
+
+                console.warn(`[Fitness] Download attempt ${attempt} failed: ${errorMessage}`);
+                if (lastError.cause) {
+                    console.warn(`[Fitness] Cause: ${causeString}`);
+                }
+
+                const isRetryableError =
+                    errorMessage.includes('fetch failed') ||
+                    errorMessage.includes('terminated') ||
+                    errorMessage.includes('aborted') ||
+                    causeString.includes('TIMEOUT') ||
+                    causeString.includes('UND_ERR_HEADERS_TIMEOUT') ||
+                    causeString.includes('UND_ERR_BODY_TIMEOUT') ||
+                    causeString.includes('ECONNRESET') ||
+                    causeString.includes('ETIMEDOUT');
+
+                if (isRetryableError && attempt < maxRetries) {
+                    const delay = retryDelayMs * Math.pow(2, attempt - 1);
+                    console.warn(`[Fitness] Retrying download in ${delay}ms...`);
+                    await new Promise(resolve => setTimeout(resolve, delay));
+                    continue;
+                }
+            }
+        }
+
+        throw lastError || new Error('Download failed after retries');
+    }
+
+    /**
      * Get date string for R2 path (YYYYMMDD format)
      */
     private getDateString(): string {
@@ -302,6 +368,15 @@ Use precise, observable descriptions instead:
 - Explicit movement paths (lower hips straight down, press arms upward until elbows extend)
 
 If a posture or movement cannot be clearly seen on screen, DO NOT describe it.
+
+
+# OBJECT CONSISTENCY RULE (CRITICAL)
+- Coach Alex may ONLY use objects that are clearly visible in the analyzed image
+- Do NOT introduce, generate, or imply any fitness equipment or tools that are not present in the image
+- Hands must remain empty unless holding a clearly visible object from the environment
+- Do NOT add dumbbells, resistance bands, kettlebells, bars, mats, or any gym equipment unless explicitly visible
+- If no suitable object is visible, the exercise MUST be performed as a bodyweight movement
+
 
 # TASKS
 1. **Analyze Image**
@@ -577,13 +652,8 @@ Describe camera framing to ensure continuous movement and joint positions are cl
 
         // Download video first (use longer timeout for large video files - 5 minutes)
         console.log(`[Fitness] Downloading video ${segmentNumber} for frame extraction...`);
-        const videoResponse = await this.fetchWithRetry(videoUrl, {}, 3, 5000, 300000);
-        if (!videoResponse.ok) {
-            throw new Error(`Failed to download video: ${videoResponse.status}`);
-        }
-
-        const videoBuffer = Buffer.from(await videoResponse.arrayBuffer());
-        const tempVideoPath = path.join(workDir, `temp_video_${segmentNumber}.mp4`);
+        const videoBuffer = await this.downloadWithRetry(videoUrl, 3, 5000, 300000);
+        const tempVideoPath = path.join(workDir, `segment_${segmentNumber}.mp4`);
         await fs.writeFile(tempVideoPath, videoBuffer);
 
         // Extract last frame
@@ -692,16 +762,25 @@ Describe camera framing to ensure continuous movement and joint positions are cl
         // Download all videos (use longer timeout for large video files - 5 minutes)
         for (let i = 0; i < videoUrls.length; i++) {
             console.log(`[Fitness] Downloading segment ${i + 1}...`);
-            const response = await this.fetchWithRetry(videoUrls[i], {}, 3, 5000, 300000);
-            if (!response.ok) {
-                throw new Error(`Failed to download video segment ${i + 1}: ${response.status}`);
-            }
+            // ok
+            // const response = await this.fetchWithRetry(videoUrls[i], {}, 3, 5000, 300000);
+            // if (!response.ok) {
+            //     throw new Error(`Failed to download video segment ${i + 1}: ${response.status}`);
+            // }
 
-            const buffer = Buffer.from(await response.arrayBuffer());
-            const segmentPath = path.join(workDir, `segment_${i}.mp4`);
+            // const buffer = Buffer.from(await response.arrayBuffer());
+            const segmentPath = path.join(workDir, `segment_${i + 1}.mp4`);
+            if (fs.existsSync(segmentPath)) {
+                console.log("文件存在, 跳过下载！！！");
+                continue;
+            } else {
+                console.log("文件不存在");
+            }
+            const buffer = await this.downloadWithRetry(videoUrls[i], 3, 5000, 300000);
+
             await fs.writeFile(segmentPath, buffer);
             segmentPaths.push(segmentPath);
-            savedSegmentUrls.push(getTaskPublicUrl(taskId, `segment_${i}.mp4`));
+            savedSegmentUrls.push(getTaskPublicUrl(taskId, `segment_${i + 1}.mp4`));
         }
 
         // If only one video, just return it
@@ -890,6 +969,7 @@ Describe camera framing to ensure continuous movement and joint positions are cl
         };
 
         try {
+
             // Prepare work directory
             const { ensureTaskWorkDir, getTaskPublicUrl } = await import('@/shared/utils/file-manager');
             const workDir = await ensureTaskWorkDir(taskId);
@@ -971,44 +1051,6 @@ Describe camera framing to ensure continuous movement and joint positions are cl
                 aspectRatio
             );
 
-            console.log('[Fitness] Analysis complete:', JSON.stringify(analysis, null, 2));
-            // const analysis = {
-            //     "identifiedObjects": [
-            //         "plastic chairs",
-            //         "wooden tables",
-            //         "lush grass",
-            //         "sturdy trees",
-            //         "stone pavement"
-            //     ],
-            //     "targetMuscleGroup": "back",
-            //     "exercisePlan": {
-            //         "totalSegments": 3,
-            //         "segments": [
-            //             {
-            //                 "segmentNumber": 1,
-            //                 "prompt": "A person stands in the sunny garden, holding a sturdy plastic chair by its sides with a flat back. Vertical 9:16 shot. Voice: Narrated by 'Coach Alex', calm, motivational. Language: English. Coach Alex says: 'Grab a chair by the sides. Keep your back flat and bend your knees slightly for stability.'",
-            //                 "narration": "Grab a chair by the sides. Keep your back flat and bend your knees slightly for stability.",
-            //                 "exerciseName": "Bent-over Chair Row",
-            //                 "instructions": "Stand with feet shoulder-width apart, knees slightly bent, and hold a plastic chair by its sides."
-            //             },
-            //             {
-            //                 "segmentNumber": 2,
-            //                 "prompt": "Side view of the person pulling the chair toward their abdomen, elbows driving back. Outdoor setting. Vertical 9:16. Voice: Narrated by 'Coach Alex', calm, motivational. Language: English. Coach Alex says: 'Pull the chair to your belly, squeezing your shoulder blades together. Control the weight as you lower.'",
-            //                 "narration": "Pull the chair to your belly, squeezing your shoulder blades together. Control the weight as you lower.",
-            //                 "exerciseName": "Bent-over Chair Row",
-            //                 "instructions": "Pull the chair towards your abdomen, squeezing your shoulder blades together."
-            //             },
-            //             {
-            //                 "segmentNumber": 3,
-            //                 "prompt": "The person continues the rowing motion with a focused expression under the shade of trees. Medium shot, 9:16. Voice: Narrated by 'Coach Alex', calm, motivational. Language: English. Coach Alex says: 'Exhale as you pull. This builds a strong, stable back. You are doing fantastic, keep going!'",
-            //                 "narration": "Exhale as you pull. This builds a strong, stable back. You are doing fantastic, keep going!",
-            //                 "exerciseName": "Bent-over Chair Row",
-            //                 "instructions": "Maintain a neutral spine and repeat the movement with control."
-            //             }
-            //         ]
-            //     },
-            //     "safetyNotes": "Ensure the chair is light enough to lift safely and has no sharp edges. Keep your core tight to protect your lower back and keep your gaze slightly ahead of your feet."
-            // }
             console.log('[Fitness] Analysis complete:', JSON.stringify(analysis, null, 2));
 
             // Save analysis to params

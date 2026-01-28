@@ -15,6 +15,8 @@ interface HeroSection extends Section {
   title_line1?: string;
   title_line2?: string;
   cta?: string;
+  trusted_by?: string;
+  demo_video_title?: string;
 }
 
 // 预定义的粒子位置，避免hydration mismatch
@@ -155,7 +157,7 @@ export function Hero({
       )}
 
       {/* 主内容区域 */}
-      <div className="relative z-10 flex flex-col items-center justify-center min-h-screen px-4 sm:px-6">
+      <div className="relative z-10 flex flex-col items-center justify-center py-16 sm:py-20 lg:py-24 px-4 sm:px-6">
         <motion.div
           className="text-center max-w-4xl"
           style={{
@@ -175,6 +177,36 @@ export function Hero({
               <Zap className="w-4 h-4 text-primary" />
               {section.eyebrow || "THE #1 AI FITNESS VIDEO PLATFORM"}
             </span>
+          </motion.div>
+
+          {/* 视频展示 - 横屏16:9，居中显示 */}
+          <motion.div
+            initial={{ opacity: 0, scale: 0.95 }}
+            animate={{ opacity: 1, scale: 1 }}
+            transition={{ duration: 0.8, delay: 0.3 }}
+            className="mb-6 flex justify-center"
+          >
+            <div className="relative w-full max-w-[320px] sm:max-w-[480px] lg:max-w-[560px] aspect-video rounded-2xl overflow-hidden shadow-2xl border border-foreground/10 bg-muted">
+              <video
+                autoPlay
+                muted
+                loop
+                playsInline
+                controls
+                className="w-full h-full object-cover"
+              >
+                <source src="/final_video.mp4" type="video/mp4" />
+              </video>
+              {/* 视频遮罩渐变 */}
+              <div className="absolute inset-0 bg-gradient-to-t from-black/30 via-transparent to-transparent pointer-events-none" />
+              {/* 视频标签 */}
+              <div className="absolute bottom-3 left-3 right-3">
+                <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-black/50 backdrop-blur-sm text-white text-xs font-medium">
+                  <span className="w-2 h-2 rounded-full bg-green-500 animate-pulse" />
+                  {section.demo_video_title || "AI Generated Workout Demo"}
+                </span>
+              </div>
+            </div>
           </motion.div>
 
           {/* Quote */}
@@ -262,6 +294,56 @@ export function Hero({
                 }}
               />
             </Link>
+          </motion.div>
+
+          {/* 用户评价和视频展示区域 */}
+          <motion.div
+            initial={{ opacity: 0, y: 30 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.8, delay: 1.2 }}
+            className="pt-6 sm:pt-8 flex flex-col items-center gap-4 sm:gap-6"
+          >
+            {/* 用户头像和评分 */}
+            <div className="flex flex-col items-center gap-3 sm:gap-4">
+              {/* 头像组 */}
+              <div className="flex -space-x-2 sm:-space-x-3">
+                {[14, 15, 16, 17, 18].map((num) => (
+                  <div
+                    key={num}
+                    className="relative w-8 h-8 sm:w-10 sm:h-10 lg:w-12 lg:h-12 rounded-full border-2 border-background overflow-hidden bg-primary/10"
+                  >
+                    <img
+                      src={`/imgs/avatars/${num}.jpg`}
+                      alt={`User ${num}`}
+                      className="w-full h-full object-cover"
+                      loading="lazy"
+                    />
+                  </div>
+                ))}
+              </div>
+
+              {/* 评分和文字 */}
+              <div className="flex flex-col items-center gap-1.5 sm:gap-2">
+                {/* 五星评分 */}
+                <div className="flex gap-0.5 sm:gap-1">
+                  {[1, 2, 3, 4, 5].map((star) => (
+                    <svg
+                      key={star}
+                      className="w-4 h-4 sm:w-5 sm:h-5 fill-amber-500 text-amber-500"
+                      viewBox="0 0 20 20"
+                    >
+                      <path d="M10 15l-5.878 3.09 1.123-6.545L.489 6.91l6.572-.955L10 0l2.939 5.955 6.572.955-4.756 4.635 1.123 6.545z" />
+                    </svg>
+                  ))}
+                </div>
+                <p className="text-xs sm:text-sm lg:text-base text-muted-foreground font-medium px-4 text-center">
+                  {(
+                    section.trusted_by ||
+                    "Trusted by {count}+ Fitness Enthusiasts"
+                  ).replace("{count}", "1,000")}
+                </p>
+              </div>
+            </div>
           </motion.div>
 
           {/* 滚动提示 */}

@@ -84,6 +84,7 @@ import { useMediaQuery } from "@/shared/hooks/use-media-query";
 import { useAppContext } from "@/shared/contexts/app";
 import { SignModal } from "@/shared/blocks/sign/sign-modal";
 import { usePathname } from "@/core/i18n/navigation";
+import { MuscleGroupSelector } from "@/shared/components/muscle-group-selector";
 
 interface VideoGeneratorProps {
   maxSizeMB?: number;
@@ -1502,42 +1503,11 @@ export function VideoGenerator({
                     <span>{t("form.user_feeling")}</span>
                     <span className="text-red-500 font-semibold">*</span>
                   </Label>
-                  <Select value={userFeeling} onValueChange={setUserFeeling}>
-                    <SelectTrigger className="w-full">
-                      <SelectValue
-                        placeholder={t("form.user_feeling_placeholder")}
-                      />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="chest">
-                        {t("form.target_muscle_groups.chest")}
-                      </SelectItem>
-                      <SelectItem value="arms">
-                        {t("form.target_muscle_groups.arms")}
-                      </SelectItem>
-                      <SelectItem value="legs">
-                        {t("form.target_muscle_groups.legs")}
-                      </SelectItem>
-                      <SelectItem value="core">
-                        {t("form.target_muscle_groups.core")}
-                      </SelectItem>
-                      <SelectItem value="back">
-                        {t("form.target_muscle_groups.back")}
-                      </SelectItem>
-                      <SelectItem value="shoulders">
-                        {t("form.target_muscle_groups.shoulders")}
-                      </SelectItem>
-                      <SelectItem value="full_body">
-                        {t("form.target_muscle_groups.full_body")}
-                      </SelectItem>
-                      <SelectItem value="cardio">
-                        {t("form.target_muscle_groups.cardio")}
-                      </SelectItem>
-                    </SelectContent>
-                  </Select>
-                  <p className="text-xs text-muted-foreground">
-                    {t("form.user_feeling_hint")}
-                  </p>
+                  <MuscleGroupSelector
+                    value={userFeeling}
+                    onChange={setUserFeeling}
+                    disabled={isGenerating}
+                  />
                 </div>
 
                 {/* Aspect Ratio Selection */}
@@ -1550,7 +1520,9 @@ export function VideoGenerator({
                       onClick={() => setAspectRatio("9:16")}
                       className="h-9 text-xs px-2 sm:h-10 sm:text-sm sm:px-4"
                     >
-                      <span className="truncate">
+                      {/* 移动端只显示比例，桌面端显示完整文字 */}
+                      <span className="sm:hidden">9:16</span>
+                      <span className="hidden sm:inline truncate">
                         {t("form.aspect_ratio_portrait")}
                       </span>
                     </Button>
@@ -1560,7 +1532,9 @@ export function VideoGenerator({
                       onClick={() => setAspectRatio("16:9")}
                       className="h-9 text-xs px-2 sm:h-10 sm:text-sm sm:px-4"
                     >
-                      <span className="truncate">
+                      {/* 移动端只显示比例，桌面端显示完整文字 */}
+                      <span className="sm:hidden">16:9</span>
+                      <span className="hidden sm:inline truncate">
                         {t("form.aspect_ratio_landscape")}
                       </span>
                     </Button>
