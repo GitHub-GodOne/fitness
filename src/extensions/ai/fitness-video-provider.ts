@@ -749,7 +749,8 @@ Describe camera framing to ensure continuous movement and joint positions are cl
         taskId: string
     ): Promise<{ videoUrl: string; segmentUrls: string[] }> {
         const ffmpeg = require('fluent-ffmpeg');
-        const fs = require('fs').promises;
+        const fsSync = require('fs');
+        const fs = fsSync.promises;
         const path = require('path');
         const { ensureTaskWorkDir, getTaskPublicUrl } = require('@/shared/utils/file-manager');
 
@@ -762,16 +763,13 @@ Describe camera framing to ensure continuous movement and joint positions are cl
         // Download all videos (use longer timeout for large video files - 5 minutes)
         for (let i = 0; i < videoUrls.length; i++) {
             console.log(`[Fitness] Downloading segment ${i + 1}...`);
-            // ok
-            // const response = await this.fetchWithRetry(videoUrls[i], {}, 3, 5000, 300000);
-            // if (!response.ok) {
-            //     throw new Error(`Failed to download video segment ${i + 1}: ${response.status}`);
-            // }
-
-            // const buffer = Buffer.from(await response.arrayBuffer());
             const segmentPath = path.join(workDir, `segment_${i + 1}.mp4`);
-            if (fs.existsSync(segmentPath)) {
+
+            // 使用同步的 existsSync 检查文件是否存在
+            if (fsSync.existsSync(segmentPath)) {
                 console.log("文件存在, 跳过下载！！！");
+                segmentPaths.push(segmentPath);
+                savedSegmentUrls.push(getTaskPublicUrl(taskId, `segment_${i + 1}.mp4`));
                 continue;
             } else {
                 console.log("文件不存在");
