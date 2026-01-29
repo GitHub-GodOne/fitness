@@ -116,6 +116,8 @@ export async function updateAITaskById(id: string, updateAITask: UpdateAITask) {
       .where(eq(aiTask.id, id))
       .returning();
 
+    console.log('updateAITaskById----->任务失败 更新状态:', result);
+    console.log('updateAITaskById----->任务失败 aiTask.id:', id);
     return result;
   });
 
