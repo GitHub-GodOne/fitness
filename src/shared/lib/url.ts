@@ -23,7 +23,9 @@ export function replaceR2Url(originalUrl: string | undefined | null): string {
 
     // Look for '/{bucket_name}/' in the URL
     const bucketIndex = originalUrl.indexOf(bucketPath);
-
+    console.log('replaceR2Url------------->originalUrl', originalUrl);
+    console.log('replaceR2Url------------->bucketPath', bucketPath);
+    console.log('replaceR2Url------------->bucketIndex', bucketIndex);
     // If bucket path is found, extract path after it and use CDN domain
     if (bucketIndex !== -1) {
         const pathAfterBucket = originalUrl.substring(
