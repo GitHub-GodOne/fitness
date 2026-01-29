@@ -16,7 +16,7 @@
       "hero": {
         "block": "hero-comfort",
         "id": "hero",
-        "title": "Fear Not For I Am With You",
+        "title": "Turn Anything Around You Into a Real Workout",
         "description": "Create AI-powered Bible reading videos that bring peace, comfort, and hope to your heart.",
         "buttons": [
           {
@@ -309,4 +309,3 @@
     }
   }
 }
-

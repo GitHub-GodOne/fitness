@@ -346,7 +346,7 @@ export function DownloadDialog({
     >
       {/* 固定的 Tab 头部 */}
       <div className="sticky top-0 z-30 bg-background pb-2 border-b">
-        <TabsList className="grid w-full grid-cols-3 h-auto border-b mb-2">
+        <TabsList className="grid w-full grid-cols-1 h-auto border-b mb-2">
           <TabsTrigger
             value="video"
             disabled={!hasVideo}
@@ -356,7 +356,7 @@ export function DownloadDialog({
             <span className="hidden sm:inline">{t("video")}</span>
             <span className="sm:hidden">{t("video")}</span>
           </TabsTrigger>
-          <TabsTrigger
+          {/* <TabsTrigger
             value="images-with-text"
             disabled={!hasImagesWithText}
             className="text-xs sm:text-sm py-2 px-2 sm:px-3"
@@ -373,7 +373,7 @@ export function DownloadDialog({
             <ImageIcon className="h-3.5 w-3.5 sm:h-4 sm:w-4 mr-1 sm:mr-2" />
             <span className="hidden sm:inline">{t("without_text")}</span>
             <span className="sm:hidden">{t("without_text")}</span>
-          </TabsTrigger>
+          </TabsTrigger> */}
         </TabsList>
 
         {/* Action buttons for image tabs */}

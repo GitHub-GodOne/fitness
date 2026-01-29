@@ -108,29 +108,30 @@ export function CommentSection({ className, pageId }: CommentSectionProps) {
   return (
     <div className={cn("space-y-6", className)}>
       {/* Header */}
-      <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-        <h2 className="flex items-center gap-2 text-xl sm:text-2xl font-bold">
-          <MessageSquare className="h-5 w-5 sm:h-6 sm:w-6" />
-          {t("section.title")}
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between text-muted-foreground">
+        <h2 className="text-white flex items-center gap-2 text-xl sm:text-2xl font-bold">
+          <MessageSquare className="h-5 w-5 sm:h-6 sm:w-6 font-normal text-muted-foreground" />
+
           <span className="text-sm sm:text-base font-normal text-muted-foreground">
-            ({comments.length > 0 ? `${comments.length}+` : "0"})
+            {t("section.title")}(
+            {comments.length > 0 ? `${comments.length}+` : "0"})
           </span>
         </h2>
 
         {/* Sort Options */}
         <Select value={sortBy} onValueChange={handleSortChange}>
-          <SelectTrigger className="w-full sm:w-32">
+          <SelectTrigger className="w-full sm:w-32 !text-muted-foreground">
             <SelectValue />
           </SelectTrigger>
           <SelectContent>
             <SelectItem value="time">
-              <div className="flex items-center gap-2">
+              <div className="flex items-center gap-2 !text-muted-foreground">
                 <Clock className="h-4 w-4" />
                 {t("section.sort.latest")}
               </div>
             </SelectItem>
             <SelectItem value="hot">
-              <div className="flex items-center gap-2">
+              <div className="flex items-center gap-2 !text-muted-foreground">
                 <TrendingUp className="h-4 w-4" />
                 {t("section.sort.hot")}
               </div>
