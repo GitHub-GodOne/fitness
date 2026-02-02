@@ -58,17 +58,17 @@
     "show_theme": true,
     "show_locale": true,
     "topbanner": {
-      "text": "Fear Not 是一个 AI 驱动的圣经安慰视频生成平台。通过个性化的圣经朗读视频，为你的心灵带来平安、温暖和属灵的安慰。"
+      "text": "Object2Workout 是一个 AI 驱动的圣经安慰视频生成平台。通过个性化的圣经朗读视频，为你的心灵带来平安、温暖和属灵的安慰。"
     }
   },
   "footer": {
     "id": "footer",
     "brand": {
-      "title": "Fear Not",
-      "description": "Fear Not is an AI-powered Bible comfort video generator. Create personalized Bible reading videos that bring peace, warmth, and spiritual comfort to your heart.",
+      "title": "Object2Workout",
+      "description": "Object2Workout is an AI-powered Bible comfort video generator. Create personalized Bible reading videos that bring peace, warmth, and spiritual comfort to your heart.",
       "logo": {
         "src": "/logo-icon.png",
-        "alt": "Fear Not",
+        "alt": "Object2Workout",
         "width": 1024,
         "height": 1024
       },

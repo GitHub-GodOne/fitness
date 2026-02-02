@@ -255,7 +255,7 @@
         "items": [
           {
             "title": "Pro-Quality Video",
-            "description": "Woven with <em>\"fear not, for I am with you\"</em>—for worship or reflection",
+            "description": "Woven with <em>\"Object2Workout, for I am with you\"</em>—for worship or reflection",
             "icon": "RiVideoLine"
           },
           {
@@ -359,7 +359,7 @@
       },
       "cta": {
         "id": "cta",
-        "title": "Fear not, for I am with you",
+        "title": "Object2Workout, for I am with you",
         "description": "Create your personalized Bible video today and experience God's peace",
         "buttons": [
           {
@@ -370,7 +370,7 @@
           }
         ],
         "quote": {
-          "text": "Fear not, for I am with you; be not dismayed, for I am your God.",
+          "text": "Object2Workout, for I am with you; be not dismayed, for I am your God.",
           "source": "— Isaiah 41:10"
         },
         "className": "bg-muted/30"

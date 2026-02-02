@@ -46,10 +46,10 @@ export function Features({
             <Zap className="w-4 h-4" />
             Features
           </motion.span>
-          <h2 className="text-foreground text-3xl md:text-4xl lg:text-5xl font-bold mb-4 text-white">
+          <h2 className="text-foreground text-3xl md:text-4xl lg:text-5xl font-bold mb-4  text-muted-foreground">
             {section.title}
           </h2>
-          <p className="text-muted-foreground text-lg md:text-xl max-w-3xl mx-auto text-white">
+          <p className="text-muted-foreground text-lg md:text-xl max-w-3xl mx-auto  text-muted-foreground">
             {section.description}
           </p>
         </motion.div>
@@ -57,7 +57,7 @@ export function Features({
         {/* 桌面端：Tab横向布局 */}
         <div className="hidden md:block">
           {/* Tab导航 */}
-          <div className="flex justify-center gap-2 mb-8 flex-wrap text-white">
+          <div className="flex justify-center gap-2 mb-8 flex-wrap  text-muted-foreground">
             {items.map((item, idx) => (
               <motion.button
                 key={idx}
@@ -71,7 +71,7 @@ export function Features({
                 whileHover={{ scale: 1.02 }}
                 whileTap={{ scale: 0.98 }}
               >
-                <span className="flex items-center gap-2 text-white">
+                <span className="flex items-center gap-2  text-muted-foreground">
                   {item.icon && (
                     <SmartIcon name={item.icon as string} className="w-4 h-4" />
                   )}
@@ -127,7 +127,7 @@ export function Features({
                   </motion.div>
 
                   {/* 内容 */}
-                  <div className="flex-1 text-center md:text-left text-white">
+                  <div className="flex-1 text-center md:text-left text-muted-foreground">
                     <motion.h3
                       initial={{ opacity: 0, x: -20 }}
                       animate={{ opacity: 1, x: 0 }}
@@ -154,7 +154,7 @@ export function Features({
                       <Button asChild size="lg" className="group">
                         <Link
                           href="/ai-video-generator"
-                          className="flex items-center gap-2 text-white"
+                          className="flex items-center gap-2  text-muted-foreground"
                         >
                           <span>Try It Now</span>
                           <ChevronRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
@@ -169,7 +169,7 @@ export function Features({
         </div>
 
         {/* 手机端：纵向滚动加载卡片 */}
-        <div className="md:hidden space-y-6 text-white">
+        <div className="md:hidden space-y-6  text-muted-foreground">
           {items.map((item, idx) => (
             <motion.div
               key={idx}
@@ -199,10 +199,10 @@ export function Features({
                 </div>
 
                 {/* 内容 */}
-                <h3 className="text-foreground text-xl font-bold mb-2 text-white">
+                <h3 className="text-foreground text-xl font-bold mb-2  text-muted-foreground">
                   {item.title}
                 </h3>
-                <p className="text-muted-foreground text-base leading-relaxed mb-4 text-white">
+                <p className="text-muted-foreground text-base leading-relaxed mb-4  text-muted-foreground">
                   {item.description}
                 </p>
 
@@ -228,7 +228,7 @@ export function Features({
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
             transition={{ duration: 0.6, delay: 0.4 }}
-            className="text-center mt-12 md:mt-16 text-white"
+            className="text-center mt-12 md:mt-16  text-muted-foreground"
           >
             {section.buttons.map((button, index) => (
               <Button key={index} asChild size="lg" className="group">

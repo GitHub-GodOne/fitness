@@ -4,7 +4,7 @@
     "description": "选择适合你的方案，为心灵带来平安和安慰"
   },
   "page": {
-    "title": "Fear Not 价格",
+    "title": "Object2Workout 价格",
     "sections": {
       "pricing": {
         "id": "pricing",
@@ -16,9 +16,7 @@
             "title": "免费方案",
             "description": "开始你的平安与安慰之旅。非常适合尝试我们的服务，体验个性化圣经视频带来的温暖。",
             "features_title": "包含内容",
-            "features": [
-              "新注册的用户首次授予 3 个积分"
-            ],
+            "features": ["新注册的用户首次授予 3 个积分"],
             "interval": "one-time",
             "amount": 0,
             "currency": "USD",
@@ -41,10 +39,7 @@
             "title": "20 积分",
             "description": "非常适合偶尔使用。当你需要安慰、平安或想要表达感恩时，创建有意义的圣经视频。",
             "features_title": "包含内容",
-            "features": [
-              "20 次视频生成",
-              "积分永不过期"
-            ],
+            "features": ["20 次视频生成", "积分永不过期"],
             "interval": "one-time",
             "amount": 990,
             "currency": "USD",

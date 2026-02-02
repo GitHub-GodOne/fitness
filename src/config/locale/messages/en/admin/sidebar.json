@@ -1,10 +1,10 @@
 {
   "header": {
     "brand": {
-      "title": "Fear Not",
+      "title": "Object2Workout",
       "logo": {
         "src": "/logo-icon.png",
-        "alt": "Fear Not"
+        "alt": "Object2Workout"
       },
       "url": "/admin"
     },

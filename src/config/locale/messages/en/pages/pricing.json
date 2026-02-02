@@ -4,7 +4,7 @@
     "description": "Choose a plan that brings peace and comfort to your heart"
   },
   "page": {
-    "title": "Fear Not Pricing",
+    "title": "Object2Workout Pricing",
     "sections": {
       "pricing": {
         "id": "pricing",
@@ -16,9 +16,7 @@
             "title": "Free Plan",
             "description": "Start your journey of finding peace and comfort. Perfect for trying out our service and experiencing the warmth of personalized Bible videos.",
             "features_title": "What's Included",
-            "features": [
-              "3 credits granted to new users upon registration"
-            ],
+            "features": ["3 credits granted to new users upon registration"],
             "interval": "one-time",
             "amount": 0,
             "currency": "USD",
@@ -41,10 +39,7 @@
             "title": "20 Credits",
             "description": "Perfect for occasional use. Create meaningful Bible videos when you need comfort, peace, or want to express gratitude.",
             "features_title": "What's Included",
-            "features": [
-              "20 video generations",
-              "Credits never expire"
-            ],
+            "features": ["20 video generations", "Credits never expire"],
             "interval": "one-time",
             "amount": 990,
             "currency": "USD",
