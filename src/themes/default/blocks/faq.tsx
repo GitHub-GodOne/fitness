@@ -1,6 +1,5 @@
 "use client";
 
-import Link from "next/link";
 import {
   Accordion,
   AccordionContent,
@@ -9,6 +8,7 @@ import {
 } from "@/shared/components/ui/accordion";
 import { Button } from "@/shared/components/ui/button";
 import { ScrollAnimation } from "@/shared/components/ui/scroll-animation";
+import { useRequireAuth } from "@/shared/hooks/use-require-auth";
 import { Section } from "@/shared/types/blocks/landing";
 
 export function Faq({
@@ -18,6 +18,9 @@ export function Faq({
   section: Section;
   className?: string;
 }) {
+  const { navigateWithAuth } = useRequireAuth({
+    callbackUrl: "/ai-video-generator",
+  });
   return (
     <section
       id={section.id}
@@ -74,17 +77,12 @@ export function Faq({
               {section.buttons.map((button, index) => (
                 <Button
                   key={index}
-                  asChild
                   size="default"
                   className="h-11 sm:h-12 text-sm sm:text-base px-6 sm:px-8 font-semibold shadow-lg hover:shadow-xl transition-all"
                   variant={button.variant || "default"}
+                  onClick={() => navigateWithAuth(button.url || "")}
                 >
-                  <Link
-                    href={button.url || ""}
-                    target={button.target || "_self"}
-                  >
-                    {button.title}
-                  </Link>
+                  {button.title}
                 </Button>
               ))}
             </div>

@@ -1,3 +1,0 @@
-module.exports=[520421,a=>{a.v({metadata:{title:"Blog",description:"Read latest product features, solutions, and updates."},page:{title:"ShipAny Blog",sections:{blog:{id:"blog",title:"Blog",description:"Read latest product features, solutions, and updates."}}},messages:{all:"All",no_content:"No Content",crumb:"Blog",toc:"Table of Contents"}})}];
-
-//# sourceMappingURL=src_config_locale_messages_en_pages_blog_json_b48afd28._.js.map

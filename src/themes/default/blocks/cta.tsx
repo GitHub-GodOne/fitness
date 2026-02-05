@@ -1,9 +1,9 @@
 "use client";
 
-import { Link } from "@/core/i18n/navigation";
 import { SmartIcon } from "@/shared/blocks/common/smart-icon";
 import { Button } from "@/shared/components/ui/button";
 import { ScrollAnimation } from "@/shared/components/ui/scroll-animation";
+import { useRequireAuth } from "@/shared/hooks/use-require-auth";
 import { cn } from "@/shared/lib/utils";
 import { Section } from "@/shared/types/blocks/landing";
 
@@ -22,6 +22,9 @@ export function Cta({
   section: Section;
   className?: string;
 }) {
+  const { navigateWithAuth } = useRequireAuth({
+    callbackUrl: "/ai-video-generator",
+  });
   return (
     <section
       id={section.id}
@@ -63,29 +66,23 @@ export function Cta({
                     : "default";
                 return (
                   <Button
-                    asChild
                     size={btn.size || "default"}
                     variant={safeVariant}
                     key={idx}
+                    onClick={() => navigateWithAuth(btn.url || "")}
                     className={cn(
                       "h-auto min-h-11 text-sm sm:min-h-12 sm:text-base",
                       "flex items-center justify-center gap-2 whitespace-normal break-words text-center",
                       "px-4 sm:px-6 py-2.5 sm:py-3",
                     )}
                   >
-                    <Link
-                      href={btn.url || ""}
-                      target={btn.target || "_self"}
-                      className="flex items-center justify-center gap-2"
-                    >
-                      {btn.icon && (
-                        <SmartIcon
-                          name={btn.icon as string}
-                          className="h-4 w-4 sm:h-5 sm:w-5 shrink-0"
-                        />
-                      )}
-                      <span className="break-words">{btn.title}</span>
-                    </Link>
+                    {btn.icon && (
+                      <SmartIcon
+                        name={btn.icon as string}
+                        className="h-4 w-4 sm:h-5 sm:w-5 shrink-0"
+                      />
+                    )}
+                    <span className="break-words">{btn.title}</span>
                   </Button>
                 );
               })}

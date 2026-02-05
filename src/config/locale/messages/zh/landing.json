@@ -14,10 +14,19 @@
     "nav": {
       "items": [
         {
-          "title": "创造",
-          "description": "使用 AI 生成视频",
-          "url": "/ai-video-generator",
-          "icon": "Zap"
+          "title": "首页",
+          "url": "/",
+          "icon": "Home"
+        },
+        {
+          "title": "如何使用",
+          "url": "/#how-it-works",
+          "icon": "Sparkles"
+        },
+        {
+          "title": "故事",
+          "url": "/showcases",
+          "icon": "Heart"
         },
         {
           "title": "价格",
@@ -25,18 +34,21 @@
           "icon": "DollarSign"
         },
         {
-          "title": "评论",
+          "title": "社区",
           "url": "/comments",
-          "icon": "MessageSquare"
-        },
-        {
-          "title": "退款",
-          "url": "/refund",
-          "icon": "RotateCcw"
+          "icon": "MessageCircle"
         }
       ]
     },
-    "buttons": [],
+    "buttons": [
+      {
+        "title": "创建视频",
+        "url": "/ai-video-generator",
+        "target": "_self",
+        "variant": "default",
+        "icon": "Video"
+      }
+    ],
     "user_nav": {
       "show_name": true,
       "show_credits": true,
@@ -55,7 +67,8 @@
       ]
     },
     "show_sign": true,
-    "show_theme": true,
+    "show_theme_toggler": true,
+    "show_theme_switcher": true,
     "show_locale": true,
     "topbanner": {
       "text": "Fear Not 是一个 AI 驱动的圣经安慰视频生成平台。通过个性化的圣经朗读视频，为你的心灵带来平安、温暖和属灵的安慰。"
@@ -97,11 +110,11 @@
           ]
         },
         {
-          "title": "资源",
+          "title": "支持",
           "children": [
             {
-              "title": "文档",
-              "url": "/docs",
+              "title": "联系支持",
+              "url": "mailto:support@your-domain.com",
               "target": "_self"
             },
             {
@@ -110,9 +123,9 @@
               "target": "_self"
             },
             {
-              "title": "对话",
-              "url": "/chat",
-              "target": "_blank"
+              "title": "退款政策",
+              "url": "/refund",
+              "target": "_self"
             }
           ]
         },
@@ -165,6 +178,14 @@
         {
           "title": "服务条款",
           "url": "/terms-of-service"
+        },
+        {
+          "title": "退款政策",
+          "url": "/refund"
+        },
+        {
+          "title": "联系我们",
+          "url": "mailto:support@fearnotforiamwithyou.com"
         }
       ]
     },

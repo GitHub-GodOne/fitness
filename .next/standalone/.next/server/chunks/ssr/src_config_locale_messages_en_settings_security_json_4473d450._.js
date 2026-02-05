@@ -1,3 +1,0 @@
-module.exports=[345732,a=>{a.v({fields:{email:"Email",password:"Password",new_password:"New Password",confirm_password:"Confirm Password"},reset_password:{title:"Reset Password",description:"Reset your password",tip:"We will send you an email to reset your password.",crumbs:{settings:"Settings",security:"Security"},buttons:{submit:"Save"}},delete_account:{title:"Delete Account",description:"Delete your account",tip:"Are you sure you want to delete your account? This action cannot be undone.",crumbs:{settings:"Settings",security:"Security"},buttons:{submit:"Delete"}}})}];
-
-//# sourceMappingURL=src_config_locale_messages_en_settings_security_json_4473d450._.js.map

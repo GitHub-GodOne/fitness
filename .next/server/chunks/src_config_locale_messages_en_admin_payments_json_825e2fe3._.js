@@ -1,3 +1,0 @@
-module.exports=[647512,e=>{e.v({fields:{order_no:"Order No",user:"User",amount:"Amount",product:"Product",description:"Description",type:"Type",provider:"Provider",created_at:"Created At",status:"Status",action:"Action"},list:{title:"Payments",crumbs:{admin:"Admin",payments:"Payments"},tabs:{all:"All",subscription:"Subscription","one-time":"One-Time"},filters:{status:{title:"Status",options:{all:"All",paid:"Paid",created:"Created",failed:"Failed"}},provider:{title:"Provider",options:{all:"All",stripe:"Stripe",creem:"Creem",lemonsqueezy:"Lemonsqueezy",paypal:"Paypal"}}},search:{order_no:{title:"Order No",placeholder:"Order No"}}}})}];
-
-//# sourceMappingURL=src_config_locale_messages_en_admin_payments_json_825e2fe3._.js.map

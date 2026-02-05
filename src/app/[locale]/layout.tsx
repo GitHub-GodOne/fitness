@@ -1,12 +1,14 @@
-import { notFound } from 'next/navigation';
-import { hasLocale, NextIntlClientProvider } from 'next-intl';
-import { setRequestLocale } from 'next-intl/server';
+import { notFound } from "next/navigation";
+import { hasLocale, NextIntlClientProvider } from "next-intl";
+import { setRequestLocale } from "next-intl/server";
 
-import { routing } from '@/core/i18n/config';
-import { ThemeProvider } from '@/core/theme/provider';
-import { Toaster } from '@/shared/components/ui/sonner';
-import { AppContextProvider } from '@/shared/contexts/app';
-import { getMetadata } from '@/shared/lib/seo';
+import { routing } from "@/core/i18n/config";
+import { ThemeProvider } from "@/core/theme/provider";
+import { Toaster } from "@/shared/components/ui/sonner";
+import { AppContextProvider } from "@/shared/contexts/app";
+import { getMetadata } from "@/shared/lib/seo";
+import { BackgroundMusicPlayer } from "@/shared/components/background-music";
+import { FloatingWidget } from "@/shared/components/floating-widget";
 
 export const generateMetadata = getMetadata();
 
@@ -30,6 +32,7 @@ export default async function LocaleLayout({
         <AppContextProvider>
           {children}
           <Toaster position="top-center" richColors />
+          <FloatingWidget />
         </AppContextProvider>
       </ThemeProvider>
     </NextIntlClientProvider>

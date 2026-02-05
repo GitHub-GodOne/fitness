@@ -1,3 +1,0 @@
-module.exports=[727517,a=>{a.v({fields:{title:"标题",status:"状态",model:"模型",provider:"提供商",created_at:"创建时间",action:"操作"},list:{title:"AI 对话",tabs:{all:"全部",pending:"待处理",completed:"已完成",failed:"失败"},buttons:{view:"查看对话",new:"新建对话"},empty_message:"无对话记录"}})}];
-
-//# sourceMappingURL=src_config_locale_messages_zh_activity_chats_json_da78f8b5._.js.map

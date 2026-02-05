@@ -1,3 +1,0 @@
-module.exports=[141133,t=>{t.v({title:"",nav:{items:[{title:"Profile",url:"/settings/profile",icon:"User"},{title:"Billing",url:"/settings/billing",icon:"CreditCard"},{title:"Payments",url:"/settings/payments",icon:"DollarSign"},{title:"Credits",url:"/settings/credits",icon:"Coins"},{title:"History",url:"/settings/history",icon:"History"}]},top_nav:{items:[]}})}];
-
-//# sourceMappingURL=src_config_locale_messages_en_settings_sidebar_json_f42c6734._.js.map

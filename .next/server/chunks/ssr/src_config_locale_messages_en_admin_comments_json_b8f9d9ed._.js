@@ -1,3 +1,0 @@
-module.exports=[255165,a=>{a.v({list:{title:"Comment Management",crumbs:{admin:"Admin",comments:"Comments"},tabs:{all:"All",visible:"Visible",hidden:"Hidden"}},fields:{user:"User",email:"Email",content:"Content",status:"Status",likes:"Likes",replies:"Replies",created_at:"Created At",actions:"Actions"},status:{visible:"Visible",hidden:"Hidden"},actions:{view_details:"View Details",hide:"Hide",show:"Show",delete:"Delete"}})}];
-
-//# sourceMappingURL=src_config_locale_messages_en_admin_comments_json_b8f9d9ed._.js.map

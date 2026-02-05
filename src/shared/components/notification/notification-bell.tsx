@@ -72,10 +72,8 @@ export function NotificationBell({ className }: NotificationBellProps) {
   return (
     <DropdownMenu open={isOpen} onOpenChange={setIsOpen}>
       <DropdownMenuTrigger asChild>
-        <Button
-          variant="ghost"
-          size="icon"
-          className={`relative ${className}`}
+        <button
+          className={`relative inline-flex items-center justify-center rounded-md p-2 text-muted-foreground hover:text-foreground transition-colors ${className}`}
           aria-label={t("bell_aria_label")}
         >
           <Bell className="h-5 w-5" />
@@ -84,7 +82,7 @@ export function NotificationBell({ className }: NotificationBellProps) {
               {unreadCount > 99 ? "99+" : unreadCount}
             </span>
           )}
-        </Button>
+        </button>
       </DropdownMenuTrigger>
       <DropdownMenuContent className="w-80 p-0 sm:w-96" align="end">
         <div className="flex items-center justify-between border-b px-4 py-3">

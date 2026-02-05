@@ -27,7 +27,7 @@ import { ImageUploader, ImageUploaderValue } from "@/shared/blocks/common";
 import { ShareButton } from "@/shared/blocks/common/share-button";
 import { Copy } from "@/shared/blocks/table/copy";
 import { DownloadDialog } from "@/shared/blocks/generator/download-dialog";
-import { VideoHistoryTable } from "@/shared/blocks/generator/video-history-table";
+import { PrayerGallery } from "@/shared/blocks/generator/prayer-gallery";
 import { Button } from "@/shared/components/ui/button";
 import {
   Card,
@@ -349,7 +349,7 @@ export function VideoGenerator({
   const [isPreviewOpen, setIsPreviewOpen] = useState(false);
   const [isVideoLoading, setIsVideoLoading] = useState(true);
   const progressCardRef = useRef<HTMLDivElement>(null);
-  const historyLimit = 10;
+  const historyLimit = 12;
   // 选中的视频（按顺序）：Map<taskId, videoUrl>
   const [selectedVideos, setSelectedVideos] = useState<Map<string, string>>(
     new Map(),
@@ -1182,6 +1182,7 @@ export function VideoGenerator({
           ...options,
           user_feeling: trimmedFeeling, // Add user_feeling to options
           voice_gender: voiceGender, // Add voice_gender to options
+          community: "fearnot", // Add community field
         },
         scene: activeTab,
       };
@@ -1389,24 +1390,33 @@ export function VideoGenerator({
   return (
     <section className="py-16 md:py-24">
       <div className="container">
+        {/* Header - Centered at top */}
+        <div className="mx-auto max-w-4xl text-center mb-8 md:mb-12">
+          <div className="flex flex-col">
+            <h1 className="text-2xl md:text-3xl lg:text-4xl font-bold">
+              {t("title")}
+            </h1>
+            <span className="text-muted-foreground text-base md:text-lg">
+              {t("subtitle")}
+            </span>
+          </div>
+        </div>
+
         <div className="mx-auto max-w-6xl">
           <div className="grid grid-cols-1 gap-8 lg:grid-cols-[minmax(0,1fr)_minmax(0,1fr)]">
             <Card>
               <CardHeader>
                 {srOnlyTitle && <h2 className="sr-only">{srOnlyTitle}</h2>}
-                <CardTitle className="flex items-center justify-between text-xl font-semibold">
-                  <span className="flex items-center gap-2">{t("title")}</span>
-                  {/* Settings button hidden for now */}
-                  {/* <Button
-                    variant="ghost"
-                    size="sm"
-                    onClick={() => setIsSettingsOpen(true)}
-                    className="h-8 w-8 p-0"
-                    title={t('settings.title')}
-                  >
-                    <Settings className="h-4 w-4" />
-                  </Button> */}
-                </CardTitle>
+                <div className="space-y-2 hidden">
+                  <CardTitle className="flex items-center justify-between text-xl font-semibold">
+                    <span className="flex items-center gap-2">
+                      {t("title")}
+                    </span>
+                  </CardTitle>
+                  <p className="text-sm text-muted-foreground">
+                    {t("subtitle")}
+                  </p>
+                </div>
               </CardHeader>
               <CardContent className="space-y-4 px-4 pb-6 sm:space-y-6 sm:px-6 sm:pb-8">
                 <div className="hidden">
@@ -1450,30 +1460,6 @@ export function VideoGenerator({
                   </div>
                 </div>
 
-                {isImageToVideoMode && (
-                  <div className="space-y-4">
-                    {/* 
-                      Note: Currently limited to 1 image, but code supports multiple images for future use.
-                      To enable multiple images, change maxImages to desired number (e.g., 3).
-                      Backend already supports multiple images via options.image_input array.
-                    */}
-                    <ImageUploader
-                      title={t("form.reference_image")}
-                      allowMultiple={true}
-                      maxImages={1}
-                      maxSizeMB={maxSizeMB}
-                      onChange={handleReferenceImagesChange}
-                      uploadOnSelect={false}
-                    />
-
-                    {hasReferenceUploadError && (
-                      <p className="text-destructive text-xs">
-                        {t("form.some_images_failed_to_upload")}
-                      </p>
-                    )}
-                  </div>
-                )}
-
                 {isVideoToVideoMode && (
                   <div className="space-y-2">
                     <Label htmlFor="video-url">
@@ -1489,56 +1475,46 @@ export function VideoGenerator({
                   </div>
                 )}
 
-                {/* User Feeling Input (Required) */}
-                <div className="space-y-2">
+                {/* Share your heart */}
+                <div className="space-y-3">
                   <Label
                     htmlFor="user-feeling"
-                    className="flex items-center gap-2"
+                    className="flex items-center gap-2 text-base font-semibold"
                   >
-                    <span>{t("form.user_feeling")}</span>
+                    <span>{t("form.step1_label")}</span>
                     <span className="text-red-500 font-semibold">*</span>
                   </Label>
                   <Textarea
                     id="user-feeling"
                     value={userFeeling}
                     onChange={(e) => setUserFeeling(e.target.value)}
-                    placeholder={t("form.user_feeling_placeholder")}
-                    className="min-h-40 sm:min-h-32"
+                    placeholder={t("form.step1_placeholder")}
+                    className="min-h-32 sm:min-h-28 resize-none"
                     required
                   />
-                  <p className="text-xs text-muted-foreground">
+                  {/* <p className="text-xs text-muted-foreground">
                     {t("form.user_feeling_hint")}
-                  </p>
+                  </p> */}
                 </div>
 
-                {/* Voice Gender Selection */}
-                <div className="space-y-2">
-                  <Label className="text-sm">{t("form.voice_gender")}</Label>
-                  <div className="grid grid-cols-2 gap-2">
-                    <Button
-                      type="button"
-                      variant={voiceGender === "female" ? "default" : "outline"}
-                      onClick={() => handleVoiceGenderChange("female")}
-                      className="h-9 text-xs px-2 sm:h-10 sm:text-sm sm:px-4"
-                    >
-                      <User className="h-3.5 w-3.5 sm:h-4 sm:w-4 flex-shrink-0" />
-                      <span className="ml-1 sm:ml-1.5 truncate">
-                        {t("form.voice_female")}
-                      </span>
-                    </Button>
-                    <Button
-                      type="button"
-                      variant={voiceGender === "male" ? "default" : "outline"}
-                      onClick={() => handleVoiceGenderChange("male")}
-                      className="h-9 text-xs px-2 sm:h-10 sm:text-sm sm:px-4"
-                    >
-                      <User className="h-3.5 w-3.5 sm:h-4 sm:w-4 flex-shrink-0" />
-                      <span className="ml-1 sm:ml-1.5 truncate">
-                        {t("form.voice_male")}
-                      </span>
-                    </Button>
+                {/* Background Image Upload */}
+                {isImageToVideoMode && (
+                  <div className="space-y-3">
+                    <ImageUploader
+                      title={t("form.step2_label")}
+                      allowMultiple={true}
+                      maxImages={1}
+                      maxSizeMB={maxSizeMB}
+                      onChange={handleReferenceImagesChange}
+                      uploadOnSelect={false}
+                    />
+                    {hasReferenceUploadError && (
+                      <p className="text-destructive text-xs">
+                        {t("form.some_images_failed_to_upload")}
+                      </p>
+                    )}
                   </div>
-                </div>
+                )}
 
                 {!isMounted ? (
                   <Button
@@ -1559,18 +1535,9 @@ export function VideoGenerator({
                     </span>
                   </Button>
                 ) : user ? (
-                  <div className="flex flex-col gap-2 sm:flex-row sm:gap-3">
+                  <div className="flex flex-col gap-3">
                     <Button
-                      variant="outline"
-                      onClick={handleReset}
-                      disabled={isGenerating}
-                      className="h-10 w-full px-4 text-sm sm:h-10 sm:flex-1"
-                    >
-                      <RotateCcw className="mr-2 h-4 w-4" />
-                      <span className="whitespace-nowrap">{t("reset")}</span>
-                    </Button>
-                    <Button
-                      className="h-10 w-full px-4 text-sm sm:h-10 sm:flex-1"
+                      className="h-9 sm:h-12 w-full px-3 sm:px-6 text-sm sm:text-base font-semibold justify-center"
                       onClick={handleGenerate}
                       disabled={
                         isGenerating ||
@@ -1585,20 +1552,23 @@ export function VideoGenerator({
                     >
                       {isGenerating ? (
                         <>
-                          <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                          <span className="whitespace-nowrap">
+                          <Loader2 className="mr-0 sm:mr-2 h-4 w-4 sm:h-5 sm:w-5 animate-spin" />
+                          <span className="whitespace-nowrap hidden sm:inline">
                             {t("generating")}
                           </span>
                         </>
                       ) : (
                         <>
-                          <Sparkles className="mr-2 h-4 w-4" />
+                          <Sparkles className="mr-0 sm:mr-2 h-5 w-5" />
                           <span className="whitespace-nowrap">
                             {t("generate")}
                           </span>
                         </>
                       )}
                     </Button>
+                    <p className="text-center text-xs text-muted-foreground">
+                      {t("credits_info")}
+                    </p>
                   </div>
                 ) : (
                   <Button
@@ -1612,6 +1582,7 @@ export function VideoGenerator({
                   </Button>
                 )}
 
+                {/* Credits display - temporarily hidden
                 {!isMounted ? (
                   <div className="flex flex-col gap-2 text-sm sm:flex-row sm:items-center sm:justify-between">
                     <span className="text-primary">
@@ -1740,17 +1711,18 @@ export function VideoGenerator({
                     </div>
                   </div>
                 )}
+                */}
               </CardContent>
             </Card>
 
             <Card ref={progressCardRef}>
-              <CardHeader>
+              <CardHeader className="hidden">
                 <CardTitle className="flex items-center gap-2 text-xl font-semibold">
                   <Video className="h-5 w-5" />
                   {t("generated_videos")}
                 </CardTitle>
               </CardHeader>
-              <CardContent className="pb-8">
+              <CardContent className="pb-8 pt-6">
                 {isGenerating && (
                   <div className="mb-6 space-y-3 rounded-lg border-2 border-primary/20 bg-gradient-to-br from-primary/5 to-primary/10 p-4 sm:p-6">
                     <div className="flex items-center justify-between text-sm font-medium sm:text-base">
@@ -1833,22 +1805,18 @@ export function VideoGenerator({
                             preload="metadata"
                           />
 
-                          <div className="absolute right-2 bottom-2 flex justify-end text-sm">
+                          <div className="absolute right-2 bottom-2 flex justify-end">
                             <Button
-                              size="sm"
-                              variant="ghost"
-                              className="ml-auto"
+                              size="icon"
+                              variant="secondary"
+                              className="h-8 w-8 sm:h-9 sm:w-9 rounded-full shadow-md bg-background/80 hover:bg-background"
                               onClick={() => handleDownloadVideo(video)}
                               disabled={downloadingVideoId === video.id}
                             >
                               {downloadingVideoId === video.id ? (
-                                <>
-                                  <Loader2 className="h-4 w-4 animate-spin" />
-                                </>
+                                <Loader2 className="h-4 w-4 animate-spin" />
                               ) : (
-                                <>
-                                  <Download className="h-4 w-4" />
-                                </>
+                                <Download className="h-4 w-4" />
                               )}
                             </Button>
                           </div>
@@ -1866,6 +1834,16 @@ export function VideoGenerator({
                         ? t("ready_to_generate")
                         : t("no_videos_generated")}
                     </p>
+                    {/* Humorous warm Bible-themed prompts for US users */}
+                    {!isGenerating && (
+                      <div className="mt-6 max-w-sm">
+                        <p className="text-sm text-muted-foreground italic">
+                          💭 "Even Moses had to wait 40 years in the desert
+                          before his big moment... but your video only takes 2
+                          minutes!"
+                        </p>
+                      </div>
+                    )}
                   </div>
                 )}
               </CardContent>
@@ -1873,9 +1851,8 @@ export function VideoGenerator({
           </div>
 
           {/* History Section */}
-          {/* History Section */}
           {user && (
-            <VideoHistoryTable
+            <PrayerGallery
               tasks={historyTasks}
               loading={historyLoading}
               total={historyTotal}
@@ -1883,7 +1860,6 @@ export function VideoGenerator({
               limit={historyLimit}
               onPageChange={setHistoryPage}
               onRefresh={fetchHistory}
-              showTitle={true}
               className="mt-8"
             />
           )}

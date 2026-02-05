@@ -2,6 +2,7 @@
   "page": {
     "show_sections": [
       "hero",
+      "gift-section",
       "how-it-works",
       "testimonials",
       "what-you-get",
@@ -9,70 +10,208 @@
     ],
     "sections": {
       "hero": {
-        "block": "hero-video",
+        "block": "hero-lumen5",
         "id": "hero",
-        "title": "Fear Not For I Am With You",
-        "highlight_text": "I Am With You",
-        "description": "Create <strong>personalized Bible videos</strong> anchored in God's promise: <em>\"fear not, for I am with you\"</em>—made just for you.",
+        "title": "Find Peace in His Promises: A Personalized Video Experience",
+        "highlight_text": "Personalized Video",
+        "description": "Turn your cherished memories into a moving testimony. Create a personalized video prayer anchored in <em>Isaiah 41:10</em>, designed to comfort, encourage, and uplift.",
         "buttons": [
           {
-            "title": "✨ Create Your Video Now",
+            "title": "✨ Create My Faith Video",
             "url": "/ai-video-generator",
             "target": "_self",
             "variant": "default"
           }
         ],
-        "featured_video": {
-          "src": "/5.mp4",
-          "poster": "/imgs/video-poster.jpg",
-          "caption": "Isaiah 41:10 - Fear not, for I am with you"
+        "featured_image": {
+          "src": "/imgs/avatars/HomeHeroStatic3-1280.webp",
+          "alt": "Personalized Bible Video",
+          "width": 640,
+          "height": 480
         },
-        "social_proof": {
-          "title": "Trusted by 1,000+ Christian Believers",
-          "avatars": [
-            { "src": "/imgs/avatars/14.jpg", "alt": "User 1" },
-            { "src": "/imgs/avatars/15.jpg", "alt": "User 2" },
-            { "src": "/imgs/avatars/16.jpg", "alt": "User 3" },
-            { "src": "/imgs/avatars/17.jpg", "alt": "User 4" },
-            { "src": "/imgs/avatars/18.jpg", "alt": "User 5" }
-          ]
-        }
+        "trust_title": "Joined by 1,000+ Believers Finding Strength in Scripture",
+        "partner_logos": [
+          { "src": "/imgs/tx/1.jpg", "alt": "Believer 1" },
+          { "src": "/imgs/tx/2.jpg", "alt": "Believer 2" },
+          { "src": "/imgs/tx/3.jpg", "alt": "Believer 3" },
+          { "src": "/imgs/tx/4.jpg", "alt": "Believer 4" },
+          { "src": "/imgs/tx/5.jpg", "alt": "Believer 5" },
+          { "src": "/imgs/tx/6.jpg", "alt": "Believer 6" },
+          { "src": "/imgs/tx/7.jpg", "alt": "Believer 7" },
+          { "src": "/imgs/tx/8.jpg", "alt": "Believer 8" },
+          { "src": "/imgs/tx/9.jpg", "alt": "Believer 9" },
+          { "src": "/imgs/tx/10.jpg", "alt": "Believer 10" },
+          { "src": "/imgs/tx/11.jpg", "alt": "Believer 11" },
+          { "src": "/imgs/tx/12.jpg", "alt": "Believer 12" },
+          { "src": "/imgs/tx/13.jpg", "alt": "Believer 13" },
+          { "src": "/imgs/tx/14.jpg", "alt": "Believer 14" },
+          { "src": "/imgs/tx/15.jpg", "alt": "Believer 15" },
+          { "src": "/imgs/tx/16.jpg", "alt": "Believer 16" },
+          { "src": "/imgs/tx/17.jpg", "alt": "Believer 17" },
+          { "src": "/imgs/tx/18.jpg", "alt": "Believer 18" },
+          { "src": "/imgs/tx/19.jpg", "alt": "Believer 19" },
+          { "src": "/imgs/tx/20.jpg", "alt": "Believer 20" },
+          { "src": "/imgs/tx/21.jpg", "alt": "Believer 21" },
+          { "src": "/imgs/tx/22.jpg", "alt": "Believer 22" },
+          { "src": "/imgs/tx/23.jpg", "alt": "Believer 23" },
+          { "src": "/imgs/tx/24.jpg", "alt": "Believer 24" },
+          { "src": "/imgs/tx/25.jpg", "alt": "Believer 25" },
+          { "src": "/imgs/tx/26.jpg", "alt": "Believer 26" },
+          { "src": "/imgs/tx/27.jpg", "alt": "Believer 27" },
+          { "src": "/imgs/tx/28.jpg", "alt": "Believer 28" },
+          { "src": "/imgs/tx/29.png", "alt": "Believer 29" }
+        ]
+      },
+      "template-previews": {
+        "block": "template-previews",
+        "id": "template-previews",
+        "title": "Stories of Faith & Comfort",
+        "rows": [
+          {
+            "templates": [
+              {
+                "src": "/imgs/logos/react.svg1.png",
+                "alt": "Faith Template 1",
+                "aspectRatio": "landscape"
+              },
+              {
+                "src": "/imgs/logos/react.svg2.png",
+                "alt": "Faith Template 2",
+                "aspectRatio": "landscape"
+              },
+              {
+                "src": "/imgs/logos/react.svg3.png",
+                "alt": "Faith Template 3",
+                "aspectRatio": "landscape"
+              },
+              {
+                "src": "/imgs/logos/react.svg4.png",
+                "alt": "Faith Template 4",
+                "aspectRatio": "square"
+              },
+              {
+                "src": "/imgs/logos/react.svg5.png",
+                "alt": "Faith Template 5",
+                "aspectRatio": "landscape"
+              },
+              {
+                "src": "/imgs/logos/react.svg6.png",
+                "alt": "Faith Template 6",
+                "aspectRatio": "square"
+              }
+            ],
+            "direction": "left",
+            "speed": 30
+          },
+          {
+            "templates": [
+              {
+                "src": "/imgs/logos/react.svg7.png",
+                "alt": "Faith Template 7",
+                "aspectRatio": "landscape"
+              },
+              {
+                "src": "/imgs/logos/react.svg8.png",
+                "alt": "Faith Template 8",
+                "aspectRatio": "vertical"
+              },
+              {
+                "src": "/imgs/logos/react.svg9.png",
+                "alt": "Faith Template 9",
+                "aspectRatio": "landscape"
+              },
+              {
+                "src": "/imgs/logos/react.svg10.png",
+                "alt": "Faith Template 10",
+                "aspectRatio": "vertical"
+              },
+              {
+                "src": "/imgs/logos/react.svg11.png",
+                "alt": "Faith Template 11",
+                "aspectRatio": "square"
+              },
+              {
+                "src": "/imgs/logos/react.svg12.png",
+                "alt": "Faith Template 12",
+                "aspectRatio": "vertical"
+              }
+            ],
+            "direction": "right",
+            "speed": 35
+          },
+          {
+            "templates": [
+              {
+                "src": "/imgs/logos/react.svg13.png",
+                "alt": "Faith Template 13",
+                "aspectRatio": "square"
+              },
+              {
+                "src": "/imgs/logos/react.svg14.png",
+                "alt": "Faith Template 14",
+                "aspectRatio": "square"
+              },
+              {
+                "src": "/imgs/logos/react.svg15.png",
+                "alt": "Faith Template 15",
+                "aspectRatio": "vertical"
+              },
+              {
+                "src": "/imgs/logos/react.svg16.png",
+                "alt": "Faith Template 16",
+                "aspectRatio": "square"
+              },
+              {
+                "src": "/imgs/logos/react.svg17.png",
+                "alt": "Faith Template 17",
+                "aspectRatio": "vertical"
+              },
+              {
+                "src": "/imgs/logos/react.svg18.png",
+                "alt": "Faith Template 18",
+                "aspectRatio": "landscape"
+              }
+            ],
+            "direction": "left",
+            "speed": 25
+          }
+        ]
       },
       "social-proof": {
         "block": "social-avatars",
         "id": "social-proof",
         "title": "Loved by 1000+ families",
         "avatars": [
-          { "src": "/imgs/avatars/1.png", "alt": "User 1" },
-          { "src": "/imgs/avatars/2.png", "alt": "User 2" },
-          { "src": "/imgs/avatars/3.png", "alt": "User 3" },
-          { "src": "/imgs/avatars/4.png", "alt": "User 4" },
-          { "src": "/imgs/avatars/5.png", "alt": "User 5" }
+          { "src": "/imgs/logos/react.svg", "alt": "User 1" },
+          { "src": "/imgs/logos/nextjs.svg", "alt": "User 2" },
+          { "src": "/imgs/logos/shadcn.svg", "alt": "User 3" },
+          { "src": "/imgs/logos/supabase.svg", "alt": "User 4" },
+          { "src": "/imgs/logos/vercel.svg", "alt": "User 5" }
         ],
         "className": "pt-0"
       },
       "how-it-works": {
         "block": "features-step",
         "id": "how-it-works",
-        "title": "How It Works (3 Simple Steps)",
+        "title": "How It Works",
         "text_align": "center",
         "items": [
           {
-            "title": "Upload Photos",
-            "description": "Share your cherished faith journey snapshots"
+            "title": "Share Your Moments",
+            "description": "Upload photos that represent your journey, family, or blessings."
           },
           {
-            "title": "Share Your Heart",
-            "description": "Tell us your hopes, struggles or occasion"
+            "title": "Tell Your Story",
+            "description": "Share your struggles, hopes, or a special occasion. We tailor the message to your heart."
           },
           {
-            "title": "Get Your Video",
-            "description": "Scripture-driven, centered on <em>\"fear not, for I am with you\"</em>—ready fast"
+            "title": "Receive Your Blessing",
+            "description": "Get a beautifully produced, scripture-anchored video delivered to your inbox in minutes."
           }
         ],
         "buttons": [
           {
-            "title": "Start Your “Fear Not For I Am With You” Video",
+            "title": "Begin Your Journey",
             "url": "/ai-video-generator",
             "target": "_self",
             "variant": "default"
@@ -82,38 +221,187 @@
       },
       "testimonials": {
         "id": "testimonials",
-        "title": "Why Believers Love It",
+        "title": "Stories of Faith & Comfort",
         "description": "",
         "items": [
           {
-            "name": "Sarah M.",
-            "role": "Believer",
-            "quote": "Breathtaking! I'll listen on my way to worship—God bless this ministry!",
-            "image": {
-              "src": "/imgs/avatars/14.jpg",
+            "type": "video",
+            "video": {
+              "thumbnail": "/imgs/tx/18.jpg",
+              "video_url": "https://public.pikju.top/uploads/video/20260126/2b2e8f3a-c875-4010-8cb1-bf0427dfdcd8/final_video.mp4",
+              "title": "Psalm 23:1-3"
+            },
+            "user": {
+              "name": "User Name"
+            }
+          },
+          {
+            "user": {
+              "name": "Sarah M.",
+              "location": "Believer"
+            },
+            "quote": "Breathtaking! I listen to this during my morning devotionals. It brings me so much peace before the day starts.",
+            "avatar": {
+              "src": "/imgs/tx/19.jpg",
               "alt": "Sarah"
             },
-            "rating": 5
+            "stars": 5
           },
           {
-            "name": "David L.",
-            "role": "Verified Customer",
-            "quote": "Perfectly captured my moments—I wept. Such a beautiful faith blessing!",
-            "image": {
-              "src": "/imgs/avatars/15.jpg",
+            "user": {
+              "name": "David L.",
+              "location": "Verified Customer"
+            },
+            "quote": "It perfectly captured my struggle and God's answer. I wept when I watched it. Truly a blessing.",
+            "avatar": {
+              "src": "/imgs/tx/20.jpg",
               "alt": "David"
             },
-            "rating": 5
+            "stars": 5
           },
           {
-            "name": "Jennifer K.",
-            "role": "Verified Customer",
-            "quote": "Wonderful! I'll share this with everyone I know—God bless you all!",
-            "image": {
-              "src": "/imgs/avatars/16.jpg",
-              "alt": "Jennifer"
+            "user": {
+              "name": "Sarah Mitchell",
+              "location": "Verified Customer"
             },
-            "rating": 5
+            "quote": "I was going through a really dark time after losing my job. This video with Psalm 23 came at the perfect moment. I watch it every morning now. Thank you for this beautiful ministry.",
+            "avatar": {
+              "src": "/imgs/tx/21.jpg",
+              "alt": "Sarah"
+            },
+            "stars": 5
+          },
+          {
+            "user": {
+              "name": "David Chen",
+              "location": "Verified Customer"
+            },
+            "quote": "My grandmother is in a nursing home and can't read anymore. I sent her a video with her favorite verse, Philippians 4:13. She cried tears of joy. This is truly a gift from God.",
+            "avatar": {
+              "src": "/imgs/tx/22.jpg",
+              "alt": "David"
+            },
+            "stars": 5
+          },
+          {
+            "user": {
+              "name": "Maria Rodriguez",
+              "location": "Verified Customer"
+            },
+            "quote": "As a busy mom of three, I rarely have time for Bible study. These 2-minute videos are exactly what I needed. The AI-generated images are stunning and really help me visualize the scriptures.",
+            "avatar": {
+              "src": "/imgs/tx/23.jpg",
+              "alt": "Maria"
+            },
+            "stars": 5
+          },
+          {
+            "user": {
+              "name": "James Thompson",
+              "location": "Verified Customer"
+            },
+            "quote": "I struggle with anxiety and panic attacks. Having these personalized videos with calming visuals and God's Word has become part of my daily coping routine. The voice is so peaceful.",
+            "avatar": {
+              "src": "/imgs/tx/24.jpg",
+              "alt": "James"
+            },
+            "stars": 5
+          },
+          {
+            "user": {
+              "name": "Emily Foster",
+              "location": "Verified Customer"
+            },
+            "quote": "I created a video for my husband who was deployed overseas. He said watching it before bed helped him feel connected to home and to God. This technology is a blessing for military families!",
+            "avatar": {
+              "src": "/imgs/tx/25.jpg",
+              "alt": "Emily"
+            },
+            "stars": 5
+          },
+          {
+            "user": {
+              "name": "Michael Brooks",
+              "location": "Verified Customer"
+            },
+            "quote": "I was skeptical at first - AI and religion? But the way it combines my personal prayer request with relevant scripture... it's genuinely moving. I've shared this with my entire church group.",
+            "avatar": {
+              "src": "/imgs/tx/26.jpg",
+              "alt": "Michael"
+            },
+            "stars": 5
+          },
+          {
+            "user": {
+              "name": "Rachel Kim",
+              "location": "Verified Customer"
+            },
+            "quote": "My teenage daughter has been questioning her faith. I made a video for her with Jeremiah 29:11 and she actually watched it three times. It opened up a conversation we'd been avoiding. Thank you!",
+            "avatar": {
+              "src": "/imgs/tx/27.jpg",
+              "alt": "Rachel"
+            },
+            "stars": 5
+          },
+          {
+            "user": {
+              "name": "Thomas Wright",
+              "location": "Verified Customer"
+            },
+            "quote": "After my wife passed away, I felt so alone. The video you created with Isaiah 41:10... I felt like God was speaking directly to me. I've bookmarked it and watch it whenever grief overwhelms me.",
+            "avatar": {
+              "src": "/imgs/tx/28.jpg",
+              "alt": "Thomas"
+            },
+            "stars": 5
+          },
+          {
+            "user": {
+              "name": "Lisa Anderson",
+              "location": "Verified Customer"
+            },
+            "quote": "I'm a hospice nurse and I've been sharing these videos with my patients and their families. The peace it brings during those final moments is incredible. This ministry is literally touching lives at the end of life.",
+            "avatar": {
+              "src": "/imgs/tx/29.jpg",
+              "alt": "Lisa"
+            },
+            "stars": 5
+          },
+          {
+            "user": {
+              "name": "Daniel Park",
+              "location": "Verified Customer"
+            },
+            "quote": "I battle depression and some days getting out of bed is hard. I made a video with Psalm 42:11 and set it as my alarm. Starting the day with God's Word in such a beautiful format has changed my mornings.",
+            "avatar": {
+              "src": "/imgs/tx/1.jpg",
+              "alt": "Daniel"
+            },
+            "stars": 5
+          },
+          {
+            "user": {
+              "name": "Amanda Lewis",
+              "location": "Verified Customer"
+            },
+            "quote": "I sent this to my sister who was diagnosed with breast cancer. She told me it's the most meaningful gift she's received. The combination of scripture and visuals is more powerful than just reading the Bible alone.",
+            "avatar": {
+              "src": "/imgs/tx/2.jpg",
+              "alt": "Amanda"
+            },
+            "stars": 5
+          },
+          {
+            "user": {
+              "name": "Robert Hughes",
+              "location": "Verified Customer"
+            },
+            "quote": "As someone who learns visually, reading the Bible has always been challenging for me. These videos bring the stories to life. I finally feel like I truly understand the Psalms I've read a hundred times before.",
+            "avatar": {
+              "src": "/imgs/tx/3.jpg",
+              "alt": "Robert"
+            },
+            "stars": 5
           }
         ],
         "buttons": [
@@ -127,122 +415,146 @@
         ],
         "className": "bg-background"
       },
-      "use-cases": {
-        "block": "features-media",
-        "id": "use-cases",
-        "title": "Create a Bible Video for Any Moment",
-        "description": "Whether for yourself or a loved one, bring God's Word to life",
+      "use-cases": {},
+      "what-you-get": {
+        "block": "features-alternating",
+        "id": "what-you-get",
+        "title": "More Than Just a Video",
+        "description": "",
+        "items": [
+          {
+            "title": "Cinematic Quality",
+            "description": "Beautiful visuals and audio designed for deep reflection and worship. Our AI creates stunning videos that capture the essence of your faith journey.",
+            "icon": "RiVideoLine",
+            "video": {
+              "src": "/imgs/avatars/text-to-video.webm",
+              "poster": "/imgs/video-poster.jpg"
+            }
+          },
+          {
+            "title": "Personalized Scripture",
+            "description": "God's word, tailored specifically to your name and your story. Each video is uniquely crafted to speak directly to your heart and circumstances.",
+            "icon": "RiBookOpenLine",
+            "image": {
+              "src": "/imgs/avatars/magicpalette.webp",
+              "alt": "Personalized Scripture"
+            }
+          },
+          {
+            "title": "Instant Delivery",
+            "description": "Receive your encouragement in minutes — perfect for urgent prayer needs or meaningful gifts. No waiting, just immediate blessing.",
+            "icon": "RiTimeLine",
+            "image": {
+              "src": "/imgs/avatars/onbrand.webp",
+              "alt": "Instant Delivery"
+            }
+          }
+        ],
+        "buttons": [
+          {
+            "title": "Create My Faith Video",
+            "url": "/ai-video-generator",
+            "target": "_self",
+            "variant": "default"
+          }
+        ],
+        "className": "bg-background"
+      },
+      "gift-section": {
+        "block": "features-grid",
+        "id": "gift-section",
+        "title": "Gift a Comforting Video to a Loved One, or to Yourself!",
+        "description": "Create personalized Bible videos for every occasion",
         "items": [
           {
             "title": "For Your Partner",
-            "description": "Express your love through Scripture",
+            "description": "Share God's love with your special someone",
             "icon": "RiHeart3Line",
             "image": {
-              "src": "/imgs/cases/1.png",
-              "alt": "For Partner"
+              "src": "https://cdn.prayersong.com/lander-assets/testimonials/testimonial-vid-2.jpg",
+              "alt": "For Your Partner"
             }
           },
           {
             "title": "For Children",
-            "description": "Teach faith through beautiful videos",
+            "description": "Bless your children with faith-filled encouragement",
             "icon": "RiUserSmileLine",
             "image": {
-              "src": "/imgs/cases/2.png",
+              "src": "https://cdn.prayersong.com/lander-assets/testimonials/testimonial-video-5.jpg",
               "alt": "For Children"
             }
           },
           {
             "title": "For Loss",
-            "description": "Find comfort in times of grief",
+            "description": "Find comfort in God's promises during grief",
             "icon": "RiHandHeartLine",
             "image": {
-              "src": "/imgs/cases/3.png",
+              "src": "https://prayersong.com/lander-assets/for-images/for-loss-2.jpeg",
               "alt": "For Loss"
             }
           },
           {
             "title": "For Parents",
-            "description": "Honor them with God's blessings",
+            "description": "Honor them with blessings from Scripture",
             "icon": "RiParentLine",
             "image": {
-              "src": "/imgs/cases/4.png",
+              "src": "https://cdn.prayersong.com/lander-assets/testimonials/testimonial-vid-1.jpg",
               "alt": "For Parents"
             }
           },
           {
-            "title": "For Healing",
-            "description": "Pray for restoration and peace",
-            "icon": "RiHeartsLine",
-              "image": {
-              "src": "/imgs/cases/5.png",
-              "alt": "For Healing"
+            "title": "For Yourself",
+            "description": "Receive God's personal message for you",
+            "icon": "RiUserHeartLine",
+            "image": {
+              "src": "https://cdn.prayersong.com/lander-assets/testimonials/testimonial-vid-3.jpg",
+              "alt": "For Yourself"
             }
           },
           {
             "title": "For Strength",
-            "description": "Find courage in God's promises",
+            "description": "Draw courage from His everlasting promises",
             "icon": "RiShieldStarLine",
             "image": {
-              "src": "/imgs/cases/6.png",
+              "src": "https://prayersong.com/lander-assets/for-images/for-strength-2.jpg",
               "alt": "For Strength"
             }
           },
           {
+            "title": "For Healing",
+            "description": "Pray for restoration and peace of mind",
+            "icon": "RiHeartsLine",
+            "image": {
+              "src": "https://prayersong.com/lander-assets/for-images/for-healing-2.jpg",
+              "alt": "For Healing"
+            }
+          },
+          {
             "title": "For Prayers",
-            "description": "Lift your prayers through video",
+            "description": "Lift your prayers through personalized video",
             "icon": "RiHandsPrayLine",
             "image": {
-              "src": "/imgs/cases/7.png",
+              "src": "https://prayersong.com/lander-assets/for-images/for-prayers.jpg",
               "alt": "For Prayers"
             }
           },
           {
             "title": "For Breakthroughs",
-            "description": "Celebrate God's miracles",
+            "description": "Celebrate God's miracles in your life",
             "icon": "RiSparklingLine",
             "image": {
-              "src": "/imgs/cases/8.png",
+              "src": "https://prayersong.com/lander-assets/for-images/for-breakthroughs-2.jpg",
               "alt": "For Breakthroughs"
             }
           }
         ],
         "buttons": [
           {
-            "title": "Make Your “Fear Not For I Am With You” Video Today",
-            "url": "/ai-video-generator",
-            "target": "_self"
-          }
-        ],
-        "className": "bg-background"
-      },
-      "what-you-get": {
-        "block": "features",
-        "id": "what-you-get",
-        "title": "What You Get",
-        "description": "",
-        "items": [
-          {
-            "title": "Pro-Quality Video",
-            "description": "Woven with <em>\"fear not, for I am with you\"</em>—for worship or reflection",
-            "icon": "RiVideoLine"
-          },
-          {
-            "title": "Custom Scripture",
-            "description": "Tailored to your story & spiritual needs",
-            "icon": "RiBookOpenLine"
-          },
-          {
-            "title": "Fast Email Delivery",
-            "description": "Get your video in minutes, straight to your inbox",
-            "icon": "RiTimeLine"
-          }
-        ],
-        "buttons": [
-          {
-            "title": "Make Your “Fear Not For I Am With You” Video Today",
+            "title": "Start Creating Your Video",
             "url": "/ai-video-generator",
             "target": "_self",
-            "variant": "default"
+            "variant": "default",
+            "icon": "Gift"
           }
         ],
         "className": "bg-background"
@@ -287,15 +599,19 @@
       "faq": {
         "id": "faq",
         "title": "Frequently Asked Questions",
-        "description": "Everything you need to know about creating your Bible video",
+        "description": "Everything you need to know about creating your personalized video",
         "items": [
           {
-            "question": "What makes these videos special?",
-            "answer": "Each video is custom-created from your story. It is a one-of-a-kind gift rooted in Scripture, prayer, and genuine care - designed to bring comfort and peace to your heart."
+            "question": "Is my personal story private?",
+            "answer": "Yes. All prayer requests and personal stories are treated with strict confidentiality."
+          },
+          {
+            "question": "What if I don't like the result?",
+            "answer": "We offer a 100% satisfaction guarantee. If it doesn't bless you, we'll make it right."
           },
           {
             "question": "How long does it take to receive the video?",
-            "answer": "Your finished Bible video is delivered in just 2-5 minutes. We use advanced AI technology to create your personalized video quickly while maintaining the highest quality."
+            "answer": "Your finished video is delivered in just 2-5 minutes. We use advanced AI technology to create your personalized video quickly while maintaining the highest quality."
           },
           {
             "question": "What themes can I create videos about?",
@@ -303,15 +619,11 @@
           },
           {
             "question": "How will I receive the finished video?",
-            "answer": "You will receive a secure link via email to play your Bible video on any device and to easily share it with family and friends."
+            "answer": "You will receive a secure link via email to play your video on any device and to easily share it with family and friends."
           },
           {
             "question": "Can I use the video at church or events?",
-            "answer": "Yes, you may share and play your Bible video at private events and church gatherings to inspire and comfort others."
-          },
-          {
-            "question": "What if generation fails?",
-            "answer": "If your video fails to generate due to a technical issue, you will not lose any credits. We automatically refund your credits, and you can try again immediately."
+            "answer": "Yes, you may share and play your video at private events and church gatherings to inspire and comfort others."
           }
         ],
         "buttons": [

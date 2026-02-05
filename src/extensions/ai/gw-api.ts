@@ -9,6 +9,10 @@ import {
     AITaskResult,
     AITaskStatus,
 } from './types';
+import { getEmailService } from '@/shared/services/email';
+import { db } from '@/core/db';
+import { eq } from 'drizzle-orm';
+import { user } from '@/config/db/schema';
 
 /**
  * GW API configs for Scripture Picture provider
@@ -1499,6 +1503,84 @@ export class GWAPIProvider implements AIProvider {
                 });
 
                 console.log(`[GW-API Background Upload] Task ${taskId} updated with CDN URLs`);
+
+                // Send email notification to user
+                try {
+                    const { findAITaskByTaskId } = await import('@/shared/models/ai_task');
+                    const task = await findAITaskByTaskId(taskId);
+                    if (task?.userId) {
+                        const [userData] = await db()
+                            .select({ name: user.name, email: user.email })
+                            .from(user)
+                            .where(eq(user.id, task.userId));
+
+                        if (userData?.email) {
+                            const emailService = await getEmailService();
+                            const videoUrl = uploadedAssets['video_url'];
+
+                            await emailService.sendEmail({
+                                to: userData.email,
+                                subject: 'Your Bible Video is Ready! 🕊️',
+                                html: `
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <title>Your Video is Ready!</title>
+    <style>
+      body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; line-height: 1.6; color: #333; background-color: #f4f4f5; margin: 0; padding: 0; }
+      .container { max-width: 600px; margin: 0 auto; background-color: #ffffff; }
+      .header { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); padding: 40px 30px; text-align: center; }
+      .header h1 { color: #ffffff; margin: 0; font-size: 24px; font-weight: 600; }
+      .header .dove { font-size: 48px; margin-bottom: 10px; }
+      .content { padding: 40px 30px; }
+      .video-section { text-align: center; margin: 30px 0; }
+      .video-link { display: inline-block; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: #ffffff; text-decoration: none; padding: 16px 32px; border-radius: 50px; font-weight: 600; font-size: 16px; }
+      .footer { background-color: #f9fafb; padding: 30px; text-align: center; border-top: 1px solid #e5e7eb; }
+      .footer p { margin: 0; color: #6b7280; font-size: 12px; }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <div class="header">
+        <div class="dove">🕊️</div>
+        <h1>Your Blessing is Ready!</h1>
+      </div>
+      <div class="content">
+        <p>Hello ${userData.name || 'there'},</p>
+        <p>Great news! Your personalized Bible verse video has been successfully generated. 🎉</p>
+        <div class="video-section">
+          <a href="${videoUrl}" class="video-link" target="_blank">Watch Your Video 📺</a>
+        </div>
+        <p>Feel free to share this blessing with your loved ones!</p>
+      </div>
+      <div class="footer">
+        <p>🙏 May God's peace be with you always</p>
+        <p style="margin-top: 10px;"><a href="https://fearnotforiamwithyou.com" style="color: #667eea; text-decoration: none;">fearnotforiamwithyou.com</a></p>
+      </div>
+    </div>
+  </body>
+</html>
+                                `.trim(),
+                                text: `Your Bible Video is Ready! 🕊️
+
+Hello ${userData.name || 'there'},
+
+Great news! Your personalized Bible verse video has been successfully generated.
+
+Watch your video here: ${videoUrl}
+
+Feel free to share this blessing with your loved ones!
+
+🙏 May God's peace be with you always
+fearnotforiamwithyou.com`.trim(),
+                            });
+                            console.log(`[GW-API Background Upload] Email sent to ${userData.email}`);
+                        }
+                    }
+                } catch (emailError) {
+                    console.error('[GW-API Background Upload] Failed to send email:', emailError);
+                }
             }
 
         } catch (error) {

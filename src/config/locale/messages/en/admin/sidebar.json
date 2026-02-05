@@ -102,6 +102,11 @@
           "title": "AI Chats",
           "url": "/admin/chats",
           "icon": "MessageCircle"
+        },
+        {
+          "title": "Support Chat",
+          "url": "/admin/support-chat",
+          "icon": "Headphones"
         }
       ]
     }

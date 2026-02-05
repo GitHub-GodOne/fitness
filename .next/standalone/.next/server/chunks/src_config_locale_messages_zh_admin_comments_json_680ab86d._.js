@@ -1,3 +1,0 @@
-module.exports=[657261,e=>{e.v({list:{title:"评论管理",crumbs:{admin:"管理后台",comments:"评论管理"},tabs:{all:"全部",visible:"可见",hidden:"隐藏"}},fields:{user:"用户",email:"邮箱",content:"内容",status:"状态",likes:"点赞",replies:"回复",created_at:"创建时间",actions:"操作"},status:{visible:"可见",hidden:"隐藏"},actions:{view_details:"查看详情",hide:"隐藏",show:"显示",delete:"删除"}})}];
-
-//# sourceMappingURL=src_config_locale_messages_zh_admin_comments_json_680ab86d._.js.map

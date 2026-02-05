@@ -737,3 +737,29 @@ export const notification = table(
     index('idx_notification_type').on(table.type),
   ]
 );
+
+export const supportChatMessage = table(
+  'support_chat_message',
+  {
+    id: text('id').primaryKey(),
+    userId: text('user_id')
+      .notNull()
+      .references(() => user.id, { onDelete: 'cascade' }),
+    content: text('content').notNull(),
+    type: text('type').notNull(), // user, admin
+    status: text('status').notNull().default('active'), // active, deleted
+    read: boolean('read').notNull().default(false), // For admin to track unread user messages
+    createdAt: timestamp('created_at').defaultNow().notNull(),
+    updatedAt: timestamp('updated_at')
+      .$onUpdate(() => new Date())
+      .notNull(),
+  },
+  (table) => [
+    // Query messages by user ordered by time
+    index('idx_support_chat_user_created').on(table.userId, table.createdAt),
+    // Query unread messages for admin
+    index('idx_support_chat_unread').on(table.type, table.read),
+    // Query by status
+    index('idx_support_chat_status').on(table.status),
+  ]
+);

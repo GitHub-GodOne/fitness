@@ -1,3 +1,0 @@
-module.exports=[751513,e=>{e.v({list:{title:"所有视频",crumbs:{admin:"管理后台",videos:"视频"}},fields:{order:"顺序",task_id:"任务ID",user:"用户",prompt:"提示词",final_prompt:"最终提示词",status:"状态",created:"创建时间",actions:"操作"},no_videos:"未找到视频",preview:{title:"视频预览"}})}];
-
-//# sourceMappingURL=src_config_locale_messages_zh_admin_videos_json_05398a1c._.js.map
