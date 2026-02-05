@@ -87,38 +87,6 @@
             "product_name": "60 积分",
             "credits": 60,
             "valid_days": 0
-          },
-          {
-            "title": "赠送视频",
-            "description": "送给朋友和家人的完美属灵礼物。发送个性化的圣经安慰视频给那些需要鼓励、平安或提醒神的爱的人。",
-            "label": "完美礼物",
-            "features_title": "包含内容",
-            "features": [
-              "1 份个性化圣经视频礼物",
-              "精美制作的 AI 生成影像",
-              "直接发送到收件人邮箱",
-              "可包含个人留言",
-              "即时送达给您所爱的人"
-            ],
-            "interval": "one-time",
-            "amount": 499,
-            "currency": "USD",
-            "price": "$4.99",
-            "original_price": "",
-            "unit": "",
-            "is_featured": false,
-            "tip": "一份有意义的礼物，带来安慰、平安和属灵鼓励。适合任何场合。",
-            "button": {
-              "title": "赠送给朋友",
-              "url": "/ai-video-generator?gift=true",
-              "icon": "Gift",
-              "variant": "secondary"
-            },
-            "product_id": "gift_single",
-            "product_name": "赠送视频",
-            "credits": 1,
-            "valid_days": 0,
-            "is_gift": true
           }
         ]
       }

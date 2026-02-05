@@ -17,6 +17,8 @@ interface HistoryTask {
   taskResult: string | null;
   options?: string | null;
   createdAt: string;
+  errorMessage?: string | null;
+  errorCode?: string | null;
 }
 
 interface VideoManagementProps {
@@ -74,6 +76,8 @@ export function VideoManagement({
             task.createdAt instanceof Date
               ? task.createdAt.toISOString()
               : task.createdAt,
+          errorMessage: task.errorMessage,
+          errorCode: task.errorCode,
         }),
       );
 

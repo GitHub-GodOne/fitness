@@ -1,24 +1,24 @@
-import { Link } from '@/core/i18n/navigation';
+import { Link } from "@/core/i18n/navigation";
 import {
   BrandLogo,
   BuiltWith,
   Copyright,
   LocaleSelector,
   ThemeToggler,
-} from '@/shared/blocks/common';
-import { SmartIcon } from '@/shared/blocks/common/smart-icon';
-import { NavItem } from '@/shared/types/blocks/common';
-import { Footer as FooterType } from '@/shared/types/blocks/landing';
+} from "@/shared/blocks/common";
+import { SmartIcon } from "@/shared/blocks/common/smart-icon";
+import { NavItem } from "@/shared/types/blocks/common";
+import { Footer as FooterType } from "@/shared/types/blocks/landing";
 
 export function Footer({ footer }: { footer: FooterType }) {
   return (
     <footer
       id={footer.id}
-      className={`py-8 sm:py-8 ${footer.className || ''} overflow-x-hidden`}
+      className={`py-8 sm:py-8 ${footer.className || ""} overflow-x-hidden`}
       // overflow-x-hidden防止-footer-撑出水平滚动条
     >
       <div className="container space-y-8 overflow-x-hidden">
-        {/* <div className="grid min-w-0 gap-12 md:grid-cols-5">
+        <div className="grid min-w-0 gap-12 md:grid-cols-5">
           <div className="min-w-0 space-y-4 break-words md:col-span-2 md:space-y-6">
             {footer.brand ? <BrandLogo brand={footer.brand} /> : null}
 
@@ -41,27 +41,46 @@ export function Footer({ footer }: { footer: FooterType }) {
                   {item.children?.map((subItem, iidx) => (
                     <Link
                       key={iidx}
-                      href={subItem.url || ''}
-                      target={subItem.target || ''}
+                      href={subItem.url || ""}
+                      target={subItem.target || ""}
                       className="text-muted-foreground hover:text-primary block break-words duration-150"
                     >
-                      <span className="break-words">{subItem.title || ''}</span>
+                      <span className="break-words">{subItem.title || ""}</span>
                     </Link>
                   ))}
+                  {/* Contact info for Contact section */}
+                  {item.title === "Contact" || item.title === "联系方式" ? (
+                    <>
+                      <a
+                        href="tel:17545570920"
+                        className="text-muted-foreground hover:text-primary block break-words duration-150"
+                      >
+                        <span className="break-words">📞 17545570920</span>
+                      </a>
+                      <a
+                        href="mailto:vue1348102097@gmail.com"
+                        className="text-muted-foreground hover:text-primary block break-words duration-150"
+                      >
+                        <span className="break-words">
+                          ✉️ vue1348102097@gmail.com
+                        </span>
+                      </a>
+                    </>
+                  ) : null}
                 </div>
               </div>
             ))}
           </div>
-        </div> */}
+        </div>
 
-        {/* <div className="flex min-w-0 flex-wrap items-center gap-4 sm:gap-8">
+        <div className="flex min-w-0 flex-wrap items-center gap-4 sm:gap-8">
           {footer.show_built_with !== false ? <BuiltWith /> : null}
           <div className="min-w-0 flex-1" />
           {footer.show_theme !== false ? <ThemeToggler type="toggle" /> : null}
           {footer.show_locale !== false ? (
             <LocaleSelector type="button" />
           ) : null}
-        </div> */}
+        </div>
 
         <div
           aria-hidden
@@ -84,25 +103,25 @@ export function Footer({ footer }: { footer: FooterType }) {
               {footer.agreement?.items.map((item: NavItem, index: number) => (
                 <Link
                   key={index}
-                  href={item.url || ''}
-                  target={item.target || ''}
+                  href={item.url || ""}
+                  target={item.target || ""}
                   className="text-muted-foreground hover:text-primary block text-xs break-words underline duration-150"
                 >
-                  {item.title || ''}
+                  {item.title || ""}
                 </Link>
               ))}
             </div>
           ) : null}
 
-          {/* {footer.social ? (
+          {footer.social ? (
             <div className="flex min-w-0 flex-wrap items-center gap-2">
               {footer.social?.items.map((item: NavItem, index) => (
                 <Link
                   key={index}
-                  href={item.url || ''}
-                  target={item.target || ''}
+                  href={item.url || ""}
+                  target={item.target || ""}
                   className="text-muted-foreground hover:text-primary bg-background block cursor-pointer rounded-full p-2 duration-150"
-                  aria-label={item.title || 'Social media link'}
+                  aria-label={item.title || "Social media link"}
                 >
                   {item.icon && (
                     <SmartIcon name={item.icon as string} size={20} />
@@ -110,7 +129,7 @@ export function Footer({ footer }: { footer: FooterType }) {
                 </Link>
               ))}
             </div>
-          ) : null} */}
+          ) : null}
         </div>
       </div>
     </footer>

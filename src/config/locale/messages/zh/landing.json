@@ -19,17 +19,17 @@
           "icon": "Home"
         },
         {
-          "title": "如何使用",
+          "title": "工作原理",
           "url": "/#how-it-works",
           "icon": "Sparkles"
         },
         {
-          "title": "故事",
+          "title": "成功案例",
           "url": "/showcases",
           "icon": "Heart"
         },
         {
-          "title": "价格",
+          "title": "定价",
           "url": "/pricing",
           "icon": "DollarSign"
         },
@@ -60,16 +60,16 @@
           "icon": "CreditCard"
         },
         {
-          "title": "历史记录",
+          "title": "我的祷告",
           "url": "/settings/history",
           "icon": "History"
         }
       ]
     },
     "show_sign": true,
-    "show_theme_toggler": true,
-    "show_theme_switcher": true,
-    "show_locale": true,
+    "show_theme_toggler": false,
+    "show_theme_switcher": false,
+    "show_locale": false,
     "topbanner": {
       "text": "Fear Not 是一个 AI 驱动的圣经安慰视频生成平台。通过个性化的圣经朗读视频，为你的心灵带来平安、温暖和属灵的安慰。"
     }
@@ -78,7 +78,7 @@
     "id": "footer",
     "brand": {
       "title": "Fear Not",
-      "description": "Fear Not 是一个 AI 驱动的圣经安慰视频生成平台。通过个性化的圣经朗读视频，为你的心灵带来平安、温暖和属灵的安慰。",
+      "description": "Fear Not 是一个 AI 驱动的圣经安慰视频生成平台。创建个性化的圣经朗读视频，为你的心灵带来平安、温暖和属灵的安慰。",
       "logo": {
         "src": "/logo-icon.png",
         "alt": "Fear Not",
@@ -90,7 +90,7 @@
     "nav": {
       "items": [
         {
-          "title": "关于我们",
+          "title": "功能",
           "children": [
             {
               "title": "功能亮点",
@@ -103,7 +103,7 @@
               "target": "_self"
             },
             {
-              "title": "价格",
+              "title": "定价",
               "url": "/pricing",
               "target": "_self"
             }
@@ -130,7 +130,7 @@
           ]
         },
         {
-          "title": "合作伙伴",
+          "title": "联系方式",
           "children": [
             {
               "title": "",

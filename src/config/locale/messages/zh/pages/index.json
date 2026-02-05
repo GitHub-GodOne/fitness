@@ -2,12 +2,12 @@
   "page": {
     "show_sections": [
       "hero",
-      "gift-section",
-      "template-previews",
       "how-it-works",
       "testimonials",
       "what-you-get",
-      "faq"
+      "faq",
+      "footer",
+      "gift-section"
     ],
     "sections": {
       "hero": {
@@ -171,7 +171,7 @@
       "how-it-works": {
         "block": "features-step",
         "id": "how-it-works",
-        "title": "如何使用",
+        "title": "工作原理",
         "text_align": "center",
         "items": [
           {
@@ -497,7 +497,7 @@
             "description": "在悲伤时从上帝的应许中找到安慰",
             "icon": "RiHandHeartLine",
             "image": {
-              "src": "/lander-assets/for-images/for-loss-2.jpeg",
+              "src": "https://prayersong.com/lander-assets/for-images/for-loss-2.jpeg",
               "alt": "面对失去"
             }
           },
@@ -524,7 +524,7 @@
             "description": "从祂永恒的应许中汲取勇气",
             "icon": "RiShieldStarLine",
             "image": {
-              "src": "/lander-assets/for-images/for-strength-2.jpg",
+              "src": "https://prayersong.com/lander-assets/for-images/for-strength-2.jpg",
               "alt": "寻求力量"
             }
           },
@@ -533,7 +533,7 @@
             "description": "为心灵的复原和平安祷告",
             "icon": "RiHeartsLine",
             "image": {
-              "src": "/lander-assets/for-images/for-healing-2.jpg",
+              "src": "https://prayersong.com/lander-assets/for-images/for-healing-2.jpg",
               "alt": "寻求医治"
             }
           },
@@ -542,7 +542,7 @@
             "description": "通过个性化视频举起您的祷告",
             "icon": "RiHandsPrayLine",
             "image": {
-              "src": "/lander-assets/for-images/for-prayers.jpg",
+              "src": "https://prayersong.com/lander-assets/for-images/for-prayers.jpg",
               "alt": "献上祷告"
             }
           },
@@ -551,7 +551,7 @@
             "description": "庆祝上帝在您生命中的神迹",
             "icon": "RiSparklingLine",
             "image": {
-              "src": "/lander-assets/for-images/for-breakthroughs-2.jpg",
+              "src": "https://prayersong.com/lander-assets/for-images/for-breakthroughs-2.jpg",
               "alt": "庆祝突破"
             }
           }

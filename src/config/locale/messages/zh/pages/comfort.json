@@ -99,7 +99,7 @@
       "usage": {
         "block": "features-step",
         "id": "usage",
-        "title": "如何使用",
+        "title": "工作原理",
         "description": "创建你的个性化安慰视频简单而温柔，就像神对你的爱一样。",
         "text_align": "center",
         "items": [
@@ -309,4 +309,3 @@
     }
   }
 }
-

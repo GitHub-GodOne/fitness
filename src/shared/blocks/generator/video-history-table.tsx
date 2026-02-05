@@ -29,6 +29,8 @@ interface HistoryTask {
   taskResult: string | null;
   options?: string | null;
   createdAt: string;
+  errorMessage?: string | null;
+  errorCode?: string | null;
 }
 import { Button } from "@/shared/components/ui/button";
 import { Card, CardContent, CardHeader } from "@/shared/components/ui/card";
@@ -265,6 +267,9 @@ export function VideoHistoryTable({
                       <TableHead className="max-w-xs">
                         {t("history.task_id")}
                       </TableHead>
+                      <TableHead className="max-w-xs text-red-600">
+                        Error Info
+                      </TableHead>
                       <TableHead className="text-right sticky right-0 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/75 z-10">
                         {t("history.actions")}
                       </TableHead>
@@ -382,6 +387,75 @@ export function VideoHistoryTable({
                                 {task.id}
                               </span>
                             </Copy>
+                          </TableCell>
+                          <TableCell>
+                            {(() => {
+                              // Try to get error from taskResult JSON
+                              let errorInfo = null;
+                              if (task.taskResult) {
+                                try {
+                                  const result = JSON.parse(task.taskResult);
+                                  if (result.error || result.stack) {
+                                    errorInfo = {
+                                      error: result.error,
+                                      stack: result.stack,
+                                    };
+                                  }
+                                } catch (e) {
+                                  // Not valid JSON, ignore
+                                }
+                              }
+                              // Fallback to errorMessage/errorCode fields
+                              if (
+                                !errorInfo &&
+                                (task.errorMessage || task.errorCode)
+                              ) {
+                                errorInfo = {
+                                  error: task.errorCode,
+                                  stack: task.errorMessage,
+                                };
+                              }
+
+                              if (
+                                task.status === AITaskStatus.FAILED &&
+                                errorInfo
+                              ) {
+                                const errorText =
+                                  errorInfo.stack ||
+                                  errorInfo.error ||
+                                  "Unknown error";
+                                return (
+                                  <Copy value={errorText} className="max-w-xs">
+                                    <div className="max-w-xs cursor-pointer">
+                                      {errorInfo.error && (
+                                        <span
+                                          className="text-xs font-mono text-red-600 block truncate"
+                                          title={errorInfo.error}
+                                        >
+                                          {errorInfo.error}
+                                        </span>
+                                      )}
+                                      {errorInfo.stack && (
+                                        <span
+                                          className="text-xs text-red-500 line-clamp-2"
+                                          title={errorInfo.stack}
+                                        >
+                                          {errorInfo.stack.length > 100
+                                            ? errorInfo.stack.slice(0, 100) +
+                                              "..."
+                                            : errorInfo.stack}
+                                        </span>
+                                      )}
+                                    </div>
+                                  </Copy>
+                                );
+                              }
+                              return (
+                                <span className="text-xs text-muted-foreground">
+                                  -
+                                </span>
+                              );
+                            })()}
                           </TableCell>
                           <TableCell className="text-right w-auto sm:w-[320px] sticky right-0 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/75 z-10">
                             <div className="flex flex-col items-end gap-1 sm:flex-row sm:items-center sm:justify-end sm:gap-2">

@@ -1,7 +1,15 @@
 "use client";
 
 import { useState, useRef, useEffect } from "react";
-import { MessageCircle, X, Send, LogIn, Music, VolumeX, Headphones } from "lucide-react";
+import {
+  MessageCircle,
+  X,
+  Send,
+  LogIn,
+  Music,
+  VolumeX,
+  Headphones,
+} from "lucide-react";
 import { cn } from "@/shared/lib/utils";
 import { useAppContext } from "@/shared/contexts/app";
 
@@ -24,13 +32,13 @@ export function FloatingWidget() {
   const { user, setIsShowSignModal } = useAppContext();
   const [isExpanded, setIsExpanded] = useState(false);
   const [isChatOpen, setIsChatOpen] = useState(false);
-  
+
   // Music state
   const [isPlaying, setIsPlaying] = useState(false);
   const [isMuted, setIsMuted] = useState(true);
   const [isLoaded, setIsLoaded] = useState(false);
   const audioRef = useRef<HTMLAudioElement | null>(null);
-  
+
   // Chat state
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [inputValue, setInputValue] = useState("");
@@ -41,7 +49,7 @@ export function FloatingWidget() {
   // Initialize audio
   useEffect(() => {
     audioRef.current = new Audio(
-      "https://cdn.pixabay.com/download/audio/2022/05/27/audio_1808fbf07a.mp3?filename=soft-piano-100-bpm-121529.mp3"
+      "https://cdn.pixabay.com/download/audio/2022/05/27/audio_1808fbf07a.mp3?filename=soft-piano-100-bpm-121529.mp3",
     );
     audioRef.current.loop = true;
     audioRef.current.volume = 0.3;
@@ -75,23 +83,41 @@ export function FloatingWidget() {
   }, [isChatOpen, user]);
 
   useEffect(() => {
-    if (isChatOpen) messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+    if (isChatOpen)
+      messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [isChatOpen, messages]);
 
   const toggleMusic = () => {
-    if (!audioRef.current || !isLoaded) return;
+    if (!audioRef.current) return;
 
+    // Try to play even if not fully loaded yet
     if (isPlaying) {
       audioRef.current.pause();
       setIsPlaying(false);
       setIsMuted(true);
     } else {
       audioRef.current.volume = 0.3;
-      audioRef.current.play().catch((error) => {
-        console.log("Audio playback failed:", error);
-      });
-      setIsPlaying(true);
-      setIsMuted(false);
+      const playPromise = audioRef.current.play();
+      if (playPromise !== undefined) {
+        playPromise
+          .then(() => {
+            setIsPlaying(true);
+            setIsMuted(false);
+          })
+          .catch((error) => {
+            console.log("Audio playback failed:", error);
+            // Try loading again if not loaded
+            if (!isLoaded) {
+              audioRef.current?.load();
+              audioRef.current
+                ?.play()
+                .catch((e) => console.log("Retry failed:", e));
+            }
+          });
+      } else {
+        setIsPlaying(true);
+        setIsMuted(false);
+      }
     }
   };
 
@@ -217,12 +243,16 @@ export function FloatingWidget() {
           <button
             onClick={toggleMusic}
             className={cn(
-              "flex h-12 w-12 items-center justify-center rounded-full shadow-lg transition-all hover:scale-110",
+              "flex h-12 w-12 items-center justify-center rounded-full shadow-lg transition-all hover:scale-110 active:scale-95",
               isPlaying && !isMuted
                 ? "bg-amber-100 text-amber-700 border-2 border-amber-300"
-                : "bg-white text-amber-600 border border-amber-200 hover:bg-amber-50"
+                : "bg-white text-amber-600 border border-amber-200 hover:bg-amber-50",
             )}
-            title={isPlaying && !isMuted ? "Pause worship music" : "Play worship music"}
+            title={
+              isPlaying && !isMuted
+                ? "Pause worship music"
+                : "Play worship music"
+            }
           >
             {isPlaying && !isMuted ? (
               <div className="relative">
@@ -255,7 +285,7 @@ export function FloatingWidget() {
           "fixed bottom-6 right-6 z-50 flex h-14 w-14 items-center justify-center rounded-full shadow-xl transition-all hover:scale-110",
           isExpanded || isChatOpen
             ? "bg-gray-800 text-white"
-            : "bg-gradient-to-br from-amber-400 to-amber-600 text-white hover:from-amber-500 hover:to-amber-700"
+            : "bg-gradient-to-br from-amber-400 to-amber-600 text-white hover:from-amber-500 hover:to-amber-700",
         )}
       >
         {isExpanded || isChatOpen ? (
