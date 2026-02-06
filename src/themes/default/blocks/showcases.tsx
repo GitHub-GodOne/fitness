@@ -1,21 +1,21 @@
-'use client';
+"use client";
 
-import { useMemo, useState } from 'react';
-import Image from 'next/image';
-import { motion } from 'framer-motion';
+import { useMemo, useState } from "react";
+import Image from "next/image";
+import { motion } from "framer-motion";
 
-import { Link } from '@/core/i18n/navigation';
-import { SmartIcon } from '@/shared/blocks/common/smart-icon';
-import { Button } from '@/shared/components/ui/button';
-import { Card, CardContent } from '@/shared/components/ui/card';
+import { Link } from "@/core/i18n/navigation";
+import { SmartIcon } from "@/shared/blocks/common/smart-icon";
+import { Button } from "@/shared/components/ui/button";
+import { Card, CardContent } from "@/shared/components/ui/card";
 import {
   Dialog,
   DialogContent,
   DialogHeader,
   DialogTitle,
-} from '@/shared/components/ui/dialog';
-import { cn } from '@/shared/lib/utils';
-import { Section } from '@/shared/types/blocks/landing';
+} from "@/shared/components/ui/dialog";
+import { cn } from "@/shared/lib/utils";
+import { Section } from "@/shared/types/blocks/landing";
 
 export function Showcases({
   section,
@@ -26,7 +26,7 @@ export function Showcases({
 }) {
   const groups = (section as any).groups || [];
   const [selectedGroup, setSelectedGroup] = useState<string>(
-    groups.length > 0 ? groups[0].name : ''
+    groups.length > 0 ? groups[0].name : "",
   );
   const [selectedVideo, setSelectedVideo] = useState<{
     src: string;
@@ -37,14 +37,14 @@ export function Showcases({
   const filteredItems = useMemo(() => {
     if (!section.items) return [];
     if (!selectedGroup || !groups.length) return section.items;
-    if (selectedGroup === 'all') return section.items;
+    if (selectedGroup === "all") return section.items;
     return section.items.filter((item) => item.group === selectedGroup);
   }, [section.items, selectedGroup, groups.length]);
 
   return (
     <section
       id={section.id || section.name}
-      className={cn('py-24 md:py-36', section.className, className)}
+      className={cn("py-24 md:py-36", section.className, className)}
     >
       <motion.div
         className="container mb-12 text-center"
@@ -87,10 +87,10 @@ export function Showcases({
                   key={group.name}
                   onClick={() => setSelectedGroup(group.name)}
                   className={cn(
-                    'relative rounded-lg px-3 py-1.5 text-sm font-medium transition-all',
+                    "relative rounded-lg px-3 py-1.5 text-sm font-medium transition-all",
                     isSelected
-                      ? ''
-                      : 'border-border bg-background text-foreground hover:bg-accent hover:text-accent-foreground border'
+                      ? ""
+                      : "border-border bg-background text-foreground hover:bg-accent hover:text-accent-foreground border",
                   )}
                   initial={{ opacity: 0, scale: 0.9 }}
                   whileInView={{ opacity: 1, scale: 1 }}
@@ -117,12 +117,12 @@ export function Showcases({
                   )}
                 </motion.button>
               );
-            }
+            },
           )}
         </motion.div>
       )}
 
-      <div className="container grid grid-cols-1 gap-6 md:grid-cols-2">
+      <div className="container grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-4">
         {filteredItems.length > 0 ? (
           filteredItems.map((item, index) => {
             const hasButton = !!(item as any).button;
@@ -130,7 +130,7 @@ export function Showcases({
               <motion.div
                 initial={{ opacity: 0, y: 30 }}
                 whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true, margin: '-50px' }}
+                viewport={{ once: true, margin: "-50px" }}
                 transition={{
                   duration: 0.6,
                   delay: index * 0.1,
@@ -147,8 +147,8 @@ export function Showcases({
                         if ((item as any).video?.src) {
                           setSelectedVideo({
                             src: (item as any).video.src,
-                            title: item.title || '',
-                            description: item.description || '',
+                            title: item.title || "",
+                            description: item.description || "",
                           });
                         }
                       }}
@@ -176,8 +176,8 @@ export function Showcases({
                         </>
                       ) : (
                         <Image
-                          src={item.image?.src ?? ''}
-                          alt={item.image?.alt ?? ''}
+                          src={item.image?.src ?? ""}
+                          alt={item.image?.alt ?? ""}
                           sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
                           fill
                           className="rounded-t-lg object-cover transition-transform duration-300"
@@ -191,20 +191,20 @@ export function Showcases({
                       <p
                         className="text-muted-foreground line-clamp-3 text-sm"
                         dangerouslySetInnerHTML={{
-                          __html: item.description ?? '',
+                          __html: item.description ?? "",
                         }}
                       />
                       {hasButton && (
                         <div className="mt-4">
                           <Button
                             asChild
-                            variant={(item as any).button.variant || 'default'}
-                            size={(item as any).button.size || 'sm'}
+                            variant={(item as any).button.variant || "default"}
+                            size={(item as any).button.size || "sm"}
                             className="bg-primary hover:bg-primary/90 h-8 w-full border-0 px-3 py-1.5 text-sm font-medium text-white"
                           >
                             <Link
-                              href={(item as any).button.url || ''}
-                              target={(item as any).button.target || '_self'}
+                              href={(item as any).button.url || ""}
+                              target={(item as any).button.target || "_self"}
                             >
                               {(item as any).button.icon && (
                                 <SmartIcon
@@ -231,7 +231,7 @@ export function Showcases({
             return hasButton ? (
               <div key={index}>{cardContent}</div>
             ) : (
-              <Link key={index} href={item.url || ''} target={item.target}>
+              <Link key={index} href={item.url || ""} target={item.target}>
                 {cardContent}
               </Link>
             );

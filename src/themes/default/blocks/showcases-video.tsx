@@ -41,9 +41,7 @@ export function ShowcasesVideo({
         {section.sr_only_title && (
           <h1 className="sr-only">{section.sr_only_title}</h1>
         )}
-        <h2 className="text-3xl md:text-4xl font-bold mb-4">
-          {section.title}
-        </h2>
+        <h2 className="text-3xl md:text-4xl font-bold mb-4">{section.title}</h2>
         <p className="text-muted-foreground text-lg max-w-2xl mx-auto">
           {section.description}
         </p>
@@ -51,7 +49,7 @@ export function ShowcasesVideo({
 
       {/* Video Grid */}
       <div className="container mx-auto">
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
           {items.map((item, index) => (
             <motion.div
               key={index}
@@ -133,7 +131,7 @@ export function ShowcasesVideo({
                   className="w-full h-auto max-h-[80vh]"
                 />
               </div>
-              
+
               {/* Video Info */}
               <div className="mt-4 text-center">
                 <h3 className="text-white text-xl font-semibold">
