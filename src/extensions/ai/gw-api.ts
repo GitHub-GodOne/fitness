@@ -503,39 +503,63 @@ export class GWAPIProvider implements AIProvider {
 
     const imageUrls: string[] = [];
     const textPrompt = `
-
       You are a visual theologian focused on comfort, not spectacle.
 
-      The uploaded image is the source of truth.
+      The uploaded image is the absolute source of truth.
       Preserve the image completely:
-      composition, subjects, environment, style, and realism.
+      composition, subjects, environment, perspective, style, and realism.
 
       Do NOT change the setting or background.
-      Do NOT alter the original scene.
+      Do NOT alter existing objects or people.
 
-      You MAY introduce a single, gentle divine presence,
-      depicted as a quiet, Christ-like or God-like figure familiar to American Christian faith.
+      You MAY introduce a single divine presence representing God,
+      but this presence must be spiritual in nature —
+      not a physical human body,
+      not a literal character,
+      and not a dramatic apparition.
 
-      This presence must feel unobtrusive and intimate —
-      appearing naturally within the existing composition,
-      as if it had always been there.
+      The divine presence should appear as:
+      a gentle, ethereal, soul-like manifestation of God,
+      formed through light, translucence, or soft atmospheric presence,
+      familiar and comforting to American Christian faith.
 
-      If a human figure is present:
-      the divine figure may stand beside them,
-      sit near them,
-      or place a comforting hand on their shoulder,
-      offering silent companionship and reassurance.
+      ### Interaction rules:
 
-      No dramatic gestures.
-      No spectacle.
-      No overt supernatural effects.
+      - If a human figure is present in the image:
+        the divine presence may gently touch or rest upon the person
+        (such as a soft hand on the shoulder, head, or back),
+        expressing silent comfort, protection, and reassurance.
+
+      - The touch should feel tender and parental,
+        never forceful, never dominant,
+        as if God is quietly saying: “You are not alone.”
+
+      ### Environment-aware placement:
+
+      - If the scene is indoors or enclosed:
+        the divine presence should appear near the person,
+        subtly integrated into the space through light or form,
+        as if sharing the same quiet moment.
+
+      - If the scene is outdoors and includes visible sky:
+        the divine presence should manifest primarily in the sky or above,
+        gently oriented toward the person below,
+        conveying watchfulness, care, and peace —
+        not grandeur or judgment.
+
+      ### Visual constraints:
+
+      - No dramatic miracles
+      - No beams of blinding light
+      - No angels or additional figures
+      - No clouds splitting or supernatural spectacle
 
       Your task is to gently reinterpret the emotional atmosphere
-      through subtle warmth, softened light, and sacred calm,
-      allowing the sense of Biblical hope to be felt rather than announced.
+      through warmth, calm tones, and sacred stillness,
+      allowing Biblical hope to be felt intuitively.
 
-      The result should feel like the same moment,
-      quietly accompanied by grace —
+      The final image should feel like the same moment,
+      now quietly accompanied by God’s presence —
       not a different world.
 
 
@@ -1174,7 +1198,10 @@ export class GWAPIProvider implements AIProvider {
         }
       }
       console.log("[GW-API] Input image saved: ", firstImageUrl);
-      const appUrl = (envConfigs.app_url || "http://localhost:3000").replace(/\/+$/, "");
+      const appUrl = (envConfigs.app_url || "http://localhost:3000").replace(
+        /\/+$/,
+        "",
+      );
       firstImageUrl = appUrl + firstImageUrl;
       // firstImageUrl = "https://public.pikju.top/uploads/video/20260125/66dbabf2-6b97-4b60-b254-6759a7c6f891/input_image.jpg";
       // Update status to processing with initial progress
@@ -1297,7 +1324,7 @@ export class GWAPIProvider implements AIProvider {
       console.log("[GW-API] Step 4: Generating audio with gpt-4o-mini-tts...");
       // Get voice gender from params (default: alloy)
       // Available voices: alloy, echo, fable, onyx, nova, shimmer
-      const voiceGender = params.options?.voice_gender || "female";
+      const voiceGender = male; //params.options?.voice_gender || "female";
       const voiceType = voiceGender === "male" ? "onyx" : "shimmer";
       console.log("[GW-API] Using voice type:", voiceType);
 
