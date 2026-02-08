@@ -14,6 +14,7 @@ import { getEmailService } from "@/shared/services/email";
 import { db } from "@/core/db";
 import { eq } from "drizzle-orm";
 import { user } from "@/config/db/schema";
+import { envConfigs } from "@/config";
 
 /**
  * GW API configs for Scripture Picture provider
@@ -69,7 +70,6 @@ interface ImageToTextResponse {
     scene: string;
     reasoning: string;
   };
-  image_generation_prompt: string;
   audio_script: string;
   verse_reference: string;
 }
@@ -233,13 +233,8 @@ export class GWAPIProvider implements AIProvider {
       strict: true, // ⭐⭐⭐ 非常重要
       schema: {
         type: "object",
-        required: [
-          "image_generation_prompt",
-          "audio_script",
-          "verse_reference",
-        ],
+        required: ["audio_script", "verse_reference"],
         properties: {
-          image_generation_prompt: { type: "string" },
           audio_script: { type: "string" },
           verse_reference: { type: "string" },
         },
@@ -257,39 +252,8 @@ export class GWAPIProvider implements AIProvider {
             # TASKS
             1. **Analyze:** deeply understand the emotion and context from the user's text and the visual elements of their uploaded image.
             2. **Match:** Select a specific Biblical scene or concept that directly addresses their specific struggle (e.g., Fear -> Jesus calming the storm; Loneliness -> The Good Shepherd; Exhaustion -> Elijah under the broom tree).
-            3. **Draft Image Prompt:** Create a detailed prompt for an image generation AI (like Midjourney or SDXL).
-
-            - **Logic:**
-              Preserve the original image exactly:
-              the same composition, camera angle, environment, subject placement, and visual style.
-
-              Do NOT replace the setting or background.
-              Do NOT alter the original scene.
-
-              Gently add a single sacred presence into the image in a natural and emotionally appropriate location.
-              This presence should feel like a quiet intervention, not a spectacle.
-
-              If a human figure is present in the image:
-              introduce a compassionate, God-like figure familiar to American Christian faith
-              (a gentle fatherly presence, Christ-like but non-specific),
-              interacting tenderly — such as placing a comforting hand on the person’s shoulder,
-              standing beside them, or watching over them in reassurance.
-
-              The divine figure should feel protective, intimate, and calm —
-              never overwhelming, never dramatic.
-
-            - **Atmosphere:**
-              Keep the original lighting and mood.
-              Only enhance warmth, softness, and sacred calm where appropriate.
-
-            - **Style:**
-              Maintain the original artistic or photographic style.
-              No style transformation.
-              No Renaissance reinterpretation.
-              Subtle realism with gentle sacred illumination.
-
-            4. **Select Scripture:** Choose the most comforting Bible verse (NIV or KJV version) fitting the situation.
-            5. **Draft Audio Script:** Write a short, spoken-word script. It should start with a personalized comforting sentence (calling them "My child") and then read the verse.
+            3. **Select Scripture:** Choose the most comforting Bible verse (NIV or KJV version) fitting the situation.
+            4. **Draft Audio Script:** Write a short, spoken-word script. It should start with a personalized comforting sentence (calling them "My child") and then read the verse.
 
         `;
 
@@ -528,7 +492,6 @@ export class GWAPIProvider implements AIProvider {
    * @returns Array of generated image URLs
    */
   async generateImageFromImageAndText(
-    textPrompt: string,
     imageUrl: string,
     apiKey: string,
     count: number = 3,
@@ -537,10 +500,9 @@ export class GWAPIProvider implements AIProvider {
       `[GW-API] Generating ${count} image(s) from image and text with gemini-2.5-flash-image...`,
     );
     console.log("[GW-API] Reference image:", imageUrl);
-    console.log("[GW-API] Text prompt:", textPrompt);
 
     const imageUrls: string[] = [];
-    textPrompt = `
+    const textPrompt = `
 
       You are a visual theologian focused on comfort, not spectacle.
 
@@ -644,6 +606,22 @@ export class GWAPIProvider implements AIProvider {
             `[GW-API] Extracted image URL from markdown: ${generatedImageUrl}`,
           );
         }
+      }
+
+      // Validate that the result is actually a URL, not an AI text response
+      if (
+        typeof generatedImageUrl === "string" &&
+        !generatedImageUrl.startsWith("http://") &&
+        !generatedImageUrl.startsWith("https://") &&
+        !generatedImageUrl.startsWith("data:")
+      ) {
+        console.error(
+          `[GW-API] Model returned text instead of image URL for image ${i + 1}/${count}:`,
+          generatedImageUrl.substring(0, 200),
+        );
+        throw new Error(
+          `Model did not generate an image for image ${i + 1}/${count}, returned text response instead`,
+        );
       }
 
       imageUrls.push(generatedImageUrl);
@@ -1196,7 +1174,8 @@ export class GWAPIProvider implements AIProvider {
         }
       }
       console.log("[GW-API] Input image saved: ", firstImageUrl);
-      firstImageUrl = "https://fearnotforiamwithyou.com" + firstImageUrl;
+      const appUrl = (envConfigs.app_url || "http://localhost:3000").replace(/\/+$/, "");
+      firstImageUrl = appUrl + firstImageUrl;
       // firstImageUrl = "https://public.pikju.top/uploads/video/20260125/66dbabf2-6b97-4b60-b254-6759a7c6f891/input_image.jpg";
       // Update status to processing with initial progress
       await updateProgress(
@@ -1237,7 +1216,6 @@ export class GWAPIProvider implements AIProvider {
         "[GW-API] Step 2: Generating 3 images from reference image with gemini-3-pro-image-preview...",
       );
       const generatedImageUrls = await this.generateImageFromImageAndText(
-        analysis.image_generation_prompt,
         firstImageUrl,
         apiKey,
         3,
