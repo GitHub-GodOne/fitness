@@ -503,64 +503,67 @@ export class GWAPIProvider implements AIProvider {
 
     const imageUrls: string[] = [];
     const textPrompt = `
-      You are a visual theologian focused on comfort, not spectacle.
+      You are a visual theologian focused on comfort, not fear or spectacle.
 
       The uploaded image is the absolute source of truth.
-      Preserve the image completely:
-      composition, subjects, environment, perspective, style, and realism.
+      Preserve the original composition, environment, perspective, and realism.
+      Do NOT replace the setting or alter existing elements.
 
-      Do NOT change the setting or background.
-      Do NOT alter existing objects or people.
+      You MUST introduce a single, fully visible divine figure representing God.
 
-      You MAY introduce a single divine presence representing God,
-      but this presence must be spiritual in nature —
-      not a physical human body,
-      not a literal character,
-      and not a dramatic apparition.
+      ### Divine figure requirements (MANDATORY):
 
-      The divine presence should appear as:
-      a gentle, ethereal, soul-like manifestation of God,
-      formed through light, translucence, or soft atmospheric presence,
-      familiar and comforting to American Christian faith.
+      - The figure must be a FULL-BODY human-like form.
+      - The figure must be clearly MALE.
+      - The figure must appear mature, fatherly, and gentle.
+      - The figure must be clothed in simple, flowing garments
+        (robes or modest clothing), soft in texture, not ornate or intimidating.
+      - The appearance must be warm, compassionate, and approachable —
+        never frightening, uncanny, or ghost-like.
 
-      ### Interaction rules:
+      This is NOT an abstract spirit.
+      This is a recognizable, embodied representation of God,
+      as commonly imagined in American Christian faith,
+      but infused with sacred presence.
 
-      - If a human figure is present in the image:
-        the divine presence may gently touch or rest upon the person
-        (such as a soft hand on the shoulder, head, or back),
-        expressing silent comfort, protection, and reassurance.
+      ### Interaction:
 
-      - The touch should feel tender and parental,
-        never forceful, never dominant,
-        as if God is quietly saying: “You are not alone.”
+      - If a human is present in the image:
+        the divine figure must be shown actively comforting them,
+        such as:
+        placing a hand on the shoulder or head,
+        gently embracing,
+        or standing close in protective reassurance.
 
-      ### Environment-aware placement:
+      The posture and facial expression should clearly convey care, peace, and love.
 
-      - If the scene is indoors or enclosed:
-        the divine presence should appear near the person,
-        subtly integrated into the space through light or form,
-        as if sharing the same quiet moment.
+      ### Placement logic:
 
-      - If the scene is outdoors and includes visible sky:
-        the divine presence should manifest primarily in the sky or above,
-        gently oriented toward the person below,
-        conveying watchfulness, care, and peace —
-        not grandeur or judgment.
+      - Indoors:
+        the divine figure should stand or sit naturally beside the person,
+        integrated into the scene as a quiet companion.
 
-      ### Visual constraints:
+      - Outdoors with visible sky:
+        the divine figure may appear slightly elevated or oriented from above,
+        but still fully visible and connected to the person,
+        expressing watchful care rather than distance.
 
-      - No dramatic miracles
-      - No beams of blinding light
-      - No angels or additional figures
-      - No clouds splitting or supernatural spectacle
+      ### Sacred visual elements (ALLOWED, NOT EXCESSIVE):
 
-      Your task is to gently reinterpret the emotional atmosphere
-      through warmth, calm tones, and sacred stillness,
-      allowing Biblical hope to be felt intuitively.
+      - Soft holy light
+      - Warm, diffused glow
+      - Gentle illumination around the divine figure
+      - Subtle sacred atmosphere
+
+      No horror.
+      No darkness.
+      No ambiguity.
+      No partial body.
+      No disembodied hands.
 
       The final image should feel like the same moment,
-      now quietly accompanied by God’s presence —
-      not a different world.
+      now clearly accompanied by a loving, fatherly God —
+      a presence of comfort, not awe or fear.
 
 
       `;
