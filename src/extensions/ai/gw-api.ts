@@ -257,9 +257,37 @@ export class GWAPIProvider implements AIProvider {
             # TASKS
             1. **Analyze:** deeply understand the emotion and context from the user's text and the visual elements of their uploaded image.
             2. **Match:** Select a specific Biblical scene or concept that directly addresses their specific struggle (e.g., Fear -> Jesus calming the storm; Loneliness -> The Good Shepherd; Exhaustion -> Elijah under the broom tree).
-            3. **Draft Image Prompt:** Create a detailed prompt for an image generation AI (like Midjourney/SDXL).
-            - **Logic:** Keep the *composition* or *subject* of the user's image but transform the *environment* and *atmosphere* into the chosen Biblical scene.
-            - **Style:** Cinematic, warm divine lighting, ethereal, 8k resolution, highly detailed.
+            3. **Draft Image Prompt:** Create a detailed prompt for an image generation AI (like Midjourney or SDXL).
+
+            - **Logic:**
+              Preserve the original image exactly:
+              the same composition, camera angle, environment, subject placement, and visual style.
+
+              Do NOT replace the setting or background.
+              Do NOT alter the original scene.
+
+              Gently add a single sacred presence into the image in a natural and emotionally appropriate location.
+              This presence should feel like a quiet intervention, not a spectacle.
+
+              If a human figure is present in the image:
+              introduce a compassionate, God-like figure familiar to American Christian faith
+              (a gentle fatherly presence, Christ-like but non-specific),
+              interacting tenderly — such as placing a comforting hand on the person’s shoulder,
+              standing beside them, or watching over them in reassurance.
+
+              The divine figure should feel protective, intimate, and calm —
+              never overwhelming, never dramatic.
+
+            - **Atmosphere:**
+              Keep the original lighting and mood.
+              Only enhance warmth, softness, and sacred calm where appropriate.
+
+            - **Style:**
+              Maintain the original artistic or photographic style.
+              No style transformation.
+              No Renaissance reinterpretation.
+              Subtle realism with gentle sacred illumination.
+
             4. **Select Scripture:** Choose the most comforting Bible verse (NIV or KJV version) fitting the situation.
             5. **Draft Audio Script:** Write a short, spoken-word script. It should start with a personalized comforting sentence (calling them "My child") and then read the verse.
 
