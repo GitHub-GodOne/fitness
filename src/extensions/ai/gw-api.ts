@@ -540,7 +540,44 @@ export class GWAPIProvider implements AIProvider {
     console.log("[GW-API] Text prompt:", textPrompt);
 
     const imageUrls: string[] = [];
+    textPrompt = `
 
+      You are a visual theologian focused on comfort, not spectacle.
+
+      The uploaded image is the source of truth.
+      Preserve the image completely:
+      composition, subjects, environment, style, and realism.
+
+      Do NOT change the setting or background.
+      Do NOT alter the original scene.
+
+      You MAY introduce a single, gentle divine presence,
+      depicted as a quiet, Christ-like or God-like figure familiar to American Christian faith.
+
+      This presence must feel unobtrusive and intimate —
+      appearing naturally within the existing composition,
+      as if it had always been there.
+
+      If a human figure is present:
+      the divine figure may stand beside them,
+      sit near them,
+      or place a comforting hand on their shoulder,
+      offering silent companionship and reassurance.
+
+      No dramatic gestures.
+      No spectacle.
+      No overt supernatural effects.
+
+      Your task is to gently reinterpret the emotional atmosphere
+      through subtle warmth, softened light, and sacred calm,
+      allowing the sense of Biblical hope to be felt rather than announced.
+
+      The result should feel like the same moment,
+      quietly accompanied by grace —
+      not a different world.
+
+
+      `;
     // Generate images sequentially
     for (let i = 0; i < count; i++) {
       console.log(`[GW-API] Generating image ${i + 1}/${count}...`);
