@@ -1,25 +1,16 @@
-import { MetadataRoute } from 'next';
+import { MetadataRoute } from "next";
 
-import { envConfigs } from '@/config';
+import { envConfigs } from "@/config";
 
 export default function robots(): MetadataRoute.Robots {
   const appUrl = envConfigs.app_url;
 
   return {
     rules: {
-      userAgent: '*',
-      allow: '/',
-      disallow: [
-        '/*?*q=',
-        '/privacy-policy',
-        '/terms-of-service',
-        '/settings/*',
-        '/activity/*',
-        '/admin/*',
-        '/api/*',
-      ],
+      userAgent: "*",
+      allow: "/",
+      disallow: [],
     },
     sitemap: `${appUrl}/sitemap.xml`,
   };
 }
-

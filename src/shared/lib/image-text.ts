@@ -32,15 +32,38 @@ export async function addTextToImage(
     throw new Error('Failed to get image dimensions');
   }
 
-  const fontSize = Math.floor(width / 40);
-  const lineHeight = fontSize * 1.5;
+  let fontSize = Math.floor(width / 40);
   const sidePadding = width * 0.18;
   const maxTextWidth = width - sidePadding * 2;
-
-  const lines = wrapTextSafe(text, maxTextWidth, fontSize);
-  const totalHeight = lineHeight * (lines.length - 1);
   const bottomPadding = fontSize * 3;
-  const startY = height - bottomPadding - totalHeight;
+  // Max vertical space available for text (bottom 40% of image)
+  const maxTextAreaHeight = height * 0.4;
+  const minFontSize = Math.max(12, Math.floor(width / 80));
+
+  // Dynamically reduce font size if text overflows vertically
+  let lines: string[];
+  let lineHeight: number;
+  let totalHeight: number;
+
+  while (fontSize >= minFontSize) {
+    lineHeight = fontSize * 1.5;
+    lines = wrapTextSafe(text, maxTextWidth, fontSize);
+    totalHeight = lineHeight * lines.length;
+
+    if (totalHeight + bottomPadding <= maxTextAreaHeight) {
+      break;
+    }
+    fontSize = Math.floor(fontSize * 0.9);
+  }
+
+  // Final calculation with resolved font size
+  lineHeight = fontSize * 1.5;
+  lines = wrapTextSafe(text, maxTextWidth, fontSize);
+  totalHeight = lineHeight * lines.length;
+
+  // Clamp startY so text never goes above the image
+  const idealStartY = height - bottomPadding - totalHeight + lineHeight;
+  const startY = Math.max(lineHeight, idealStartY);
 
   const tspans = lines
     .map(
@@ -51,16 +74,21 @@ export async function addTextToImage(
 
   const svg = `
 <svg width="${width}" height="${height}">
+  <defs>
+    <clipPath id="textClip">
+      <rect x="0" y="0" width="${width}" height="${height}" />
+    </clipPath>
+  </defs>
   <style>
     .text {
-      font-family: 'Great Vibes', cursive;
+      font-family: 'Great Vibes', 'Noto Serif', 'DejaVu Serif', Georgia, serif;
       font-size: ${fontSize}px;
       fill: white;
       text-anchor: middle;
       filter: drop-shadow(0 6px 10px rgba(0,0,0,0.75));
     }
   </style>
-  <text x="${width / 2}" y="${startY}" class="text">
+  <text x="${width / 2}" y="${startY}" class="text" clip-path="url(#textClip)">
     ${tspans}
   </text>
 </svg>
@@ -79,7 +107,9 @@ function wrapTextSafe(
 ): string[] {
   const words = text.split(' ');
   const lines: string[] = [];
-  const charPx = fontSize * 0.48;
+  // Use conservative multiplier (0.55) to account for wider fallback fonts on Linux/Ubuntu
+  // 'Great Vibes' is narrow cursive; fallback serif fonts are significantly wider
+  const charPx = fontSize * 0.55;
   const maxUnits = maxWidthPx / charPx;
   let line = '';
 

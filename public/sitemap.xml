@@ -3,27 +3,47 @@
 
 <url>
   <loc>https://fearnotforiamwithyou.com</loc>
-  <lastmod>2026-01-08T19:36:46+00:00</lastmod>
+  <lastmod>2026-02-10T19:36:46+00:00</lastmod>
   <priority>1.00</priority>
 </url>
 <url>
   <loc>https://fearnotforiamwithyou.com/ai-video-generator</loc>
-  <lastmod>2026-01-08T19:36:46+00:00</lastmod>
+  <lastmod>2026-02-10T19:36:46+00:00</lastmod>
   <priority>0.80</priority>
 </url>
 <url>
   <loc>https://fearnotforiamwithyou.com/pricing</loc>
-  <lastmod>2026-01-08T19:36:46+00:00</lastmod>
-  <priority>0.80</priority>
+  <lastmod>2026-02-10T19:36:46+00:00</lastmod>
+  <priority>1</priority>
 </url>
 <url>
   <loc>https://fearnotforiamwithyou.com/comments</loc>
-  <lastmod>2026-01-08T19:36:46+00:00</lastmod>
+  <lastmod>2026-02-10T19:36:46+00:00</lastmod>
   <priority>0.80</priority>
 </url>
 <url>
   <loc>https://fearnotforiamwithyou.com/refund</loc>
-  <lastmod>2026-01-08T19:36:46+00:00</lastmod>
+  <lastmod>2026-02-10T19:36:46+00:00</lastmod>
+  <priority>0.80</priority>
+</url>
+<url>
+  <loc>https://fearnotforiamwithyou.com/blog</loc>
+  <lastmod>2026-02-10T19:36:46+00:00</lastmod>
+  <priority>0.80</priority>
+</url>
+<url>
+  <loc>https://fearnotforiamwithyou.com/privacy-policy</loc>
+  <lastmod>2026-02-10T19:36:46+00:00</lastmod>
+  <priority>0.80</priority>
+</url>
+<url>
+  <loc>https://fearnotforiamwithyou.com/terms-of-service</loc>
+  <lastmod>2026-02-10T19:36:46+00:00</lastmod>
+  <priority>0.80</priority>
+</url>
+<url>
+  <loc>https://fearnotforiamwithyou.com/showcases</loc>
+  <lastmod>2026-02-10T19:36:46+00:00</lastmod>
   <priority>0.80</priority>
 </url>
 </urlset>
