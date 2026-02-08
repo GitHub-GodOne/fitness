@@ -564,6 +564,7 @@ export function VideoHistoryTable({
           onOpenChange={setDownloadDialogOpen}
           taskId={selectedTaskForDownload.id}
           taskResult={selectedTaskForDownload.taskResult}
+          taskInfo={selectedTaskForDownload.taskInfo}
         />
       )}
       {/* Gift Dialog */}

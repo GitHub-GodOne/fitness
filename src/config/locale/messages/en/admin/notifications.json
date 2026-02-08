@@ -1,0 +1,69 @@
+{
+  "list": {
+    "title": "Notification Management",
+    "crumbs": {
+      "admin": "Admin",
+      "notifications": "Notifications"
+    },
+    "tabs": {
+      "all": "All",
+      "system": "System",
+      "video_complete": "Video Complete",
+      "announcement": "Announcement"
+    }
+  },
+  "fields": {
+    "id": "ID",
+    "type": "Type",
+    "title": "Title",
+    "content": "Content",
+    "user": "User",
+    "is_read": "Read",
+    "created_at": "Created At",
+    "actions": "Actions",
+    "link": "Link"
+  },
+  "status": {
+    "read": "Read",
+    "unread": "Unread"
+  },
+  "create": {
+    "button": "Create Notification",
+    "title": "Create Notification",
+    "description": "Send a notification to users",
+    "target_type": "Target",
+    "target_all": "All Users",
+    "target_specific": "Specific Users",
+    "user_ids": "User IDs",
+    "user_ids_placeholder": "Enter user IDs separated by commas",
+    "notification_title": "Title",
+    "notification_title_placeholder": "Notification title",
+    "notification_content": "Content",
+    "notification_content_placeholder": "Notification content",
+    "notification_link": "Link (optional)",
+    "notification_link_placeholder": "/path/to/page",
+    "success": "Notification created successfully",
+    "failed": "Failed to create notification"
+  },
+  "edit": {
+    "title": "Edit Notification",
+    "description": "Update notification details",
+    "success": "Notification updated successfully",
+    "failed": "Failed to update notification"
+  },
+  "delete": {
+    "title": "Delete Notification",
+    "description": "Are you sure you want to delete this notification? This action cannot be undone.",
+    "success": "Notification deleted successfully",
+    "failed": "Failed to delete notification"
+  },
+  "actions": {
+    "edit": "Edit",
+    "delete": "Delete",
+    "cancel": "Cancel",
+    "save": "Save",
+    "confirm": "Confirm",
+    "saving": "Saving...",
+    "deleting": "Deleting..."
+  }
+}

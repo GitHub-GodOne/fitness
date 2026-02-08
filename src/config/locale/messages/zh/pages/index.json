@@ -2,12 +2,13 @@
   "page": {
     "show_sections": [
       "hero",
+      "gift-section",
       "how-it-works",
+      "founder-story",
       "testimonials",
       "what-you-get",
       "faq",
-      "footer",
-      "gift-section"
+      "founder-letter"
     ],
     "sections": {
       "hero": {
@@ -25,10 +26,14 @@
           }
         ],
         "featured_image": {
-          "src": "/imgs/avatars/HomeHeroStatic3-1280.webp",
+          "src": "/imgs/hero/hero-faith.jpg",
           "alt": "个性化圣经视频",
           "width": 640,
           "height": 480
+        },
+        "featured_video": {
+          "src": "https://videos.pexels.com/video-files/35270931/14941570_1920_1080_25fps.mp4",
+          "poster": "/imgs/hero/hero-faith.jpg"
         },
         "trust_title": "已有 1,000+ 信徒在经文中找到力量",
         "partner_logos": [
@@ -198,130 +203,206 @@
         ],
         "className": "bg-background"
       },
+      "founder-story": {
+        "block": "founder-story",
+        "id": "founder-story",
+        "title": "创始人的话：我为什么创建「不要惧怕」",
+        "paragraphs": [
+          "在我的记忆中，我一直生活在恐惧的阴影下。",
+          "小时候，是害怕成绩不好或老师的责备。年轻时，是对自己\"不够好\"、无法在竞争激烈的世界中生存的焦虑。当我创业后，恐惧只增不减——无数个失眠的夜晚，担心自己能否维持所建立的一切。",
+          "如今，年过五十，我意识到恐惧不在乎你的年龄或头衔。我看过医生、农民、工人和领导者的眼睛，看到了同样的倒影：一种安静而持久的、对未知的恐惧。",
+          "我创建这个平台，是因为我意识到我们都需要的不仅仅是一句引言——我们需要听到一个专门为我们而说的<em>应许</em>。当我第一次真正感受到<em>以赛亚书 41:10</em>的分量——\"不要害怕，因为我与你同在\"——它改变了我呼吸的方式。",
+          "「不要惧怕」是我与你分享那份平安的方式。我们使用技术不仅仅是制作视频，而是在你个人的挣扎与上帝永恒的安慰之间架起桥梁。无论你正在经历怎样的风暴，我希望你能听到祂的声音，直接对你的心说话，告诉你——你并不孤单。",
+          "我经历过。我理解。我向你保证，在另一边，有平安在等着你。"
+        ],
+        "founder_name": "创始人",
+        "founder_image": "/imgs/founder/founder-photo.jpg",
+        "signature_image": "/imgs/founder/signature.svg",
+        "className": "bg-muted/30"
+      },
       "testimonials": {
         "id": "testimonials",
         "title": "信仰与安慰的故事",
         "description": "",
         "items": [
           {
-            "name": "林雪梅",
-            "role": "Verified Customer",
-            "quote": "失业后那段日子真的很黑暗，感觉天都要塌了。这个诗篇23章的视频在最关键的时刻出现，现在我每天早上都会看一遍。真的很感谢这个美好的事工。",
-            "image": {
+            "type": "video",
+            "video": {
+              "thumbnail": "/imgs/tx/18.jpg",
+              "video_url": "https://public.pikju.top/uploads/video/20260126/2b2e8f3a-c875-4010-8cb1-bf0427dfdcd8/final_video.mp4",
+              "title": "Psalm 23:1-3"
+            },
+            "user": {
+              "name": "User Name"
+            }
+          },
+          {
+            "user": {
+              "name": "Sarah M.",
+              "location": "Believer"
+            },
+            "quote": "Breathtaking! I listen to this during my morning devotionals. It brings me so much peace before the day starts.",
+            "avatar": {
+              "src": "/imgs/tx/19.jpg",
+              "alt": "Sarah"
+            },
+            "stars": 5
+          },
+          {
+            "user": {
+              "name": "David L.",
+              "location": "Verified Customer"
+            },
+            "quote": "It perfectly captured my struggle and God's answer. I wept when I watched it. Truly a blessing.",
+            "avatar": {
+              "src": "/imgs/tx/20.jpg",
+              "alt": "David"
+            },
+            "stars": 5
+          },
+          {
+            "user": {
+              "name": "Sarah Mitchell",
+              "location": "Verified Customer"
+            },
+            "quote": "I was going through a really dark time after losing my job. This video with Psalm 23 came at the perfect moment. I watch it every morning now. Thank you for this beautiful ministry.",
+            "avatar": {
               "src": "/imgs/tx/21.jpg",
-              "alt": "林雪梅"
+              "alt": "Sarah"
             },
-            "rating": 5
+            "stars": 5
           },
           {
-            "name": "陈大卫",
-            "role": "Verified Customer",
-            "quote": "奶奶住在养老院，眼睛不好已经没法看书了。我给她做了一个腓立比书4:13的视频，她看到泪流满面。这真的是上帝赐下的礼物。",
-            "image": {
+            "user": {
+              "name": "David Chen",
+              "location": "Verified Customer"
+            },
+            "quote": "My grandmother is in a nursing home and can't read anymore. I sent her a video with her favorite verse, Philippians 4:13. She cried tears of joy. This is truly a gift from God.",
+            "avatar": {
               "src": "/imgs/tx/22.jpg",
-              "alt": "陈大卫"
+              "alt": "David"
             },
-            "rating": 5
+            "stars": 5
           },
           {
-            "name": "罗玛丽亚",
-            "role": "Verified Customer",
-            "quote": "作为三个孩子的妈妈，我几乎没有时间灵修。这些两分钟的视频正是我需要的。AI生成的画面美得令人惊叹，真的帮助我将经文可视化。",
-            "image": {
+            "user": {
+              "name": "Maria Rodriguez",
+              "location": "Verified Customer"
+            },
+            "quote": "As a busy mom of three, I rarely have time for Bible study. These 2-minute videos are exactly what I needed. The AI-generated images are stunning and really help me visualize the scriptures.",
+            "avatar": {
               "src": "/imgs/tx/23.jpg",
-              "alt": "罗玛丽亚"
+              "alt": "Maria"
             },
-            "rating": 5
+            "stars": 5
           },
           {
-            "name": "汤詹姆斯",
-            "role": "Verified Customer",
-            "quote": "我一直与焦虑和惊恐发作作斗争。这些个性化的视频配上平静的画面和神的话语，已经成为我每日应对压力的一部分。声音真的很平安。",
-            "image": {
+            "user": {
+              "name": "James Thompson",
+              "location": "Verified Customer"
+            },
+            "quote": "I struggle with anxiety and panic attacks. Having these personalized videos with calming visuals and God's Word has become part of my daily coping routine. The voice is so peaceful.",
+            "avatar": {
               "src": "/imgs/tx/24.jpg",
-              "alt": "汤詹姆斯"
+              "alt": "James"
             },
-            "rating": 5
+            "stars": 5
           },
           {
-            "name": "福艾米丽",
-            "role": "Verified Customer",
-            "quote": "给在海外部署的丈夫做了一个视频。他说睡前看让他感觉与家和上帝相连。这项技术真是军人家属的祝福！",
-            "image": {
+            "user": {
+              "name": "Emily Foster",
+              "location": "Verified Customer"
+            },
+            "quote": "I created a video for my husband who was deployed overseas. He said watching it before bed helped him feel connected to home and to God. This technology is a blessing for military families!",
+            "avatar": {
               "src": "/imgs/tx/25.jpg",
-              "alt": "福艾米丽"
+              "alt": "Emily"
             },
-            "rating": 5
+            "stars": 5
           },
           {
-            "name": "布迈克尔",
-            "role": "Verified Customer",
-            "quote": "一开始我很怀疑——AI和信仰？但看到它如何将我的祷告与相关经文结合...真的很感人。我已经分享给整个教会小组了。",
-            "image": {
+            "user": {
+              "name": "Michael Brooks",
+              "location": "Verified Customer"
+            },
+            "quote": "I was skeptical at first - AI and religion? But the way it combines my personal prayer request with relevant scripture... it's genuinely moving. I've shared this with my entire church group.",
+            "avatar": {
               "src": "/imgs/tx/26.jpg",
-              "alt": "布迈克尔"
+              "alt": "Michael"
             },
-            "rating": 5
+            "stars": 5
           },
           {
-            "name": "金瑞秋",
-            "role": "Verified Customer",
-            "quote": "十几岁的女儿一直在质疑信仰。我给她做了耶利米书29:11的视频，她竟然看了三遍。这开启了我们一直回避的对话。谢谢你们！",
-            "image": {
+            "user": {
+              "name": "Rachel Kim",
+              "location": "Verified Customer"
+            },
+            "quote": "My teenage daughter has been questioning her faith. I made a video for her with Jeremiah 29:11 and she actually watched it three times. It opened up a conversation we'd been avoiding. Thank you!",
+            "avatar": {
               "src": "/imgs/tx/27.jpg",
-              "alt": "金瑞秋"
+              "alt": "Rachel"
             },
-            "rating": 5
+            "stars": 5
           },
           {
-            "name": "赖托马斯",
-            "role": "Verified Customer",
-            "quote": "妻子去世后，我感到如此孤独。你们做的以赛亚书41:10的视频...我感觉上帝在直接对我说话。我已经收藏了，每当悲伤淹没我时就看。",
-            "image": {
+            "user": {
+              "name": "Thomas Wright",
+              "location": "Verified Customer"
+            },
+            "quote": "After my wife passed away, I felt so alone. The video you created with Isaiah 41:10... I felt like God was speaking directly to me. I've bookmarked it and watch it whenever grief overwhelms me.",
+            "avatar": {
               "src": "/imgs/tx/28.jpg",
-              "alt": "赖托马斯"
+              "alt": "Thomas"
             },
-            "rating": 5
+            "stars": 5
           },
           {
-            "name": "安丽莎",
-            "role": "Verified Customer",
-            "quote": "我是安宁病房的护士，一直在与病人和家属分享这些视频。在生命最后时刻带来的平安令人难以置信。这个事工真的在触摸临终的生命。",
-            "image": {
+            "user": {
+              "name": "Lisa Anderson",
+              "location": "Verified Customer"
+            },
+            "quote": "I'm a hospice nurse and I've been sharing these videos with my patients and their families. The peace it brings during those final moments is incredible. This ministry is literally touching lives at the end of life.",
+            "avatar": {
               "src": "/imgs/tx/29.jpg",
-              "alt": "安丽莎"
+              "alt": "Lisa"
             },
-            "rating": 5
+            "stars": 5
           },
           {
-            "name": "朴但以理",
-            "role": "Verified Customer",
-            "quote": "我与抑郁症抗争，有些日子起床都很困难。我做了诗篇42:11的视频设成闹钟。以这种美丽的形式开始一天的神的话语改变了我的早晨。",
-            "image": {
+            "user": {
+              "name": "Daniel Park",
+              "location": "Verified Customer"
+            },
+            "quote": "I battle depression and some days getting out of bed is hard. I made a video with Psalm 42:11 and set it as my alarm. Starting the day with God's Word in such a beautiful format has changed my mornings.",
+            "avatar": {
               "src": "/imgs/tx/1.jpg",
-              "alt": "朴但以理"
+              "alt": "Daniel"
             },
-            "rating": 5
+            "stars": 5
           },
           {
-            "name": "李阿曼达",
-            "role": "Verified Customer",
-            "quote": "送给被诊断出乳腺癌的姐姐。她告诉我这是她收到最有意义的礼物。经文和画面的结合比单独读圣经更有力量。",
-            "image": {
+            "user": {
+              "name": "Amanda Lewis",
+              "location": "Verified Customer"
+            },
+            "quote": "I sent this to my sister who was diagnosed with breast cancer. She told me it's the most meaningful gift she's received. The combination of scripture and visuals is more powerful than just reading the Bible alone.",
+            "avatar": {
               "src": "/imgs/tx/2.jpg",
-              "alt": "李阿曼达"
+              "alt": "Amanda"
             },
-            "rating": 5
+            "stars": 5
           },
           {
-            "name": "休罗伯特",
-            "role": "Verified Customer",
-            "quote": "作为视觉学习者，读圣经对我来说一直很困难。这些视频让故事活了起来。我终于感觉真正理解了我读过一百遍的诗篇。",
-            "image": {
-              "src": "/imgs/tx/3.jpg",
-              "alt": "休罗伯特"
+            "user": {
+              "name": "Robert Hughes",
+              "location": "Verified Customer"
             },
-            "rating": 5
+            "quote": "As someone who learns visually, reading the Bible has always been challenging for me. These videos bring the stories to life. I finally feel like I truly understand the Psalms I've read a hundred times before.",
+            "avatar": {
+              "src": "/imgs/tx/3.jpg",
+              "alt": "Robert"
+            },
+            "stars": 5
           }
         ],
         "buttons": [
@@ -433,9 +514,9 @@
             "title": "电影级品质",
             "description": "精美的视觉效果和音频，专为深度反思和敬拜而设计。我们的AI创建令人惊叹的视频，捕捉你信仰旅程的本质。",
             "icon": "RiVideoLine",
-            "video": {
-              "src": "/imgs/avatars/text-to-video.webm",
-              "poster": "/imgs/video-poster.jpg"
+            "image": {
+              "src": "/imgs/features/cinematic.jpg",
+              "alt": "电影级品质"
             }
           },
           {
@@ -443,7 +524,7 @@
             "description": "神的话语，专门为你量身定制。每个视频都经过独特设计，直接触动你的心灵和环境。",
             "icon": "RiBookOpenLine",
             "image": {
-              "src": "/imgs/avatars/magicpalette.webp",
+              "src": "/imgs/features/scripture.jpg",
               "alt": "个性化经文"
             }
           },
@@ -452,7 +533,7 @@
             "description": "几分钟内收到你的鼓励——非常适合紧急祷告需求或有意义的礼物。无需等待，立即得到祝福。",
             "icon": "RiTimeLine",
             "image": {
-              "src": "/imgs/avatars/onbrand.webp",
+              "src": "/imgs/features/delivery.jpg",
               "alt": "即时交付"
             }
           }
@@ -479,7 +560,7 @@
             "description": "与特别的人分享上帝的爱",
             "icon": "RiHeart3Line",
             "image": {
-              "src": "https://cdn.prayersong.com/lander-assets/testimonials/testimonial-vid-2.jpg",
+              "src": "/imgs/gift/partner.jpg",
               "alt": "给您的伴侣"
             }
           },
@@ -488,7 +569,7 @@
             "description": "用充满信心的视频祝福孩子们",
             "icon": "RiUserSmileLine",
             "image": {
-              "src": "https://cdn.prayersong.com/lander-assets/testimonials/testimonial-video-5.jpg",
+              "src": "/imgs/gift/children.jpg",
               "alt": "给孩子们"
             }
           },
@@ -497,7 +578,7 @@
             "description": "在悲伤时从上帝的应许中找到安慰",
             "icon": "RiHandHeartLine",
             "image": {
-              "src": "https://prayersong.com/lander-assets/for-images/for-loss-2.jpeg",
+              "src": "/imgs/gift/loss.jpg",
               "alt": "面对失去"
             }
           },
@@ -506,7 +587,7 @@
             "description": "用圣经的祝福来孝敬他们",
             "icon": "RiParentLine",
             "image": {
-              "src": "https://cdn.prayersong.com/lander-assets/testimonials/testimonial-vid-1.jpg",
+              "src": "/imgs/gift/parents.jpg",
               "alt": "给父母"
             }
           },
@@ -515,7 +596,7 @@
             "description": "领受上帝给您的个人讯息",
             "icon": "RiUserHeartLine",
             "image": {
-              "src": "https://cdn.prayersong.com/lander-assets/testimonials/testimonial-vid-3.jpg",
+              "src": "/imgs/gift/yourself.jpg",
               "alt": "给自己"
             }
           },
@@ -524,7 +605,7 @@
             "description": "从祂永恒的应许中汲取勇气",
             "icon": "RiShieldStarLine",
             "image": {
-              "src": "https://prayersong.com/lander-assets/for-images/for-strength-2.jpg",
+              "src": "/imgs/gift/strength.jpg",
               "alt": "寻求力量"
             }
           },
@@ -533,7 +614,7 @@
             "description": "为心灵的复原和平安祷告",
             "icon": "RiHeartsLine",
             "image": {
-              "src": "https://prayersong.com/lander-assets/for-images/for-healing-2.jpg",
+              "src": "/imgs/gift/healing.jpg",
               "alt": "寻求医治"
             }
           },
@@ -542,7 +623,7 @@
             "description": "通过个性化视频举起您的祷告",
             "icon": "RiHandsPrayLine",
             "image": {
-              "src": "https://prayersong.com/lander-assets/for-images/for-prayers.jpg",
+              "src": "/imgs/gift/prayers.jpg",
               "alt": "献上祷告"
             }
           },
@@ -551,7 +632,7 @@
             "description": "庆祝上帝在您生命中的神迹",
             "icon": "RiSparklingLine",
             "image": {
-              "src": "https://prayersong.com/lander-assets/for-images/for-breakthroughs-2.jpg",
+              "src": "/imgs/gift/breakthroughs.jpg",
               "alt": "庆祝突破"
             }
           }
@@ -644,6 +725,28 @@
           }
         ],
         "className": "bg-background"
+      },
+      "founder-letter": {
+        "block": "founder-letter",
+        "id": "founder-letter",
+        "title": "从我心到你心",
+        "paragraphs": [
+          "我花了50年逃避恐惧。从年少时的教室到职业生涯的会议室，我感受到了与你们许多人今天相同的重压——医生、父母、追梦者。",
+          "我创建了<strong>「不要惧怕」</strong>，因为我终于找到了在每场风暴中都能稳住的锚：我们永远不是真正孤独的应许。这不仅仅是一个网站；这是我建造的一个避难所，帮助你将个人的焦虑转化为信仰的影像见证。",
+          "如果你已经厌倦了害怕，让这些应许被宣告在你的生命之上。我为你建造了这一切，因为我完全知道需要它是什么感觉。"
+        ],
+        "founder_name": "创始人",
+        "founder_image": "/imgs/founder/founder-photo.jpg",
+        "signature_image": "/imgs/founder/signature.svg",
+        "buttons": [
+          {
+            "title": "创建你的信仰视频",
+            "url": "/ai-video-generator",
+            "target": "_self",
+            "variant": "default"
+          }
+        ],
+        "className": "bg-muted/30"
       },
       "cta": {
         "id": "cta",

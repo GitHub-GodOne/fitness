@@ -10,11 +10,13 @@ import type { Notification } from "@/shared/models/notification";
 
 interface NotificationListProps {
   onNotificationRead?: () => void;
+  onViewDetail?: (notification: Notification) => void;
   onClose?: () => void;
 }
 
 export function NotificationList({
   onNotificationRead,
+  onViewDetail,
   onClose,
 }: NotificationListProps) {
   const t = useTranslations("notification");
@@ -96,6 +98,7 @@ export function NotificationList({
             key={notification.id}
             notification={notification}
             onMarkAsRead={handleMarkAsRead}
+            onViewDetail={onViewDetail}
             onClose={onClose}
           />
         ))}

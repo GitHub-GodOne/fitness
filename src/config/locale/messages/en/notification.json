@@ -13,7 +13,13 @@
   "types": {
     "comment_reply": "Comment Reply",
     "video_complete": "Video Complete",
-    "image_complete": "Image Complete"
+    "image_complete": "Image Complete",
+    "system": "System Notification",
+    "announcement": "Announcement"
+  },
+  "detail": {
+    "title": "Notification Details",
+    "go_to_link": "View Details"
   },
   "messages": {
     "comment_reply_title": "New reply to your comment",

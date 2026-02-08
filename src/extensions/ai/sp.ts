@@ -1,4 +1,5 @@
 import { replaceR2Url } from '@/shared/lib/url';
+import { addTextToImage } from '@/shared/lib/image-text';
 // import { toAbsoluteUrl } from '@/shared/lib/url-utils';
 import sharp from 'sharp';
 import {
@@ -391,122 +392,6 @@ You must output ONLY a valid JSON object with the following structure:
         // Wait for all images to be generated in parallel
         const imageUrls = await Promise.all(generatePromises);
         return imageUrls;
-    }
-
-    /**
-     * Step 3: Add text overlay to images (图片文字融合)
-     */
-    private async addTextToImage(
-        imageUrl: string,
-        text: string
-    ): Promise<Buffer> {
-        // Download image
-        const response = await fetch(imageUrl);
-        const arrayBuffer = await response.arrayBuffer();
-        const imageBuffer = Buffer.from(arrayBuffer);
-
-        const image = sharp(imageBuffer);
-        const { width, height } = await image.metadata();
-
-        if (!width || !height) {
-            throw new Error('Failed to get image dimensions');
-        }
-
-        const fontSize = Math.floor(width / 40); // 进一步减小字体大小（从 /30 改为 /40）
-        const lineHeight = fontSize * 1.5;
-        const sidePadding = width * 0.18; // 增加侧边距（从 0.15 改为 0.18）
-        const maxTextWidth = width - sidePadding * 2;
-
-        // Wrap text
-        const lines = this.wrapTextSafe(text, maxTextWidth, fontSize);
-        const totalHeight = lineHeight * (lines.length - 1);
-        const bottomPadding = fontSize * 3; // 增加底部边距（从 2.5 改为 3）
-        const startY = height - bottomPadding - totalHeight;
-
-        const tspans = lines
-            .map(
-                (line, i) =>
-                    `<tspan x="${width / 2}" dy="${i === 0 ? 0 : lineHeight}">
-                        ${this.escapeXml(line)}
-                    </tspan>`
-            )
-            .join('\n');
-
-        const svg = `
-<svg width="${width}" height="${height}">
-  <style>
-    .text {
-      font-family: 'Great Vibes', cursive;
-      font-size: ${fontSize}px;
-      fill: white;
-      text-anchor: middle;
-      filter: drop-shadow(0 6px 10px rgba(0,0,0,0.75));
-    }
-  </style>
-  <text x="${width / 2}" y="${startY}" class="text">
-    ${tspans}
-  </text>
-</svg>
-`;
-
-        const outputBuffer = await image
-            .composite([{ input: Buffer.from(svg) }])
-            .png()
-            .toBuffer();
-
-        return outputBuffer;
-    }
-
-    /**
-     * Text wrapping helper
-     */
-    private wrapTextSafe(text: string, maxWidthPx: number, fontSize: number): string[] {
-        const words = text.split(' ');
-        const lines: string[] = [];
-        const charPx = fontSize * 0.48;
-        const maxUnits = maxWidthPx / charPx;
-        let line = '';
-
-        for (const word of words) {
-            const test = line ? line + ' ' + word : word;
-            const units = this.estimateWidthUnits(test);
-
-            if (units <= maxUnits) {
-                line = test;
-            } else {
-                if (line) lines.push(line);
-                line = word;
-            }
-        }
-
-        if (line) lines.push(line);
-        return lines;
-    }
-
-    /**
-     * Estimate text width
-     */
-    private estimateWidthUnits(text: string): number {
-        let w = 0;
-        for (const ch of text) {
-            if (ch === ' ') w += 0.38;
-            else if (/[A-Z]/.test(ch)) w += 0.9;
-            else if (/[.,]/.test(ch)) w += 0.28;
-            else w += 0.78;
-        }
-        return w;
-    }
-
-    /**
-     * Escape XML special characters
-     */
-    private escapeXml(text: string): string {
-        return text
-            .replace(/&/g, '&amp;')
-            .replace(/</g, '&lt;')
-            .replace(/>/g, '&gt;')
-            .replace(/"/g, '&quot;')
-            .replace(/'/g, '&apos;');
     }
 
     /**
@@ -1092,7 +977,7 @@ You must output ONLY a valid JSON object with the following structure:
             console.log('[SP] Step 3: Adding text overlay to images...');
             const imageBuffers: Buffer[] = [];
             for (let i = 0; i < generatedImageUrls.length; i++) {
-                const buffer = await this.addTextToImage(
+                const buffer = await addTextToImage(
                     generatedImageUrls[i],
                     analysis.audio_script
                 );

@@ -266,7 +266,7 @@ export function Header({ header }: { header: HeaderType }) {
                   {header.show_theme_switcher ? <ThemeSwitcher /> : null}
                   {header.show_theme_toggler ? <ThemeToggler /> : null}
                   {header.show_locale ? <LocaleSelector /> : null}
-                  {header.show_notification ? <NotificationBell /> : null}
+                  {header.show_notification && user ? <NotificationBell /> : null}
                   {header.buttons &&
                     header.buttons.map((button, idx) =>
                       user ? (
@@ -294,8 +294,9 @@ export function Header({ header }: { header: HeaderType }) {
                   ) : null}
                 </div>
 
-                {/* Mobile: Show only Sign In */}
+                {/* Mobile: Show notification bell + Sign In */}
                 <div className="flex lg:hidden items-center gap-2 overflow-visible">
+                  {header.show_notification && user ? <NotificationBell /> : null}
                   {header.show_sign ? (
                     <div className="flex-shrink-0">
                       <SignUser userNav={header.user_nav} />

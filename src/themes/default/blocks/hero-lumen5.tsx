@@ -1,8 +1,8 @@
 "use client";
 
-import { useEffect, useRef } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import Image from "next/image";
-import { ArrowRight } from "lucide-react";
+import { ArrowRight, Play, Pause, Volume2, VolumeX } from "lucide-react";
 import { Button } from "@/shared/components/ui/button";
 import { SmartIcon } from "@/shared/blocks/common";
 import { useRequireAuth } from "@/shared/hooks/use-require-auth";
@@ -28,11 +28,115 @@ interface HeroLumen5Section extends Omit<Section, "buttons"> {
     width?: number;
     height?: number;
   };
+  featured_video?: {
+    src: string;
+    poster?: string;
+  };
   partner_logos?: Array<{
     src: string;
     alt: string;
   }>;
   trust_title?: string;
+}
+
+// Hero video player with controls
+function HeroVideo({ src, poster }: { src: string; poster?: string }) {
+  const videoRef = useRef<HTMLVideoElement>(null);
+  const [isPlaying, setIsPlaying] = useState(true);
+  const [isMuted, setIsMuted] = useState(true);
+  const [showControls, setShowControls] = useState(false);
+  const hideTimerRef = useRef<ReturnType<typeof setTimeout>>(undefined);
+
+  const togglePlay = useCallback(() => {
+    const video = videoRef.current;
+    if (!video) return;
+    if (video.paused) {
+      video.play();
+      setIsPlaying(true);
+    } else {
+      video.pause();
+      setIsPlaying(false);
+    }
+  }, []);
+
+  const toggleMute = useCallback(() => {
+    const video = videoRef.current;
+    if (!video) return;
+    video.muted = !video.muted;
+    setIsMuted(video.muted);
+  }, []);
+
+  const handleMouseEnter = () => {
+    clearTimeout(hideTimerRef.current);
+    setShowControls(true);
+  };
+
+  const handleMouseLeave = () => {
+    hideTimerRef.current = setTimeout(() => setShowControls(false), 1500);
+  };
+
+  const handleTap = () => {
+    setShowControls(true);
+    clearTimeout(hideTimerRef.current);
+    hideTimerRef.current = setTimeout(() => setShowControls(false), 3000);
+  };
+
+  useEffect(() => {
+    return () => clearTimeout(hideTimerRef.current);
+  }, []);
+
+  return (
+    <div
+      className="relative group rounded-lg overflow-hidden cursor-pointer"
+      onMouseEnter={handleMouseEnter}
+      onMouseLeave={handleMouseLeave}
+      onTouchStart={handleTap}
+    >
+      <video
+        ref={videoRef}
+        src={src}
+        poster={poster}
+        autoPlay
+        loop
+        muted
+        playsInline
+        className="w-full h-auto rounded-lg object-contain"
+      />
+      {/* Controls overlay */}
+      <div
+        className={cn(
+          "absolute inset-0 flex items-center justify-center transition-opacity duration-300",
+          showControls ? "opacity-100" : "opacity-0",
+        )}
+      >
+        {/* Center play/pause */}
+        <button
+          onClick={togglePlay}
+          className="flex h-12 w-12 items-center justify-center rounded-full bg-black/50 text-white backdrop-blur-sm transition-transform hover:scale-110"
+        >
+          {isPlaying ? (
+            <Pause className="h-5 w-5" />
+          ) : (
+            <Play className="h-5 w-5 ml-0.5" />
+          )}
+        </button>
+      </div>
+      {/* Bottom-right mute toggle */}
+      <button
+        onClick={toggleMute}
+        className={cn(
+          "absolute bottom-3 right-3 flex h-8 w-8 items-center justify-center rounded-full bg-black/50 text-white backdrop-blur-sm transition-opacity duration-300 hover:bg-black/70",
+          showControls ? "opacity-100" : "opacity-0",
+        )}
+      >
+        {isMuted ? (
+          <VolumeX className="h-4 w-4" />
+        ) : (
+          <Volume2 className="h-4 w-4" />
+        )}
+      </button>
+    </div>
+  );
 }
 
 // Logo carousel component - infinite scroll
@@ -177,9 +281,35 @@ export function HeroLumen5({
       </div>
 
       <div className="container mx-auto sm:px-6 lg:px-8">
-        <div className="flex flex-col sm:flex-row lg:gap-16 sm:items-start items-center justify-center py-20">
-          {/* Left column - Text content */}
-          <div className="text-center lg:text-left w-full lg:flex-1 lg:max-w-[700px] py-10 lg:-ml-30">
+        <div className="flex flex-col sm:flex-row lg:gap-16 items-center justify-center py-20">
+          {/* Video/Image - shows first on mobile, second on desktop */}
+          <div className="w-full lg:flex-1 sm:max-w-[480px] max-w-[450px] order-first lg:order-last py-4 lg:py-15">
+            {section.featured_video ? (
+              <HeroVideo
+                src={section.featured_video.src}
+                poster={
+                  section.featured_video.poster || section.featured_image?.src
+                }
+              />
+            ) : section.featured_image ? (
+              <img
+                src={section.featured_image.src}
+                alt={section.featured_image.alt || "Hero illustration"}
+                className="w-full h-auto rounded-lg object-contain p-l5-32"
+                loading="eager"
+              />
+            ) : (
+              <img
+                src="/imgs/avatars/HomeHeroStatic3-1280.webp"
+                alt="Personalized Bible Video"
+                className="w-full h-auto rounded-lg object-contain p-l5-32"
+                loading="eager"
+              />
+            )}
+          </div>
+
+          {/* Text content - shows second on mobile, first on desktop */}
+          <div className="text-center lg:text-left w-full lg:flex-1 lg:max-w-[700px] order-last lg:order-first py-4 lg:py-10 lg:-ml-30">
             {/* Main Headline */}
             <h1 className="text-xl sm:text-3xl md:text-4xl lg:text-[1.99rem] text-center font-bold tracking-tight leading-[1.15] text-foreground break-words">
               {renderTitle()}
@@ -211,26 +341,6 @@ export function HeroLumen5({
                   </Button>
                 ))}
               </div>
-            )}
-          </div>
-
-          {/* Right column - Static Image */}
-          <div className="w-full lg:flex-1 sm:max-w-[480px] max-w-[450px] py-15">
-            {section.featured_image ? (
-              <img
-                src={section.featured_image.src}
-                alt={section.featured_image.alt || "Hero illustration"}
-                className="w-full h-auto rounded-lg object-contain p-l5-32"
-                loading="eager"
-              />
-            ) : (
-              /* Default hero image with avatar */
-              <img
-                src="/imgs/avatars/HomeHeroStatic3-1280.webp"
-                alt="Personalized Bible Video"
-                className="w-full h-auto rounded-lg object-contain p-l5-32"
-                loading="eager"
-              />
             )}
           </div>
         </div>

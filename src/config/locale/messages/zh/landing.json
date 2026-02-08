@@ -42,7 +42,7 @@
     },
     "buttons": [
       {
-        "title": "创建视频",
+        "title": "✨ 创建我的信仰视频",
         "url": "/ai-video-generator",
         "target": "_self",
         "variant": "default",
@@ -70,6 +70,7 @@
     "show_theme_toggler": false,
     "show_theme_switcher": false,
     "show_locale": false,
+    "show_notification": true,
     "topbanner": {
       "text": "Fear Not 是一个 AI 驱动的圣经安慰视频生成平台。通过个性化的圣经朗读视频，为你的心灵带来平安、温暖和属灵的安慰。"
     }

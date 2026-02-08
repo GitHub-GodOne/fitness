@@ -102,6 +102,11 @@
           "title": "用户评论",
           "url": "/admin/comments",
           "icon": "MessageSquare"
+        },
+        {
+          "title": "通知管理",
+          "url": "/admin/notifications",
+          "icon": "Bell"
         }
       ]
     }

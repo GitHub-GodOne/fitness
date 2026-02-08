@@ -1,0 +1,69 @@
+{
+  "list": {
+    "title": "通知管理",
+    "crumbs": {
+      "admin": "管理",
+      "notifications": "通知"
+    },
+    "tabs": {
+      "all": "全部",
+      "system": "系统",
+      "video_complete": "视频完成",
+      "announcement": "公告"
+    }
+  },
+  "fields": {
+    "id": "ID",
+    "type": "类型",
+    "title": "标题",
+    "content": "内容",
+    "user": "用户",
+    "is_read": "已读",
+    "created_at": "创建时间",
+    "actions": "操作",
+    "link": "链接"
+  },
+  "status": {
+    "read": "已读",
+    "unread": "未读"
+  },
+  "create": {
+    "button": "创建通知",
+    "title": "创建通知",
+    "description": "向用户发送通知",
+    "target_type": "目标",
+    "target_all": "所有用户",
+    "target_specific": "指定用户",
+    "user_ids": "用户ID",
+    "user_ids_placeholder": "输入用户ID，用逗号分隔",
+    "notification_title": "标题",
+    "notification_title_placeholder": "通知标题",
+    "notification_content": "内容",
+    "notification_content_placeholder": "通知内容",
+    "notification_link": "链接（可选）",
+    "notification_link_placeholder": "/path/to/page",
+    "success": "通知创建成功",
+    "failed": "创建通知失败"
+  },
+  "edit": {
+    "title": "编辑通知",
+    "description": "更新通知详情",
+    "success": "通知更新成功",
+    "failed": "更新通知失败"
+  },
+  "delete": {
+    "title": "删除通知",
+    "description": "确定要删除此通知吗？此操作无法撤销。",
+    "success": "通知删除成功",
+    "failed": "删除通知失败"
+  },
+  "actions": {
+    "edit": "编辑",
+    "delete": "删除",
+    "cancel": "取消",
+    "save": "保存",
+    "confirm": "确认",
+    "saving": "保存中...",
+    "deleting": "删除中..."
+  }
+}

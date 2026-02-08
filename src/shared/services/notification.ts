@@ -1,10 +1,12 @@
 import { nanoid } from 'nanoid';
 
+import { db } from '@/core/db';
+import { user, notification as notificationTable } from '@/config/db/schema';
 import { createNotification } from '@/shared/models/notification';
 
 export interface CreateNotificationParams {
     userId: string;
-    type: 'comment_reply' | 'video_complete' | 'image_complete';
+    type: 'comment_reply' | 'video_complete' | 'image_complete' | 'system' | 'announcement';
     title: string;
     content: string;
     link?: string;
@@ -104,4 +106,68 @@ export async function notifyImageComplete({
             prompt: prompt?.substring(0, 100),
         },
     });
+}
+
+export async function notifySystemMessage({
+    userId,
+    title,
+    content,
+    link,
+}: {
+    userId: string;
+    title: string;
+    content: string;
+    link?: string;
+}) {
+    await createUserNotification({
+        userId,
+        type: 'system',
+        title,
+        content,
+        link,
+    });
+}
+
+export async function createBroadcastNotification({
+    targetType,
+    targetUserIds,
+    title,
+    content,
+    link,
+}: {
+    targetType: 'all' | 'specific';
+    targetUserIds?: string[];
+    title: string;
+    content: string;
+    link?: string;
+}) {
+    let userIds: string[] = [];
+
+    if (targetType === 'all') {
+        const users = await db().select({ id: user.id }).from(user);
+        userIds = users.map((u) => u.id);
+    } else if (targetUserIds && targetUserIds.length > 0) {
+        userIds = targetUserIds;
+    }
+
+    if (userIds.length === 0) return;
+
+    const batchSize = 100;
+    for (let i = 0; i < userIds.length; i += batchSize) {
+        const batch = userIds.slice(i, i + batchSize);
+        const notifications = batch.map((uid) => ({
+            id: nanoid(),
+            userId: uid,
+            type: 'announcement' as const,
+            title,
+            content,
+            link: link || null,
+            isRead: false,
+            metadata: null,
+        }));
+
+        await db()
+            .insert(notificationTable)
+            .values(notifications);
+    }
 }

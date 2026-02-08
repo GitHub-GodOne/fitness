@@ -42,6 +42,7 @@ interface DownloadDialogProps {
   onOpenChange: (open: boolean) => void;
   taskId: string;
   taskResult: string | null;
+  taskInfo?: string | null;
 }
 
 interface TaskResultData {
@@ -189,6 +190,7 @@ export function DownloadDialog({
   onOpenChange,
   taskId,
   taskResult,
+  taskInfo,
 }: DownloadDialogProps) {
   const t = useTranslations("ai.video.generator");
   const isDesktop = useMediaQuery("(min-width: 768px)");
@@ -212,9 +214,28 @@ export function DownloadDialog({
     }
   }, [taskResult]);
 
+  const inputImageUrl = useMemo<string | null>(() => {
+    try {
+      if (!taskInfo) return null;
+      const info = JSON.parse(taskInfo);
+      return info.inputImageUrl || null;
+    } catch {
+      return null;
+    }
+  }, [taskInfo]);
+
+  // Merge inputImageUrl into original images
+  const allOriginalImages = useMemo(() => {
+    const originals = resultData.original_image_urls || [];
+    if (inputImageUrl) {
+      return [inputImageUrl, ...originals];
+    }
+    return originals;
+  }, [resultData.original_image_urls, inputImageUrl]);
+
   const hasVideo = Boolean(resultData.video_url);
   const hasImagesWithText = Boolean(resultData.image_urls?.length);
-  const hasOriginalImages = Boolean(resultData.original_image_urls?.length);
+  const hasOriginalImages = Boolean(allOriginalImages.length);
 
   const defaultTab = useMemo<TabType>(() => {
     if (hasVideo) return "video";
@@ -299,7 +320,7 @@ export function DownloadDialog({
   const currentImages =
     currentTab === "images-with-text"
       ? resultData.image_urls || []
-      : resultData.original_image_urls || [];
+      : allOriginalImages;
 
   // Action handlers for header buttons
   const handleSelectAll = useCallback(() => {
@@ -454,9 +475,9 @@ export function DownloadDialog({
         </TabsContent>
 
         <TabsContent value="images-original" className="mt-0">
-          {hasOriginalImages && resultData.original_image_urls ? (
+          {hasOriginalImages && allOriginalImages.length > 0 ? (
             <ImagePreview
-              images={resultData.original_image_urls}
+              images={allOriginalImages}
               taskId={taskId}
               onDownload={handleDownloadImage}
               selectedImages={selectedImagesOriginal}

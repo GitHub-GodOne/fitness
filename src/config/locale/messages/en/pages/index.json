@@ -4,9 +4,11 @@
       "hero",
       "gift-section",
       "how-it-works",
+      "founder-story",
       "testimonials",
       "what-you-get",
-      "faq"
+      "faq",
+      "founder-letter"
     ],
     "sections": {
       "hero": {
@@ -24,10 +26,14 @@
           }
         ],
         "featured_image": {
-          "src": "/imgs/avatars/HomeHeroStatic3-1280.webp",
+          "src": "/imgs/hero/hero-faith.jpg",
           "alt": "Personalized Bible Video",
           "width": 640,
           "height": 480
+        },
+        "featured_video": {
+          "src": "https://videos.pexels.com/video-files/35270931/14941570_1920_1080_25fps.mp4",
+          "poster": "/imgs/hero/hero-faith.jpg"
         },
         "trust_title": "Joined by 1,000+ Believers Finding Strength in Scripture",
         "partner_logos": [
@@ -218,6 +224,23 @@
           }
         ],
         "className": "bg-background"
+      },
+      "founder-story": {
+        "block": "founder-story",
+        "id": "founder-story",
+        "title": "A Note from the Founder: Why I Built \"Fear Not\"",
+        "paragraphs": [
+          "For as long as I can remember, I lived in the shadow of fear.",
+          "As a child, it was the fear of a bad grade or a teacher's frown. As a young man, it was the crushing anxiety of not being \"good enough\" to survive in a competitive world. When I started my own business, the fear only grew — sleepless nights wondering if I could sustain what I had built.",
+          "Even now, in my 50s, I realize that fear doesn't care about your age or your title. I've looked into the eyes of doctors, farmers, workers, and leaders, and I've seen the same reflection: a quiet, persistent fear of the unknown.",
+          "I built this platform because I realized we all need more than just a quote — we need to hear a Promise that is meant specifically for us. When I first truly felt the weight of <em>Isaiah 41:10</em> — \"Fear not, for I am with you\" — it changed how I breathed.",
+          "\"Fear Not\" is my way of sharing that peace with you. We use technology not just to make videos, but to bridge the gap between your personal struggle and God's timeless comfort. Whatever storm you are walking through, I want you to hear His voice, speaking directly to your heart, telling you that you are not alone.",
+          "I've been there. I understand. And I promise, there is peace on the other side."
+        ],
+        "founder_name": "The Founder",
+        "founder_image": "/imgs/founder/founder-photo.jpg",
+        "signature_image": "/imgs/founder/signature.svg",
+        "className": "bg-muted/30"
       },
       "testimonials": {
         "id": "testimonials",
@@ -426,9 +449,9 @@
             "title": "Cinematic Quality",
             "description": "Beautiful visuals and audio designed for deep reflection and worship. Our AI creates stunning videos that capture the essence of your faith journey.",
             "icon": "RiVideoLine",
-            "video": {
-              "src": "/imgs/avatars/text-to-video.webm",
-              "poster": "/imgs/video-poster.jpg"
+            "image": {
+              "src": "/imgs/features/cinematic.jpg",
+              "alt": "Cinematic Quality"
             }
           },
           {
@@ -436,7 +459,7 @@
             "description": "God's word, tailored specifically to your name and your story. Each video is uniquely crafted to speak directly to your heart and circumstances.",
             "icon": "RiBookOpenLine",
             "image": {
-              "src": "/imgs/avatars/magicpalette.webp",
+              "src": "/imgs/features/scripture.jpg",
               "alt": "Personalized Scripture"
             }
           },
@@ -445,7 +468,7 @@
             "description": "Receive your encouragement in minutes — perfect for urgent prayer needs or meaningful gifts. No waiting, just immediate blessing.",
             "icon": "RiTimeLine",
             "image": {
-              "src": "/imgs/avatars/onbrand.webp",
+              "src": "/imgs/features/delivery.jpg",
               "alt": "Instant Delivery"
             }
           }
@@ -471,7 +494,7 @@
             "description": "Share God's love with your special someone",
             "icon": "RiHeart3Line",
             "image": {
-              "src": "https://cdn.prayersong.com/lander-assets/testimonials/testimonial-vid-2.jpg",
+              "src": "/imgs/gift/partner.jpg",
               "alt": "For Your Partner"
             }
           },
@@ -480,7 +503,7 @@
             "description": "Bless your children with faith-filled encouragement",
             "icon": "RiUserSmileLine",
             "image": {
-              "src": "https://cdn.prayersong.com/lander-assets/testimonials/testimonial-video-5.jpg",
+              "src": "/imgs/gift/children.jpg",
               "alt": "For Children"
             }
           },
@@ -489,7 +512,7 @@
             "description": "Find comfort in God's promises during grief",
             "icon": "RiHandHeartLine",
             "image": {
-              "src": "https://prayersong.com/lander-assets/for-images/for-loss-2.jpeg",
+              "src": "/imgs/gift/loss.jpg",
               "alt": "For Loss"
             }
           },
@@ -498,7 +521,7 @@
             "description": "Honor them with blessings from Scripture",
             "icon": "RiParentLine",
             "image": {
-              "src": "https://cdn.prayersong.com/lander-assets/testimonials/testimonial-vid-1.jpg",
+              "src": "/imgs/gift/parents.jpg",
               "alt": "For Parents"
             }
           },
@@ -507,7 +530,7 @@
             "description": "Receive God's personal message for you",
             "icon": "RiUserHeartLine",
             "image": {
-              "src": "https://cdn.prayersong.com/lander-assets/testimonials/testimonial-vid-3.jpg",
+              "src": "/imgs/gift/yourself.jpg",
               "alt": "For Yourself"
             }
           },
@@ -516,7 +539,7 @@
             "description": "Draw courage from His everlasting promises",
             "icon": "RiShieldStarLine",
             "image": {
-              "src": "https://prayersong.com/lander-assets/for-images/for-strength-2.jpg",
+              "src": "/imgs/gift/strength.jpg",
               "alt": "For Strength"
             }
           },
@@ -525,7 +548,7 @@
             "description": "Pray for restoration and peace of mind",
             "icon": "RiHeartsLine",
             "image": {
-              "src": "https://prayersong.com/lander-assets/for-images/for-healing-2.jpg",
+              "src": "/imgs/gift/healing.jpg",
               "alt": "For Healing"
             }
           },
@@ -534,7 +557,7 @@
             "description": "Lift your prayers through personalized video",
             "icon": "RiHandsPrayLine",
             "image": {
-              "src": "https://prayersong.com/lander-assets/for-images/for-prayers.jpg",
+              "src": "/imgs/gift/prayers.jpg",
               "alt": "For Prayers"
             }
           },
@@ -543,7 +566,7 @@
             "description": "Celebrate God's miracles in your life",
             "icon": "RiSparklingLine",
             "image": {
-              "src": "https://prayersong.com/lander-assets/for-images/for-breakthroughs-2.jpg",
+              "src": "/imgs/gift/breakthroughs.jpg",
               "alt": "For Breakthroughs"
             }
           }
@@ -636,6 +659,28 @@
           }
         ],
         "className": "bg-background"
+      },
+      "founder-letter": {
+        "block": "founder-letter",
+        "id": "founder-letter",
+        "title": "From My Heart to Yours",
+        "paragraphs": [
+          "I spent 50 years running from fear. From the classrooms of my youth to the boardrooms of my career, I felt the same weight that I see in so many of you today — the doctor, the parent, the dreamer.",
+          "I created <strong>Fear Not</strong> because I finally found the anchor that holds in every storm: the promise that we are never truly alone. This isn't just a website; it's a sanctuary I built to help you turn your personal anxieties into a cinematic testimony of faith.",
+          "If you are tired of being afraid, let these promises be spoken over your life. I built this for you, because I know exactly what it feels like to need it."
+        ],
+        "founder_name": "The Founder",
+        "founder_image": "/imgs/founder/founder-photo.jpg",
+        "signature_image": "/imgs/founder/signature.svg",
+        "buttons": [
+          {
+            "title": "Create Your Faith Video",
+            "url": "/ai-video-generator",
+            "target": "_self",
+            "variant": "default"
+          }
+        ],
+        "className": "bg-muted/30"
       },
       "cta": {
         "id": "cta",

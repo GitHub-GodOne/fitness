@@ -1,14 +1,18 @@
 "use client";
 
 import { motion } from "framer-motion";
-import Link from "next/link";
 
 import { Button } from "@/shared/components/ui/button";
 import { LazyImage, SmartIcon } from "@/shared/blocks/common";
 import { cn } from "@/shared/lib/utils";
+import { useRequireAuth } from "@/shared/hooks/use-require-auth";
 import { Section } from "@/shared/types/blocks/landing";
 
 export function FeaturesGrid({ section }: { section: Section }) {
+  const { navigateWithAuth } = useRequireAuth({
+    callbackUrl: "/ai-video-generator",
+  });
+
   return (
     <section
       id={section.id || section.name}
@@ -47,12 +51,13 @@ export function FeaturesGrid({ section }: { section: Section }) {
           {section.items?.map((item, index) => (
             <motion.div
               key={item.title}
-              className="relative rounded-xl overflow-hidden h-32 md:h-40 cursor-pointer group"
+              className="relative rounded-xl overflow-hidden aspect-[4/3] cursor-pointer group"
               initial={{ opacity: 0, scale: 0.9 }}
               whileInView={{ opacity: 1, scale: 1 }}
               viewport={{ once: true }}
               transition={{ duration: 0.4, delay: 0.1 * index }}
               whileHover={{ scale: 1.05 }}
+              onClick={() => navigateWithAuth("/ai-video-generator")}
             >
               <LazyImage
                 src={item.image?.src || item.image?.src || ""}
@@ -78,17 +83,19 @@ export function FeaturesGrid({ section }: { section: Section }) {
             transition={{ duration: 0.5, delay: 0.4 }}
           >
             {section.buttons.map((button) => (
-              <Link key={button.title} href={button.url || "#"}>
-                <Button className="h-12 px-8 text-base font-semibold rounded-full w-auto sm:w-auto">
-                  {button.icon && (
-                    <SmartIcon
-                      name={button.icon as string}
-                      className="mr-2 h-5 w-5"
-                    />
-                  )}
-                  {button.title}
-                </Button>
-              </Link>
+              <Button
+                key={button.title}
+                className="h-12 px-8 text-base font-semibold rounded-full w-auto sm:w-auto"
+                onClick={() => navigateWithAuth(button.url || "/ai-video-generator")}
+              >
+                {button.icon && (
+                  <SmartIcon
+                    name={button.icon as string}
+                    className="mr-2 h-5 w-5"
+                  />
+                )}
+                {button.title}
+              </Button>
             ))}
           </motion.div>
         )}

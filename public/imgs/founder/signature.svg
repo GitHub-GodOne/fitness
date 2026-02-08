@@ -1,0 +1,4 @@
+<svg xmlns='http://www.w3.org/2000/svg' width='300' height='80' viewBox='0 0 300 80'>
+  <text x='10' y='55' font-family='Georgia, serif' font-size='36' font-style='italic' fill='#333' opacity='0.85'>Fear Not</text>
+  <path d='M10 65 Q50 60 100 63 Q150 66 200 61 Q250 56 280 62' stroke='#333' stroke-width='1.5' fill='none' opacity='0.5'/>
+</svg>

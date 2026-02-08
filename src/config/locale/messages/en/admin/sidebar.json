@@ -107,6 +107,11 @@
           "title": "Support Chat",
           "url": "/admin/support-chat",
           "icon": "Headphones"
+        },
+        {
+          "title": "Notifications",
+          "url": "/admin/notifications",
+          "icon": "Bell"
         }
       ]
     }

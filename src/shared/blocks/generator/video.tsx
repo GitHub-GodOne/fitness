@@ -2242,6 +2242,7 @@ export function VideoGenerator({
           onOpenChange={setDownloadDialogOpen}
           taskId={selectedTaskForDownload.id}
           taskResult={selectedTaskForDownload.taskResult}
+          taskInfo={selectedTaskForDownload.taskInfo}
         />
       )}
     </section>
