@@ -537,8 +537,6 @@ export class GWAPIProvider implements AIProvider {
       `[GW-API] Generating ${count} image(s) from image and text with gemini-2.5-flash-image...`,
     );
     console.log("[GW-API] Reference image:", imageUrl);
-    textPrompt +=
-      " Maintain the composition or theme of the user's image and keep the overall image style unchanged. You can add things to the image.";
     console.log("[GW-API] Text prompt:", textPrompt);
 
     const imageUrls: string[] = [];
