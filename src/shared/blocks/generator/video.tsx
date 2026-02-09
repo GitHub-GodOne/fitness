@@ -331,6 +331,7 @@ export function VideoGenerator({
   );
   const [taskStatus, setTaskStatus] = useState<AITaskStatus | null>(null);
   const [isQuerying, setIsQuerying] = useState(false);
+  const isQueryingRef = useRef(false);
   const [downloadingVideoId, setDownloadingVideoId] = useState<string | null>(
     null,
   );
@@ -892,18 +893,20 @@ export function VideoGenerator({
     setTaskId(null);
     setGenerationStartTime(null);
     setTaskStatus(null);
+    isQueryingRef.current = false;
     setIsQuerying(false);
   }, []);
 
   const pollTaskStatus = useCallback(
     async (id: string) => {
       // If a query is already in progress, skip this request
-      if (isQuerying) {
+      if (isQueryingRef.current) {
         return false;
       }
 
       try {
         // Set querying flag to prevent concurrent requests
+        isQueryingRef.current = true;
         setIsQuerying(true);
 
         if (
@@ -912,6 +915,7 @@ export function VideoGenerator({
         ) {
           resetTaskState();
           toast.error("Video generation timed out. Please try again.");
+          isQueryingRef.current = false;
           setIsQuerying(false);
           return true;
         }
@@ -955,6 +959,7 @@ export function VideoGenerator({
           if (!parsedResult?.progress) {
             setProgress((prev) => Math.max(prev, 20));
           }
+          isQueryingRef.current = false;
           setIsQuerying(false);
           return false;
         }
@@ -976,6 +981,7 @@ export function VideoGenerator({
               setProgress((prev) => Math.min(prev + 5, 80));
             }
           }
+          isQueryingRef.current = false;
           setIsQuerying(false);
           return false;
         }
@@ -998,6 +1004,7 @@ export function VideoGenerator({
 
           setProgress(100);
           resetTaskState();
+          isQueryingRef.current = false;
           setIsQuerying(false);
           return true;
         }
@@ -1010,6 +1017,7 @@ export function VideoGenerator({
 
           fetchUserCredits();
 
+          isQueryingRef.current = false;
           setIsQuerying(false);
           return true;
         }
@@ -1031,7 +1039,7 @@ export function VideoGenerator({
         return true;
       }
     },
-    [generationStartTime, resetTaskState, fetchUserCredits, isQuerying],
+    [generationStartTime, resetTaskState, fetchUserCredits],
   );
 
   useEffect(() => {
@@ -1042,7 +1050,7 @@ export function VideoGenerator({
     let cancelled = false;
 
     const tick = async () => {
-      if (!taskId || isQuerying) {
+      if (!taskId || isQueryingRef.current) {
         return;
       }
       const completed = await pollTaskStatus(taskId);
@@ -1059,7 +1067,7 @@ export function VideoGenerator({
         return;
       }
       // Skip if a query is already in progress
-      if (isQuerying) {
+      if (isQueryingRef.current) {
         return;
       }
       const completed = await pollTaskStatus(taskId);
@@ -1072,7 +1080,7 @@ export function VideoGenerator({
       cancelled = true;
       clearInterval(interval);
     };
-  }, [taskId, isGenerating, pollTaskStatus, isQuerying]);
+  }, [taskId, isGenerating, pollTaskStatus]);
 
   const handleVoiceGenderChange = (gender: "male" | "female") => {
     setVoiceGender(gender);

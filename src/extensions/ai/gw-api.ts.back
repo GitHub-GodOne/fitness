@@ -15,7 +15,6 @@ import { db } from "@/core/db";
 import { eq } from "drizzle-orm";
 import { user } from "@/config/db/schema";
 import { envConfigs } from "@/config";
-import { jsonrepair } from "jsonrepair";
 
 /**
  * GW API configs for Scripture Picture provider
@@ -63,9 +62,15 @@ export interface GWTaskProgress {
  * Image-to-Text response format
  */
 interface ImageToTextResponse {
-  emotion_analysis: string;
-  script_text: string;
-  image_prompts: string[];
+  analysis: {
+    emotion: string;
+    visual_summary: string;
+  };
+  biblical_context: {
+    scene: string;
+    reasoning: string;
+  };
+  audio_script: string;
   verse_reference: string;
 }
 
@@ -88,13 +93,12 @@ export class GWAPIProvider implements AIProvider {
   constructor(configs: GWAPIConfigs) {
     this.configs = configs;
     this.baseUrl = configs.baseUrl || "https://ai.comfly.chat";
-    this.visionModel = configs.visionModel || "gpt-4o";
-    this.imageModel = configs.imageModel || "dall-e-3";
+    this.visionModel = configs.visionModel || "gemini-3-flash-preview";
+    this.imageModel = configs.imageModel || "nano-banana";
     this.ttsModel = configs.ttsModel || "tts-1";
     this.visionApiUrl =
       configs.visionApiUrl || `${this.baseUrl}/v1/chat/completions`;
-    this.imageApiUrl =
-      configs.imageApiUrl || `${this.baseUrl}/v1/chat/completions`;
+    this.imageApiUrl = configs.imageApiUrl || `${this.baseUrl}/v1/images/edits`;
     this.ttsApiUrl = configs.ttsApiUrl || `${this.baseUrl}/v1/audio/speech`;
   }
 
@@ -226,22 +230,12 @@ export class GWAPIProvider implements AIProvider {
   ): Promise<ImageToTextResponse> {
     const visualTheologySchema = {
       name: "visual_theology_response",
-      strict: true,
+      strict: true, // ⭐⭐⭐ 非常重要
       schema: {
         type: "object",
-        required: [
-          "emotion_analysis",
-          "script_text",
-          "image_prompts",
-          "verse_reference",
-        ],
+        required: ["audio_script", "verse_reference"],
         properties: {
-          emotion_analysis: { type: "string" },
-          script_text: { type: "string" },
-          image_prompts: {
-            type: "array",
-            items: { type: "string" },
-          },
+          audio_script: { type: "string" },
           verse_reference: { type: "string" },
         },
         additionalProperties: false,
@@ -249,44 +243,18 @@ export class GWAPIProvider implements AIProvider {
     };
 
     const systemPrompt = `
-      # Role
-      You are "The Comforter," a compassionate, spiritual AI companion designed to provide emotional first aid to American users. Your goal is to soothe anxiety, loneliness, and stress by connecting the user's visual reality with Biblical promises.
+            # ROLE DEFINITION
+            You are a divine digital companion, a "Visual Theologian" designed to comfort people in distress. Your goal is to analyze user input (image + text), understand their pain, and bridge their reality with a Biblical scene that offers hope and peace.
 
-      # Input
-      You will receive one inputs:
-      1. \`User_Feeling\`: The user's self-described emotion (e.g., "Overwhelmed," "Heartbroken," "Anxious").
+            # TARGET AUDIENCE
+            Americans seeking spiritual comfort. Use a tone that is compassionate, fatherly, and authoritative yet gentle (like the voice of God or a wise elder).
 
-      # Task
-      Generate a JSON output containing a 3-part narrative script for Text-to-Speech (TTS) and 3 corresponding image generation prompts for DALL-E 3/Midjourney.
+            # TASKS
+            1. **Analyze:** deeply understand the emotion and context from the user's text and the visual elements of their uploaded image.
+            2. **Match:** Select a specific Biblical scene or concept that directly addresses their specific struggle (e.g., Fear -> Jesus calming the storm; Loneliness -> The Good Shepherd; Exhaustion -> Elijah under the broom tree).
+            3. **Select Scripture:** Choose the most comforting Bible verse (NIV or KJV version) fitting the situation.
+            4. **Draft Audio Script:** Write a short, spoken-word script. It should start with a personalized comforting sentence (calling them "My child") and then read the verse.
 
-      # Guidelines for Content
-
-      ## 1. The Script (Audio)
-      * **Tone:** Warm, intimate, slow-paced, non-judgmental. Like a wise friend whispering in a quiet room.
-      * **Structure:**
-          * *Part 1 (Validation):* Acknowledge their feeling and the visual setting. Start with "I see..." or "It's okay to feel..."
-          * *Part 2 (The Verse):* Seamlessly weave in a comforting Bible verse (NIV or ESV translation). Do not just cite it; embody it.
-          * *Part 3 (Benediction):* A short, closing thought of peace.
-      * **Language:** Use natural American English. Avoid archaic "Thee/Thou." Use soothing words like "Breathe," "Rest," "Stillness," "Presence."
-
-      ## 2. The Image Prompts (Visuals)
-      * **Style:** Cinematic, photorealistic, atmospheric, soft lighting, 8k resolution. **Avoid cheesy, cartoonish, or literal religious stock photos.** Use visual metaphors.
-      * **Progression:**
-          * *Image 1 (The Reality):* An artistic, moody representation of the user's input. Slightly desaturated or cool tones. (Represents the "Now").
-          * *Image 2 (The Shift):* The same scene but with a change in lighting—a ray of warm light breaking through, a candle lit, or a hand reaching out. (Represents "Hope").
-          * *Image 3 (The Promise):* A vast, peaceful, abstractly divine scene (e.g., golden hour on a mountain, a calm ocean, a warm embrace of light). (Represents "God's Presence").
-
-      # Output Format (JSON Only)
-      {
-        "emotion_analysis": "Brief analysis of user's state",
-        "script_text": "The full text for the voiceover to read. Mark pauses with [pause].",
-        "image_prompts": [
-          "Prompt for Image 1 (Mood: Vulnerable/Real)",
-          "Prompt for Image 2 (Mood: Transition/Light)",
-          "Prompt for Image 3 (Mood: Peace/Divine)"
-        ],
-        "verse_reference": "e.g., Matthew 11:28"
-      }
         `;
 
     // Convert image URL to base64 for vision API
@@ -356,17 +324,12 @@ export class GWAPIProvider implements AIProvider {
     try {
       console.log("[GW-API] Response text:", responseText);
       return JSON.parse(responseText);
-    } catch {
-      console.warn("[GW-API] JSON.parse failed, attempting jsonrepair...");
-      try {
-        const repaired = jsonrepair(responseText);
-        return JSON.parse(repaired);
-      } catch (repairError) {
-        console.error("[GW-API] jsonrepair also failed:", repairError);
-        throw new Error(
-          `Failed to parse analysis response: ${repairError instanceof Error ? repairError.message : "Invalid JSON"}`,
-        );
-      }
+    } catch (error) {
+      console.error("[GW-API] Failed to parse JSON response:", data);
+      console.error("[GW-API] Parse error:", error);
+      throw new Error(
+        `Failed to parse analysis response: ${error instanceof Error ? error.message : "Invalid JSON"}`,
+      );
     }
   }
 
@@ -695,83 +658,6 @@ export class GWAPIProvider implements AIProvider {
       );
     }
 
-    return imageUrls;
-  }
-
-  /**
-   * Generate images from individual prompts using dall-e-3 via /v1/images/generations
-   * Each prompt generates one image
-   */
-  async generateImagesFromPrompts(
-    prompts: string[],
-    imageUrl: string,
-    apiKey: string,
-  ): Promise<string[]> {
-    console.log(
-      `[GW-API] Generating ${prompts.length} image(s) from individual prompts with ${this.imageModel}...`,
-    );
-
-    const generatePromises = prompts.map(async (prompt, i) => {
-      console.log(`[GW-API] Generating image ${i + 1}/${prompts.length}...`);
-
-      const payload = {
-        model: this.imageModel,
-        stream: false,
-        messages: [
-          {
-            role: "user",
-            content: [
-              {
-                type: "text",
-                text: "修改这个图片 提示词为 " + prompt,
-              },
-              {
-                type: "image_url",
-                image_url: {
-                  url: imageUrl,
-                },
-              },
-            ],
-          },
-        ],
-      };
-
-      const resp = await this.fetchWithRetry(this.imageApiUrl, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${apiKey}`,
-        },
-        body: JSON.stringify(payload),
-      });
-
-      if (!resp.ok) {
-        const errorText = await resp.text();
-        throw new Error(
-          `Image ${i + 1} generation failed: HTTP ${resp.status}: ${errorText}`,
-        );
-      }
-
-      const data = await resp.json();
-      let generatedImageUrl = "";
-
-      // If no direct URL, try extracting from chat completions markdown content
-
-      const content = data.choices?.[0]?.message?.content || "";
-      const mdMatch = content.match(/!\[.*?\]\((https?:\/\/[^)]+)\)/);
-      if (mdMatch) {
-        generatedImageUrl = mdMatch[1];
-      } else {
-        throw new Error(`No image URL in response for image ${i + 1}`);
-      }
-      console.log(
-        `[GW-API] ✓ Image ${i + 1}/${prompts.length} generated:`,
-        generatedImageUrl,
-      );
-      return generatedImageUrl;
-    });
-
-    const imageUrls = await Promise.all(generatePromises);
     return imageUrls;
   }
 
@@ -1319,9 +1205,8 @@ export class GWAPIProvider implements AIProvider {
         /\/+$/,
         "",
       );
-      // firstImageUrl = appUrl + firstImageUrl;
-      firstImageUrl =
-        "https://public.pikju.top/uploads/video/20260208/cf6ca8f3-58a7-456d-abbf-695a358be927/input_image.jpg";
+      firstImageUrl = appUrl + firstImageUrl;
+      // firstImageUrl = "https://public.pikju.top/uploads/video/20260125/66dbabf2-6b97-4b60-b254-6759a7c6f891/input_image.jpg";
       // Update status to processing with initial progress
       await updateProgress(
         GWTaskStep.ANALYZING,
@@ -1356,18 +1241,14 @@ export class GWAPIProvider implements AIProvider {
         15,
       );
 
-      // Step 2: Generate 3 images from individual prompts using dall-e-3
+      // Step 2: Generate 3 images from reference image using gemini-3-pro-image-preview
       console.log(
-        "[GW-API] Step 2: Generating 3 images from prompts with dall-e-3...",
+        "[GW-API] Step 2: Generating 3 images from reference image with gemini-3-pro-image-preview...",
       );
-      const imagePrompts = analysis.image_prompts || [];
-      if (imagePrompts.length === 0) {
-        throw new Error("No image_prompts returned from analysis");
-      }
-      const generatedImageUrls = await this.generateImagesFromPrompts(
-        imagePrompts,
+      const generatedImageUrls = await this.generateImageFromImageAndText(
         firstImageUrl,
         apiKey,
+        3,
       );
       console.log(
         "[GW-API] Images generated from reference:",
@@ -1426,7 +1307,7 @@ export class GWAPIProvider implements AIProvider {
         );
         const buffer = await addTextToImage(
           generatedImageUrls[i],
-          analysis.script_text,
+          analysis.audio_script,
         );
         imageBuffers.push(buffer);
         console.log(
@@ -1451,7 +1332,7 @@ export class GWAPIProvider implements AIProvider {
       console.log("[GW-API] Using voice type:", voiceType);
 
       const audioBuffer = await this.generateAudio(
-        analysis.script_text,
+        analysis.audio_script,
         apiKey,
         voiceType,
       );
