@@ -1319,9 +1319,9 @@ export class GWAPIProvider implements AIProvider {
         /\/+$/,
         "",
       );
-      // firstImageUrl = appUrl + firstImageUrl;
-      firstImageUrl =
-        "https://public.pikju.top/uploads/video/20260208/cf6ca8f3-58a7-456d-abbf-695a358be927/input_image.jpg";
+      firstImageUrl = appUrl + firstImageUrl;
+      // firstImageUrl =
+      //   "https://public.pikju.top/uploads/video/20260208/cf6ca8f3-58a7-456d-abbf-695a358be927/input_image.jpg";
       // Update status to processing with initial progress
       await updateProgress(
         GWTaskStep.ANALYZING,
