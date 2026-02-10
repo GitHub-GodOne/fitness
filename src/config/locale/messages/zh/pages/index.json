@@ -4,6 +4,7 @@
       "hero",
       "gift-section",
       "how-it-works",
+      "vision-scenes",
       "founder-story",
       "testimonials",
       "what-you-get",
@@ -202,6 +203,40 @@
           }
         ],
         "className": "bg-background"
+      },
+      "vision-scenes": {
+        "block": "vision-scenes",
+        "id": "vision-scenes",
+        "label": "三幕视觉叙事",
+        "title": "每个视频都讲述一个三幕圣洁故事",
+        "description": "我们的AI将每个视频打造为一段电影般的旅程，穿越三个神圣启示的时刻——临在、安慰与应许。",
+        "items": [
+          {
+            "title": "第一幕：神圣临在",
+            "subtitle": "神正在靠近，但尚未显现。",
+            "description": "开场画面营造出神圣期待的氛围。柔和的光芒穿透云层，十字架在黎明中矗立，经文书页在微风中轻轻翻动。你感受到某种神圣的力量正在临近。",
+            "symbols": ["Cross", "BookOpen", "Sun", "Feather"],
+            "symbol_labels": ["十字架", "经文", "黎明之光", "圣灵之触"],
+            "color_theme": "amber"
+          },
+          {
+            "title": "第二幕：神的安慰",
+            "subtitle": "神与你同在，安慰着你。",
+            "description": "故事的核心——神的同在此刻被真切感受。温暖的光芒笼罩整个画面，双手伸出给予慈悲，神圣的光辉照亮黑暗。这是相遇与拥抱的时刻。",
+            "symbols": ["Heart", "HeartHandshake", "Sparkles", "Shield"],
+            "symbol_labels": ["爱", "慈悲", "神圣之光", "保护"],
+            "color_theme": "blue"
+          },
+          {
+            "title": "第三幕：应许与平安",
+            "subtitle": "神已回应。你不再孤单。",
+            "description": "最终画面带来解决与希望。太阳在平静的水面上完全升起，群山在远方巍然屹立，你看到自己焕然一新——站在神应许的丰盛之中。",
+            "symbols": ["Sun", "Waves", "Mountain", "User"],
+            "symbol_labels": ["新的黎明", "平静之水", "坚定的盼望", "焕新的你"],
+            "color_theme": "gold"
+          }
+        ],
+        "className": "bg-muted/30"
       },
       "founder-story": {
         "block": "founder-story",

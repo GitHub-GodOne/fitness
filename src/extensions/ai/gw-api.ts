@@ -60,13 +60,25 @@ export interface GWTaskProgress {
 }
 
 /**
- * Image-to-Text response format
+ * Scene in the 3-Act narrative
+ */
+interface SceneData {
+  act: number;
+  voiceover_text: string;
+  camera_motion: string;
+}
+
+/**
+ * Image-to-Text response format (3-Act structure)
  */
 interface ImageToTextResponse {
-  emotion_analysis: string;
-  script_text: string;
-  image_prompts: string[];
+  project_title: string;
+  background_music_mood: string;
+  scenes: SceneData[];
   verse_reference: string;
+  metadata: {
+    estimated_duration: string;
+  };
 }
 
 /**
@@ -230,64 +242,96 @@ export class GWAPIProvider implements AIProvider {
       schema: {
         type: "object",
         required: [
-          "emotion_analysis",
-          "script_text",
-          "image_prompts",
+          "project_title",
+          "background_music_mood",
+          "scenes",
           "verse_reference",
+          "metadata",
         ],
         properties: {
-          emotion_analysis: { type: "string" },
-          script_text: { type: "string" },
-          image_prompts: {
+          project_title: { type: "string" },
+          background_music_mood: { type: "string" },
+          scenes: {
             type: "array",
-            items: { type: "string" },
+            items: {
+              type: "object",
+              required: ["act", "voiceover_text", "camera_motion"],
+              properties: {
+                act: { type: "number" },
+                voiceover_text: { type: "string" },
+                camera_motion: { type: "string" },
+              },
+              additionalProperties: false,
+            },
           },
           verse_reference: { type: "string" },
+          metadata: {
+            type: "object",
+            required: ["estimated_duration"],
+            properties: {
+              estimated_duration: { type: "string" },
+            },
+            additionalProperties: false,
+          },
         },
         additionalProperties: false,
       },
     };
 
     const systemPrompt = `
-      # Role
-      You are "The Comforter," a compassionate, spiritual AI companion designed to provide emotional first aid to American users. Your goal is to soothe anxiety, loneliness, and stress by connecting the user's visual reality with Biblical promises.
+# Role
+You are "The Comforter," an empathetic AI Director designed to create a short, healing video for American users facing emotional distress. You control the Script (TTS) and the Camera Movement (Motion). Images will be generated separately.
 
-      # Input
-      You will receive one inputs:
-      1. \`User_Feeling\`: The user's self-described emotion (e.g., "Overwhelmed," "Heartbroken," "Anxious").
+# Input
+- \`User_Feeling\`: User's emotional state (e.g., "Lonely", "Anxious", "Heartbroken").
 
-      # Task
-      Generate a JSON output containing a 3-part narrative script for Text-to-Speech (TTS) and 3 corresponding image generation prompts for DALL-E 3/Midjourney.
+# Task
+Generate a structured JSON object containing a 3-Act narrative. Each act produces one scene with its own voiceover.
 
-      # Guidelines for Content
+# 3-Act Structure Guidelines
+1. **Act 1: The Mirror (Validation)** - Reflect the user's current reality.
+   - *Motion:* Usually a slow Zoom In (to focus on the feeling).
+   - *Voiceover:* Acknowledge the pain. Start with "I see..." or "It's okay to feel..."
+2. **Act 2: The Shift (Hope)** - Introduce a change in light or perspective.
+   - *Motion:* Pan (Left/Right) or Slow Zoom Out (to broaden perspective).
+   - *Voiceover:* Transition to hope. Seamlessly weave in a comforting Bible verse (NIV or ESV).
+3. **Act 3: The Promise (Peace)** - The divine answer.
+   - *Motion:* Static or very subtle float (to represent stability).
+   - *Voiceover:* A short, closing benediction of peace.
 
-      ## 1. The Script (Audio)
-      * **Tone:** Warm, intimate, slow-paced, non-judgmental. Like a wise friend whispering in a quiet room.
-      * **Structure:**
-          * *Part 1 (Validation):* Acknowledge their feeling and the visual setting. Start with "I see..." or "It's okay to feel..."
-          * *Part 2 (The Verse):* Seamlessly weave in a comforting Bible verse (NIV or ESV translation). Do not just cite it; embody it.
-          * *Part 3 (Benediction):* A short, closing thought of peace.
-      * **Language:** Use natural American English. Avoid archaic "Thee/Thou." Use soothing words like "Breathe," "Rest," "Stillness," "Presence."
+# Content Guidelines
+- **Tone:** Warm, intimate, slow-paced, non-judgmental. Like a wise friend whispering in a quiet room.
+- **Language:** Natural American English. Avoid archaic "Thee/Thou." Use soothing words like "Breathe," "Rest," "Stillness," "Presence."
+- **Each voiceover_text** should be a complete, self-contained narration segment for that scene. The video will hold each image on screen until its voiceover finishes, then transition to the next scene.
+- **Mark pauses** in voiceover_text with "..." for natural breathing room.
 
-      ## 2. The Image Prompts (Visuals)
-      * **Style:** Cinematic, photorealistic, atmospheric, soft lighting, 8k resolution. **Avoid cheesy, cartoonish, or literal religious stock photos.** Use visual metaphors.
-      * **Progression:**
-          * *Image 1 (The Reality):* An artistic, moody representation of the user's input. Slightly desaturated or cool tones. (Represents the "Now").
-          * *Image 2 (The Shift):* The same scene but with a change in lighting—a ray of warm light breaking through, a candle lit, or a hand reaching out. (Represents "Hope").
-          * *Image 3 (The Promise):* A vast, peaceful, abstractly divine scene (e.g., golden hour on a mountain, a calm ocean, a warm embrace of light). (Represents "God's Presence").
-
-      # Output Format (JSON Only)
-      {
-        "emotion_analysis": "Brief analysis of user's state",
-        "script_text": "The full text for the voiceover to read. Mark pauses with [pause].",
-        "image_prompts": [
-          "Prompt for Image 1 (Mood: Vulnerable/Real)",
-          "Prompt for Image 2 (Mood: Transition/Light)",
-          "Prompt for Image 3 (Mood: Peace/Divine)"
-        ],
-        "verse_reference": "e.g., Matthew 11:28"
-      }
-        `;
+# Output Format (JSON Only)
+{
+  "project_title": "Short title for internal logging",
+  "background_music_mood": "e.g., Melancholic Piano, Ethereal Pad, Warm Acoustic",
+  "scenes": [
+    {
+      "act": 1,
+      "voiceover_text": "First part of the script. Acknowledge the pain.",
+      "camera_motion": "ZOOM_IN"
+    },
+    {
+      "act": 2,
+      "voiceover_text": "Second part of the script. The transition with Bible verse.",
+      "camera_motion": "PAN_RIGHT"
+    },
+    {
+      "act": 3,
+      "voiceover_text": "Third part. The closing benediction.",
+      "camera_motion": "ZOOM_OUT"
+    }
+  ],
+  "verse_reference": "Book Chapter:Verse (e.g. Psalm 34:18)",
+  "metadata": {
+    "estimated_duration": "30 seconds"
+  }
+}
+    `;
 
     // Convert image URL to base64 for vision API
     // console.log('[GW-API] Converting image to base64:', imageUrl);
@@ -699,80 +743,122 @@ export class GWAPIProvider implements AIProvider {
   }
 
   /**
-   * Generate images from individual prompts using dall-e-3 via /v1/images/generations
-   * Each prompt generates one image
+   * Generate 3 images with fixed prompts using /v1/images/edits API
+   * Sequential: Image 1 from firstImageUrl, Image 2 from Image 1 output, Image 3 from firstImageUrl
    */
-  async generateImagesFromPrompts(
-    prompts: string[],
-    imageUrl: string,
+  async generateImagesWithFixedPrompts(
+    firstImageUrl: string,
     apiKey: string,
   ): Promise<string[]> {
-    console.log(
-      `[GW-API] Generating ${prompts.length} image(s) from individual prompts with ${this.imageModel}...`,
-    );
+    const editApiUrl = `${this.baseUrl}/v1/images/edits`;
 
-    const generatePromises = prompts.map(async (prompt, i) => {
-      console.log(`[GW-API] Generating image ${i + 1}/${prompts.length}...`);
+    const PROMPT_1 = `High-definition picture quality,Photorealistic cinematic image.
+Preserve the original image composition, camera angle, subject position, and environment.
+Do NOT alter the main subject or scene structure.
 
-      const payload = {
-        model: this.imageModel,
-        stream: false,
-        messages: [
-          {
-            role: "user",
-            content: [
-              {
-                type: "text",
-                text: "修改这个图片 提示词为 " + prompt,
-              },
-              {
-                type: "image_url",
-                image_url: {
-                  url: imageUrl,
-                },
-              },
-            ],
-          },
-        ],
-      };
+Introduce a single sacred biblical symbol: [BIBLICAL SYMBOL].
+The symbol appears naturally within the scene, as if it has always been there.
+Scale is subtle and respectful, never dominating the image.
+Lighting interacts realistically with the environment.
 
-      const resp = await this.fetchWithRetry(this.imageApiUrl, {
+Visual style:
+Soft divine light, gentle god rays or warm highlights if appropriate.
+Cinematic lighting, realistic shadows, no fantasy exaggeration.
+Atmosphere feels sacred, quiet, and reverent.
+
+Mood:
+Divine presence, protection, gentle reassurance.
+Emotionally matching the original image.
+No human divine figure.
+No dramatic miracles.
+No scene transformation yet.`;
+
+    const PROMPT_2 = `High-definition picture quality,A deity, perhaps a god, dressed in a flowing white robe with long, flowing white hair and beard, quietly appears in the painting, blending seamlessly into the composition without disrupting the original elements. The surrounding white clouds are full and abundant, creating a sense of soaring through the mist, seemingly offering blessing or guidance. The composition emphasizes the connection between humanity and divinity, suggesting the coexistence of gods and humans.`;
+
+    const PROMPT_3 = `High-definition picture quality,Photorealistic cinematic peaceful image, 16:9 aspect ratio.
+The scene transforms into a calm, open, and hopeful environment.
+Soft golden sunlight, clear sky, balanced exposure.
+Nature elements such as horizon, mountains, water, or open landscape.
+No divine figure visible.
+Atmosphere feels safe, stable, and complete.
+Mood: peace, trust, renewal, divine promise fulfilled.
+A sense of rest and future hope.
+If the original image already contains figures, those figures should be filled with the joy of receiving divine grace; if the original image does not contain figures, the scene depicted should be prosperous and thriving.`;
+
+    // Helper: download image URL as Blob
+    const downloadImageAsBlob = async (url: string): Promise<Blob> => {
+      let fetchUrl = url;
+      if (url.startsWith("/")) {
+        const port = process.env.PORT || 3000;
+        fetchUrl = `http://localhost:${port}${url}`;
+      }
+      const response = await this.fetchWithRetry(fetchUrl);
+      if (!response.ok) {
+        throw new Error(`Failed to download image: ${response.status}`);
+      }
+      return response.blob();
+    };
+
+    // Helper: call /v1/images/edits with FormData
+    const editImage = async (
+      imageBlob: Blob,
+      prompt: string,
+    ): Promise<string> => {
+      const formData = new FormData();
+      formData.append("image", imageBlob, "image.png");
+      formData.append("prompt", prompt);
+      formData.append("model", "gpt-image-1");
+
+      const resp = await this.fetchWithRetry(editApiUrl, {
         method: "POST",
         headers: {
-          "Content-Type": "application/json",
           Authorization: `Bearer ${apiKey}`,
         },
-        body: JSON.stringify(payload),
+        body: formData,
       });
 
       if (!resp.ok) {
         const errorText = await resp.text();
-        throw new Error(
-          `Image ${i + 1} generation failed: HTTP ${resp.status}: ${errorText}`,
-        );
+        throw new Error(`Image edit failed: ${resp.status}, ${errorText}`);
       }
 
       const data = await resp.json();
-      let generatedImageUrl = "";
-
-      // If no direct URL, try extracting from chat completions markdown content
-
-      const content = data.choices?.[0]?.message?.content || "";
-      const mdMatch = content.match(/!\[.*?\]\((https?:\/\/[^)]+)\)/);
-      if (mdMatch) {
-        generatedImageUrl = mdMatch[1];
-      } else {
-        throw new Error(`No image URL in response for image ${i + 1}`);
+      const imageUrl = data.data?.[0]?.url;
+      if (!imageUrl) {
+        throw new Error("No image URL in edit response");
       }
-      console.log(
-        `[GW-API] ✓ Image ${i + 1}/${prompts.length} generated:`,
-        generatedImageUrl,
-      );
-      return generatedImageUrl;
-    });
+      return imageUrl;
+    };
 
-    const imageUrls = await Promise.all(generatePromises);
-    return imageUrls;
+    console.log(
+      "[GW-API] Generating 3 images with fixed prompts (1+3 parallel, then 2)...",
+    );
+
+    // Download the user's original image
+    console.log("[GW-API] Downloading original image:", firstImageUrl);
+    const originalBlob = await downloadImageAsBlob(firstImageUrl);
+
+    // Image 1 and Image 3 both depend only on originalBlob — run in parallel
+    console.log(
+      "[GW-API] Generating image 1/3 (Divine Presence) and image 3/3 (Promise & Peace) in parallel...",
+    );
+    const [image1Url, image3Url] = await Promise.all([
+      editImage(originalBlob, PROMPT_1),
+      editImage(originalBlob, PROMPT_3),
+    ]);
+    console.log("[GW-API] Image 1/3 generated:", image1Url);
+    console.log("[GW-API] Image 3/3 generated:", image3Url);
+
+    // Image 2 depends on Image 1 output — must wait
+    console.log("[GW-API] Downloading image 1 output for image 2 input...");
+    const image1Blob = await downloadImageAsBlob(image1Url);
+    console.log(
+      "[GW-API] Generating image 2/3 (God's Comfort) from image 1 output...",
+    );
+    const image2Url = await editImage(image1Blob, PROMPT_2);
+    console.log("[GW-API] Image 2/3 generated:", image2Url);
+
+    return [image1Url, image2Url, image3Url];
   }
 
   /**
@@ -879,12 +965,12 @@ export class GWAPIProvider implements AIProvider {
 
   /**
    * Step 5: Merge images and audio into video
-   * Combines 3 images with 1 audio, each image displays for equal duration
-   * Saves all files to public/video/{date}/{taskId}
+   * Each image is paired with its own audio — the image stays on screen
+   * until its corresponding voiceover finishes, then transitions to the next scene.
    */
   private async mergeToVideo(
     imageBuffers: Buffer[],
-    audioBuffer: Buffer,
+    audioBuffers: Buffer[],
     taskId: string,
     customStorage?: boolean,
   ): Promise<{ videoUrl: string; imageUrls: string[]; audioUrl: string }> {
@@ -897,7 +983,6 @@ export class GWAPIProvider implements AIProvider {
       ensureTaskWorkDir,
     } = require("@/shared/utils/file-manager");
 
-    // Use task work directory instead of temp directory
     const workDir = await ensureTaskWorkDir(taskId);
 
     try {
@@ -907,8 +992,8 @@ export class GWAPIProvider implements AIProvider {
         imageBuffers.length,
       );
       console.log(
-        "[GW-API Video] Image buffer sizes:",
-        imageBuffers.map((b) => b.length),
+        "[GW-API Video] Number of audio buffers:",
+        audioBuffers.length,
       );
 
       // Step 1: Save all images to work directory
@@ -925,69 +1010,71 @@ export class GWAPIProvider implements AIProvider {
           imagePath,
         );
       }
-      console.log("[GW-API Video] Total images saved:", imagePaths.length);
 
-      // Step 2: Save audio file
-      const audioFilename = "audio.mp3";
-      const audioPath = path.join(workDir, audioFilename);
-      await fs.writeFile(audioPath, audioBuffer);
-      const audioUrl = getTaskPublicUrl(taskId, audioFilename);
-      console.log("[GW-API Video] Saved audio:", audioPath);
+      // Step 2: Save each audio file and get its duration
+      const audioPaths: string[] = [];
+      const audioDurations: number[] = [];
+      for (let i = 0; i < audioBuffers.length; i++) {
+        const audioFilename = `audio_${i}.mp3`;
+        const audioPath = path.join(workDir, audioFilename);
+        await fs.writeFile(audioPath, audioBuffers[i]);
+        audioPaths.push(audioPath);
 
-      // Step 3: Get audio duration using ffprobe
-      const audioDuration = await new Promise<number>((resolve, reject) => {
-        ffmpeg.ffprobe(audioPath, (err: Error, metadata: any) => {
-          if (err) {
-            reject(err);
-          } else {
-            const duration = metadata.format.duration;
-            console.log("[GW-API Video] Audio duration:", duration, "seconds");
-            resolve(duration);
-          }
+        const duration = await new Promise<number>((resolve, reject) => {
+          ffmpeg.ffprobe(audioPath, (err: Error, metadata: any) => {
+            if (err) reject(err);
+            else resolve(metadata.format.duration);
+          });
         });
-      });
+        audioDurations.push(duration);
+        console.log(
+          `[GW-API Video] Audio ${i + 1} saved: ${audioPath}, duration: ${duration}s`,
+        );
+      }
 
-      // Calculate duration for each image (equal distribution)
-      const imageDuration = audioDuration / imageBuffers.length;
-      console.log(
-        "[GW-API Video] Each image duration:",
-        imageDuration,
-        "seconds",
-      );
+      // Combined audio URL (we'll concat them for the result)
+      const combinedAudioFilename = "audio.mp3";
+      const combinedAudioPath = path.join(workDir, combinedAudioFilename);
+      const audioUrl = getTaskPublicUrl(taskId, combinedAudioFilename);
 
-      // Step 4: Create video segments (each image with calculated duration)
+      // Step 3: Create video segments — each image paired with its own audio
       const segmentPaths: string[] = [];
 
       for (let i = 0; i < imagePaths.length; i++) {
         const segmentPath = path.join(workDir, `segment_${i}.mp4`);
+        const duration = audioDurations[i] || 5;
 
         await new Promise<void>((resolve, reject) => {
           ffmpeg()
             .input(imagePaths[i])
-            .inputOptions(["-loop 1", "-t", imageDuration.toString()])
+            .inputOptions(["-loop 1", "-t", duration.toString()])
+            .input(audioPaths[i])
             .outputOptions([
               "-c:v libx264",
               "-tune stillimage",
+              "-c:a aac",
+              "-b:a 192k",
               "-pix_fmt yuv420p",
               "-r 25",
+              "-shortest",
               "-movflags +faststart",
             ])
             .output(segmentPath)
             .on("start", (cmd: string) => {
               console.log(
-                `[GW-API Video] Creating image segment ${i + 1}:`,
+                `[GW-API Video] Creating segment ${i + 1} (image+audio, ${duration}s):`,
                 cmd,
               );
             })
             .on("end", () => {
               console.log(
-                `[GW-API Video] Image segment ${i + 1} created successfully`,
+                `[GW-API Video] Segment ${i + 1} created successfully`,
               );
               resolve();
             })
             .on("error", (err: Error) => {
               console.error(
-                `[GW-API Video] Error creating image segment ${i + 1}:`,
+                `[GW-API Video] Error creating segment ${i + 1}:`,
                 err,
               );
               reject(err);
@@ -998,7 +1085,7 @@ export class GWAPIProvider implements AIProvider {
         segmentPaths.push(segmentPath);
       }
 
-      // Step 5: Create concat file for ffmpeg
+      // Step 4: Create concat file for ffmpeg
       const concatFilePath = path.join(workDir, "concat.txt");
       const concatContent = segmentPaths
         .map((p) => `file '${path.basename(p)}'`)
@@ -1006,22 +1093,21 @@ export class GWAPIProvider implements AIProvider {
       await fs.writeFile(concatFilePath, concatContent);
       console.log("[GW-API Video] Concat file created:", concatFilePath);
 
-      // Step 6: Concatenate video segments
-      const videoOnlyPath = path.join(workDir, "video_only.mp4");
+      // Step 5: Concatenate segments into final video (each segment already has audio)
+      const videoFilename = "final_video.mp4";
+      const finalVideoPath = path.join(workDir, videoFilename);
 
       await new Promise<void>((resolve, reject) => {
         ffmpeg()
           .input(concatFilePath)
           .inputOptions(["-f concat", "-safe 0"])
           .outputOptions(["-c copy", "-movflags +faststart"])
-          .output(videoOnlyPath)
+          .output(finalVideoPath)
           .on("start", (cmd: string) => {
-            console.log("[GW-API Video] Concatenating image segments:", cmd);
+            console.log("[GW-API Video] Concatenating segments:", cmd);
           })
           .on("end", () => {
-            console.log(
-              "[GW-API Video] Image segments concatenated successfully",
-            );
+            console.log("[GW-API Video] Final video created successfully");
             resolve();
           })
           .on("error", (err: Error) => {
@@ -1031,52 +1117,40 @@ export class GWAPIProvider implements AIProvider {
           .run();
       });
 
-      // Step 7: Merge video with audio
-      const videoFilename = "final_video.mp4";
-      const finalVideoPath = path.join(workDir, videoFilename);
+      // Step 6: Also concat audio files for separate audio URL
+      const audioConcatPath = path.join(workDir, "audio_concat.txt");
+      const audioConcatContent = audioPaths
+        .map((p) => `file '${path.basename(p)}'`)
+        .join("\n");
+      await fs.writeFile(audioConcatPath, audioConcatContent);
 
       await new Promise<void>((resolve, reject) => {
         ffmpeg()
-          .input(videoOnlyPath)
-          .input(audioPath)
-          .outputOptions([
-            "-c:v copy",
-            "-c:a aac",
-            "-b:a 192k",
-            "-shortest",
-            "-movflags +faststart",
-          ])
-          .output(finalVideoPath)
-          .on("start", (cmd: string) => {
-            console.log("[GW-API Video] Merging video with audio:", cmd);
-          })
+          .input(audioConcatPath)
+          .inputOptions(["-f concat", "-safe 0"])
+          .outputOptions(["-c copy"])
+          .output(combinedAudioPath)
           .on("end", () => {
-            console.log("[GW-API Video] Final video created successfully");
+            console.log("[GW-API Video] Combined audio created");
             resolve();
           })
           .on("error", (err: Error) => {
-            console.error(
-              "[GW-API Video] Error merging video with audio:",
-              err,
-            );
+            console.error("[GW-API Video] Error combining audio:", err);
             reject(err);
           })
           .run();
       });
 
-      // Step 8: Return public URLs
+      // Step 7: Return public URLs
       const finalVideoUrl = getTaskPublicUrl(taskId, videoFilename);
-      const finalImageUrls = imageUrls;
-      const finalAudioUrl = audioUrl;
 
-      // Use public folder URLs
       console.log("[GW-API Video] Video created:", finalVideoUrl);
       console.log("[GW-API Video] All files saved to:", workDir);
 
       return {
         videoUrl: finalVideoUrl,
-        imageUrls: finalImageUrls,
-        audioUrl: finalAudioUrl,
+        imageUrls: imageUrls,
+        audioUrl: audioUrl,
       };
     } catch (error) {
       console.error("[GW-API Video] Video merge failed:", error);
@@ -1356,21 +1430,20 @@ export class GWAPIProvider implements AIProvider {
         15,
       );
 
-      // Step 2: Generate 3 images from individual prompts using dall-e-3
+      // Step 2: Generate 3 images with fixed prompts using gpt-image-1
       console.log(
-        "[GW-API] Step 2: Generating 3 images from prompts with dall-e-3...",
+        "[GW-API] Step 2: Generating 3 images with fixed prompts via /v1/images/edits...",
       );
-      const imagePrompts = analysis.image_prompts || [];
-      if (imagePrompts.length === 0) {
-        throw new Error("No image_prompts returned from analysis");
+      const scenes = analysis.scenes || [];
+      if (scenes.length === 0) {
+        throw new Error("No scenes returned from analysis");
       }
-      const generatedImageUrls = await this.generateImagesFromPrompts(
-        imagePrompts,
+      const generatedImageUrls = await this.generateImagesWithFixedPrompts(
         firstImageUrl,
         apiKey,
       );
       console.log(
-        "[GW-API] Images generated from reference:",
+        "[GW-API] Images generated with fixed prompts:",
         generatedImageUrls,
       );
 
@@ -1412,7 +1485,7 @@ export class GWAPIProvider implements AIProvider {
         50,
       );
 
-      // Step 3: Add text overlay to images
+      // Step 3: Add text overlay to images (each scene gets its own voiceover text)
       console.log("[GW-API] Step 3: Adding text overlay to images...");
       console.log(
         "[GW-API] Number of generated images:",
@@ -1421,13 +1494,11 @@ export class GWAPIProvider implements AIProvider {
       console.log("[GW-API] Generated image URLs:", generatedImageUrls);
       const imageBuffers: Buffer[] = [];
       for (let i = 0; i < generatedImageUrls.length; i++) {
+        const sceneText = scenes[i]?.voiceover_text || "";
         console.log(
           `[GW-API] Processing image ${i + 1}/${generatedImageUrls.length}: ${generatedImageUrls[i]}`,
         );
-        const buffer = await addTextToImage(
-          generatedImageUrls[i],
-          analysis.script_text,
-        );
+        const buffer = await addTextToImage(generatedImageUrls[i], sceneText);
         imageBuffers.push(buffer);
         console.log(
           `[GW-API] Text added to image ${i + 1}/${generatedImageUrls.length}, buffer size: ${buffer.length} bytes`,
@@ -1442,20 +1513,27 @@ export class GWAPIProvider implements AIProvider {
         60,
       );
 
-      // Step 4: Generate 1 audio using gpt-4o-mini-tts
-      console.log("[GW-API] Step 4: Generating audio with gpt-4o-mini-tts...");
+      // Step 4: Generate audio for each scene (one audio per scene)
+      console.log("[GW-API] Step 4: Generating audio for each scene...");
       // Get voice gender from params (default: alloy)
       // Available voices: alloy, echo, fable, onyx, nova, shimmer
       const voiceGender = "male"; //params.options?.voice_gender || "female";
       const voiceType = voiceGender === "male" ? "onyx" : "shimmer";
       console.log("[GW-API] Using voice type:", voiceType);
 
-      const audioBuffer = await this.generateAudio(
-        analysis.script_text,
-        apiKey,
-        voiceType,
-      );
-      console.log("[GW-API] Audio generated");
+      const audioBuffers: Buffer[] = [];
+      for (let i = 0; i < scenes.length; i++) {
+        const sceneText = scenes[i].voiceover_text;
+        console.log(
+          `[GW-API] Generating audio for scene ${i + 1}/${scenes.length}: "${sceneText.substring(0, 50)}..."`,
+        );
+        const buf = await this.generateAudio(sceneText, apiKey, voiceType);
+        audioBuffers.push(buf);
+        console.log(
+          `[GW-API] Audio for scene ${i + 1} generated, size: ${buf.length} bytes`,
+        );
+      }
+      console.log("[GW-API] All scene audios generated:", audioBuffers.length);
 
       // Update progress after audio generation
       await updateProgress(
@@ -1464,9 +1542,9 @@ export class GWAPIProvider implements AIProvider {
         75,
       );
 
-      // Step 5: Merge to video and save all files
+      // Step 5: Merge to video — each image paired with its own audio
       console.log(
-        "[GW-API] Step 5: Merging 3 images with 1 audio into video...",
+        "[GW-API] Step 5: Merging 3 images with 3 audios into video...",
       );
       const {
         videoUrl,
@@ -1474,7 +1552,7 @@ export class GWAPIProvider implements AIProvider {
         audioUrl,
       } = await this.mergeToVideo(
         imageBuffers,
-        audioBuffer,
+        audioBuffers,
         taskId,
         this.configs.customStorage,
       );

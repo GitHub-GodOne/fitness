@@ -15,6 +15,7 @@ export * from "./features-step";
 export * from "./features-flow";
 export * from "./features-media";
 export * from "./features-grid";
+export * from "./vision-scenes";
 
 export * from "./showcases";
 export * from "./showcases-flow";

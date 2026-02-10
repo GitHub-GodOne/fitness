@@ -1,4 +1,4 @@
-import sharp from 'sharp';
+import sharp from "sharp";
 
 /**
  * Add text overlay to an image using SVG compositing.
@@ -11,11 +11,11 @@ import sharp from 'sharp';
  */
 export async function addTextToImage(
   imageInput: Buffer | string,
-  text: string
+  text: string,
 ): Promise<Buffer> {
   let imageBuffer: Buffer;
 
-  if (typeof imageInput === 'string') {
+  if (typeof imageInput === "string") {
     const response = await fetch(imageInput);
     if (!response.ok) {
       throw new Error(`Failed to fetch image: ${response.status}`);
@@ -29,7 +29,7 @@ export async function addTextToImage(
   const { width, height } = await image.metadata();
 
   if (!width || !height) {
-    throw new Error('Failed to get image dimensions');
+    throw new Error("Failed to get image dimensions");
   }
 
   let fontSize = Math.floor(width / 40);
@@ -68,9 +68,9 @@ export async function addTextToImage(
   const tspans = lines
     .map(
       (line, i) =>
-        `<tspan x="${width / 2}" dy="${i === 0 ? 0 : lineHeight}">${escapeXml(line)}</tspan>`
+        `<tspan x="${width / 2}" dy="${i === 0 ? 0 : lineHeight}">${escapeXml(line)}</tspan>`,
     )
-    .join('\n');
+    .join("\n");
 
   const svg = `
 <svg width="${width}" height="${height}">
@@ -103,18 +103,18 @@ export async function addTextToImage(
 function wrapTextSafe(
   text: string,
   maxWidthPx: number,
-  fontSize: number
+  fontSize: number,
 ): string[] {
-  const words = text.split(' ');
+  const words = text.split(" ");
   const lines: string[] = [];
   // Use conservative multiplier (0.55) to account for wider fallback fonts on Linux/Ubuntu
   // 'Great Vibes' is narrow cursive; fallback serif fonts are significantly wider
-  const charPx = fontSize * 0.55;
+  const charPx = fontSize * 0.5;
   const maxUnits = maxWidthPx / charPx;
-  let line = '';
+  let line = "";
 
   for (const word of words) {
-    const test = line ? line + ' ' + word : word;
+    const test = line ? line + " " + word : word;
     const units = estimateWidthUnits(test);
 
     if (units <= maxUnits) {
@@ -132,7 +132,7 @@ function wrapTextSafe(
 function estimateWidthUnits(text: string): number {
   let w = 0;
   for (const ch of text) {
-    if (ch === ' ') w += 0.38;
+    if (ch === " ") w += 0.38;
     else if (/[A-Z]/.test(ch)) w += 0.9;
     else if (/[.,]/.test(ch)) w += 0.28;
     else w += 0.78;
@@ -142,9 +142,9 @@ function estimateWidthUnits(text: string): number {
 
 function escapeXml(text: string): string {
   return text
-    .replace(/&/g, '&amp;')
-    .replace(/</g, '&lt;')
-    .replace(/>/g, '&gt;')
-    .replace(/"/g, '&quot;')
-    .replace(/'/g, '&apos;');
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&apos;");
 }

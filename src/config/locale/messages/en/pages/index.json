@@ -4,6 +4,7 @@
       "hero",
       "gift-section",
       "how-it-works",
+      "vision-scenes",
       "founder-story",
       "testimonials",
       "what-you-get",
@@ -224,6 +225,40 @@
           }
         ],
         "className": "bg-background"
+      },
+      "vision-scenes": {
+        "block": "vision-scenes",
+        "id": "vision-scenes",
+        "label": "The 3-Act Visual Narrative",
+        "title": "Every Video Tells a Sacred Story in 3 Scenes",
+        "description": "Our AI crafts each video as a cinematic journey through three divinely inspired moments — presence, comfort, and promise.",
+        "items": [
+          {
+            "title": "Scene 1: Divine Presence",
+            "subtitle": "God draws near, but has not yet appeared.",
+            "description": "The opening scene sets the atmosphere of sacred anticipation. Soft light breaks through clouds, a cross stands silhouetted against the dawn, and scripture pages flutter in a gentle breeze. You feel something holy approaching.",
+            "symbols": ["Cross", "BookOpen", "Sun", "Feather"],
+            "symbol_labels": ["The Cross", "Scripture", "Dawn Light", "Spirit's Touch"],
+            "color_theme": "amber"
+          },
+          {
+            "title": "Scene 2: God's Comfort",
+            "subtitle": "God is with you, and comforts you.",
+            "description": "The heart of the story — God's presence is now felt. Warm light envelops the scene, hands reach out in compassion, and divine sparkles illuminate the darkness. This is the moment of encounter and embrace.",
+            "symbols": ["Heart", "HeartHandshake", "Sparkles", "Shield"],
+            "symbol_labels": ["Love", "Compassion", "Divine Light", "Protection"],
+            "color_theme": "blue"
+          },
+          {
+            "title": "Scene 3: Promise & Peace",
+            "subtitle": "God has answered. You are no longer alone.",
+            "description": "The final scene brings resolution and hope. The sun rises fully over calm waters, mountains stand firm in the distance, and you see yourself renewed — standing in the fullness of God's promise.",
+            "symbols": ["Sun", "Waves", "Mountain", "User"],
+            "symbol_labels": ["New Dawn", "Still Waters", "Steadfast Hope", "You, Renewed"],
+            "color_theme": "gold"
+          }
+        ],
+        "className": "bg-muted/30"
       },
       "founder-story": {
         "block": "founder-story",
