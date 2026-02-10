@@ -100,7 +100,7 @@ export class GWAPIProvider implements AIProvider {
   constructor(configs: GWAPIConfigs) {
     this.configs = configs;
     this.baseUrl = configs.baseUrl || "https://ai.comfly.chat";
-    this.visionModel = configs.visionModel || "gpt-4o";
+    this.visionModel = configs.visionModel || "gpt-4o-2024-08-06";
     this.imageModel = configs.imageModel || "dall-e-3";
     this.ttsModel = configs.ttsModel || "tts-1";
     this.visionApiUrl =
@@ -292,9 +292,9 @@ Generate a structured JSON object containing a 3-Act narrative. Each act produce
 1. **Act 1: The Mirror (Validation)** - Reflect the user's current reality.
    - *Motion:* Usually a slow Zoom In (to focus on the feeling).
    - *Voiceover:* Acknowledge the pain. Start with "I see..." or "It's okay to feel..."
-2. **Act 2: The Shift (Hope)** - Introduce a change in light or perspective.
-   - *Motion:* Pan (Left/Right) or Slow Zoom Out (to broaden perspective).
-   - *Voiceover:* Transition to hope. Seamlessly weave in a comforting Bible verse (NIV or ESV).
+2. **Act Two: Transition (Hope)** - Introduce changes in light or perspective.
+   - *Dynamics:* Pan the camera left or right or slowly pull back (to widen the perspective).
+   - *Narration:* Transition to hope. Naturally incorporate a comforting Bible verse (New International Version or English Standard Version). Do not add any Bible quotations to this section; only include the complete verse.
 3. **Act 3: The Promise (Peace)** - The divine answer.
    - *Motion:* Static or very subtle float (to represent stability).
    - *Voiceover:* A short, closing benediction of peace.
@@ -396,6 +396,16 @@ Generate a structured JSON object containing a 3-Act narrative. Each act produce
       throw new Error(`Generation aborted: ${choice.finish_reason}`);
     }
     const responseText = choice.message?.content || "";
+
+    if (!responseText) {
+      console.error(
+        "[GW-API] Empty response content. Full choice:",
+        JSON.stringify(choice),
+      );
+      throw new Error(
+        `Analysis returned empty content. finish_reason: ${choice.finish_reason}, refusal: ${choice.message?.refusal || "none"}`,
+      );
+    }
 
     try {
       console.log("[GW-API] Response text:", responseText);
@@ -752,26 +762,25 @@ Generate a structured JSON object containing a 3-Act narrative. Each act produce
   ): Promise<string[]> {
     const editApiUrl = `${this.baseUrl}/v1/images/edits`;
 
-    const PROMPT_1 = `High-definition picture quality,Photorealistic cinematic image.
-Preserve the original image composition, camera angle, subject position, and environment.
-Do NOT alter the main subject or scene structure.
-
-Introduce a single sacred biblical symbol: [BIBLICAL SYMBOL].
-The symbol appears naturally within the scene, as if it has always been there.
-Scale is subtle and respectful, never dominating the image.
-Lighting interacts realistically with the environment.
-
-Visual style:
-Soft divine light, gentle god rays or warm highlights if appropriate.
-Cinematic lighting, realistic shadows, no fantasy exaggeration.
-Atmosphere feels sacred, quiet, and reverent.
-
-Mood:
-Divine presence, protection, gentle reassurance.
-Emotionally matching the original image.
-No human divine figure.
-No dramatic miracles.
-No scene transformation yet.`;
+    const PROMPT_1 = `Core Objective:
+    High-definition picture quality, Photorealistic cinematic image. Preserve the original image composition, camera angle, subject position, and environment. Do NOT alter the main subject or scene structure.
+    The Sacred Integration (Randomly select 1-2 from the list below):
+    [ELEMENT 1: The Cross] - Silhouette at the horizon during golden hour, divine god rays, cinematic lighting.
+    [ELEMENT 2: The Lamb] - Innocent lamb in soft focus, macro wool details, warm peaceful sunlight.
+    [ELEMENT 3: The Dove] - Slow motion flight, white feathers with an ethereal glow in a clear sky.
+    [ELEMENT 4: The Ark] - Gold textures, dim temple lighting, sacred dust motes dancing in light.
+    [ELEMENT 5: Olive Branch] - Fresh green tones with morning dew, macro shot of life returning.
+    [ELEMENT 6: Manna] - Crystalline textures on the ground, morning frost look with magical sparkles.
+    [ELEMENT 7: Menorah/Candle] - Warm candlelight, bokeh background, stable flame, light/dark contrast.
+    [ELEMENT 8: Shepherd’s Staff] - Natural wood texture resting against an object, warm afternoon light.
+    [ELEMENT 9: The Chalice] - Silver/Gold reflection, deep red liquid, sacramental atmosphere, soft shadows.
+    [ELEMENT 10: The Hand (Abstract)] - Subtle sun flare in the shape of a reaching light, POV support.
+    Execution Rules:
+    Subtlety: The chosen symbol appears naturally within the scene, as if it has always been there.
+    Scale: The symbol is subtle and respectful, never dominating the image or the subject.
+    Lighting: Lighting interacts realistically with the environment—soft divine light, gentle god rays, or warm highlights.
+    Mood: Divine presence, protection, and gentle reassurance. The atmosphere is sacred, quiet, and reverent.
+    Constraints: No human divine figures. No dramatic miracles. No scene transformation.`;
 
     const PROMPT_2 = `High-definition picture quality,A deity, perhaps a god, dressed in a flowing white robe with long, flowing white hair and beard, quietly appears in the painting, blending seamlessly into the composition without disrupting the original elements. The surrounding white clouds are full and abundant, creating a sense of soaring through the mist, seemingly offering blessing or guidance. The composition emphasizes the connection between humanity and divinity, suggesting the coexistence of gods and humans.`;
 
