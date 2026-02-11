@@ -783,8 +783,8 @@ Generate a structured JSON object containing a 3-Act narrative. Each act produce
     Constraints: No human divine figures. No dramatic miracles. No scene transformation.`;
 
     // const PROMPT_2 = `Keep the original image size,High-definition picture quality,A deity, perhaps a god, dressed in a flowing white robe with long, flowing white hair and beard, quietly appears in the painting, blending seamlessly into the composition without disrupting the original elements. The surrounding white clouds are full and abundant, creating a sense of soaring through the mist, seemingly offering blessing or guidance. The composition emphasizes the connection between humanity and divinity, suggesting the coexistence of gods and humans.`;
-    const PROMPT_2 = this.generateGodPrompt();
-    const PROMPT_3 = this.generatePeacefulPrompt();
+    const PROMPT_2 = await this.generateGodPrompt();
+    const PROMPT_3 = await this.generatePeacefulPrompt();
     //     const PROMPT_3 = `Keep the original image size,High-definition picture quality,Photorealistic cinematic peaceful image.
     // The scene transforms into a calm, open, and hopeful environment.
     // Soft golden sunlight, clear sky, balanced exposure.
