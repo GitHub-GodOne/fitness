@@ -100,7 +100,7 @@ export class GWAPIProvider implements AIProvider {
   constructor(configs: GWAPIConfigs) {
     this.configs = configs;
     this.baseUrl = configs.baseUrl || "https://ai.comfly.chat";
-    this.visionModel = configs.visionModel || "gpt-4o-2024-08-06";
+    this.visionModel = configs.visionModel || "gemini-3-flash-preview";
     this.imageModel = configs.imageModel || "dall-e-3";
     this.ttsModel = configs.ttsModel || "tts-1";
     this.visionApiUrl =
