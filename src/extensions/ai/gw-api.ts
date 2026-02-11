@@ -762,7 +762,7 @@ Generate a structured JSON object containing a 3-Act narrative. Each act produce
   ): Promise<string[]> {
     const editApiUrl = `${this.baseUrl}/v1/images/edits`;
     // 使用
-    const PROMPT_1 = await generateSacredPrompt();
+    const PROMPT_1 = await this.generateSacredPrompt();
     // const PROMPT_2 = `Keep the original image size,High-definition picture quality,A deity, perhaps a god, dressed in a flowing white robe with long, flowing white hair and beard, quietly appears in the painting, blending seamlessly into the composition without disrupting the original elements. The surrounding white clouds are full and abundant, creating a sense of soaring through the mist, seemingly offering blessing or guidance. The composition emphasizes the connection between humanity and divinity, suggesting the coexistence of gods and humans.`;
     const PROMPT_2 = await this.generateGodPrompt();
     const PROMPT_3 = await this.generatePeacefulPrompt();
@@ -2155,6 +2155,7 @@ fearnotforiamwithyou.com`.trim(),
 
   Body language expresses humility and gratitude,
   with relaxed shoulders and natural breathing posture.
+  If the original image depicts multiple people, they should be side-by-side or gathered together, presenting a peaceful and joyful scene.
 
   If no people are present,
   the environment should feel prosperous, thriving, and naturally alive.
