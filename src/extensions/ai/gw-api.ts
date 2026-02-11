@@ -761,27 +761,8 @@ Generate a structured JSON object containing a 3-Act narrative. Each act produce
     apiKey: string,
   ): Promise<string[]> {
     const editApiUrl = `${this.baseUrl}/v1/images/edits`;
-
-    const PROMPT_1 = `Keep the original image size,Core Objective:
-    High-definition picture quality, Photorealistic cinematic image. Preserve the original image composition, camera angle, subject position, and environment. Do NOT alter the main subject or scene structure.
-    The Sacred Integration (Randomly select 1-2 from the list below):
-    [ELEMENT 1: The Cross] - Silhouette at the horizon during golden hour, divine god rays, cinematic lighting.
-    [ELEMENT 2: The Lamb] - Innocent lamb in soft focus, macro wool details, warm peaceful sunlight.
-    [ELEMENT 3: The Dove] - Slow motion flight, white feathers with an ethereal glow in a clear sky.
-    [ELEMENT 4: The Ark] - Gold textures, dim temple lighting, sacred dust motes dancing in light.
-    [ELEMENT 5: Olive Branch] - Fresh green tones with morning dew, macro shot of life returning.
-    [ELEMENT 6: Manna] - Crystalline textures on the ground, morning frost look with magical sparkles.
-    [ELEMENT 7: Menorah/Candle] - Warm candlelight, bokeh background, stable flame, light/dark contrast.
-    [ELEMENT 8: Shepherd’s Staff] - Natural wood texture resting against an object, warm afternoon light.
-    [ELEMENT 9: The Chalice] - Silver/Gold reflection, deep red liquid, sacramental atmosphere, soft shadows.
-    [ELEMENT 10: The Hand (Abstract)] - Subtle sun flare in the shape of a reaching light, POV support.
-    Execution Rules:
-    Subtlety: The chosen symbol appears naturally within the scene, as if it has always been there.
-    Scale: The symbol is subtle and respectful, never dominating the image or the subject.
-    Lighting: Lighting interacts realistically with the environment—soft divine light, gentle god rays, or warm highlights.
-    Mood: Divine presence, protection, and gentle reassurance. The atmosphere is sacred, quiet, and reverent.
-    Constraints: No human divine figures. No dramatic miracles. No scene transformation.`;
-
+    // 使用
+    const PROMPT_1 = await generateSacredPrompt();
     // const PROMPT_2 = `Keep the original image size,High-definition picture quality,A deity, perhaps a god, dressed in a flowing white robe with long, flowing white hair and beard, quietly appears in the painting, blending seamlessly into the composition without disrupting the original elements. The surrounding white clouds are full and abundant, creating a sense of soaring through the mist, seemingly offering blessing or guidance. The composition emphasizes the connection between humanity and divinity, suggesting the coexistence of gods and humans.`;
     const PROMPT_2 = await this.generateGodPrompt();
     const PROMPT_3 = await this.generatePeacefulPrompt();
@@ -872,69 +853,67 @@ Generate a structured JSON object containing a 3-Act narrative. Each act produce
     return [image1Url, image2Url, image3Url];
   }
 
+  async generateSacredPrompt() {
+    // 圣物列表
+    const elements = [
+      "[ELEMENT 1: The Cross] - Silhouette at the horizon during golden hour, divine god rays, cinematic lighting.",
+      "[ELEMENT 2: The Lamb] - Innocent lamb in soft focus, macro wool details, warm peaceful sunlight.",
+      "[ELEMENT 3: The Dove] - Slow motion flight, white feathers with an ethereal glow in a clear sky.",
+      "[ELEMENT 4: The Ark] - Gold textures, dim temple lighting, sacred dust motes dancing in light.",
+      "[ELEMENT 5: Olive Branch] - Fresh green tones with morning dew, macro shot of life returning.",
+      "[ELEMENT 6: Manna] - Crystalline textures on the ground, morning frost look with magical sparkles.",
+      "[ELEMENT 7: Menorah/Candle] - Warm candlelight, bokeh background, stable flame, light/dark contrast.",
+      "[ELEMENT 8: Shepherd’s Staff] - Natural wood texture resting against an object, warm afternoon light.",
+      "[ELEMENT 9: The Chalice] - Silver/Gold reflection, deep red liquid, sacramental atmosphere, soft shadows.",
+      "[ELEMENT 10: The Hand (Abstract)] - Subtle sun flare in the shape of a reaching light, POV support.",
+    ];
+
+    // 随机打乱数组
+    const shuffled = elements.sort(() => 0.5 - Math.random());
+
+    // 随机选择 1~2 个
+    const selectedCount = Math.floor(Math.random() * 2) + 1; // 1 或 2
+    const selectedElements = shuffled.slice(0, selectedCount);
+
+    // 拼接生成最终提示词
+    const prompt = `American aesthetic,Keep the original image size, Core Objective:
+  High-definition picture quality, Photorealistic cinematic image. Preserve the original image composition, camera angle, subject position, and environment. Do NOT alter the main subject or scene structure.
+  The Sacred Integration (Randomly selected):
+  ${selectedElements.join("\n")}
+  Execution Rules:
+  Subtlety: The chosen symbol appears naturally within the scene, as if it has always been there.
+  Scale: The symbol is subtle and respectful, never dominating the image or the subject.
+  Lighting: Lighting interacts realistically with the environment—soft divine light, gentle god rays, or warm highlights.
+  Mood: Divine presence, protection, and gentle reassurance. The atmosphere is sacred, quiet, and reverent.
+  Constraints: No human divine figures. No dramatic miracles. No scene transformation.`;
+
+    return prompt;
+  }
+
   async generateGodPrompt() {
     const godForms = [
+      // 上帝男性形象（主体）
       "A deity, or perhaps a god, wearing a flowing white robe, with flowing white hair and a beard.",
-      "a dignified fatherly divine figure with natural human features",
-      "a serene middle-aged celestial presence with balanced facial structure",
-      "a compassionate elder with gentle facial lines and kind eyes",
-      "a calm and approachable spiritual teacher with realistic anatomy",
-      "a noble yet humble divine guardian with grounded physical presence",
-      "a mature androgynous divine figure with refined and peaceful features",
-      "a warm motherly presence with soft natural expressions",
-      "a strong yet gentle dark-skinned divine figure with reassuring posture",
-      "a solemn but kind prophet-like figure with defined silhouette",
-      "a quiet divine wanderer with believable human proportions",
-      "a kingly yet approachable presence with natural authority",
-      "a silent celestial observer with human warmth in expression",
-      "a grounded spiritual guide standing calmly within the scene",
-    ];
+      "a dignified, fatherly God figure with natural human features, middle-aged to elderly, wearing modest flowing robes, with a calm and kind expression",
+      "a serene male deity with gentle eyes and composed posture, radiating quiet authority and warmth",
+      "a compassionate elder male figure with gentle facial lines, exuding wisdom and reassurance",
+      "a calm and approachable spiritual teacher, male, with realistic human anatomy and a soft, caring gaze",
+      "a noble yet humble male divine guardian with grounded physical presence, standing or seated peacefully",
+      "a mature male figure with refined features, subtle gray hair, and an expression of gentle benevolence",
+      "a kingly male presence with natural authority, approachable and warm, blending into the scene",
+      "a quiet celestial male observer with human warmth in expression, looking thoughtfully at the horizon",
+      "a grounded male spiritual guide standing calmly within the environment, radiating reassurance",
+      "a silent, elderly male deity with a kind face and soft, peaceful eyes",
 
-    const blessingStyles = [
-      "raising one hand gently in a calm gesture of blessing",
-      "resting both hands peacefully while offering reassurance",
-      "extending a hand slightly as if offering comfort",
-      "placing a hand over the heart in a compassionate gesture",
-      "standing quietly while conveying protection",
-      "watching over humanity with calm kindness",
-      "gently inclining the head in acknowledgment",
-      "offering silent guidance through composed posture",
-      "standing with relaxed shoulders and peaceful presence",
-      "projecting warmth through subtle body language",
-    ];
-
-    const facialExpressions = [
-      "with a gentle warm smile",
-      "with kind and compassionate eyes",
-      "with a soft reassuring expression",
-      "with peaceful eyes that reflect understanding",
-      "with a subtle comforting smile",
-      "with calm eyes filled with empathy",
-      "with a serene and approachable facial expression",
-      "with warmth and quiet joy visible in the face",
-      "with relaxed brows and softened features",
-      "with a tender fatherly or motherly gaze",
+      // 女性形象仅以天使形式出现
+      "a graceful female angel with flowing robes and gentle features, radiating warmth and guidance",
+      "a compassionate angelic figure, female, softly glowing, observing the scene with benevolent expression",
+      "a serene female angel with delicate wings and a kind smile, subtly interacting with the environment",
     ];
 
     const randomForm = godForms[Math.floor(Math.random() * godForms.length)];
-    const randomBlessing =
-      blessingStyles[Math.floor(Math.random() * blessingStyles.length)];
-    const randomExpression =
-      facialExpressions[Math.floor(Math.random() * facialExpressions.length)];
-
     return `
-  Maintaining the original image size and high-definition quality,
-  ${randomForm} appears physically present within the painting,
-  with realistic human anatomy, natural skin texture, and believable depth.
-  The figure blends seamlessly into the composition without disrupting any original elements.
-  The surrounding clouds feel natural and atmospheric rather than dramatic.
-  The divine presence is ${randomBlessing}, ${randomExpression}.
-  The face is shown in clear detail, emphasizing warmth, kindness, and reassurance.
-  The expression should feel comforting, hopeful, and emotionally uplifting,
-  avoiding sadness, harshness, melancholy, or stern intensity.
-  A faint and subtle rim light softly outlines the body, suggesting sacred presence without excessive glow.
-  Lighting remains cinematic and realistic, with natural color tones and soft volumetric depth.
-  The overall mood conveys peace, safety, hope, and benevolent guidance.
+  American aesthetic, Maintaining the original image size and high-definition quality. ${randomForm}. Appearing quietly in the painting, it blends seamlessly with the overall composition, without disturbing any existing elements. Surrounded by dense white clouds, it seems to soar through the mist, bringing blessings or guidance. The composition emphasizes the connection between humanity and divinity, suggesting the coexistence of gods and humans.
   `;
   }
 
@@ -2157,7 +2136,7 @@ fearnotforiamwithyou.com`.trim(),
       humanOrientation[Math.floor(Math.random() * humanOrientation.length)];
 
     return `
-  Maintain original image size and high-definition quality.
+  American aesthetic,Maintain original image size and high-definition quality.
   Realistic cinematic tranquility.
 
   Transform the scene into ${randomLandscape}.
