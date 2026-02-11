@@ -762,7 +762,7 @@ Generate a structured JSON object containing a 3-Act narrative. Each act produce
   ): Promise<string[]> {
     const editApiUrl = `${this.baseUrl}/v1/images/edits`;
 
-    const PROMPT_1 = `Core Objective:
+    const PROMPT_1 = `Keep the original image size,Core Objective:
     High-definition picture quality, Photorealistic cinematic image. Preserve the original image composition, camera angle, subject position, and environment. Do NOT alter the main subject or scene structure.
     The Sacred Integration (Randomly select 1-2 from the list below):
     [ELEMENT 1: The Cross] - Silhouette at the horizon during golden hour, divine god rays, cinematic lighting.
@@ -782,17 +782,18 @@ Generate a structured JSON object containing a 3-Act narrative. Each act produce
     Mood: Divine presence, protection, and gentle reassurance. The atmosphere is sacred, quiet, and reverent.
     Constraints: No human divine figures. No dramatic miracles. No scene transformation.`;
 
-    const PROMPT_2 = `High-definition picture quality,A deity, perhaps a god, dressed in a flowing white robe with long, flowing white hair and beard, quietly appears in the painting, blending seamlessly into the composition without disrupting the original elements. The surrounding white clouds are full and abundant, creating a sense of soaring through the mist, seemingly offering blessing or guidance. The composition emphasizes the connection between humanity and divinity, suggesting the coexistence of gods and humans.`;
-
-    const PROMPT_3 = `High-definition picture quality,Photorealistic cinematic peaceful image, 16:9 aspect ratio.
-The scene transforms into a calm, open, and hopeful environment.
-Soft golden sunlight, clear sky, balanced exposure.
-Nature elements such as horizon, mountains, water, or open landscape.
-No divine figure visible.
-Atmosphere feels safe, stable, and complete.
-Mood: peace, trust, renewal, divine promise fulfilled.
-A sense of rest and future hope.
-If the original image already contains figures, those figures should be filled with the joy of receiving divine grace; if the original image does not contain figures, the scene depicted should be prosperous and thriving.`;
+    // const PROMPT_2 = `Keep the original image size,High-definition picture quality,A deity, perhaps a god, dressed in a flowing white robe with long, flowing white hair and beard, quietly appears in the painting, blending seamlessly into the composition without disrupting the original elements. The surrounding white clouds are full and abundant, creating a sense of soaring through the mist, seemingly offering blessing or guidance. The composition emphasizes the connection between humanity and divinity, suggesting the coexistence of gods and humans.`;
+    const PROMPT_2 = this.generateGodPrompt();
+    const PROMPT_3 = this.generatePeacefulPrompt();
+    //     const PROMPT_3 = `Keep the original image size,High-definition picture quality,Photorealistic cinematic peaceful image.
+    // The scene transforms into a calm, open, and hopeful environment.
+    // Soft golden sunlight, clear sky, balanced exposure.
+    // Nature elements such as horizon, mountains, water, or open landscape.
+    // No divine figure visible.
+    // Atmosphere feels safe, stable, and complete.
+    // Mood: peace, trust, renewal, divine promise fulfilled.
+    // A sense of rest and future hope.
+    // If the original image already contains figures, those figures should be filled with the joy of receiving divine grace; if the original image does not contain figures, the scene depicted should be prosperous and thriving.`;
 
     // Helper: download image URL as Blob
     const downloadImageAsBlob = async (url: string): Promise<Blob> => {
@@ -817,7 +818,8 @@ If the original image already contains figures, those figures should be filled w
       formData.append("image", imageBlob, "image.png");
       formData.append("prompt", prompt);
       formData.append("model", "gpt-image-1");
-
+      formData.append("size", "1536x1024");
+      formData.append("quality", "high");
       const resp = await this.fetchWithRetry(editApiUrl, {
         method: "POST",
         headers: {
@@ -868,6 +870,72 @@ If the original image already contains figures, those figures should be filled w
     console.log("[GW-API] Image 2/3 generated:", image2Url);
 
     return [image1Url, image2Url, image3Url];
+  }
+
+  async generateGodPrompt() {
+    const godForms = [
+      "A deity, or perhaps a god, wearing a flowing white robe, with flowing white hair and a beard.",
+      "a dignified fatherly divine figure with natural human features",
+      "a serene middle-aged celestial presence with balanced facial structure",
+      "a compassionate elder with gentle facial lines and kind eyes",
+      "a calm and approachable spiritual teacher with realistic anatomy",
+      "a noble yet humble divine guardian with grounded physical presence",
+      "a mature androgynous divine figure with refined and peaceful features",
+      "a warm motherly presence with soft natural expressions",
+      "a strong yet gentle dark-skinned divine figure with reassuring posture",
+      "a solemn but kind prophet-like figure with defined silhouette",
+      "a quiet divine wanderer with believable human proportions",
+      "a kingly yet approachable presence with natural authority",
+      "a silent celestial observer with human warmth in expression",
+      "a grounded spiritual guide standing calmly within the scene",
+    ];
+
+    const blessingStyles = [
+      "raising one hand gently in a calm gesture of blessing",
+      "resting both hands peacefully while offering reassurance",
+      "extending a hand slightly as if offering comfort",
+      "placing a hand over the heart in a compassionate gesture",
+      "standing quietly while conveying protection",
+      "watching over humanity with calm kindness",
+      "gently inclining the head in acknowledgment",
+      "offering silent guidance through composed posture",
+      "standing with relaxed shoulders and peaceful presence",
+      "projecting warmth through subtle body language",
+    ];
+
+    const facialExpressions = [
+      "with a gentle warm smile",
+      "with kind and compassionate eyes",
+      "with a soft reassuring expression",
+      "with peaceful eyes that reflect understanding",
+      "with a subtle comforting smile",
+      "with calm eyes filled with empathy",
+      "with a serene and approachable facial expression",
+      "with warmth and quiet joy visible in the face",
+      "with relaxed brows and softened features",
+      "with a tender fatherly or motherly gaze",
+    ];
+
+    const randomForm = godForms[Math.floor(Math.random() * godForms.length)];
+    const randomBlessing =
+      blessingStyles[Math.floor(Math.random() * blessingStyles.length)];
+    const randomExpression =
+      facialExpressions[Math.floor(Math.random() * facialExpressions.length)];
+
+    return `
+  Maintaining the original image size and high-definition quality,
+  ${randomForm} appears physically present within the painting,
+  with realistic human anatomy, natural skin texture, and believable depth.
+  The figure blends seamlessly into the composition without disrupting any original elements.
+  The surrounding clouds feel natural and atmospheric rather than dramatic.
+  The divine presence is ${randomBlessing}, ${randomExpression}.
+  The face is shown in clear detail, emphasizing warmth, kindness, and reassurance.
+  The expression should feel comforting, hopeful, and emotionally uplifting,
+  avoiding sadness, harshness, melancholy, or stern intensity.
+  A faint and subtle rim light softly outlines the body, suggesting sacred presence without excessive glow.
+  Lighting remains cinematic and realistic, with natural color tones and soft volumetric depth.
+  The overall mood conveys peace, safety, hope, and benevolent guidance.
+  `;
   }
 
   /**
@@ -2044,6 +2112,78 @@ fearnotforiamwithyou.com`.trim(),
       taskInfo,
       taskResult,
     };
+  }
+
+  async generatePeacefulPrompt() {
+    const landscapeTypes = [
+      "a wide open valley under soft daylight",
+      "a calm lakeside surrounded by trees",
+      "a quiet forest clearing with gentle light filtering through leaves",
+      "a peaceful riverside with slow flowing water",
+      "a meadow filled with subtle wildflowers",
+      "rolling hills under a bright and balanced sky",
+      "a coastal shoreline with soft waves",
+      "a tranquil countryside field",
+      "a garden-like natural setting with living greenery",
+      "a light morning mist over gentle terrain",
+    ];
+
+    const atmosphericDetails = [
+      "soft natural sunlight with balanced exposure",
+      "light wind gently moving leaves and clothing",
+      "calm reflective water surfaces",
+      "subtle morning haze creating depth",
+      "clear sky with light scattered clouds",
+      "fresh air atmosphere after rainfall",
+      "warm but natural daylight tones",
+      "soft volumetric light filtering through the scene",
+      "gentle breeze adding movement to the environment",
+      "stable and evenly lit cinematic realism",
+    ];
+
+    const humanOrientation = [
+      "facing the open landscape",
+      "slightly turned toward the natural scenery",
+      "seen from behind while looking into the distance",
+      "shown in side profile gazing peacefully outward",
+      "standing calmly while observing the environment",
+    ];
+
+    const randomLandscape =
+      landscapeTypes[Math.floor(Math.random() * landscapeTypes.length)];
+    const randomAtmosphere =
+      atmosphericDetails[Math.floor(Math.random() * atmosphericDetails.length)];
+    const randomOrientation =
+      humanOrientation[Math.floor(Math.random() * humanOrientation.length)];
+
+    return `
+  Maintain original image size and high-definition quality.
+  Realistic cinematic tranquility.
+
+  Transform the scene into ${randomLandscape}.
+  The environment should feel open, peaceful, and hopeful.
+  Lighting: ${randomAtmosphere}.
+
+  No idols present.
+
+  If the original image contains people,
+  their body orientation should be ${randomOrientation},
+  no longer facing the viewer or taking a selfie.
+
+  Their posture should be calm and grounded.
+  Facial expression: gentle joy, quiet reverence, peaceful devotion.
+  Subtle upward or outward gaze.
+
+  Body language expresses humility and gratitude,
+  with relaxed shoulders and natural breathing posture.
+
+  If no people are present,
+  the environment should feel prosperous, thriving, and naturally alive.
+
+  Atmosphere: safe, stable, whole.
+  Mood: peace, trust, renewal, fulfillment of divine promise.
+  A deep sense of tranquility and hopeful future.
+  `;
   }
 
   /**
