@@ -344,84 +344,113 @@ Generate a structured JSON object containing a 3-Act narrative. Each act produce
       taskId,
     );
 
-    const payload = {
-      model: this.visionModel,
-      response_format: {
-        type: "json_schema",
-        json_schema: visualTheologySchema,
-      },
-      messages: [
-        {
-          role: "system",
-          content: systemPrompt,
+    // Fallback model chain: primary model -> claude-opus-4-6 -> claude-3-opus-20240229
+    const fallbackModels = [
+      this.visionModel,
+      "claude-opus-4-6",
+      "claude-3-opus-20240229",
+    ];
+
+    let lastError: Error | null = null;
+
+    for (const model of fallbackModels) {
+      console.log(`[GW-API] Trying vision model: ${model}`);
+
+      const payload = {
+        model,
+        response_format: {
+          type: "json_schema",
+          json_schema: visualTheologySchema,
         },
-        {
-          role: "user",
-          content: [
-            {
-              type: "text",
-              text: userFeeling,
-            },
-            {
-              type: "image_url",
-              image_url: imageUrl,
-            },
-          ],
-        },
-      ],
-    };
+        messages: [
+          {
+            role: "system",
+            content: systemPrompt,
+          },
+          {
+            role: "user",
+            content: [
+              {
+                type: "text",
+                text: userFeeling,
+              },
+              {
+                type: "image_url",
+                image_url: imageUrl,
+              },
+            ],
+          },
+        ],
+      };
 
-    const resp = await this.fetchWithRetry(this.visionApiUrl, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${apiKey}`,
-      },
-      body: JSON.stringify(payload),
-    });
-
-    if (!resp.ok) {
-      const errorText = await resp.text();
-      throw new Error(`Analysis failed: ${resp.status}, ${errorText}`);
-    }
-    const data = await resp.json();
-    console.log("[SP] Analysis response:", data, " taskId: ", taskId);
-    const choice = data.choices?.[0];
-
-    if (!choice) {
-      throw new Error("No choices returned");
-    }
-
-    if (choice.finish_reason !== "stop") {
-      throw new Error(`Generation aborted: ${choice.finish_reason}`);
-    }
-    const responseText = choice.message?.content || "";
-
-    if (!responseText) {
-      console.error(
-        "[GW-API] Empty response content. Full choice:",
-        JSON.stringify(choice),
-      );
-      throw new Error(
-        `Analysis returned empty content. finish_reason: ${choice.finish_reason}, refusal: ${choice.message?.refusal || "none"}`,
-      );
-    }
-
-    try {
-      console.log("[GW-API] Response text:", responseText);
-      return JSON.parse(responseText);
-    } catch {
-      console.warn("[GW-API] JSON.parse failed, attempting jsonrepair...");
       try {
-        const repaired = jsonrepair(responseText);
-        return JSON.parse(repaired);
-      } catch (repairError) {
-        console.error("[GW-API] jsonrepair also failed:", repairError);
-        throw new Error(
-          `Failed to parse analysis response: ${repairError instanceof Error ? repairError.message : "Invalid JSON"}`,
+        const resp = await this.fetchWithRetry(this.visionApiUrl, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${apiKey}`,
+          },
+          body: JSON.stringify(payload),
+        });
+
+        if (!resp.ok) {
+          const errorText = await resp.text();
+          throw new Error(`Analysis failed: ${resp.status}, ${errorText}`);
+        }
+        const data = await resp.json();
+        console.log("[SP] Analysis response:", data, " taskId: ", taskId);
+        const choice = data.choices?.[0];
+
+        if (!choice) {
+          throw new Error("No choices returned");
+        }
+
+        if (choice.finish_reason !== "stop") {
+          throw new Error(`Generation aborted: ${choice.finish_reason}`);
+        }
+        const responseText = choice.message?.content || "";
+
+        if (!responseText) {
+          console.error(
+            "[GW-API] Empty response content. Full choice:",
+            JSON.stringify(choice),
+          );
+          throw new Error(
+            `Analysis returned empty content. finish_reason: ${choice.finish_reason}, refusal: ${choice.message?.refusal || "none"}`,
+          );
+        }
+
+        try {
+          console.log("[GW-API] Response text:", responseText);
+          return JSON.parse(responseText);
+        } catch {
+          console.warn("[GW-API] JSON.parse failed, attempting jsonrepair...");
+          try {
+            const repaired = jsonrepair(responseText);
+            return JSON.parse(repaired);
+          } catch (repairError) {
+            console.error("[GW-API] jsonrepair also failed:", repairError);
+            throw new Error(
+              `Failed to parse analysis response: ${repairError instanceof Error ? repairError.message : "Invalid JSON"}`,
+            );
+          }
+        }
+      } catch (error: any) {
+        lastError = error;
+        console.error(
+          `[GW-API] Vision model ${model} failed after retries:`,
+          error.message,
         );
+
+        if (model !== fallbackModels[fallbackModels.length - 1]) {
+          console.log("[GW-API] Falling back to next vision model...");
+        }
       }
     }
+
+    throw new Error(
+      `Analysis failed after trying all models (${fallbackModels.join(", ")}). Last error: ${lastError?.message}`,
+    );
   }
 
   /**
