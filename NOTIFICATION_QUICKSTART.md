@@ -139,7 +139,7 @@ pnpm dev
 ├──────────────────────────────────┤
 │ 💬 New reply to your comment  •  │
 │    John replied to your comment  │
-│    2 minutes ago                 │
+│    2～5 minutes ago                 │
 ├──────────────────────────────────┤
 │ 🎥 Video generation completed    │
 │    Your video has been generated │

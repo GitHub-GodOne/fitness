@@ -1004,6 +1004,7 @@ export function VideoGenerator({
 
           setProgress(100);
           resetTaskState();
+          fetchHistory();
           isQueryingRef.current = false;
           setIsQuerying(false);
           return true;
@@ -1014,6 +1015,7 @@ export function VideoGenerator({
             parsedResult?.errorMessage || "Generate video failed";
           toast.error(errorMessage);
           resetTaskState();
+          fetchHistory();
 
           fetchUserCredits();
 
@@ -1039,7 +1041,7 @@ export function VideoGenerator({
         return true;
       }
     },
-    [generationStartTime, resetTaskState, fetchUserCredits],
+    [generationStartTime, resetTaskState, fetchUserCredits, fetchHistory],
   );
 
   useEffect(() => {
@@ -1798,6 +1800,23 @@ export function VideoGenerator({
                     <div className="mt-3 flex items-start gap-2 rounded-md bg-amber-50 p-3 text-xs text-amber-800 dark:bg-amber-950 dark:text-amber-200 sm:text-sm">
                       <span className="mt-0.5 shrink-0">⚠️</span>
                       <span>{t("do_not_close_page")}</span>
+                    </div>
+                    <div className="mt-2 flex items-start gap-2 rounded-md bg-blue-50 p-3 text-xs text-blue-800 dark:bg-blue-950 dark:text-blue-200 sm:text-sm">
+                      <span className="mt-0.5 shrink-0">📧</span>
+                      <span>{t("can_leave_page")}</span>
+                    </div>
+                    <div className="mt-3 flex justify-center">
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => {
+                          resetTaskState();
+                          fetchHistory();
+                        }}
+                      >
+                        <RotateCcw className="mr-1.5 h-3.5 w-3.5" />
+                        {t("regenerate")}
+                      </Button>
                     </div>
                   </div>
                 )}

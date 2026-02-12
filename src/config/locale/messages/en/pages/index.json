@@ -33,8 +33,8 @@
           "height": 480
         },
         "featured_video": {
-          "src": "https://videos.pexels.com/video-files/35270931/14941570_1920_1080_25fps.mp4",
-          "poster": "/imgs/hero/hero-faith.jpg"
+          "src": "https://public.pikju.top/uploads/video/20260210/44188452-9cd8-468a-8a4d-709db6563e55/final_video.mp4",
+          "poster": "https://public.pikju.top/uploads/video/20260210/44188452-9cd8-468a-8a4d-709db6563e55/original_image_0.png"
         },
         "trust_title": "Joined by 1,000+ Believers Finding Strength in Scripture",
         "partner_logos": [
@@ -238,7 +238,12 @@
             "subtitle": "God draws near, but has not yet appeared.",
             "description": "The opening scene sets the atmosphere of sacred anticipation. Soft light breaks through clouds, a cross stands silhouetted against the dawn, and scripture pages flutter in a gentle breeze. You feel something holy approaching.",
             "symbols": ["Cross", "BookOpen", "Sun", "Feather"],
-            "symbol_labels": ["The Cross", "Scripture", "Dawn Light", "Spirit's Touch"],
+            "symbol_labels": [
+              "The Cross",
+              "Scripture",
+              "Dawn Light",
+              "Spirit's Touch"
+            ],
             "color_theme": "amber"
           },
           {
@@ -246,7 +251,12 @@
             "subtitle": "God is with you, and comforts you.",
             "description": "The heart of the story — God's presence is now felt. Warm light envelops the scene, hands reach out in compassion, and divine sparkles illuminate the darkness. This is the moment of encounter and embrace.",
             "symbols": ["Heart", "HeartHandshake", "Sparkles", "Shield"],
-            "symbol_labels": ["Love", "Compassion", "Divine Light", "Protection"],
+            "symbol_labels": [
+              "Love",
+              "Compassion",
+              "Divine Light",
+              "Protection"
+            ],
             "color_theme": "blue"
           },
           {
@@ -254,7 +264,12 @@
             "subtitle": "God has answered. You are no longer alone.",
             "description": "The final scene brings resolution and hope. The sun rises fully over calm waters, mountains stand firm in the distance, and you see yourself renewed — standing in the fullness of God's promise.",
             "symbols": ["Sun", "Waves", "Mountain", "User"],
-            "symbol_labels": ["New Dawn", "Still Waters", "Steadfast Hope", "You, Renewed"],
+            "symbol_labels": [
+              "New Dawn",
+              "Still Waters",
+              "Steadfast Hope",
+              "You, Renewed"
+            ],
             "color_theme": "gold"
           }
         ],
