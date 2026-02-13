@@ -14,15 +14,31 @@
         "description": "通过AI生成的视频体验上帝的话语，配有美丽的视觉效果和宁静的氛围。",
         "items": [
           {
-            "title": "Psalm 34:18",
+            "title": "诗篇 34:18",
+            "description": "耶和华靠近伤心的人，拯救灵性痛悔的人。",
             "video": {
               "src": "https://public.pikju.top/uploads/video/20260211/d54d9d97-f4f2-4709-8618-e4b430b57eed/final_video.mp4"
             }
           },
           {
-            "title": "Jeremiah 29:11 ",
+            "title": "耶利米书 29:11",
+            "description": "耶和华说：我知道我向你们所怀的意念，是赐平安的意念，不是降灾祸的意念，要叫你们末后有指望。",
             "video": {
               "src": "https://public.pikju.top/uploads/video/20260212/2a53d465-3a2b-41aa-8e86-b4c1c7bc4201/final_video.mp4"
+            }
+          },
+          {
+            "title": "以赛亚书 41:10",
+            "description": "你不要害怕，因为我与你同在；不要惊惶，因为我是你的神。",
+            "video": {
+              "src": "https://public.pikju.top/uploads/video/20260212/cf45be41-786a-469f-b0ea-1749f87c1e84/final_video.mp4"
+            }
+          },
+          {
+            "title": "诗篇 34:18",
+            "description": "耶和华靠近伤心的人，拯救灵性痛悔的人。",
+            "video": {
+              "src": "https://public.pikju.top/uploads/video/20260212/5413e004-28b8-41f3-9653-ed84dc60480a/final_video.mp4"
             }
           }
         ]

@@ -15,14 +15,30 @@
         "items": [
           {
             "title": "Psalm 34:18",
+            "description": "The LORD is close to the brokenhearted and saves those who are crushed in spirit.",
             "video": {
               "src": "https://public.pikju.top/uploads/video/20260211/d54d9d97-f4f2-4709-8618-e4b430b57eed/final_video.mp4"
             }
           },
           {
-            "title": "Jeremiah 29:11 ",
+            "title": "Jeremiah 29:11",
+            "description": "For I know the plans I have for you, plans to prosper you and not to harm you, plans to give you hope and a future.",
             "video": {
               "src": "https://public.pikju.top/uploads/video/20260212/2a53d465-3a2b-41aa-8e86-b4c1c7bc4201/final_video.mp4"
+            }
+          },
+          {
+            "title": "Isaiah 41:10",
+            "description": "So do not fear, for I am with you; do not be dismayed, for I am your God.",
+            "video": {
+              "src": "https://public.pikju.top/uploads/video/20260212/cf45be41-786a-469f-b0ea-1749f87c1e84/final_video.mp4"
+            }
+          },
+          {
+            "title": "Psalm 34:18",
+            "description": "The LORD is close to the brokenhearted and saves those who are crushed in spirit.",
+            "video": {
+              "src": "https://public.pikju.top/uploads/video/20260212/5413e004-28b8-41f3-9653-ed84dc60480a/final_video.mp4"
             }
           }
         ]
