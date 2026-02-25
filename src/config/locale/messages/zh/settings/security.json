@@ -1,20 +1,38 @@
 {
   "fields": {
     "email": "邮箱",
-    "password": "密码",
+    "current_password": "当前密码",
     "new_password": "新密码",
     "confirm_password": "确认密码"
   },
-  "reset_password": {
-    "title": "重置密码",
-    "description": "重置你的密码",
-    "tip": "我们会发送一封邮件到你的邮箱，点击邮件中的链接重置你的密码。",
-    "crumbs": {
-      "settings": "设置",
-      "security": "安全设置"
-    },
+  "change_password": {
+    "title": "修改密码",
+    "description": "修改你的登录密码",
     "buttons": {
       "submit": "保存"
+    },
+    "success": "密码修改成功",
+    "error": {
+      "password_mismatch": "两次输入的密码不一致",
+      "password_too_short": "密码长度至少为8位",
+      "current_password_required": "请输入当前密码",
+      "new_password_required": "请输入新密码"
+    }
+  },
+  "set_password": {
+    "title": "设置密码",
+    "description": "你通过第三方账号登录，请设置一个密码以便使用邮箱登录",
+    "force_title": "设置登录密码",
+    "force_description": "首次使用第三方账号登录，请设置一个密码以统一登录方式",
+    "buttons": {
+      "submit": "设置密码",
+      "skip": "稍后设置"
+    },
+    "success": "密码设置成功",
+    "error": {
+      "password_mismatch": "两次输入的密码不一致",
+      "password_too_short": "密码长度至少为8位",
+      "new_password_required": "请输入新密码"
     }
   },
   "delete_account": {

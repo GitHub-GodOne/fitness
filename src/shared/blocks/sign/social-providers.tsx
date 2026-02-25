@@ -25,11 +25,11 @@ export function SocialProviders({
 }) {
   const t = useTranslations('common.sign');
   const router = useRouter();
+  const locale = useLocale();
 
   const { setIsShowSignModal } = useAppContext();
 
   if (callbackUrl) {
-    const locale = useLocale();
     if (
       locale !== defaultLocale &&
       callbackUrl.startsWith('/') &&
@@ -40,10 +40,16 @@ export function SocialProviders({
   }
 
   const handleSignIn = async ({ provider }: { provider: string }) => {
+    // Redirect social login to set-password page first,
+    // which will check if user needs to set a password
+    const setPasswordPath = `/set-password?callbackUrl=${encodeURIComponent(callbackUrl || '/')}`;
+    const socialCallbackURL =
+      locale !== defaultLocale ? `/${locale}${setPasswordPath}` : setPasswordPath;
+
     await signIn.social(
       {
         provider: provider,
-        callbackURL: callbackUrl,
+        callbackURL: socialCallbackURL,
       },
       {
         onRequest: (ctx) => {
