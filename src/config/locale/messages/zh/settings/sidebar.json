@@ -8,6 +8,11 @@
         "icon": "User"
       },
       {
+        "title": "安全设置",
+        "url": "/settings/security",
+        "icon": "Lock"
+      },
+      {
         "title": "账单",
         "url": "/settings/billing",
         "icon": "CreditCard"
