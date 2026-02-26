@@ -123,6 +123,7 @@
       "insufficient_credits": "You need more than 3 credits to merge videos. Please purchase credits to use this feature.",
       "insufficient_credits_title": "Insufficient Credits"
     },
+    "merge_videos": "Merge {count} Videos",
     "copied": "Copied!",
     "refund_support": "Refund service available",
     "learn_more": "Learn more",
@@ -145,6 +146,64 @@
       "showing": "Showing {start}-{end} of {total}",
       "previous": "Previous",
       "next": "Next"
+    },
+    "wizard": {
+      "step_indicator": "Step {current} of {total}",
+      "back": "Back",
+      "next": "Next",
+      "skip": "Skip",
+      "gender": {
+        "title": "Select Your Gender",
+        "description": "We'll tailor the workout to your body type",
+        "male": "Male",
+        "female": "Female"
+      },
+      "age_group": {
+        "title": "Select Your Age Group",
+        "description": "This helps us adjust exercise intensity for you",
+        "young": "Young (18-35)",
+        "middle": "Middle-aged (36-55)",
+        "senior": "Senior (56+)"
+      },
+      "difficulty": {
+        "title": "Select Difficulty Level",
+        "description": "Choose the intensity that matches your fitness level",
+        "easy": "Easy",
+        "easy_desc": "Gentle movements, suitable for beginners",
+        "medium": "Medium",
+        "medium_desc": "Moderate intensity, some fitness experience",
+        "hard": "Hard",
+        "hard_desc": "High intensity, for experienced exercisers"
+      },
+      "upload": {
+        "title": "Upload Your Space (Optional)",
+        "description": "Take a photo of your room or outdoor space with objects you can use for exercise",
+        "skip_hint": "You can skip this step if you don't have a photo"
+      },
+      "body_parts": {
+        "title": "Select Target Body Parts",
+        "description": "Tap the body parts you want to train",
+        "front_view": "Front",
+        "back_view": "Back",
+        "selected_count": "{count} selected",
+        "neck": "Neck",
+        "shoulders": "Shoulders",
+        "chest": "Chest",
+        "arms": "Arms",
+        "back": "Back",
+        "waist": "Core/Waist",
+        "glutes": "Glutes",
+        "legs": "Legs",
+        "at_least_one": "Please select at least one body part"
+      },
+      "summary": {
+        "gender": "Gender",
+        "age": "Age",
+        "difficulty": "Difficulty",
+        "image": "Image",
+        "image_uploaded": "Uploaded",
+        "image_none": "None"
+      }
     },
     "regenerate_not_available": "Regenerate feature is not available",
     "progress_steps": {

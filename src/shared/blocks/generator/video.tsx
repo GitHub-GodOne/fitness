@@ -16,7 +16,6 @@ import {
   Settings,
   Merge,
   Plus,
-  RotateCcw,
 } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { toast } from "sonner";
@@ -44,8 +43,8 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/shared/components/ui/select";
-import { Tabs, TabsList, TabsTrigger } from "@/shared/components/ui/tabs";
-import { Textarea } from "@/shared/components/ui/textarea";
+import { BodyPartSelector } from "@/shared/components/body-part-selector";
+import { Badge } from "@/shared/components/ui/badge";
 import {
   Table,
   TableBody,
@@ -81,10 +80,10 @@ import { Input } from "@/shared/components/ui/input";
 import { Checkbox } from "@/shared/components/ui/checkbox";
 import { Switch } from "@/shared/components/ui/switch";
 import { useMediaQuery } from "@/shared/hooks/use-media-query";
+import { cn } from "@/shared/lib/utils";
 import { useAppContext } from "@/shared/contexts/app";
 import { SignModal } from "@/shared/blocks/sign/sign-modal";
-import { usePathname } from "@/core/i18n/navigation";
-import { MuscleGroupSelector } from "@/shared/components/muscle-group-selector";
+import { usePathname, useRouter } from "@/core/i18n/navigation";
 
 interface VideoGeneratorProps {
   maxSizeMB?: number;
@@ -240,6 +239,13 @@ function extractVideoUrls(result: any): string[] {
     return [];
   }
 
+  // check matchedVideos array (video-library provider format)
+  if (result.matchedVideos && Array.isArray(result.matchedVideos) && result.matchedVideos.length > 0) {
+    return result.matchedVideos
+      .map((item: any) => item?.videoUrl)
+      .filter(Boolean);
+  }
+
   // check videos array first
   const videos = result.videos;
   if (videos && Array.isArray(videos)) {
@@ -326,6 +332,7 @@ export function VideoGenerator({
   const [isGenerating, setIsGenerating] = useState(false);
   const [progress, setProgress] = useState(0);
   const [stepMessage, setStepMessage] = useState<string>("");
+  const [generationError, setGenerationError] = useState<string>("");
   const [taskId, setTaskId] = useState<string | null>(null);
   const [generationStartTime, setGenerationStartTime] = useState<number | null>(
     null,
@@ -368,14 +375,16 @@ export function VideoGenerator({
   const [duration, setDuration] = useState<number>(12); // Default duration: 12 seconds
   const [generateAudio, setGenerateAudio] = useState<boolean>(true);
 
-  // Target muscle group (required for fitness video generation)
-  const [userFeeling, setUserFeeling] = useState("");
-
-  // Aspect ratio for video (9:16 portrait or 16:9 landscape)
-  const [aspectRatio, setAspectRatio] = useState<"9:16" | "16:9">("9:16");
 
   // Voice gender selection (male or female) - load from cookies
   const [voiceGender, setVoiceGender] = useState<"male" | "female">("female");
+
+  // Wizard state
+  const [currentStep, setCurrentStep] = useState(1);
+  const [ageGroup, setAgeGroup] = useState<"young" | "middle" | "senior" | "">("");
+  const [difficulty, setDifficulty] = useState<"easy" | "medium" | "hard" | "">("");
+  const [selectedBodyParts, setSelectedBodyParts] = useState<string[]>([]);
+  const TOTAL_STEPS = 5;
 
   // Load voice gender from cookies on client side only (avoid hydration mismatch)
   useEffect(() => {
@@ -395,6 +404,7 @@ export function VideoGenerator({
 
   const isDesktop = useMediaQuery("(min-width: 768px)");
   const pathname = usePathname();
+  const router = useRouter();
 
   useEffect(() => {
     setIsMounted(true);
@@ -655,22 +665,24 @@ export function VideoGenerator({
   }, []);
 
   const handleRegenerate = useCallback((task: AITask) => {
-    // Extract user_feeling from options and set to feeling input
+    // Extract selected_body_parts or user_feeling from options
     if (task.options) {
       try {
         const options = JSON.parse(task.options);
-        if (options.user_feeling) {
-          setUserFeeling(options.user_feeling);
+        if (options.selected_body_parts && Array.isArray(options.selected_body_parts)) {
+          setSelectedBodyParts(options.selected_body_parts);
+        } else if (options.user_feeling) {
+          setSelectedBodyParts(options.user_feeling.split(",").filter(Boolean));
         }
       } catch {
         // Ignore parse errors
       }
     }
 
-    // If no user_feeling in options, try to use prompt as fallback
-    if (!task.options || !JSON.parse(task.options || "{}").user_feeling) {
+    // Fallback: try prompt
+    if (!task.options) {
       if (task.prompt) {
-        setUserFeeling(task.prompt);
+        setSelectedBodyParts(task.prompt.split(",").filter(Boolean));
       }
     }
 
@@ -808,9 +820,7 @@ export function VideoGenerator({
   }, []);
 
   const remainingCredits = user?.credits?.remainingCredits ?? 0;
-  const isTextToVideoMode = activeTab === "text-to-video";
-  const isImageToVideoMode = activeTab === "image-to-video";
-  const isVideoToVideoMode = activeTab === "video-to-video";
+
 
   const handleTabChange = (value: string) => {
     const tab = value as VideoGeneratorTab;
@@ -942,6 +952,7 @@ export function VideoGenerator({
         setTaskStatus(currentStatus);
 
         const parsedResult = parseTaskResult(task.taskInfo);
+        const parsedTaskResult = parseTaskResult(task.taskResult);
 
         // Update progress from backend if available
         if (parsedResult?.progress) {
@@ -953,7 +964,10 @@ export function VideoGenerator({
           }
         }
 
-        const videoUrls = extractVideoUrls(parsedResult);
+        // Try extracting video URLs from taskResult first, then taskInfo
+        const videoUrls = extractVideoUrls(parsedTaskResult).length > 0
+          ? extractVideoUrls(parsedTaskResult)
+          : extractVideoUrls(parsedResult);
 
         if (currentStatus === AITaskStatus.PENDING) {
           if (!parsedResult?.progress) {
@@ -988,16 +1002,9 @@ export function VideoGenerator({
           if (videoUrls.length === 0) {
             toast.error("The provider returned no videos. Please retry.");
           } else {
-            setGeneratedVideos(
-              videoUrls.map((url, index) => ({
-                id: `${task.id}-${index}`,
-                url,
-                provider: task.provider,
-                model: task.model,
-                prompt: task.prompt ?? undefined,
-              })),
-            );
             toast.success("Video generated successfully");
+            // Redirect to results page
+            router.push(`/ai-video-generator/results?taskId=${task.id}`);
           }
 
           setProgress(100);
@@ -1089,11 +1096,13 @@ export function VideoGenerator({
   };
 
   const handleReset = () => {
-    setUserFeeling("");
-    // Don't reset voice gender - keep user's preference
     setReferenceImageItems([]);
     setReferenceImageUrls([]);
     setReferenceVideoUrl("");
+    setCurrentStep(1);
+    setAgeGroup("");
+    setDifficulty("");
+    setSelectedBodyParts([]);
     toast.success(t("reset_success"));
   };
 
@@ -1108,7 +1117,8 @@ export function VideoGenerator({
       return;
     }
 
-    const trimmedFeeling = userFeeling.trim();
+    // Use selectedBodyParts as the muscle group target
+    const trimmedFeeling = selectedBodyParts.join(",");
     if (!trimmedFeeling) {
       toast.error(t("form.user_feeling_required"));
       return;
@@ -1119,19 +1129,15 @@ export function VideoGenerator({
       return;
     }
 
-    if (
-      isImageToVideoMode &&
-      referenceImageUrls.length === 0 &&
-      !referenceImageItems.some((item) => item.file)
-    ) {
-      toast.error("Please upload a reference image before generating.");
-      return;
-    }
+    // Auto-determine scene based on whether user uploaded an image
+    const hasImage =
+      referenceImageUrls.length > 0 ||
+      referenceImageItems.some((item) => item.file);
+    const autoScene: VideoGeneratorTab = hasImage
+      ? "image-to-video"
+      : "text-to-video";
 
-    if (isVideoToVideoMode && !referenceVideoUrl) {
-      toast.error("Please provide a reference video URL before generating.");
-      return;
-    }
+    setGenerationError("");
 
     setIsGenerating(true);
     setProgress(15);
@@ -1158,13 +1164,16 @@ export function VideoGenerator({
         ratio,
         duration,
         generate_audio: generateAudio,
-        target_muscle_group: trimmedFeeling, // Pass target muscle group to backend
-        aspect_ratio: aspectRatio, // Pass aspect ratio to backend
-        voice_gender: voiceGender, // Pass voice gender selection to backend
+        target_muscle_group: trimmedFeeling,
+        aspect_ratio: "9:16", // Always portrait
+        voice_gender: voiceGender,
+        age_group: ageGroup,
+        difficulty: difficulty,
+        selected_body_parts: selectedBodyParts,
       };
 
-      if (isImageToVideoMode) {
-        // Validation moved to form submission, file will be sent via FormData
+      if (hasImage) {
+        // Validation for image mode
         if (
           referenceImageUrls.length === 0 &&
           !referenceImageItems.some((item) => item.file)
@@ -1173,36 +1182,30 @@ export function VideoGenerator({
         }
       }
 
-      if (isVideoToVideoMode) {
-        options.video_input = [referenceVideoUrl];
-      }
-
       // Build FormData for merged request
       const body: any = {
         provider,
         mediaType: AIMediaType.VIDEO,
         model,
-        prompt: "", // Prompt will be auto-generated from user feeling by Volcano provider
+        prompt: "",
         options: {
           ...options,
-          user_feeling: trimmedFeeling, // Add user_feeling to options
-          voice_gender: voiceGender, // Add voice_gender to options
+          user_feeling: trimmedFeeling,
+          voice_gender: voiceGender,
         },
-        scene: activeTab,
+        scene: autoScene,
       };
 
       const formData = new FormData();
       formData.append("body", JSON.stringify(body));
 
       // Append file if exists in reference images
-      if (isImageToVideoMode && referenceImageItems.length > 0) {
+      if (hasImage && referenceImageItems.length > 0) {
         const item = referenceImageItems[0];
         if (item.file) {
           formData.append("file", item.file);
         } else if (item.url) {
-          // If URL exists (e.g. preset or re-selection), pass it in options
           body.options.image_input = [item.url];
-          // Update body json in formData
           formData.set("body", JSON.stringify(body));
         }
       }
@@ -1211,7 +1214,6 @@ export function VideoGenerator({
 
       const resp = await fetch("/api/ai/generate", {
         method: "POST",
-        // Do not set Content-Type header when sending FormData, browser sets it with boundary
         body: formData,
       });
 
@@ -1229,26 +1231,18 @@ export function VideoGenerator({
         throw new Error("Task id missing in response");
       }
 
-      if (data.status === AITaskStatus.SUCCESS && data.taskInfo) {
-        const parsedResult = parseTaskResult(data.taskInfo);
+      if (data.status === AITaskStatus.SUCCESS && (data.taskResult || data.taskInfo)) {
+        const parsedResult = parseTaskResult(data.taskResult) || parseTaskResult(data.taskInfo);
         const videoUrls = extractVideoUrls(parsedResult);
 
         if (videoUrls.length > 0) {
-          setGeneratedVideos(
-            videoUrls.map((url, index) => ({
-              id: `${newTaskId}-${index}`,
-              url,
-              provider,
-              model,
-              prompt: trimmedFeeling,
-            })),
-          );
           toast.success("Video generated successfully");
           setProgress(100);
           setTaskStatus(AITaskStatus.SUCCESS);
-          setIsGenerating(false); // 恢复按钮可点击状态
+          setIsGenerating(false);
           await fetchUserCredits();
-          await fetchHistory();
+          // Redirect to results page
+          router.push(`/ai-video-generator/results?taskId=${newTaskId}`);
           return;
         }
       }
@@ -1259,7 +1253,7 @@ export function VideoGenerator({
       await fetchUserCredits();
     } catch (error: any) {
       console.error("Failed to generate video:", error);
-      toast.error(`Failed to generate video: ${error.message}`);
+      setGenerationError(error.message || "Failed to generate video");
       resetTaskState();
     }
   };
@@ -1392,889 +1386,354 @@ export function VideoGenerator({
   };
 
   return (
-    <section className="py-16 md:py-24">
-      <div className="container">
-        <div className="mx-auto max-w-6xl">
-          <div className="grid grid-cols-1 gap-8 lg:grid-cols-[minmax(0,1fr)_minmax(0,1fr)]">
-            <Card>
-              <CardHeader>
-                {srOnlyTitle && <h2 className="sr-only">{srOnlyTitle}</h2>}
-                <CardTitle className="flex items-center justify-between text-xl font-semibold">
-                  <span className="flex items-center gap-2">{t("title")}</span>
-                  {/* Settings button hidden for now */}
-                  {/* <Button
-                    variant="ghost"
-                    size="sm"
-                    onClick={() => setIsSettingsOpen(true)}
-                    className="h-8 w-8 p-0"
-                    title={t('settings.title')}
-                  >
-                    <Settings className="h-4 w-4" />
-                  </Button> */}
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-4 px-4 pb-6 sm:space-y-6 sm:px-6 sm:pb-8">
-                <div className="hidden">
-                  <div className="space-y-2">
-                    <Label>{t("form.provider")}</Label>
-                    <Select
-                      value={provider}
-                      onValueChange={handleProviderChange}
-                    >
-                      <SelectTrigger className="w-full">
-                        <SelectValue placeholder={t("form.select_provider")} />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {PROVIDER_OPTIONS.map((option) => (
-                          <SelectItem key={option.value} value={option.value}>
-                            {option.label}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                  </div>
+    <div className="min-h-screen flex flex-col px-4 pt-24 pb-12">
+      {srOnlyTitle && <h2 className="sr-only">{srOnlyTitle}</h2>}
 
-                  <div className="space-y-2">
-                    <Label>{t("form.model")}</Label>
-                    <Select value={model} onValueChange={setModel}>
-                      <SelectTrigger className="w-full">
-                        <SelectValue placeholder={t("form.select_model")} />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {MODEL_OPTIONS.filter(
-                          (option) =>
-                            option.scenes.includes(activeTab) &&
-                            option.provider === provider,
-                        ).map((option) => (
-                          <SelectItem key={option.value} value={option.value}>
-                            {option.label}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                  </div>
-                </div>
+      {/* Progress bar */}
+      <div className="w-full max-w-xl mx-auto mb-6">
+        <div className="h-1 w-full bg-muted rounded-full overflow-hidden">
+          <div
+            className="h-full bg-primary transition-all duration-500 ease-out rounded-full"
+            style={{ width: `${(currentStep / TOTAL_STEPS) * 100}%` }}
+          />
+        </div>
+        <div className="flex justify-between mt-2.5">
+          <span className="text-[13px] text-muted-foreground tracking-wide">
+            {t("wizard.step_indicator", { current: currentStep, total: TOTAL_STEPS })}
+          </span>
+          <span className="text-[13px] text-muted-foreground tracking-wide">
+            {Math.round((currentStep / TOTAL_STEPS) * 100)}%
+          </span>
+        </div>
+      </div>
 
-                {isImageToVideoMode && (
-                  <div className="space-y-4">
-                    {/* 
-                      Note: Currently limited to 1 image, but code supports multiple images for future use.
-                      To enable multiple images, change maxImages to desired number (e.g., 3).
-                      Backend already supports multiple images via options.image_input array.
-                    */}
-                    <ImageUploader
-                      title={t("form.reference_image")}
-                      allowMultiple={true}
-                      maxImages={1}
-                      maxSizeMB={maxSizeMB}
-                      onChange={handleReferenceImagesChange}
-                      uploadOnSelect={false}
-                    />
+      {/* Hidden provider/model selects */}
+      <div className="hidden">
+        <Select value={provider} onValueChange={handleProviderChange}>
+          <SelectTrigger><SelectValue /></SelectTrigger>
+          <SelectContent>
+            {PROVIDER_OPTIONS.map((o) => (
+              <SelectItem key={o.value} value={o.value}>{o.label}</SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+        <Select value={model} onValueChange={setModel}>
+          <SelectTrigger><SelectValue /></SelectTrigger>
+          <SelectContent>
+            {MODEL_OPTIONS.filter((o) => o.scenes.includes(activeTab) && o.provider === provider).map((o) => (
+              <SelectItem key={o.value} value={o.value}>{o.label}</SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+      </div>
 
-                    {hasReferenceUploadError && (
-                      <p className="text-destructive text-xs">
-                        {t("form.some_images_failed_to_upload")}
-                      </p>
+      {/* Step content */}
+      <div className="flex-1 flex flex-col items-center justify-center">
+        <div className="w-full max-w-xl">
+
+          {/* Step 1: Gender */}
+          {currentStep === 1 && (
+            <div className="flex flex-col items-center">
+              <h2 className="text-2xl sm:text-3xl font-semibold mb-2 text-center leading-tight text-foreground">{t("wizard.gender.title")}</h2>
+              <p className="text-[15px] text-muted-foreground text-center mb-8">{t("wizard.gender.description")}</p>
+              <div className="flex flex-wrap gap-2.5 justify-center mb-10">
+                {(["male", "female"] as const).map((gender) => (
+                  <button
+                    key={gender}
+                    type="button"
+                    onClick={() => {
+                      setVoiceGender(gender);
+                      document.cookie = `voice_gender=${gender};path=/;max-age=31536000`;
+                    }}
+                    className={cn(
+                      "px-4 py-2 rounded-full border text-[14px] font-medium transition-all cursor-pointer",
+                      voiceGender === gender
+                        ? "bg-primary text-primary-foreground border-primary shadow-sm"
+                        : "bg-background text-foreground border-border hover:border-primary/50 hover:bg-primary/5",
                     )}
-                  </div>
-                )}
-
-                {isVideoToVideoMode && (
-                  <div className="space-y-2">
-                    <Label htmlFor="video-url">
-                      {t("form.reference_video")}
-                    </Label>
-                    <Textarea
-                      id="video-url"
-                      value={referenceVideoUrl}
-                      onChange={(e) => setReferenceVideoUrl(e.target.value)}
-                      placeholder={t("form.reference_video_placeholder")}
-                      className="min-h-20"
-                    />
-                  </div>
-                )}
-
-                {/* Target Muscle Group Selection (Required) */}
-                <div className="space-y-2">
-                  <Label
-                    htmlFor="target-muscle"
-                    className="flex items-center gap-2"
                   >
-                    <span>{t("form.user_feeling")}</span>
-                    <span className="text-red-500 font-semibold">*</span>
-                  </Label>
-                  <MuscleGroupSelector
-                    value={userFeeling}
-                    onChange={setUserFeeling}
-                    disabled={isGenerating}
-                  />
-                </div>
+                    {t(`wizard.gender.${gender}`)}
+                  </button>
+                ))}
+              </div>
+              <div className="flex justify-end items-center w-full">
+                <button
+                  type="button"
+                  onClick={() => voiceGender && setCurrentStep(2)}
+                  disabled={!voiceGender}
+                  className="flex items-center px-6 py-2.5 rounded-xl bg-primary text-primary-foreground hover:bg-primary/90 font-medium text-[15px] shadow-sm hover:shadow transition-all disabled:opacity-40"
+                >
+                  {t("wizard.next")} <ChevronRight className="h-4 w-4 ml-1.5" />
+                </button>
+              </div>
+            </div>
+          )}
 
-                {/* Aspect Ratio Selection */}
-                <div className="space-y-2">
-                  <Label className="text-sm">{t("form.aspect_ratio")}</Label>
-                  <div className="grid grid-cols-2 gap-2">
-                    <Button
-                      type="button"
-                      variant={aspectRatio === "9:16" ? "default" : "outline"}
-                      onClick={() => setAspectRatio("9:16")}
-                      className="h-9 text-xs px-2 sm:h-10 sm:text-sm sm:px-4"
-                    >
-                      {/* 移动端只显示比例，桌面端显示完整文字 */}
-                      <span className="sm:hidden">9:16</span>
-                      <span className="hidden sm:inline truncate">
-                        {t("form.aspect_ratio_portrait")}
-                      </span>
-                    </Button>
-                    <Button
-                      type="button"
-                      variant={aspectRatio === "16:9" ? "default" : "outline"}
-                      onClick={() => setAspectRatio("16:9")}
-                      className="h-9 text-xs px-2 sm:h-10 sm:text-sm sm:px-4"
-                    >
-                      {/* 移动端只显示比例，桌面端显示完整文字 */}
-                      <span className="sm:hidden">16:9</span>
-                      <span className="hidden sm:inline truncate">
-                        {t("form.aspect_ratio_landscape")}
-                      </span>
-                    </Button>
-                  </div>
-                  <p className="text-xs text-muted-foreground">
-                    {t("form.aspect_ratio_hint")}
-                  </p>
-                </div>
+          {/* Step 2: Age Group */}
+          {currentStep === 2 && (
+            <div className="flex flex-col items-center">
+              <h2 className="text-2xl sm:text-3xl font-semibold mb-2 text-center leading-tight text-foreground">{t("wizard.age_group.title")}</h2>
+              <p className="text-[15px] text-muted-foreground text-center mb-8">{t("wizard.age_group.description")}</p>
+              <div className="flex flex-wrap gap-2.5 justify-center mb-10">
+                {(["young", "middle", "senior"] as const).map((age) => (
+                  <button
+                    key={age}
+                    type="button"
+                    onClick={() => setAgeGroup(age)}
+                    className={cn(
+                      "px-4 py-2 rounded-full border text-[14px] font-medium transition-all cursor-pointer",
+                      ageGroup === age
+                        ? "bg-primary text-primary-foreground border-primary shadow-sm"
+                        : "bg-background text-foreground border-border hover:border-primary/50 hover:bg-primary/5",
+                    )}
+                  >
+                    {t(`wizard.age_group.${age}`)}
+                  </button>
+                ))}
+              </div>
+              <div className="flex justify-between items-center w-full">
+                <button type="button" onClick={() => setCurrentStep(1)} className="flex items-center px-5 py-2.5 rounded-xl border border-border text-muted-foreground bg-background hover:bg-muted font-medium text-[15px] transition-all">
+                  <ChevronLeft className="h-4 w-4 mr-1.5" /> {t("wizard.back")}
+                </button>
+                <button
+                  type="button"
+                  onClick={() => ageGroup && setCurrentStep(3)}
+                  disabled={!ageGroup}
+                  className="flex items-center px-6 py-2.5 rounded-xl bg-primary text-primary-foreground hover:bg-primary/90 font-medium text-[15px] shadow-sm hover:shadow transition-all disabled:opacity-40"
+                >
+                  {t("wizard.next")} <ChevronRight className="h-4 w-4 ml-1.5" />
+                </button>
+              </div>
+            </div>
+          )}
 
+
+          {/* Step 3: Difficulty */}
+          {currentStep === 3 && (
+            <div className="flex flex-col items-center">
+              <h2 className="text-2xl sm:text-3xl font-semibold mb-2 text-center leading-tight text-foreground">{t("wizard.difficulty.title")}</h2>
+              <p className="text-[15px] text-muted-foreground text-center mb-8">{t("wizard.difficulty.description")}</p>
+              <div className="flex flex-wrap gap-2.5 justify-center mb-10">
+                {(["easy", "medium", "hard"] as const).map((level) => (
+                  <button
+                    key={level}
+                    type="button"
+                    onClick={() => setDifficulty(level)}
+                    className={cn(
+                      "px-4 py-2 rounded-full border text-[14px] font-medium transition-all cursor-pointer",
+                      difficulty === level
+                        ? "bg-primary text-primary-foreground border-primary shadow-sm"
+                        : "bg-background text-foreground border-border hover:border-primary/50 hover:bg-primary/5",
+                    )}
+                  >
+                    {t(`wizard.difficulty.${level}`)}
+                  </button>
+                ))}
+              </div>
+              <div className="flex justify-between items-center w-full">
+                <button type="button" onClick={() => setCurrentStep(2)} className="flex items-center px-5 py-2.5 rounded-xl border border-border text-muted-foreground bg-background hover:bg-muted font-medium text-[15px] transition-all">
+                  <ChevronLeft className="h-4 w-4 mr-1.5" /> {t("wizard.back")}
+                </button>
+                <button
+                  type="button"
+                  onClick={() => difficulty && setCurrentStep(4)}
+                  disabled={!difficulty}
+                  className="flex items-center px-6 py-2.5 rounded-xl bg-primary text-primary-foreground hover:bg-primary/90 font-medium text-[15px] shadow-sm hover:shadow transition-all disabled:opacity-40"
+                >
+                  {t("wizard.next")} <ChevronRight className="h-4 w-4 ml-1.5" />
+                </button>
+              </div>
+            </div>
+          )}
+
+          {/* Step 4: Upload Image (Optional) */}
+          {currentStep === 4 && (
+            <div className="flex flex-col items-center">
+              <h2 className="text-2xl sm:text-3xl font-semibold mb-2 text-center leading-tight text-foreground">{t("wizard.upload.title")}</h2>
+              <p className="text-[15px] text-muted-foreground text-center mb-8">{t("wizard.upload.description")}</p>
+              <div className="w-full mb-4">
+                <ImageUploader
+                  title={t("form.reference_image")}
+                  allowMultiple={true}
+                  maxImages={1}
+                  maxSizeMB={maxSizeMB}
+                  onChange={handleReferenceImagesChange}
+                  uploadOnSelect={false}
+                />
+                {hasReferenceUploadError && (
+                  <p className="text-destructive text-xs mt-2">{t("form.some_images_failed_to_upload")}</p>
+                )}
+                <p className="text-xs text-muted-foreground text-center mt-3">{t("wizard.upload.skip_hint")}</p>
+              </div>
+              <div className="flex justify-between items-center w-full mt-6">
+                <button type="button" onClick={() => setCurrentStep(3)} className="flex items-center px-5 py-2.5 rounded-xl border border-border text-muted-foreground bg-background hover:bg-muted font-medium text-[15px] transition-all">
+                  <ChevronLeft className="h-4 w-4 mr-1.5" /> {t("wizard.back")}
+                </button>
+                <div className="flex gap-2">
+                  <button type="button" onClick={() => setCurrentStep(5)} className="px-5 py-2.5 rounded-xl border border-border text-muted-foreground bg-background hover:bg-muted font-medium text-[15px] transition-all">
+                    {t("wizard.skip")}
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setCurrentStep(5)}
+                    disabled={referenceImageItems.length === 0 || isReferenceUploading}
+                    className="flex items-center px-6 py-2.5 rounded-xl bg-primary text-primary-foreground hover:bg-primary/90 font-medium text-[15px] shadow-sm transition-all disabled:opacity-40"
+                  >
+                    {t("wizard.next")} <ChevronRight className="h-4 w-4 ml-1.5" />
+                  </button>
+                </div>
+              </div>
+            </div>
+          )}
+
+
+          {/* Step 5: Body Part Selection + Generate */}
+          {currentStep === 5 && (
+            <div className="flex flex-col items-center">
+              {/* Summary badges */}
+              <div className="flex flex-wrap gap-2 justify-center mb-6">
+                <span className="px-3 py-1 rounded-full border border-border bg-muted/50 text-xs font-medium text-muted-foreground">
+                  {t("wizard.summary.gender")}: {t(`wizard.gender.${voiceGender}`)}
+                </span>
+                {ageGroup && (
+                  <span className="px-3 py-1 rounded-full border border-border bg-muted/50 text-xs font-medium text-muted-foreground">
+                    {t("wizard.summary.age")}: {t(`wizard.age_group.${ageGroup}`)}
+                  </span>
+                )}
+                {difficulty && (
+                  <span className="px-3 py-1 rounded-full border border-border bg-muted/50 text-xs font-medium text-muted-foreground">
+                    {t("wizard.summary.difficulty")}: {t(`wizard.difficulty.${difficulty}`)}
+                  </span>
+                )}
+                <span className="px-3 py-1 rounded-full border border-border bg-muted/50 text-xs font-medium text-muted-foreground">
+                  {t("wizard.summary.image")}: {referenceImageUrls.length > 0 || referenceImageItems.some((item) => item.file)
+                    ? t("wizard.summary.image_uploaded")
+                    : t("wizard.summary.image_none")}
+                </span>
+              </div>
+
+              <h2 className="text-2xl sm:text-3xl font-semibold mb-2 text-center leading-tight text-foreground">{t("wizard.body_parts.title")}</h2>
+              <p className="text-[15px] text-muted-foreground text-center mb-6">{t("wizard.body_parts.description")}</p>
+
+              <div className="w-full mb-8">
+                <BodyPartSelector
+                  selected={selectedBodyParts}
+                  onChange={setSelectedBodyParts}
+                  disabled={isGenerating}
+                />
+              </div>
+
+              {/* Generate / Sign in button */}
+              <div className="w-full space-y-4">
                 {!isMounted ? (
-                  <Button
-                    className="h-9 w-full px-2 text-xs sm:h-10 sm:px-4 sm:text-sm"
-                    disabled
-                  >
-                    <Loader2 className="mr-1 h-3.5 w-3.5 animate-spin sm:mr-2 sm:h-4 sm:w-4" />
-                    <span className="whitespace-nowrap">{t("loading")}</span>
-                  </Button>
+                  <button disabled className="w-full flex items-center justify-center px-6 py-3 rounded-xl bg-primary text-primary-foreground font-medium text-[15px] shadow-sm transition-all disabled:opacity-40">
+                    <Loader2 className="mr-2 h-4 w-4 animate-spin" /> {t("loading")}
+                  </button>
                 ) : isCheckSign ? (
-                  <Button
-                    className="h-9 w-full px-2 text-xs sm:h-10 sm:px-4 sm:text-sm"
-                    disabled
-                  >
-                    <Loader2 className="mr-1 h-3.5 w-3.5 animate-spin sm:mr-2 sm:h-4 sm:w-4" />
-                    <span className="whitespace-nowrap">
-                      {t("checking_account")}
-                    </span>
-                  </Button>
+                  <button disabled className="w-full flex items-center justify-center px-6 py-3 rounded-xl bg-primary text-primary-foreground font-medium text-[15px] shadow-sm transition-all disabled:opacity-40">
+                    <Loader2 className="mr-2 h-4 w-4 animate-spin" /> {t("checking_account")}
+                  </button>
+// __STEP5_BUTTONS_CONTINUE__
                 ) : user ? (
-                  <div className="flex flex-col gap-2 sm:flex-row sm:gap-3">
-                    <Button
-                      variant="outline"
-                      onClick={handleReset}
-                      disabled={isGenerating}
-                      className="h-10 w-full px-4 text-sm sm:h-10 sm:flex-1"
-                    >
-                      <RotateCcw className="mr-2 h-4 w-4" />
-                      <span className="whitespace-nowrap">{t("reset")}</span>
-                    </Button>
-                    <Button
-                      className="h-10 w-full px-4 text-sm sm:h-10 sm:flex-1"
-                      onClick={handleGenerate}
-                      disabled={
-                        isGenerating ||
-                        !userFeeling.trim() ||
-                        isReferenceUploading ||
-                        hasReferenceUploadError ||
-                        (isImageToVideoMode &&
-                          referenceImageUrls.length === 0 &&
-                          !referenceImageItems.some((item) => item.file)) ||
-                        (isVideoToVideoMode && !referenceVideoUrl)
-                      }
-                    >
-                      {isGenerating ? (
-                        <>
-                          <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                          <span className="whitespace-nowrap">
-                            {t("generating")}
-                          </span>
-                        </>
-                      ) : (
-                        <>
-                          <Sparkles className="mr-2 h-4 w-4" />
-                          <span className="whitespace-nowrap">
-                            {t("generate")}
-                          </span>
-                        </>
-                      )}
-                    </Button>
-                  </div>
-                ) : (
-                  <Button
-                    className="h-9 w-full px-2 text-xs sm:h-10 sm:px-4 sm:text-sm"
-                    onClick={() => setIsShowSignModal(true)}
+                  <button
+                    type="button"
+                    onClick={handleGenerate}
+                    disabled={isGenerating || selectedBodyParts.length === 0}
+                    className="w-full flex items-center justify-center px-6 py-3 rounded-xl bg-primary text-primary-foreground hover:bg-primary/90 font-medium text-[15px] shadow-sm hover:shadow transition-all disabled:opacity-40"
                   >
-                    <User className="mr-1 h-3.5 w-3.5 sm:mr-2 sm:h-4 sm:w-4" />
-                    <span className="whitespace-nowrap">
-                      {t("sign_in_to_generate")}
-                    </span>
-                  </Button>
+                    {isGenerating ? (
+                      <><Loader2 className="mr-2 h-5 w-5 animate-spin" /> {t("generating")}</>
+                    ) : (
+                      <><Sparkles className="mr-2 h-5 w-5" /> {t("generate")}</>
+                    )}
+                  </button>
+                ) : (
+                  <button
+                    type="button"
+                    onClick={() => setIsShowSignModal(true)}
+                    className="w-full flex items-center justify-center px-6 py-3 rounded-xl bg-primary text-primary-foreground hover:bg-primary/90 font-medium text-[15px] shadow-sm hover:shadow transition-all"
+                  >
+                    <User className="mr-2 h-5 w-5" /> {t("sign_in_to_generate")}
+                  </button>
                 )}
 
-                {!isMounted ? (
-                  <div className="flex flex-col gap-2 text-sm sm:flex-row sm:items-center sm:justify-between">
-                    <span className="text-primary">
-                      {t("credits_cost", { credits: costCredits })}
-                    </span>
+                {/* Credits info */}
+                {isMounted && user && (
+                  <div className="flex items-center justify-between text-sm text-muted-foreground">
+                    <span className="text-primary">{t("credits_cost", { credits: costCredits })}</span>
                     <div className="flex items-center gap-2">
                       <Link href="/pricing">
-                        <button
-                          className="text-primary hover:text-primary/80 flex h-5 w-5 items-center justify-center rounded-full border border-current transition-colors"
-                          title="Buy Credits"
-                        >
+                        <button className="text-primary hover:text-primary/80 flex h-5 w-5 items-center justify-center rounded-full border border-current transition-colors" title="Buy Credits">
                           <Plus className="h-3 w-3" />
                         </button>
                       </Link>
-                      <span>{t("credits_remaining", { credits: 0 })}</span>
-                    </div>
-                  </div>
-                ) : user && remainingCredits > 0 ? (
-                  <div className="space-y-2">
-                    <div className="flex flex-col gap-2 text-sm sm:flex-row sm:items-center sm:justify-between">
-                      <span className="text-primary">
-                        {t("credits_cost", { credits: costCredits })}
-                      </span>
-                      <div className="flex items-center gap-2">
-                        <Link href="/pricing">
-                          <button
-                            className="text-primary hover:text-primary/80 flex h-5 w-5 items-center justify-center rounded-full border border-current transition-colors"
-                            title="Buy Credits"
-                          >
-                            <Plus className="h-3 w-3" />
-                          </button>
-                        </Link>
-                        <span>
-                          {t("credits_remaining", {
-                            credits: remainingCredits,
-                          })}
-                        </span>
-                      </div>
-                    </div>
-                    <div className="flex items-center gap-2">
-                      <div
-                        className="inline-flex items-center gap-2 text-sm font-medium"
-                        style={{ color: "#2ECC71" }}
-                      >
-                        <svg
-                          className="h-5 w-5 flex-shrink-0"
-                          viewBox="0 0 24 24"
-                          fill="none"
-                          stroke="currentColor"
-                          strokeWidth="2"
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                        >
-                          <path d="M21.801 10A10 10 0 1 1 17 3.335" />
-                          <path d="m9 11 3 3L22 4" />
-                        </svg>
-                        <span className="font-sans">{t("refund_support")}</span>
-                      </div>
-                      <Link
-                        href="/refund"
-                        className="text-primary hover:underline text-xs font-medium"
-                      >
-                        {t("learn_more")}
-                      </Link>
-                    </div>
-                  </div>
-                ) : (
-                  <div className="space-y-3">
-                    <div className="flex flex-col gap-2 text-sm sm:flex-row sm:items-center sm:justify-between">
-                      <span className="text-primary">
-                        {t("credits_cost", { credits: costCredits })}
-                      </span>
-                      <div className="flex items-center gap-2">
-                        <Link href="/pricing">
-                          <button
-                            className="text-primary hover:text-primary/80 flex h-5 w-5 items-center justify-center rounded-full border border-current transition-colors"
-                            title="Buy Credits"
-                          >
-                            <Plus className="h-3 w-3" />
-                          </button>
-                        </Link>
-                        <span>
-                          {t("credits_remaining", {
-                            credits: remainingCredits,
-                          })}
-                        </span>
-                      </div>
-                    </div>
-                    <Link href="/pricing">
-                      <Button
-                        variant="outline"
-                        className="h-9 w-full px-2 text-xs sm:h-10 sm:px-4 sm:text-sm"
-                      >
-                        <CreditCard className="mr-1 h-3.5 w-3.5 sm:mr-2 sm:h-4 sm:w-4" />
-                        <span className="whitespace-nowrap">
-                          {t("buy_credits")}
-                        </span>
-                      </Button>
-                    </Link>
-
-                    <div className="flex items-center gap-2 py-2">
-                      <div
-                        className="inline-flex items-center gap-2 text-sm font-medium"
-                        style={{ color: "#2ECC71" }}
-                      >
-                        <svg
-                          className="h-5 w-5 flex-shrink-0"
-                          viewBox="0 0 24 24"
-                          fill="none"
-                          stroke="currentColor"
-                          strokeWidth="2"
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                        >
-                          <path d="M21.801 10A10 10 0 1 1 17 3.335" />
-                          <path d="m9 11 3 3L22 4" />
-                        </svg>
-                        <span className="font-sans">{t("refund_support")}</span>
-                      </div>
-                      <Link
-                        href="/refund"
-                        className="text-primary hover:underline text-xs font-medium"
-                      >
-                        {t("learn_more")}
-                      </Link>
+                      <span>{t("credits_remaining", { credits: remainingCredits })}</span>
                     </div>
                   </div>
                 )}
-              </CardContent>
-            </Card>
-
-            <Card ref={progressCardRef}>
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2 text-xl font-semibold">
-                  <Video className="h-5 w-5" />
-                  {t("generated_videos")}
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="pb-8">
-                {isGenerating && (
-                  <div className="mb-6 space-y-3 rounded-lg border-2 border-primary/20 bg-gradient-to-br from-primary/5 to-primary/10 p-4 sm:p-6">
-                    <div className="flex items-center justify-between text-sm font-medium sm:text-base">
-                      <span className="flex items-center gap-2">
-                        <Loader2 className="h-4 w-4 animate-spin sm:h-5 sm:w-5" />
-                        <span>{t("progress")}</span>
-                      </span>
-                      <span className="font-bold text-primary">
-                        {progress}%
-                      </span>
-                    </div>
-                    <Progress value={progress} className="h-2.5 sm:h-3" />
-                    {(stepMessage || taskStatusLabel) && (
-                      <p className="text-center text-xs font-medium text-muted-foreground sm:text-sm">
-                        {stepMessage || taskStatusLabel}
-                      </p>
-                    )}
-                    <div className="flex justify-center">
-                      <div className="relative flex items-center justify-center h-32 w-32 sm:h-36 sm:w-36">
-                        {/* Outer rotating ring with gradient */}
-                        <div
-                          className="absolute w-32 h-32 sm:w-36 sm:h-36 rounded-full border-4 border-transparent border-t-primary/80 border-r-primary/60 animate-spin"
-                          style={{ animationDuration: "1.5s" }}
-                        />
-
-                        {/* Middle pulsing ring */}
-                        <div className="absolute w-28 h-28 sm:w-32 sm:h-32 rounded-full border-2 border-primary/30 animate-pulse" />
-
-                        {/* Inner rotating ring (opposite direction) */}
-                        <div
-                          className="absolute w-24 h-24 sm:w-28 sm:h-28 rounded-full border-4 border-transparent border-b-primary/70 border-l-primary/50 animate-spin"
-                          style={{
-                            animationDuration: "2s",
-                            animationDirection: "reverse",
-                          }}
-                        />
-
-                        {/* Center icon with glow effect */}
-                        <div className="relative flex items-center justify-center w-20 h-20 sm:w-24 sm:h-24 rounded-full bg-primary/20 backdrop-blur-md shadow-lg shadow-primary/30">
-                          <Video
-                            className="w-10 h-10 sm:w-12 sm:h-12 text-primary animate-pulse"
-                            style={{ animationDuration: "2s" }}
-                          />
-                        </div>
-
-                        {/* Sparkle effects */}
-                        <div
-                          className="absolute w-2 h-2 bg-primary rounded-full top-0 left-1/2 -translate-x-1/2 animate-ping"
-                          style={{ animationDelay: "0s" }}
-                        />
-                        <div
-                          className="absolute w-2 h-2 bg-primary rounded-full bottom-0 left-1/2 -translate-x-1/2 animate-ping"
-                          style={{ animationDelay: "0.5s" }}
-                        />
-                        <div
-                          className="absolute w-2 h-2 bg-primary rounded-full left-0 top-1/2 -translate-y-1/2 animate-ping"
-                          style={{ animationDelay: "1s" }}
-                        />
-                        <div
-                          className="absolute w-2 h-2 bg-primary rounded-full right-0 top-1/2 -translate-y-1/2 animate-ping"
-                          style={{ animationDelay: "1.5s" }}
-                        />
-                      </div>
-                    </div>
-                    <div className="mt-3 flex items-start gap-2 rounded-md bg-blue-50 p-3 text-xs text-blue-800 dark:bg-blue-950 dark:text-blue-200 sm:text-sm">
-                      <span className="mt-0.5 shrink-0">💡</span>
-                      <span>{t("do_not_close_page")}</span>
-                    </div>
-                    <div className="mt-3 flex flex-col sm:flex-row gap-2 justify-center">
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        onClick={() => {
-                          setIsGenerating(false);
-                          handleReset();
-                        }}
-                        className="text-xs sm:text-sm"
-                      >
-                        {t("continue_generating")}
-                      </Button>
-                    </div>
-                  </div>
+                {isMounted && user && remainingCredits <= 0 && (
+                  <Link href="/pricing" className="block">
+                    <button className="w-full flex items-center justify-center px-5 py-2.5 rounded-xl border border-border text-muted-foreground bg-background hover:bg-muted font-medium text-[15px] transition-all">
+                      <CreditCard className="mr-2 h-4 w-4" /> {t("buy_credits")}
+                    </button>
+                  </Link>
                 )}
-                {generatedVideos.length > 0 ? (
-                  <div className="space-y-6">
-                    {generatedVideos.map((video) => (
-                      <div key={video.id} className="space-y-3">
-                        <div className="relative overflow-hidden rounded-lg border">
-                          <video
-                            src={video.url}
-                            controls
-                            className="h-auto w-full"
-                            preload="metadata"
-                          />
+              </div>
 
-                          <div className="absolute right-2 bottom-2 flex justify-end text-sm">
-                            <Button
-                              size="sm"
-                              variant="ghost"
-                              className="ml-auto"
-                              onClick={() => handleDownloadVideo(video)}
-                              disabled={downloadingVideoId === video.id}
-                            >
-                              {downloadingVideoId === video.id ? (
-                                <>
-                                  <Loader2 className="h-4 w-4 animate-spin" />
-                                </>
-                              ) : (
-                                <>
-                                  <Download className="h-4 w-4" />
-                                </>
-                              )}
-                            </Button>
-                          </div>
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                ) : (
-                  <div className="flex flex-col items-center justify-center py-16 text-center">
-                    <div className="bg-muted mb-4 flex h-16 w-16 items-center justify-center rounded-full">
-                      <Video className="text-muted-foreground h-10 w-10" />
-                    </div>
-                    <p className="text-muted-foreground">
-                      {isGenerating
-                        ? t("ready_to_generate")
-                        : t("no_videos_generated")}
-                    </p>
-                  </div>
-                )}
-              </CardContent>
-            </Card>
-          </div>
-
-          {/* History Section */}
-          {/* History Section */}
-          {user && (
-            <VideoHistoryTable
-              tasks={historyTasks}
-              loading={historyLoading}
-              total={historyTotal}
-              page={historyPage}
-              limit={historyLimit}
-              onPageChange={setHistoryPage}
-              onRefresh={fetchHistory}
-              showTitle={true}
-              className="mt-8"
-            />
+              {/* Back button */}
+              <div className="flex justify-start w-full mt-6">
+                <button type="button" onClick={() => setCurrentStep(4)} className="flex items-center px-5 py-2.5 rounded-xl border border-border text-muted-foreground bg-background hover:bg-muted font-medium text-[15px] transition-all">
+                  <ChevronLeft className="h-4 w-4 mr-1.5" /> {t("wizard.back")}
+                </button>
+              </div>
+            </div>
           )}
         </div>
       </div>
 
-      {/* Video Preview Dialog - 已隐藏 */}
-      {/* <Dialog
-        open={isPreviewOpen}
-        onOpenChange={(open) => {
-          setIsPreviewOpen(open);
-          if (open) {
-            setIsVideoLoading(true);
-          } else {
-            setIsVideoLoading(true);
-          }
-        }}
-      >
-        <DialogContent className="max-w-4xl w-full p-0">
-          <DialogHeader className="px-6 pt-6">
-            <DialogTitle>Video Preview</DialogTitle>
-          </DialogHeader>
-          <div className="px-6 pb-6">
-            {previewVideoUrl && (
-              <div
-                className="relative w-full rounded-lg overflow-hidden bg-black/5"
-                style={{ minHeight: "400px" }}
-              >
-                {isVideoLoading && (
-                  <div className="absolute inset-0 flex items-center justify-center bg-gradient-to-br from-primary/10 via-primary/5 to-transparent backdrop-blur-sm z-10">
-                    <div className="relative flex items-center justify-center">
-                      <div
-                        className="absolute w-32 h-32 rounded-full border-4 border-transparent border-t-primary/80 border-r-primary/60 animate-spin"
-                        style={{ animationDuration: "1.5s" }}
-                      />
-                      <div className="absolute w-28 h-28 rounded-full border-2 border-primary/30 animate-pulse" />
-                      <div
-                        className="absolute w-24 h-24 rounded-full border-4 border-transparent border-b-primary/70 border-l-primary/50 animate-spin"
-                        style={{
-                          animationDuration: "2s",
-                          animationDirection: "reverse",
-                        }}
-                      />
-                      <div className="relative flex items-center justify-center w-20 h-20 rounded-full bg-primary/20 backdrop-blur-md shadow-lg shadow-primary/30">
-                        <Video
-                          className="w-10 h-10 text-primary animate-pulse"
-                          style={{ animationDuration: "2s" }}
-                        />
-                      </div>
-                      <div
-                        className="absolute w-2 h-2 bg-primary rounded-full top-0 left-1/2 -translate-x-1/2 animate-ping"
-                        style={{ animationDelay: "0s" }}
-                      />
-                      <div
-                        className="absolute w-2 h-2 bg-primary rounded-full bottom-0 left-1/2 -translate-x-1/2 animate-ping"
-                        style={{ animationDelay: "0.5s" }}
-                      />
-                      <div
-                        className="absolute w-2 h-2 bg-primary rounded-full left-0 top-1/2 -translate-y-1/2 animate-ping"
-                        style={{ animationDelay: "1s" }}
-                      />
-                      <div
-                        className="absolute w-2 h-2 bg-primary rounded-full right-0 top-1/2 -translate-y-1/2 animate-ping"
-                        style={{ animationDelay: "1.5s" }}
-                      />
-                    </div>
-                  </div>
-                )}
-                <video
-                  src={previewVideoUrl}
-                  controls
-                  autoPlay
-                  className="w-full h-auto rounded-lg"
-                  style={{ maxHeight: "70vh" }}
-                  onLoadedData={() => setIsVideoLoading(false)}
-                  onError={() => setIsVideoLoading(false)}
-                />
-              </div>
-            )}
-          </div>
-        </DialogContent>
-      </Dialog> */}
-
-      {/* Video Settings Dialog/Drawer */}
-      {isDesktop ? (
-        <Dialog open={isSettingsOpen} onOpenChange={setIsSettingsOpen}>
-          <DialogContent className="max-w-md w-full sm:max-w-md">
-            <DialogHeader>
-              <DialogTitle>{t("settings.title")}</DialogTitle>
-            </DialogHeader>
-            <div className="space-y-4 py-4">
-              {/* Resolution */}
-              <div className="space-y-2">
-                <Label>{t("settings.resolution")}</Label>
-                <Select
-                  value={resolution}
-                  onValueChange={(value) =>
-                    setResolution(value as "480p" | "720p" | "1080p")
-                  }
-                >
-                  <SelectTrigger className="w-full">
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="480p">
-                      {t("settings.resolution_480p")}
-                    </SelectItem>
-                    <SelectItem value="720p" disabled={remainingCredits <= 3}>
-                      {t("settings.resolution_720p")}
-                    </SelectItem>
-                    <SelectItem value="1080p" disabled={remainingCredits <= 3}>
-                      {t("settings.resolution_1080p")}
-                    </SelectItem>
-                  </SelectContent>
-                </Select>
-                {remainingCredits <= 3 && (
-                  <p className="text-xs text-muted-foreground">
-                    {t("settings.free_user_limit")}
-                  </p>
-                )}
-              </div>
-
-              {/* Aspect Ratio */}
-              <div className="space-y-2">
-                <Label>{t("settings.ratio")}</Label>
-                <Select
-                  value={ratio}
-                  onValueChange={(value) =>
-                    setRatio(
-                      value as
-                        | "16:9"
-                        | "9:16"
-                        | "4:3"
-                        | "1:1"
-                        | "3:4"
-                        | "21:9"
-                        | "adaptive",
-                    )
-                  }
-                >
-                  <SelectTrigger className="w-full">
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="16:9">
-                      {t("settings.ratio_16_9")}
-                    </SelectItem>
-                    <SelectItem value="9:16">
-                      {t("settings.ratio_9_16")}
-                    </SelectItem>
-                    <SelectItem value="4:3">
-                      {t("settings.ratio_4_3")}
-                    </SelectItem>
-                    <SelectItem value="1:1">
-                      {t("settings.ratio_1_1")}
-                    </SelectItem>
-                    <SelectItem value="3:4">
-                      {t("settings.ratio_3_4")}
-                    </SelectItem>
-                    <SelectItem value="21:9">
-                      {t("settings.ratio_21_9")}
-                    </SelectItem>
-                    <SelectItem value="adaptive">
-                      {t("settings.ratio_adaptive")}
-                    </SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-
-              {/* Duration */}
-              <div className="space-y-2">
-                <Label htmlFor="duration">{t("settings.duration")}</Label>
-                <Input
-                  id="duration"
-                  type="number"
-                  min={1}
-                  max={12}
-                  value={duration}
-                  onChange={(e) => {
-                    const value = parseInt(e.target.value, 10);
-                    if (!isNaN(value) && value >= 1 && value <= 12) {
-                      setDuration(value);
-                    }
-                  }}
-                  className="w-full"
-                />
-                <p className="text-xs text-muted-foreground">
-                  {t("settings.duration_max")}
-                </p>
-              </div>
-
-              {/* Generate Audio */}
-              <div className="flex items-center justify-between space-x-2">
-                <div className="space-y-0.5 flex-1">
-                  <Label htmlFor="generate-audio">
-                    {t("settings.generate_audio")}
-                  </Label>
-                  <p className="text-xs text-muted-foreground">
-                    {t("settings.generate_audio_hint")}
-                  </p>
+      {/* Progress Card - shown during generation */}
+      {isGenerating && (
+        <div ref={progressCardRef} className="w-full max-w-xl mx-auto mt-8">
+          <Card className="border-primary/30">
+            <CardContent className="pt-6 space-y-4">
+              <div className="flex items-center gap-3">
+                <Loader2 className="h-5 w-5 animate-spin text-primary" />
+                <div className="flex-1">
+                  <p className="text-sm font-medium">{taskStatusLabel || t("generating")}</p>
+                  {stepMessage && (
+                    <p className="text-xs text-muted-foreground mt-1">{stepMessage}</p>
+                  )}
                 </div>
-                <Switch
-                  id="generate-audio"
-                  checked={generateAudio}
-                  onCheckedChange={setGenerateAudio}
-                />
               </div>
-            </div>
-            <DialogFooter>
-              <Button
-                variant="outline"
-                onClick={() => setIsSettingsOpen(false)}
-              >
-                {t("settings.cancel")}
-              </Button>
-              <Button
-                onClick={() => {
-                  setIsSettingsOpen(false);
-                  toast.success(t("settings.save"));
-                }}
-              >
-                {t("settings.save")}
-              </Button>
-            </DialogFooter>
-          </DialogContent>
-        </Dialog>
-      ) : (
-        <Drawer open={isSettingsOpen} onOpenChange={setIsSettingsOpen}>
-          <DrawerContent>
-            <DrawerHeader>
-              <DrawerTitle>{t("settings.title")}</DrawerTitle>
-            </DrawerHeader>
-            <div className="space-y-4 px-4 py-4 max-h-[70vh] overflow-y-auto">
-              {/* Resolution */}
-              <div className="space-y-2">
-                <Label>{t("settings.resolution")}</Label>
-                <Select
-                  value={resolution}
-                  onValueChange={(value) =>
-                    setResolution(value as "480p" | "720p" | "1080p")
-                  }
-                >
-                  <SelectTrigger className="w-full">
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="480p">
-                      {t("settings.resolution_480p")}
-                    </SelectItem>
-                    <SelectItem value="720p" disabled={remainingCredits <= 3}>
-                      {t("settings.resolution_720p")}
-                    </SelectItem>
-                    <SelectItem value="1080p" disabled={remainingCredits <= 3}>
-                      {t("settings.resolution_1080p")}
-                    </SelectItem>
-                  </SelectContent>
-                </Select>
-                {remainingCredits <= 3 && (
-                  <p className="text-xs text-muted-foreground">
-                    {t("settings.free_user_limit")}
-                  </p>
-                )}
-              </div>
-
-              {/* Aspect Ratio */}
-              <div className="space-y-2">
-                <Label>{t("settings.ratio")}</Label>
-                <Select
-                  value={ratio}
-                  onValueChange={(value) =>
-                    setRatio(
-                      value as
-                        | "16:9"
-                        | "9:16"
-                        | "4:3"
-                        | "1:1"
-                        | "3:4"
-                        | "21:9"
-                        | "adaptive",
-                    )
-                  }
-                >
-                  <SelectTrigger className="w-full">
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="16:9">
-                      {t("settings.ratio_16_9")}
-                    </SelectItem>
-                    <SelectItem value="9:16">
-                      {t("settings.ratio_9_16")}
-                    </SelectItem>
-                    <SelectItem value="4:3">
-                      {t("settings.ratio_4_3")}
-                    </SelectItem>
-                    <SelectItem value="1:1">
-                      {t("settings.ratio_1_1")}
-                    </SelectItem>
-                    <SelectItem value="3:4">
-                      {t("settings.ratio_3_4")}
-                    </SelectItem>
-                    <SelectItem value="21:9">
-                      {t("settings.ratio_21_9")}
-                    </SelectItem>
-                    <SelectItem value="adaptive">
-                      {t("settings.ratio_adaptive")}
-                    </SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-
-              {/* Duration */}
-              <div className="space-y-2">
-                <Label htmlFor="duration-mobile">
-                  {t("settings.duration")}
-                </Label>
-                <Input
-                  id="duration-mobile"
-                  type="number"
-                  min={1}
-                  max={12}
-                  value={duration}
-                  onChange={(e) => {
-                    const value = parseInt(e.target.value, 10);
-                    if (!isNaN(value) && value >= 1 && value <= 12) {
-                      setDuration(value);
-                    }
-                  }}
-                  className="w-full"
-                />
-                <p className="text-xs text-muted-foreground">
-                  {t("settings.duration_max")}
-                </p>
-              </div>
-
-              {/* Generate Audio */}
-              <div className="flex items-center justify-between space-x-2">
-                <div className="space-y-0.5 flex-1">
-                  <Label htmlFor="generate-audio-mobile">
-                    {t("settings.generate_audio")}
-                  </Label>
-                  <p className="text-xs text-muted-foreground">
-                    {t("settings.generate_audio_hint")}
-                  </p>
-                </div>
-                <Switch
-                  id="generate-audio-mobile"
-                  checked={generateAudio}
-                  onCheckedChange={setGenerateAudio}
-                />
-              </div>
-            </div>
-            <DrawerFooter className="flex-row gap-2">
-              <DrawerClose asChild>
-                <Button variant="outline" className="flex-1">
-                  {t("settings.cancel")}
-                </Button>
-              </DrawerClose>
-              <Button
-                className="flex-1"
-                onClick={() => {
-                  setIsSettingsOpen(false);
-                  toast.success(t("settings.save"));
-                }}
-              >
-                {t("settings.save")}
-              </Button>
-            </DrawerFooter>
-          </DrawerContent>
-        </Drawer>
+              <Progress value={progress} className="h-2" />
+              <p className="text-xs text-muted-foreground text-center">
+                {t("do_not_close_page")}
+              </p>
+            </CardContent>
+          </Card>
+        </div>
       )}
 
-      {/* Sign Modal */}
-      <SignModal callbackUrl={pathname || "/ai-video-generator"} />
+      {/* Generation Error - shown inline */}
+      {generationError && !isGenerating && (
+        <div className="w-full max-w-xl mx-auto mt-8">
+          <Card className="border-destructive/50 bg-destructive/5">
+            <CardContent className="pt-6 flex flex-col items-center gap-3">
+              <p className="text-sm text-destructive text-center">{generationError}</p>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => {
+                  setGenerationError("");
+                  setCurrentStep(1);
+                }}
+              >
+                {t("regenerate")}
+              </Button>
+            </CardContent>
+          </Card>
+        </div>
+      )}
 
       {/* Download Dialog */}
       {selectedTaskForDownload && (
@@ -2285,6 +1744,9 @@ export function VideoGenerator({
           taskResult={selectedTaskForDownload.taskResult}
         />
       )}
-    </section>
+
+      {/* Sign Modal */}
+      <SignModal callbackUrl={pathname || "/ai-video-generator"} />
+    </div>
   );
 }

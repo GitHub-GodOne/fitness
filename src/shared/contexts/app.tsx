@@ -10,7 +10,7 @@ import {
 } from 'react';
 
 import { getAuthClient, useSession } from '@/core/auth/client';
-import { useRouter } from '@/core/i18n/navigation';
+import { useRouter, usePathname } from '@/core/i18n/navigation';
 import { envConfigs } from '@/config';
 import { User } from '@/shared/models/user';
 
@@ -24,6 +24,7 @@ export interface ContextValue {
   configs: Record<string, string>;
   fetchUserCredits: () => Promise<void>;
   fetchUserInfo: () => Promise<void>;
+  needsPassword: boolean;
 }
 
 const AppContext = createContext({} as ContextValue);
@@ -32,6 +33,7 @@ export const useAppContext = () => useContext(AppContext);
 
 export const AppContextProvider = ({ children }: { children: ReactNode }) => {
   const router = useRouter();
+  const pathname = usePathname();
   const [configs, setConfigs] = useState<Record<string, string>>({});
 
   // sign user
@@ -177,6 +179,14 @@ export const AppContextProvider = ({ children }: { children: ReactNode }) => {
     setIsCheckSign(isPending);
   }, [isPending]);
 
+  const needsPassword = !!user && user.hasPassword === false;
+
+  useEffect(() => {
+    if (needsPassword && pathname !== '/settings/set-password') {
+      router.push('/settings/set-password');
+    }
+  }, [needsPassword, pathname]);
+
   return (
     <AppContext.Provider
       value={{
@@ -189,6 +199,7 @@ export const AppContextProvider = ({ children }: { children: ReactNode }) => {
         configs,
         fetchUserCredits,
         fetchUserInfo,
+        needsPassword,
       }}
     >
       {children}

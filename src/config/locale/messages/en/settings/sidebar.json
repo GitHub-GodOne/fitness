@@ -26,6 +26,11 @@
         "title": "History",
         "url": "/settings/history",
         "icon": "History"
+      },
+      {
+        "title": "Security",
+        "url": "/settings/security",
+        "icon": "Shield"
       }
     ]
   },

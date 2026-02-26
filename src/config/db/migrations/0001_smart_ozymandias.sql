@@ -1,0 +1,1 @@
+ALTER TABLE "fitness_video" ADD COLUMN "age_group" text DEFAULT 'all' NOT NULL;

@@ -2,10 +2,15 @@
   "page": {
     "show_sections": [
       "hero",
+      "stats",
       "how-it-works",
       "features",
+      "use-cases",
       "testimonials",
-      "faq"
+      "what-you-get",
+      "cta",
+      "faq",
+      "contact"
     ],
     "sections": {
       "hero": {
@@ -159,124 +164,45 @@
         ],
         "className": "bg-background"
       },
+      "stats": {
+        "block": "stats",
+        "id": "stats",
+        "title": "Trusted by Fitness Enthusiasts Worldwide",
+        "description": "Join thousands who are transforming everyday objects into effective workouts",
+        "items": [
+          { "title": "50,000+", "description": "Workouts Generated" },
+          { "title": "10,000+", "description": "Active Users" },
+          { "title": "200+", "description": "Exercise Variations" }
+        ],
+        "className": "bg-background"
+      },
       "use-cases": {
         "block": "features-media",
         "id": "use-cases",
-        "title": "Create a Bible Video for Any Moment",
-        "description": "Whether for yourself or a loved one, bring God's Word to life",
+        "title": "Workouts for Every Situation",
+        "description": "No matter where you are, turn your surroundings into a gym",
         "items": [
-          {
-            "title": "For Your Partner",
-            "description": "Express your love through Scripture",
-            "icon": "RiHeart3Line",
-            "image": {
-              "src": "/imgs/cases/1.png",
-              "alt": "For Partner"
-            }
-          },
-          {
-            "title": "For Children",
-            "description": "Teach faith through beautiful videos",
-            "icon": "RiUserSmileLine",
-            "image": {
-              "src": "/imgs/cases/2.png",
-              "alt": "For Children"
-            }
-          },
-          {
-            "title": "For Loss",
-            "description": "Find comfort in times of grief",
-            "icon": "RiHandHeartLine",
-            "image": {
-              "src": "/imgs/cases/3.png",
-              "alt": "For Loss"
-            }
-          },
-          {
-            "title": "For Parents",
-            "description": "Honor them with God's blessings",
-            "icon": "RiParentLine",
-            "image": {
-              "src": "/imgs/cases/4.png",
-              "alt": "For Parents"
-            }
-          },
-          {
-            "title": "For Healing",
-            "description": "Pray for restoration and peace",
-            "icon": "RiHeartsLine",
-            "image": {
-              "src": "/imgs/cases/5.png",
-              "alt": "For Healing"
-            }
-          },
-          {
-            "title": "For Strength",
-            "description": "Find courage in God's promises",
-            "icon": "RiShieldStarLine",
-            "image": {
-              "src": "/imgs/cases/6.png",
-              "alt": "For Strength"
-            }
-          },
-          {
-            "title": "For Prayers",
-            "description": "Lift your prayers through video",
-            "icon": "RiHandsPrayLine",
-            "image": {
-              "src": "/imgs/cases/7.png",
-              "alt": "For Prayers"
-            }
-          },
-          {
-            "title": "For Breakthroughs",
-            "description": "Celebrate God's miracles",
-            "icon": "RiSparklingLine",
-            "image": {
-              "src": "/imgs/cases/8.png",
-              "alt": "For Breakthroughs"
-            }
-          }
+          { "title": "Home Office", "description": "Desk, chair, and water bottle workouts", "icon": "Monitor" },
+          { "title": "Hotel Room", "description": "Travel-friendly exercises with towels and luggage", "icon": "Building" },
+          { "title": "Living Room", "description": "Couch, cushion, and coffee table routines", "icon": "Sofa" },
+          { "title": "Outdoors", "description": "Park bench, stairs, and wall exercises", "icon": "TreePine" },
+          { "title": "Kitchen", "description": "Counter, chair, and water jug workouts", "icon": "CookingPot" },
+          { "title": "Garage", "description": "Heavy objects and resistance training", "icon": "Warehouse" }
         ],
-        "buttons": [
-          {
-            "title": "Turn Anything Around You Into a Real Workout",
-            "url": "/ai-video-generator",
-            "target": "_self"
-          }
-        ],
+        "buttons": [{ "title": "Start Your Workout", "url": "/ai-video-generator", "target": "_self" }],
         "className": "bg-background"
       },
       "what-you-get": {
         "block": "features",
         "id": "what-you-get",
         "title": "What You Get",
-        "description": "",
+        "description": "Everything you need for a complete workout experience",
         "items": [
-          {
-            "title": "Pro-Quality Video",
-            "description": "Woven with <em>\"Object2Workout, for I am with you\"</em>—for worship or reflection",
-            "icon": "RiVideoLine"
-          },
-          {
-            "title": "Custom Scripture",
-            "description": "Tailored to your story & spiritual needs",
-            "icon": "RiBookOpenLine"
-          },
-          {
-            "title": "Fast Email Delivery",
-            "description": "Get your video in minutes, straight to your inbox",
-            "icon": "RiTimeLine"
-          }
+          { "title": "AI-Matched Videos", "description": "Our AI identifies objects in your photo and matches them to the perfect exercises for your target muscles", "icon": "Video" },
+          { "title": "Difficulty Levels", "description": "Choose beginner, intermediate, or advanced — every workout adapts to your fitness level", "icon": "BarChart" },
+          { "title": "Instant Results", "description": "Get your personalized workout video in seconds, no waiting, no subscriptions required", "icon": "Zap" }
         ],
-        "buttons": [
-          {
-            "title": "Turn Anything Around You Into a Real Workout",
-            "url": "/ai-video-generator",
-            "target": "_self",
-            "variant": "default"
-          }
-        ],
+        "buttons": [{ "title": "Try It Free", "url": "/ai-video-generator", "target": "_self", "variant": "default", "icon": "Zap" }],
         "className": "bg-background"
       },
       "showcases": {
@@ -359,21 +285,24 @@
       },
       "cta": {
         "id": "cta",
-        "title": "Object2Workout, for I am with you",
-        "description": "Create your personalized Bible video today and experience God's peace",
-        "buttons": [
-          {
-            "title": "Create Your Bible Video",
-            "url": "/ai-video-generator",
-            "target": "_self",
-            "icon": "Heart"
-          }
-        ],
-        "quote": {
-          "text": "Object2Workout, for I am with you; be not dismayed, for I am your God.",
-          "source": "— Isaiah 41:10"
+        "title": "Ready to Turn Your Space Into a Gym?",
+        "description": "Upload a photo, pick your muscles, and get a workout video in seconds. No equipment needed.",
+        "buttons": [{ "title": "Generate My Workout", "url": "/ai-video-generator", "target": "_self", "icon": "Sparkles" }],
+        "className": "bg-background"
+      },
+      "contact": {
+        "block": "contact",
+        "id": "contact",
+        "title": "Contact Us",
+        "description": "Have a question or feedback? We'd love to hear from you.",
+        "submit": {
+          "action": "/api/contact",
+          "input": { "placeholder": "Your email address" },
+          "message": { "placeholder": "Describe your issue or feedback..." },
+          "button": { "title": "Send Message" }
         },
-        "className": "bg-muted/30"
+        "success_message": "Message sent successfully! We'll get back to you soon.",
+        "className": "bg-background"
       }
     }
   }

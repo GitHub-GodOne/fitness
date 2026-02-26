@@ -109,6 +109,7 @@
     "overtype": "^1.2.6",
     "postgres": "^3.4.7",
     "react": "19.2.1",
+    "react-body-highlighter": "^2.0.5",
     "react-copy-to-clipboard": "^5.1.0",
     "react-dom": "19.2.1",
     "react-hook-form": "^7.62.0",

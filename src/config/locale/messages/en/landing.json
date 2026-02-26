@@ -25,14 +25,9 @@
           "icon": "DollarSign"
         },
         {
-          "title": "Comments",
+          "title": "Community",
           "url": "/comments",
-          "icon": "MessageSquare"
-        },
-        {
-          "title": "Refund",
-          "url": "/refund",
-          "icon": "RotateCcw"
+          "icon": "Users"
         }
       ]
     },
@@ -58,14 +53,14 @@
     "show_theme": true,
     "show_locale": true,
     "topbanner": {
-      "text": "Object2Workout 是一个 AI 驱动的圣经安慰视频生成平台。通过个性化的圣经朗读视频，为你的心灵带来平安、温暖和属灵的安慰。"
+      "text": ""
     }
   },
   "footer": {
     "id": "footer",
     "brand": {
       "title": "Object2Workout",
-      "description": "Object2Workout is an AI-powered Bible comfort video generator. Create personalized Bible reading videos that bring peace, warmth, and spiritual comfort to your heart.",
+      "description": "Object2Workout is an AI-powered fitness platform. Upload photos of everyday objects and get personalized workout videos instantly.",
       "logo": {
         "src": "/logo-icon.png",
         "alt": "Object2Workout",
@@ -165,6 +160,10 @@
         {
           "title": "Terms of Service",
           "url": "/terms-of-service"
+        },
+        {
+          "title": "Refund Policy",
+          "url": "/refund"
         }
       ]
     },

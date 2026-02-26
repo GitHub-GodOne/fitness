@@ -102,6 +102,11 @@
           "title": "用户评论",
           "url": "/admin/comments",
           "icon": "MessageSquare"
+        },
+        {
+          "title": "视频资源库",
+          "url": "/admin/video-library",
+          "icon": "Library"
         }
       ]
     }

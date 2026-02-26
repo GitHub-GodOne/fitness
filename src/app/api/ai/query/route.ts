@@ -28,6 +28,12 @@ export async function POST(req: Request) {
       return respErr('no permission');
     }
 
+    // If task is already completed (SUCCESS or FAILED), return it directly
+    // without querying the provider again (prevents overwriting valid results)
+    if (task.status === 'success' || task.status === 'failed') {
+      return respData(task);
+    }
+
     const aiService = await getAIService();
     const aiProvider = aiService.getProvider(task.provider);
     if (!aiProvider) {

@@ -244,6 +244,29 @@ const defaultPermissions = [
     description: 'Delete AI tasks',
   },
 
+  // Video Library management
+  {
+    code: 'admin.video-library.read',
+    resource: 'video-library',
+    action: 'read',
+    title: 'Read Video Library',
+    description: 'View fitness videos, objects, and body parts',
+  },
+  {
+    code: 'admin.video-library.write',
+    resource: 'video-library',
+    action: 'write',
+    title: 'Write Video Library',
+    description: 'Create and update fitness videos and objects',
+  },
+  {
+    code: 'admin.video-library.delete',
+    resource: 'video-library',
+    action: 'delete',
+    title: 'Delete Video Library',
+    description: 'Delete fitness videos and objects',
+  },
+
   // Comments management
   {
     code: 'admin.comments.read',
@@ -304,6 +327,7 @@ const defaultRoles = [
       'admin.apikeys.*',
       'admin.settings.read',
       'admin.ai-tasks.*',
+      'admin.video-library.*',
       'admin.comments.*',
     ],
   },

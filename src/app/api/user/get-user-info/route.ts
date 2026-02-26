@@ -1,5 +1,6 @@
 import { PERMISSIONS } from '@/core/rbac';
 import { respData, respErr } from '@/shared/lib/resp';
+import { checkUserHasPassword } from '@/shared/models/account';
 import { getRemainingCredits } from '@/shared/models/credit';
 import { getUserInfo } from '@/shared/models/user';
 import { hasPermission } from '@/shared/services/rbac';
@@ -18,7 +19,10 @@ export async function POST(req: Request) {
     // get remaining credits
     const remainingCredits = await getRemainingCredits(user.id);
 
-    return respData({ ...user, isAdmin, credits: { remainingCredits } });
+    // check if user has a password set
+    const hasPassword = await checkUserHasPassword(user.id);
+
+    return respData({ ...user, isAdmin, credits: { remainingCredits }, hasPassword });
   } catch (e) {
     console.log('get user info failed:', e);
     return respErr('get user info failed');

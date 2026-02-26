@@ -240,6 +240,9 @@ importers:
       react:
         specifier: 19.2.1
         version: 19.2.1
+      react-body-highlighter:
+        specifier: ^2.0.5
+        version: 2.0.5(react@19.2.1)
       react-copy-to-clipboard:
         specifier: ^5.1.0
         version: 5.1.0(react@19.2.1)
@@ -5290,6 +5293,12 @@ packages:
 
   queue-microtask@1.2.3:
     resolution: {integrity: sha512-NuaNSa6flKT5JaSYQzJok04JzTL1CA6aGhv5rfLW3PgqA+M2ChpZQnAC8h8i4ZFkBS8X5RqkDBHA7r4hej3K9A==}
+
+  react-body-highlighter@2.0.5:
+    resolution: {integrity: sha512-yt37177vKIc+8TGxQw//G/3ah2aw/3E0g1oDt4N+46fMLVZ9BSelhc9S7kiwEkJRvYc3RyUSr9453uMJnvtxRg==}
+    engines: {node: '>=10'}
+    peerDependencies:
+      react: '>=16'
 
   react-copy-to-clipboard@5.1.0:
     resolution: {integrity: sha512-k61RsNgAayIJNoy9yDsYzDe/yAZAzEbEgcz3DZMhF686LEyukcE1hzurxe85JandPUG+yTfGVFzuEw3xt8WP/A==}
@@ -11466,6 +11475,10 @@ snapshots:
   quansync@0.2.11: {}
 
   queue-microtask@1.2.3: {}
+
+  react-body-highlighter@2.0.5(react@19.2.1):
+    dependencies:
+      react: 19.2.1
 
   react-copy-to-clipboard@5.1.0(react@19.2.1):
     dependencies:

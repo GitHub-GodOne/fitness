@@ -91,6 +91,10 @@ export function Footer({ footer }: { footer: FooterType }) {
                   {item.title || ''}
                 </Link>
               ))}
+              {footer.show_theme !== false ? <ThemeToggler type="toggle" /> : null}
+              {footer.show_locale !== false ? (
+                <LocaleSelector type="button" />
+              ) : null}
             </div>
           ) : null}
 

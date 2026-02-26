@@ -6,12 +6,9 @@ import { Menu, X } from "lucide-react";
 import { Link, usePathname, useRouter } from "@/core/i18n/navigation";
 import {
   BrandLogo,
-  LocaleSelector,
   SignUser,
   SmartIcon,
-  ThemeToggler,
 } from "@/shared/blocks/common";
-import { ThemeSwitcher } from "@/shared/components/theme-switcher";
 import { NotificationBell } from "@/shared/components/notification";
 import {
   Accordion,
@@ -317,9 +314,6 @@ export function Header({ header }: { header: HeaderType }) {
                       </Link>
                     ))}
 
-                  <ThemeSwitcher />
-                  {header.show_theme ? <ThemeToggler /> : null}
-                  {header.show_locale ? <LocaleSelector /> : null}
                   <NotificationBell />
                   <div className="flex-1 md:hidden"></div>
                   {header.show_sign ? (

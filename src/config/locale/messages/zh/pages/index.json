@@ -2,10 +2,15 @@
   "page": {
     "show_sections": [
       "hero",
+      "stats",
       "how-it-works",
       "features",
+      "use-cases",
       "testimonials",
-      "faq"
+      "what-you-get",
+      "cta",
+      "faq",
+      "contact"
     ],
     "sections": {
       "hero": {
@@ -137,125 +142,45 @@
         ],
         "className": "bg-background"
       },
+      "stats": {
+        "block": "stats",
+        "id": "stats",
+        "title": "全球健身爱好者的信赖之选",
+        "description": "加入数千名正在将日常物品变成有效训练的用户",
+        "items": [
+          { "title": "50,000+", "description": "训练视频已生成" },
+          { "title": "10,000+", "description": "活跃用户" },
+          { "title": "200+", "description": "运动变体" }
+        ],
+        "className": "bg-background"
+      },
       "use-cases": {
         "block": "features-media",
         "id": "use-cases",
-        "title": "为任何时刻创建圣经视频",
-        "description": "无论是为自己还是所爱的人，让神的话语活起来",
+        "title": "适用于各种场景的训练",
+        "description": "无论你在哪里，都能把周围环境变成健身房",
         "items": [
-          {
-            "title": "送给伴侣",
-            "description": "通过经文表达你的爱",
-            "icon": "RiHeart3Line",
-            "image": {
-              "src": "/imgs/cases/1.png",
-              "alt": "送给伴侣"
-            }
-          },
-          {
-            "title": "送给孩子",
-            "description": "通过美丽的视频教导信仰",
-            "icon": "RiUserSmileLine",
-            "image": {
-              "src": "/imgs/cases/2.png",
-              "alt": "送给孩子"
-            }
-          },
-          {
-            "title": "哀悼失去",
-            "description": "在悲伤时找到安慰",
-            "icon": "RiHandHeartLine",
-            "image": {
-              "src": "/imgs/cases/3.png",
-              "alt": "哀悼失去"
-            }
-          },
-          {
-            "title": "送给父母",
-            "description": "用神的祝福尊荣他们",
-            "icon": "RiParentLine",
-            "image": {
-              "src": "/imgs/cases/4.png",
-              "alt": "送给父母"
-            }
-          },
-          {
-            "title": "祈求医治",
-            "description": "祷告恢复和平安",
-            "icon": "RiHeartsLine",
-            "image": {
-              "src": "/imgs/cases/5.png",
-              "alt": "祈求医治"
-            }
-          },
-          {
-            "title": "寻求力量",
-            "description": "在神的应许中找到勇气",
-            "icon": "RiShieldStarLine",
-            "image": {
-              "src": "/imgs/cases/6.png",
-              "alt": "寻求力量"
-            }
-          },
-          {
-            "title": "祷告",
-            "description": "通过视频举起你的祷告",
-            "icon": "RiHandsPrayLine",
-            "image": {
-              "src": "/imgs/cases/7.png",
-              "alt": "祷告"
-            }
-          },
-          {
-            "title": "突破",
-            "description": "庆祝神的奇迹",
-            "icon": "RiSparklingLine",
-            "image": {
-              "src": "/imgs/cases/8.png",
-              "alt": "突破"
-            }
-          }
+          { "title": "家庭办公室", "description": "桌子、椅子和水瓶训练", "icon": "Monitor" },
+          { "title": "酒店房间", "description": "用毛巾和行李箱进行旅行健身", "icon": "Building" },
+          { "title": "客厅", "description": "沙发、靠垫和茶几训练", "icon": "Sofa" },
+          { "title": "户外", "description": "公园长椅、楼梯和墙壁训练", "icon": "TreePine" },
+          { "title": "厨房", "description": "台面、椅子和水壶训练", "icon": "CookingPot" },
+          { "title": "车库", "description": "重物和阻力训练", "icon": "Warehouse" }
         ],
-        "buttons": [
-          {
-            "title": "开始创建你的视频",
-            "url": "/ai-video-generator",
-            "target": "_self"
-          }
-        ],
+        "buttons": [{ "title": "开始训练", "url": "/ai-video-generator", "target": "_self" }],
         "className": "bg-background"
       },
       "what-you-get": {
         "block": "features",
         "id": "what-you-get",
         "title": "你将获得什么",
-        "description": "",
+        "description": "完整训练体验所需的一切",
         "items": [
-          {
-            "title": "专业品质视频",
-            "description": "融入<em>\"不要惧怕，因为我与你同在\"</em>—用于敬拜或反思",
-            "icon": "RiVideoLine"
-          },
-          {
-            "title": "定制经文",
-            "description": "根据你的故事和属灵需求量身定制",
-            "icon": "RiBookOpenLine"
-          },
-          {
-            "title": "快速邮件交付",
-            "description": "几分钟内获得你的视频，直接发送到你的收件箱",
-            "icon": "RiTimeLine"
-          }
+          { "title": "AI匹配视频", "description": "AI识别照片中的物品，为你的目标肌肉匹配最佳训练动作", "icon": "Video" },
+          { "title": "难度分级", "description": "选择初级、中级或高级——每个训练都适应你的健身水平", "icon": "BarChart" },
+          { "title": "即时结果", "description": "几秒钟内获得个性化训练视频，无需等待，无需订阅", "icon": "Zap" }
         ],
-        "buttons": [
-          {
-            "title": "今天就制作你的\"不要惧怕，因为我与你同在\"视频",
-            "url": "/ai-video-generator",
-            "target": "_self",
-            "variant": "default",
-            "icon": "Zap"
-          }
-        ],
+        "buttons": [{ "title": "免费试用", "url": "/ai-video-generator", "target": "_self", "variant": "default", "icon": "Zap" }],
         "className": "bg-background"
       },
       "showcases": {
@@ -338,21 +263,24 @@
       },
       "cta": {
         "id": "cta",
-        "title": "不要惧怕，因为我与你同在",
-        "description": "今天就创建你的个性化圣经视频，体验神的平安",
-        "buttons": [
-          {
-            "title": "创建你的圣经视频",
-            "url": "/ai-video-generator",
-            "target": "_self",
-            "icon": "Heart"
-          }
-        ],
-        "quote": {
-          "text": "你不要害怕，因为我与你同在；不要惊惶，因为我是你的神。",
-          "source": "— 以赛亚书 41:10"
+        "title": "准备好把你的空间变成健身房了吗？",
+        "description": "上传照片，选择肌肉群，几秒钟内获得训练视频。无需任何器械。",
+        "buttons": [{ "title": "生成我的训练", "url": "/ai-video-generator", "target": "_self", "icon": "Sparkles" }],
+        "className": "bg-background"
+      },
+      "contact": {
+        "block": "contact",
+        "id": "contact",
+        "title": "联系我们",
+        "description": "有问题或反馈？我们很乐意听取您的意见。",
+        "submit": {
+          "action": "/api/contact",
+          "input": { "placeholder": "您的邮箱地址" },
+          "message": { "placeholder": "描述您的问题或反馈..." },
+          "button": { "title": "发送消息" }
         },
-        "className": "bg-muted/30"
+        "success_message": "消息发送成功！我们会尽快回复您。",
+        "className": "bg-background"
       }
     }
   }

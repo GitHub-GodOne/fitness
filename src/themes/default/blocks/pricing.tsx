@@ -361,7 +361,7 @@ export function Pricing({
           <h1 className="sr-only">{section.sr_only_title}</h1>
         )}
         <div className="flex items-center justify-center gap-2 mb-4 sm:mb-6">
-          <h2 className="text-2xl sm:text-3xl font-bold text-pretty lg:text-4xl break-words">
+          <h2 className="text-2xl sm:text-3xl font-bold text-foreground text-pretty lg:text-4xl break-words">
             {section.title}
           </h2>
           <TooltipProvider delayDuration={0}>
@@ -464,8 +464,8 @@ export function Pricing({
                 )}
 
                 <CardHeader>
-                  <CardTitle className="font-medium">
-                    <h3 className="text-sm font-medium">{item.title}</h3>
+                  <CardTitle className="font-medium text-foreground">
+                    <h3 className="text-sm font-medium text-foreground">{item.title}</h3>
                   </CardTitle>
 
                   <div className="my-3 flex items-baseline gap-2">
@@ -557,12 +557,12 @@ export function Pricing({
                   <hr className="border-dashed" />
 
                   {item.features_title && (
-                    <p className="text-sm font-medium">{item.features_title}</p>
+                    <p className="text-sm font-medium text-foreground">{item.features_title}</p>
                   )}
-                  <ul className="list-outside space-y-3 text-sm">
+                  <ul className="list-outside space-y-3 text-sm text-foreground">
                     {item.features?.map((item, index) => (
                       <li key={index} className="flex items-center gap-2">
-                        <Check className="size-3" />
+                        <Check className="size-3 text-foreground" />
                         {item}
                       </li>
                     ))}

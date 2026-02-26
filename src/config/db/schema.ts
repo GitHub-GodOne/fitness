@@ -737,3 +737,116 @@ export const notification = table(
     index('idx_notification_type').on(table.type),
   ]
 );
+
+// ============================================
+// Fitness Video Library Tables
+// ============================================
+
+// 物品表 - 可用于健身的物品
+export const fitnessObject = table(
+  'fitness_object',
+  {
+    id: text('id').primaryKey(),
+    name: text('name').notNull(), // 物品名称 (英文)
+    nameZh: text('name_zh'), // 物品名称 (中文)
+    aliases: text('aliases'), // 别名列表 (JSON array)
+    category: text('category').notNull(), // 分类: household, outdoor, gym, etc.
+    description: text('description'), // 物品描述
+    image: text('image'), // 物品图片URL
+    status: text('status').notNull().default('active'), // active, inactive
+    priority: integer('priority').default(0).notNull(), // higher = checked first by AI
+    createdAt: timestamp('created_at').defaultNow().notNull(),
+    updatedAt: timestamp('updated_at')
+      .$onUpdate(() => new Date())
+      .notNull(),
+  },
+  (table) => [
+    index('idx_fitness_object_name').on(table.name),
+    index('idx_fitness_object_category').on(table.category),
+    index('idx_fitness_object_status').on(table.status),
+    index('idx_fitness_object_priority').on(table.priority),
+  ]
+);
+
+// 身体部位表 - 肌肉群/身体部位
+export const bodyPart = table(
+  'body_part',
+  {
+    id: text('id').primaryKey(),
+    name: text('name').notNull(), // 部位名称 (英文): chest, arms, legs, core, back, shoulders
+    nameZh: text('name_zh'), // 部位名称 (中文)
+    icon: text('icon'), // 图标名称
+    description: text('description'), // 部位描述
+    status: text('status').notNull().default('active'), // active, inactive
+    sort: integer('sort').default(0).notNull(),
+    createdAt: timestamp('created_at').defaultNow().notNull(),
+    updatedAt: timestamp('updated_at')
+      .$onUpdate(() => new Date())
+      .notNull(),
+  },
+  (table) => [
+    index('idx_body_part_name').on(table.name),
+    index('idx_body_part_status').on(table.status),
+  ]
+);
+
+// 健身视频表 - 视频资源库
+export const fitnessVideo = table(
+  'fitness_video',
+  {
+    id: text('id').primaryKey(),
+    title: text('title').notNull(), // 视频标题
+    titleZh: text('title_zh'), // 视频标题 (中文)
+    description: text('description'), // 视频描述
+    descriptionZh: text('description_zh'), // 视频描述 (中文)
+    videoUrl: text('video_url').notNull(), // 视频URL
+    thumbnailUrl: text('thumbnail_url'), // 缩略图URL
+    duration: integer('duration'), // 视频时长 (秒)
+    difficulty: text('difficulty').notNull().default('beginner'), // beginner, intermediate, advanced
+    gender: text('gender').notNull().default('unisex'), // male, female, unisex
+    accessType: text('access_type').notNull().default('free'), // free, premium, hidden
+    ageGroup: text('age_group').notNull().default('all'), // young, middle, senior, all
+    instructions: text('instructions'), // 动作说明
+    instructionsZh: text('instructions_zh'), // 动作说明 (中文)
+    tags: text('tags'), // 标签 (JSON array)
+    status: text('status').notNull().default('active'), // active, inactive, pending
+    viewCount: integer('view_count').default(0).notNull(),
+    sort: integer('sort').default(0).notNull(),
+    createdAt: timestamp('created_at').defaultNow().notNull(),
+    updatedAt: timestamp('updated_at')
+      .$onUpdate(() => new Date())
+      .notNull(),
+    deletedAt: timestamp('deleted_at'),
+  },
+  (table) => [
+    index('idx_fitness_video_status').on(table.status),
+    index('idx_fitness_video_difficulty').on(table.difficulty),
+    index('idx_fitness_video_gender').on(table.gender),
+    index('idx_fitness_video_created').on(table.createdAt),
+  ]
+);
+
+// 物品-视频关联表 - 物品可以用于哪些健身视频
+export const objectVideoMapping = table(
+  'object_video_mapping',
+  {
+    id: text('id').primaryKey(),
+    objectId: text('object_id')
+      .notNull()
+      .references(() => fitnessObject.id, { onDelete: 'cascade' }),
+    videoId: text('video_id')
+      .notNull()
+      .references(() => fitnessVideo.id, { onDelete: 'cascade' }),
+    bodyPartId: text('body_part_id')
+      .notNull()
+      .references(() => bodyPart.id, { onDelete: 'cascade' }),
+    isPrimary: boolean('is_primary').default(false).notNull(), // 是否为主要物品
+    createdAt: timestamp('created_at').defaultNow().notNull(),
+  },
+  (table) => [
+    index('idx_object_video_object').on(table.objectId),
+    index('idx_object_video_video').on(table.videoId),
+    index('idx_object_video_body_part').on(table.bodyPartId),
+    index('idx_object_video_composite').on(table.objectId, table.bodyPartId),
+  ]
+);

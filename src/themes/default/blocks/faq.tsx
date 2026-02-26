@@ -46,7 +46,7 @@ export function Faq({
                 <div className="group" key={idx}>
                   <AccordionItem
                     value={item.question || item.title || ""}
-                    className="bg-background/90 data-[state=open]:bg-primary/10 peer rounded-lg sm:rounded-xl border-none px-4 sm:px-6 md:px-7 py-1 data-[state=open]:border-none data-[state=open]:shadow-sm transition-colors duration-200"
+                    className="bg-background/90 peer rounded-lg sm:rounded-xl border-none px-4 sm:px-6 md:px-7 py-1 data-[state=open]:border-none transition-colors duration-200"
                   >
                     <AccordionTrigger className="cursor-pointer text-sm sm:text-base hover:no-underline text-foreground font-medium">
                       {item.question || item.title || ""}

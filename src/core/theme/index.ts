@@ -15,28 +15,50 @@ export function getActiveTheme(): string {
 }
 
 /**
- * load theme page
+ * load theme page with retry mechanism
  */
 export async function getThemePage(pageName: string, theme?: string) {
   const loadTheme = theme || getActiveTheme();
+  const maxRetries = 3;
+
+  // Helper function to attempt import with retries
+  const attemptImport = async (themeName: string, retries: number = 0): Promise<any> => {
+    try {
+      const module = await import(`@/themes/${themeName}/pages/${pageName}`);
+      return module.default;
+    } catch (error: any) {
+      const isChunkError =
+        error?.message?.includes('Failed to load chunk') ||
+        error?.message?.includes('Loading chunk') ||
+        error?.message?.includes('ChunkLoadError') ||
+        error?.message?.includes('Failed to fetch dynamically imported module');
+
+      if (isChunkError && retries < maxRetries) {
+        console.log(
+          `[Theme] Chunk loading error for page "${pageName}", retry ${retries + 1}/${maxRetries}`
+        );
+        // Wait before retrying (exponential backoff)
+        await new Promise(resolve => setTimeout(resolve, 1000 * (retries + 1)));
+        return attemptImport(themeName, retries + 1);
+      }
+
+      throw error;
+    }
+  };
 
   try {
-    // load theme page
-    const module = await import(`@/themes/${loadTheme}/pages/${pageName}`);
-    return module.default;
+    // load theme page with retries
+    return await attemptImport(loadTheme);
   } catch (error) {
     console.log(
-      `Failed to load page "${pageName}" from theme "${theme}":`,
+      `Failed to load page "${pageName}" from theme "${loadTheme}":`,
       error
     );
 
     // fallback to default theme
     if (loadTheme !== defaultTheme) {
       try {
-        const fallbackModule = await import(
-          `@/themes/${defaultTheme}/pages/${pageName}`
-        );
-        return fallbackModule.default;
+        return await attemptImport(defaultTheme);
       } catch (fallbackError) {
         console.error(`Failed to load fallback page:`, fallbackError);
         throw fallbackError;
@@ -48,28 +70,49 @@ export async function getThemePage(pageName: string, theme?: string) {
 }
 
 /**
- * load theme layout
+ * load theme layout with retry mechanism
  */
 export async function getThemeLayout(layoutName: string, theme?: string) {
   const loadTheme = theme || getActiveTheme();
+  const maxRetries = 3;
+
+  // Helper function to attempt import with retries
+  const attemptImport = async (themeName: string, retries: number = 0): Promise<any> => {
+    try {
+      const module = await import(`@/themes/${themeName}/layouts/${layoutName}`);
+      return module.default;
+    } catch (error: any) {
+      const isChunkError =
+        error?.message?.includes('Failed to load chunk') ||
+        error?.message?.includes('Loading chunk') ||
+        error?.message?.includes('ChunkLoadError') ||
+        error?.message?.includes('Failed to fetch dynamically imported module');
+
+      if (isChunkError && retries < maxRetries) {
+        console.log(
+          `[Theme] Chunk loading error for layout "${layoutName}", retry ${retries + 1}/${maxRetries}`
+        );
+        await new Promise(resolve => setTimeout(resolve, 1000 * (retries + 1)));
+        return attemptImport(themeName, retries + 1);
+      }
+
+      throw error;
+    }
+  };
 
   try {
-    // load theme layout
-    const module = await import(`@/themes/${loadTheme}/layouts/${layoutName}`);
-    return module.default;
+    // load theme layout with retries
+    return await attemptImport(loadTheme);
   } catch (error) {
     console.log(
-      `Failed to load layout "${layoutName}" from theme "${theme}":`,
+      `Failed to load layout "${layoutName}" from theme "${loadTheme}":`,
       error
     );
 
     // fallback to default theme
     if (loadTheme !== defaultTheme) {
       try {
-        const fallbackModule = await import(
-          `@/themes/${defaultTheme}/layouts/${layoutName}`
-        );
-        return fallbackModule.default;
+        return await attemptImport(defaultTheme);
       } catch (fallbackError) {
         console.error(`Failed to load fallback layout:`, fallbackError);
         throw fallbackError;
@@ -91,21 +134,45 @@ function kebabToPascalCase(str: string): string {
 }
 
 /**
- * load theme block
+ * load theme block with retry mechanism
  */
 export async function getThemeBlock(blockName: string, theme?: string) {
   const loadTheme = theme || getActiveTheme();
   const pascalCaseName = kebabToPascalCase(blockName);
+  const maxRetries = 3;
+
+  // Helper function to attempt import with retries
+  const attemptImport = async (themeName: string, retries: number = 0): Promise<any> => {
+    try {
+      const module = await import(`@/themes/${themeName}/blocks/${blockName}`);
+      // Try PascalCase named export first, then original blockName
+      const component = module[pascalCaseName] || module[blockName];
+      if (!component) {
+        throw new Error(`No valid export found in block "${blockName}"`);
+      }
+      return component;
+    } catch (error: any) {
+      const isChunkError =
+        error?.message?.includes('Failed to load chunk') ||
+        error?.message?.includes('Loading chunk') ||
+        error?.message?.includes('ChunkLoadError') ||
+        error?.message?.includes('Failed to fetch dynamically imported module');
+
+      if (isChunkError && retries < maxRetries) {
+        console.log(
+          `[Theme] Chunk loading error for block "${blockName}", retry ${retries + 1}/${maxRetries}`
+        );
+        await new Promise(resolve => setTimeout(resolve, 1000 * (retries + 1)));
+        return attemptImport(themeName, retries + 1);
+      }
+
+      throw error;
+    }
+  };
 
   try {
-    // load theme block
-    const module = await import(`@/themes/${loadTheme}/blocks/${blockName}`);
-    // Try PascalCase named export first, then original blockName
-    const component = module[pascalCaseName] || module[blockName];
-    if (!component) {
-      throw new Error(`No valid export found in block "${blockName}"`);
-    }
-    return component;
+    // load theme block with retries
+    return await attemptImport(loadTheme);
   } catch (error) {
     console.error(
       `Failed to load block "${blockName}" from theme "${loadTheme}":`,
@@ -115,17 +182,7 @@ export async function getThemeBlock(blockName: string, theme?: string) {
     // fallback to default theme
     if (loadTheme !== defaultTheme) {
       try {
-        const fallbackModule = await import(
-          `@/themes/${defaultTheme}/blocks/${blockName}`
-        );
-        const fallbackComponent =
-          fallbackModule[pascalCaseName] || fallbackModule[blockName];
-        if (!fallbackComponent) {
-          throw new Error(
-            `No valid export found in fallback block "${blockName}"`
-          );
-        }
-        return fallbackComponent;
+        return await attemptImport(defaultTheme);
       } catch (fallbackError) {
         console.error(`Failed to load fallback block:`, fallbackError);
         throw fallbackError;

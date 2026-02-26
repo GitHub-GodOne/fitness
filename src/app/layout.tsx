@@ -1,37 +1,38 @@
-import '@/config/style/global.css';
+import "@/config/style/global.css";
 
-import { JetBrains_Mono, Merriweather, Noto_Sans_Mono } from 'next/font/google';
-import { getLocale, setRequestLocale } from 'next-intl/server';
-import NextTopLoader from 'nextjs-toploader';
+import { JetBrains_Mono, Merriweather, Noto_Sans_Mono } from "next/font/google";
+import { getLocale, setRequestLocale } from "next-intl/server";
+import NextTopLoader from "nextjs-toploader";
 
-import { envConfigs } from '@/config';
-import { locales } from '@/config/locale';
-import { UtmCapture } from '@/shared/blocks/common/utm-capture';
-import { getAllConfigs } from '@/shared/models/config';
-import { getAdsService } from '@/shared/services/ads';
-import { getAffiliateService } from '@/shared/services/affiliate';
-import { getAnalyticsService } from '@/shared/services/analytics';
-import { getCustomerService } from '@/shared/services/customer_service';
+import { envConfigs } from "@/config";
+import { locales } from "@/config/locale";
+import { ChunkErrorHandler } from "@/shared/components/chunk-error-handler";
+import { UtmCapture } from "@/shared/blocks/common/utm-capture";
+import { getAllConfigs } from "@/shared/models/config";
+import { getAdsService } from "@/shared/services/ads";
+import { getAffiliateService } from "@/shared/services/affiliate";
+import { getAnalyticsService } from "@/shared/services/analytics";
+import { getCustomerService } from "@/shared/services/customer_service";
 
 const notoSansMono = Noto_Sans_Mono({
-  subsets: ['latin'],
-  variable: '--font-sans',
-  display: 'swap',
+  subsets: ["latin"],
+  variable: "--font-sans",
+  display: "swap",
   preload: true,
 });
 
 const merriweather = Merriweather({
-  subsets: ['latin'],
-  weight: ['400', '700'],
-  variable: '--font-serif',
-  display: 'swap',
+  subsets: ["latin"],
+  weight: ["400", "700"],
+  variable: "--font-serif",
+  display: "swap",
   preload: true,
 });
 
 const jetbrainsMono = JetBrains_Mono({
-  subsets: ['latin'],
-  variable: '--font-mono',
-  display: 'swap',
+  subsets: ["latin"],
+  variable: "--font-mono",
+  display: "swap",
   preload: true,
 });
 
@@ -43,11 +44,11 @@ export default async function RootLayout({
   const locale = await getLocale();
   setRequestLocale(locale);
 
-  const isProduction = process.env.NODE_ENV === 'production';
-  const isDebug = process.env.NEXT_PUBLIC_DEBUG === 'true';
+  const isProduction = process.env.NODE_ENV === "production";
+  const isDebug = process.env.NEXT_PUBLIC_DEBUG === "true";
 
   // app url
-  const appUrl = envConfigs.app_url || '';
+  const appUrl = envConfigs.app_url || "";
 
   // ads components
   let adsMetaTags = null;
@@ -120,7 +121,7 @@ export default async function RootLayout({
                 key={loc}
                 rel="alternate"
                 hrefLang={loc}
-                href={`${appUrl}${loc === 'en' ? '' : `/${loc}`}`}
+                href={`${appUrl}${loc === "en" ? "" : `/${loc}`}`}
               />
             ))}
           </>
@@ -148,7 +149,7 @@ export default async function RootLayout({
       </head>
       <body suppressHydrationWarning className="overflow-x-hidden">
         <NextTopLoader
-          color="#6466F1"
+          color="#f97316"
           initialPosition={0.08}
           crawlSpeed={200}
           height={3}
@@ -157,7 +158,7 @@ export default async function RootLayout({
           easing="ease"
           speed={200}
         />
-
+        <ChunkErrorHandler />
         <UtmCapture />
 
         {children}

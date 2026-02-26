@@ -102,6 +102,11 @@
           "title": "AI Chats",
           "url": "/admin/chats",
           "icon": "MessageCircle"
+        },
+        {
+          "title": "Video Library",
+          "url": "/admin/video-library",
+          "icon": "Library"
         }
       ]
     }

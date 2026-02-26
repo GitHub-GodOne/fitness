@@ -1,17 +1,17 @@
-import { and, count, desc, eq, sql } from 'drizzle-orm';
+import { and, count, desc, eq, sql } from "drizzle-orm";
 
-import { db } from '@/core/db';
-import { aiTask, credit } from '@/config/db/schema';
-import { AITaskStatus } from '@/extensions/ai';
-import { appendUserToResult, User } from '@/shared/models/user';
+import { db } from "@/core/db";
+import { aiTask, credit } from "@/config/db/schema";
+import { AITaskStatus } from "@/extensions/ai";
+import { appendUserToResult, User } from "@/shared/models/user";
 
-import { consumeCredits, CreditStatus } from './credit';
+import { consumeCredits, CreditStatus } from "./credit";
 
 export type AITask = typeof aiTask.$inferSelect & {
   user?: User;
 };
 export type NewAITask = typeof aiTask.$inferInsert;
-export type UpdateAITask = Partial<Omit<NewAITask, 'id' | 'createdAt'>>;
+export type UpdateAITask = Partial<Omit<NewAITask, "id" | "createdAt">>;
 
 export async function createAITask(newAITask: NewAITask) {
   const result = await db().transaction(async (tx) => {
@@ -26,7 +26,7 @@ export async function createAITask(newAITask: NewAITask) {
         scene: newAITask.scene,
         description: `generate ${newAITask.mediaType}`,
         metadata: JSON.stringify({
-          type: 'ai-task',
+          type: "ai-task",
           mediaType: taskResult.mediaType,
           taskId: taskResult.id,
         }),
@@ -55,11 +55,17 @@ export async function findAITaskById(id: string) {
 }
 
 export async function findAITaskByTaskId(taskId: string) {
-  const [result] = await db().select().from(aiTask).where(eq(aiTask.taskId, taskId));
+  const [result] = await db()
+    .select()
+    .from(aiTask)
+    .where(eq(aiTask.taskId, taskId));
   return result;
 }
 
-export async function updateAITaskByTaskId(taskId: string, updateAITask: UpdateAITask) {
+export async function updateAITaskByTaskId(
+  taskId: string,
+  updateAITask: UpdateAITask,
+) {
   // First find the task by taskId to get the id
   const task = await findAITaskByTaskId(taskId);
   if (!task) {
@@ -73,21 +79,24 @@ export async function updateAITaskById(id: string, updateAITask: UpdateAITask) {
   const result = await db().transaction(async (tx) => {
     // task failed, Revoke credit consumption record
     if (updateAITask.status === AITaskStatus.FAILED && updateAITask.creditId) {
-      console.log('updateAITaskById----->任务失败 返还积分', updateAITask);
+      console.log("updateAITaskById----->任务失败 返还积分", updateAITask);
       // get consumed credit record
       const [consumedCredit] = await tx
         .select()
         .from(credit)
         .where(eq(credit.id, updateAITask.creditId));
       if (consumedCredit && consumedCredit.status === CreditStatus.ACTIVE) {
-        const consumedItems = JSON.parse(consumedCredit.consumedDetail || '[]');
+        const consumedItems = JSON.parse(consumedCredit.consumedDetail || "[]");
 
         // console.log('consumedItems', consumedItems);
 
         // add back consumed credits
         await Promise.all(
           consumedItems.map((item: any) => {
-            console.log('updateAITaskById----->任务失败 返还积分:', item.creditsConsumed);
+            console.log(
+              "updateAITaskById----->任务失败 返还积分:",
+              item.creditsConsumed,
+            );
             if (item && item.creditId && item.creditsConsumed > 0) {
               return tx
                 .update(credit)
@@ -96,7 +105,7 @@ export async function updateAITaskById(id: string, updateAITask: UpdateAITask) {
                 })
                 .where(eq(credit.id, item.creditId));
             }
-          })
+          }),
         );
 
         // delete consumed credit record
@@ -116,8 +125,6 @@ export async function updateAITaskById(id: string, updateAITask: UpdateAITask) {
       .where(eq(aiTask.id, id))
       .returning();
 
-    console.log('updateAITaskById----->任务失败 更新状态:', result);
-    console.log('updateAITaskById----->任务失败 aiTask.id:', id);
     return result;
   });
 
@@ -143,8 +150,8 @@ export async function getAITasksCount({
         userId ? eq(aiTask.userId, userId) : undefined,
         mediaType ? eq(aiTask.mediaType, mediaType) : undefined,
         provider ? eq(aiTask.provider, provider) : undefined,
-        status ? eq(aiTask.status, status) : undefined
-      )
+        status ? eq(aiTask.status, status) : undefined,
+      ),
     );
 
   return result?.count || 0;
@@ -175,8 +182,8 @@ export async function getAITasks({
         userId ? eq(aiTask.userId, userId) : undefined,
         mediaType ? eq(aiTask.mediaType, mediaType) : undefined,
         provider ? eq(aiTask.provider, provider) : undefined,
-        status ? eq(aiTask.status, status) : undefined
-      )
+        status ? eq(aiTask.status, status) : undefined,
+      ),
     )
     .orderBy(desc(aiTask.createdAt))
     .limit(limit)

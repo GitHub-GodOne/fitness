@@ -123,6 +123,7 @@
       "insufficient_credits": "您需要超过3个积分才能合并视频。请购买积分以使用此功能。",
       "insufficient_credits_title": "积分不足"
     },
+    "merge_videos": "合并 {count} 个视频",
     "copied": "已复制！",
     "refund_support": "支持退款服务",
     "learn_more": "了解更多",
@@ -145,6 +146,64 @@
       "showing": "显示 {start}-{end} / 共 {total} 条",
       "previous": "上一页",
       "next": "下一页"
+    },
+    "wizard": {
+      "step_indicator": "第 {current} 步 / 共 {total} 步",
+      "back": "上一步",
+      "next": "下一步",
+      "skip": "跳过",
+      "gender": {
+        "title": "选择您的性别",
+        "description": "我们会根据您的体型定制训练方案",
+        "male": "男",
+        "female": "女"
+      },
+      "age_group": {
+        "title": "选择您的年龄段",
+        "description": "帮助我们为您调整合适的运动强度",
+        "young": "青年 (18-35)",
+        "middle": "中年 (36-55)",
+        "senior": "老年 (56+)"
+      },
+      "difficulty": {
+        "title": "选择难度等级",
+        "description": "选择适合您健身水平的强度",
+        "easy": "简单",
+        "easy_desc": "动作轻柔，适合初学者",
+        "medium": "中等",
+        "medium_desc": "中等强度，需要一定健身基础",
+        "hard": "困难",
+        "hard_desc": "高强度训练，适合有经验的健身者"
+      },
+      "upload": {
+        "title": "上传你的空间（可选）",
+        "description": "拍摄你的房间或户外空间，包含可用于锻炼的物品",
+        "skip_hint": "如果没有照片，可以跳过此步骤"
+      },
+      "body_parts": {
+        "title": "选择目标身体部位",
+        "description": "点击你想要锻炼的身体部位",
+        "front_view": "正面",
+        "back_view": "背面",
+        "selected_count": "已选 {count} 个",
+        "neck": "颈椎",
+        "shoulders": "肩部",
+        "chest": "胸部",
+        "arms": "手臂",
+        "back": "背部",
+        "waist": "腰部/核心",
+        "glutes": "臀部",
+        "legs": "腿部",
+        "at_least_one": "请至少选择一个身体部位"
+      },
+      "summary": {
+        "gender": "性别",
+        "age": "年龄",
+        "difficulty": "难度",
+        "image": "图片",
+        "image_uploaded": "已上传",
+        "image_none": "无"
+      }
     },
     "regenerate_not_available": "重新生成功能暂不可用",
     "progress_steps": {

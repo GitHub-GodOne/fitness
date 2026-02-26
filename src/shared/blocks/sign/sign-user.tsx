@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import { Fragment } from 'react/jsx-runtime';
-import { Coins, LayoutDashboard, Loader2, LogOut, User } from 'lucide-react';
+import { Coins, LayoutDashboard, Loader2, LogOut, Palette, User } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 
 import { signOut } from '@/core/auth/client';
@@ -26,6 +26,7 @@ import { NavItem, UserNav } from '@/shared/types/blocks/common';
 
 import { SmartIcon } from '../common/smart-icon';
 import { SignModal } from './sign-modal';
+import { ThemeSwitcherInline } from '@/shared/components/theme-switcher-inline';
 
 export function SignUser({
   isScrolled,
@@ -58,9 +59,9 @@ export function SignUser({
               variant="ghost"
               className="relative h-10 w-10 rounded-full p-0"
             >
-              <Avatar>
+              <Avatar className="border-2 border-border">
                 <AvatarImage src={user.image || ''} alt={user.name || ''} />
-                <AvatarFallback>{user.name.charAt(0)}</AvatarFallback>
+                <AvatarFallback className="text-foreground">{user.name.charAt(0)}</AvatarFallback>
               </Avatar>
             </Button>
           </DropdownMenuTrigger>
@@ -129,6 +130,9 @@ export function SignUser({
                 <DropdownMenuSeparator />
               </>
             )}
+
+            <ThemeSwitcherInline />
+            <DropdownMenuSeparator />
 
             {userNav?.show_sign_out && (
               <DropdownMenuItem

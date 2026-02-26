@@ -26,3 +26,4 @@ export * from "./blog";
 export * from "./blog-detail";
 export * from "./page-detail";
 export * from "./comments";
+export * from "./contact";

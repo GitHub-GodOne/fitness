@@ -26,6 +26,11 @@
         "title": "历史记录",
         "url": "/settings/history",
         "icon": "History"
+      },
+      {
+        "title": "安全设置",
+        "url": "/settings/security",
+        "icon": "Shield"
       }
     ]
   },

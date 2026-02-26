@@ -1,103 +1,214 @@
-import { getTranslations } from 'next-intl/server';
+'use client';
 
-import { Empty } from '@/shared/blocks/common';
+import { useState } from 'react';
+import { useTranslations } from 'next-intl';
+
+import { useAppContext } from '@/shared/contexts/app';
+import { authClient } from '@/core/auth/client';
+import { Button } from '@/shared/components/ui/button';
+import { Input } from '@/shared/components/ui/input';
+import { Label } from '@/shared/components/ui/label';
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from '@/shared/components/ui/card';
 import { PanelCard } from '@/shared/blocks/panel';
-import { getUserInfo, UpdateUser, updateUser } from '@/shared/models/user';
-import { Button as ButtonType } from '@/shared/types/blocks/common';
-import { Form as FormType } from '@/shared/types/blocks/form';
 
-export default async function SecurityPage() {
-  const user = await getUserInfo();
-  if (!user) {
-    return <Empty message="no auth" />;
-  }
+function SetPasswordForm() {
+  const t = useTranslations('settings.security');
+  const { fetchUserInfo } = useAppContext();
 
-  const t = await getTranslations('settings.security');
+  const [newPassword, setNewPassword] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState('');
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState('');
+  const [success, setSuccess] = useState('');
 
-  const form: FormType = {
-    fields: [
-      {
-        name: 'email',
-        title: t('fields.email'),
-        type: 'email',
-        attributes: { disabled: true },
-      },
-      {
-        name: 'password',
-        title: t('fields.password'),
-        type: 'password',
-        attributes: { type: 'password' },
-        validation: { required: true },
-      },
-      {
-        name: 'new_password',
-        title: t('fields.new_password'),
-        type: 'password',
-        validation: { required: true },
-      },
-      {
-        name: 'confirm_password',
-        title: t('fields.confirm_password'),
-        type: 'password',
-        validation: { required: true },
-      },
-    ],
-    data: user,
-    passby: {
-      user: user,
-    },
-    submit: {
-      handler: async (data: FormData, passby: any) => {
-        'use server';
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setError('');
+    setSuccess('');
 
-        const { user } = passby;
-        if (!user) {
-          throw new Error('no auth');
-        }
+    if (newPassword.length < 8) {
+      setError(t('messages.password_min_length'));
+      return;
+    }
+    if (newPassword !== confirmPassword) {
+      setError(t('messages.passwords_not_match'));
+      return;
+    }
 
-        const password = data.get('password') as string;
-        if (!password?.trim()) {
-          throw new Error('password is required');
-        }
-
-        const updatedUser: UpdateUser = {
-          // password: password.trim(),
-          // new_password: new_password.trim(),
-          // confirm_password: confirm_password.trim(),
-        };
-
-        await updateUser(user.id, updatedUser);
-
-        return {
-          status: 'success',
-          message: 'Profile updated',
-          redirect_url: '/settings/profile',
-        };
-      },
-      button: {
-        title: t('reset_password.buttons.submit'),
-      },
-    },
+    setLoading(true);
+    try {
+      const resp = await fetch('/api/user/set-password', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ newPassword, confirmPassword }),
+      });
+      const { code, message } = await resp.json();
+      if (code !== 0) {
+        setError(message || t('messages.error'));
+        return;
+      }
+      setSuccess(t('messages.password_set_success'));
+      setNewPassword('');
+      setConfirmPassword('');
+      await fetchUserInfo();
+    } catch {
+      setError(t('messages.error'));
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
+    <Card className="max-w-md">
+      <CardHeader>
+        <CardTitle>{t('set_password.title')}</CardTitle>
+        <CardDescription>{t('set_password.description')}</CardDescription>
+      </CardHeader>
+      <CardContent>
+        <form onSubmit={handleSubmit} className="space-y-4">
+          <div className="space-y-2">
+            <Label htmlFor="new_password">{t('fields.new_password')}</Label>
+            <Input
+              id="new_password"
+              type="password"
+              value={newPassword}
+              onChange={(e) => setNewPassword(e.target.value)}
+              required
+              minLength={8}
+            />
+          </div>
+          <div className="space-y-2">
+            <Label htmlFor="confirm_password">{t('fields.confirm_password')}</Label>
+            <Input
+              id="confirm_password"
+              type="password"
+              value={confirmPassword}
+              onChange={(e) => setConfirmPassword(e.target.value)}
+              required
+              minLength={8}
+            />
+          </div>
+          {error && <p className="text-sm text-destructive">{error}</p>}
+          {success && <p className="text-sm text-green-600">{success}</p>}
+          <Button type="submit" disabled={loading}>
+            {loading ? '...' : t('set_password.buttons.submit')}
+          </Button>
+        </form>
+      </CardContent>
+    </Card>
+  );
+}
+
+function ChangePasswordForm() {
+  const t = useTranslations('settings.security');
+
+  const [currentPassword, setCurrentPassword] = useState('');
+  const [newPassword, setNewPassword] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState('');
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState('');
+  const [success, setSuccess] = useState('');
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setError('');
+    setSuccess('');
+
+    if (newPassword.length < 8) {
+      setError(t('messages.password_min_length'));
+      return;
+    }
+    if (newPassword !== confirmPassword) {
+      setError(t('messages.passwords_not_match'));
+      return;
+    }
+
+    setLoading(true);
+    try {
+      const { error: authError } = await authClient.changePassword({
+        currentPassword,
+        newPassword,
+        revokeOtherSessions: false,
+      });
+      if (authError) {
+        setError(authError.message || t('messages.error'));
+        return;
+      }
+      setSuccess(t('messages.password_change_success'));
+      setCurrentPassword('');
+      setNewPassword('');
+      setConfirmPassword('');
+    } catch {
+      setError(t('messages.error'));
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  return (
+    <Card className="max-w-md">
+      <CardHeader>
+        <CardTitle>{t('change_password.title')}</CardTitle>
+        <CardDescription>{t('change_password.description')}</CardDescription>
+      </CardHeader>
+      <CardContent>
+        <form onSubmit={handleSubmit} className="space-y-4">
+          <div className="space-y-2">
+            <Label htmlFor="current_password">{t('fields.password')}</Label>
+            <Input
+              id="current_password"
+              type="password"
+              value={currentPassword}
+              onChange={(e) => setCurrentPassword(e.target.value)}
+              required
+            />
+          </div>
+          <div className="space-y-2">
+            <Label htmlFor="new_password">{t('fields.new_password')}</Label>
+            <Input
+              id="new_password"
+              type="password"
+              value={newPassword}
+              onChange={(e) => setNewPassword(e.target.value)}
+              required
+              minLength={8}
+            />
+          </div>
+          <div className="space-y-2">
+            <Label htmlFor="confirm_password">{t('fields.confirm_password')}</Label>
+            <Input
+              id="confirm_password"
+              type="password"
+              value={confirmPassword}
+              onChange={(e) => setConfirmPassword(e.target.value)}
+              required
+              minLength={8}
+            />
+          </div>
+          {error && <p className="text-sm text-destructive">{error}</p>}
+          {success && <p className="text-sm text-green-600">{success}</p>}
+          <Button type="submit" disabled={loading}>
+            {loading ? '...' : t('change_password.buttons.submit')}
+          </Button>
+        </form>
+      </CardContent>
+    </Card>
+  );
+}
+
+export default function SecurityPage() {
+  const t = useTranslations('settings.security');
+  const { user } = useAppContext();
+
+  return (
     <div className="space-y-8">
-      <PanelCard
-        title={t('reset_password.title')}
-        description={t('reset_password.description')}
-        content={t('reset_password.tip')}
-        buttons={[
-          {
-            title: t('reset_password.buttons.submit'),
-            url: '/settings/security',
-            target: '_self',
-            variant: 'default',
-            size: 'sm',
-            icon: 'RiLockPasswordLine',
-          },
-        ]}
-        className="max-w-md"
-      />
+      {user?.hasPassword ? <ChangePasswordForm /> : <SetPasswordForm />}
       <PanelCard
         title={t('delete_account.title')}
         description={t('delete_account.description')}

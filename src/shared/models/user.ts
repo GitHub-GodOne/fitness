@@ -18,6 +18,7 @@ export type User = typeof user.$inferSelect & {
   credits?: UserCredits;
   roles?: Role[];
   permissions?: Permission[];
+  hasPassword?: boolean;
 };
 export type NewUser = typeof user.$inferInsert;
 export type UpdateUser = Partial<Omit<NewUser, 'id' | 'createdAt' | 'email'>>;

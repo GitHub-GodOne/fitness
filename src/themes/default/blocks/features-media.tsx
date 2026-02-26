@@ -64,7 +64,7 @@ export function FeaturesMedia({ section }: { section: Section }) {
               ease: [0.22, 1, 0.36, 1] as const,
             }}
           >
-            <h2 className="text-xl font-medium md:text-lg lg:text-lg">
+            <h2 className="text-xl font-medium text-foreground md:text-lg lg:text-lg">
               {section.title}
             </h2>
             <p className="text-muted-foreground text-md">
@@ -73,7 +73,7 @@ export function FeaturesMedia({ section }: { section: Section }) {
             <div className="mt-8 flex flex-wrap gap-4">
               {section.items?.map((item) => (
                 <div key={item.title}>
-                  <h3 className="mb-2 flex items-center gap-2 text-sm">
+                  <h3 className="mb-2 flex items-center gap-2 text-sm text-foreground">
                     <SmartIcon name={item.icon as string} size={16} />
                     {item.title}
                   </h3>
