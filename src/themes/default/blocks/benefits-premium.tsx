@@ -27,7 +27,11 @@ function BenefitCard({
   item,
   index,
 }: {
-  item: { title?: string; description?: string; icon?: string };
+  item: {
+    title?: string;
+    description?: string;
+    icon?: string | React.ReactNode;
+  };
   index: number;
 }) {
   const cardRef = useRef<HTMLDivElement>(null);
@@ -38,9 +42,14 @@ function BenefitCard({
 
   const y = useTransform(scrollYProgress, [0, 1], [100, -100]);
   const opacity = useTransform(scrollYProgress, [0, 0.3, 0.7, 1], [0, 1, 1, 0]);
-  const scale = useTransform(scrollYProgress, [0, 0.3, 0.7, 1], [0.8, 1, 1, 0.8]);
+  const scale = useTransform(
+    scrollYProgress,
+    [0, 0.3, 0.7, 1],
+    [0.8, 1, 1, 0.8],
+  );
 
-  const IconComponent = item.icon ? iconMap[item.icon] : null;
+  const IconComponent =
+    typeof item.icon === "string" && item.icon ? iconMap[item.icon] : null;
   const isEven = index % 2 === 0;
 
   return (
@@ -49,23 +58,20 @@ function BenefitCard({
       style={{ opacity, scale }}
       className={cn(
         "grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-16 items-center mb-24 lg:mb-32",
-        !isEven && "lg:grid-flow-dense"
+        !isEven && "lg:grid-flow-dense",
       )}
     >
       {/* 图标/视觉区域 */}
       <motion.div
         style={{ y }}
-        className={cn(
-          "relative",
-          !isEven && "lg:col-start-2"
-        )}
+        className={cn("relative", !isEven && "lg:col-start-2")}
       >
         <div className="relative aspect-square max-w-md mx-auto">
           {/* 背景渐变光晕 */}
           <motion.div
             className={cn(
               "absolute inset-0 rounded-full blur-3xl opacity-60",
-              `bg-gradient-to-br ${gradients[index % gradients.length]}`
+              `bg-gradient-to-br ${gradients[index % gradients.length]}`,
             )}
             animate={{
               scale: [1, 1.2, 1],
@@ -82,13 +88,16 @@ function BenefitCard({
           <div className="relative w-full h-full rounded-full bg-gradient-to-br from-background/80 to-background/40 backdrop-blur-xl border border-foreground/10 shadow-2xl flex items-center justify-center overflow-hidden">
             {/* 动态网格背景 */}
             <div className="absolute inset-0 opacity-10">
-              <div className="absolute inset-0" style={{
-                backgroundImage: `
+              <div
+                className="absolute inset-0"
+                style={{
+                  backgroundImage: `
                   linear-gradient(to right, currentColor 1px, transparent 1px),
                   linear-gradient(to bottom, currentColor 1px, transparent 1px)
                 `,
-                backgroundSize: '40px 40px'
-              }} />
+                  backgroundSize: "40px 40px",
+                }}
+              />
             </div>
 
             {/* 图标 */}
@@ -105,7 +114,10 @@ function BenefitCard({
               }}
             >
               {IconComponent && (
-                <IconComponent className="w-32 h-32 lg:w-40 lg:h-40 text-primary" strokeWidth={1.5} />
+                <IconComponent
+                  className="w-32 h-32 lg:w-40 lg:h-40 text-primary"
+                  strokeWidth={1.5}
+                />
               )}
             </motion.div>
 
@@ -135,7 +147,7 @@ function BenefitCard({
                 key={i}
                 className="absolute w-2 h-2 rounded-full bg-primary/40"
                 style={{
-                  left: `${20 + (i * 10)}%`,
+                  left: `${20 + i * 10}%`,
                   top: `${30 + (i % 3) * 20}%`,
                 }}
                 animate={{
@@ -166,10 +178,7 @@ function BenefitCard({
 
       {/* 文案区域 */}
       <motion.div
-        className={cn(
-          "space-y-6",
-          !isEven && "lg:col-start-1 lg:row-start-1"
-        )}
+        className={cn("space-y-6", !isEven && "lg:col-start-1 lg:row-start-1")}
         initial={{ opacity: 0, x: isEven ? -50 : 50 }}
         whileInView={{ opacity: 1, x: 0 }}
         viewport={{ once: true }}
@@ -251,7 +260,7 @@ export function BenefitsPremium({
       className={cn(
         "relative py-20 md:py-32 lg:py-40 overflow-hidden",
         section.className,
-        className
+        className,
       )}
     >
       {/* 背景装饰 */}

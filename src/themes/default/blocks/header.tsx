@@ -4,11 +4,7 @@ import { useEffect, useRef, useState } from "react";
 import { Menu, X } from "lucide-react";
 
 import { Link, usePathname, useRouter } from "@/core/i18n/navigation";
-import {
-  BrandLogo,
-  SignUser,
-  SmartIcon,
-} from "@/shared/blocks/common";
+import { BrandLogo, SignUser, SmartIcon } from "@/shared/blocks/common";
 import { NotificationBell } from "@/shared/components/notification";
 import {
   Accordion,
@@ -289,7 +285,7 @@ export function Header({ header }: { header: HeaderType }) {
 
               {/* Header right section: theme toggler, locale selector, sign, buttons */}
               <div className="mb-6 hidden w-full flex-wrap items-center justify-end space-y-8 in-data-[state=active]:flex max-lg:in-data-[state=active]:mt-6 md:flex-nowrap lg:m-0 lg:flex lg:w-fit lg:gap-6 lg:space-y-0 lg:border-transparent lg:bg-transparent lg:p-0 lg:shadow-none">
-                <div className="flex w-full flex-row items-center gap-4 sm:flex-row sm:gap-6 sm:space-y-0 md:w-fit">
+                <div className="flex w-full flex-row items-center gap-2 sm:gap-4 md:gap-6 sm:flex-row sm:space-y-0 md:w-fit">
                   {header.buttons &&
                     header.buttons.map((button, idx) => (
                       <Link
@@ -298,7 +294,7 @@ export function Header({ header }: { header: HeaderType }) {
                         target={button.target || "_self"}
                         className={cn(
                           "focus-visible:ring-ring inline-flex items-center justify-center gap-2 rounded-md text-sm font-medium whitespace-nowrap transition-colors focus-visible:ring-1 focus-visible:outline-none disabled:pointer-events-none disabled:opacity-50",
-                          "h-7 px-3 ring-0",
+                          "h-7 px-2 sm:px-3 ring-0",
                           button.variant === "outline"
                             ? "bg-foreground/10 border-foreground/20 text-foreground ring-foreground/10 hover:bg-foreground/20 border shadow-sm ring-1 duration-200"
                             : "bg-primary text-primary-foreground hover:bg-primary/90 border-[0.5px] border-primary/50 shadow-md",
@@ -310,12 +306,13 @@ export function Header({ header }: { header: HeaderType }) {
                             className="size-4"
                           />
                         )}
-                        <span>{button.title}</span>
+                        <span className="text-xs sm:text-sm">
+                          {button.title}
+                        </span>
                       </Link>
                     ))}
 
                   <NotificationBell />
-                  <div className="flex-1 md:hidden"></div>
                   {header.show_sign ? (
                     <SignUser userNav={header.user_nav} />
                   ) : null}
