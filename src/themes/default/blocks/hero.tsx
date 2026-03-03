@@ -156,220 +156,191 @@ export function Hero({
         </div>
       )}
 
-      {/* 主内容区域 */}
-      <div className="relative z-10 flex flex-col items-center justify-center py-16 sm:py-20 lg:py-24 px-4 sm:px-6">
-        <motion.div
-          className="text-center max-w-4xl"
-          style={{
-            rotateX,
-            rotateY,
-            transformPerspective: 1000,
-          }}
-        >
-          {/* Eyebrow */}
+      {/* 主内容区域 - 左右分栏布局 */}
+      <div className="relative z-10 container mx-auto px-4 sm:px-6 lg:px-8 py-12 sm:py-16 lg:py-20 min-h-screen flex items-center">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-12 items-center w-full">
+          {/* 左侧：文案内容 */}
           <motion.div
-            initial={{ opacity: 0, y: 30 }}
-            animate={{ opacity: 1, y: 0 }}
+            initial={{ opacity: 0, x: -50 }}
+            animate={{ opacity: 1, x: 0 }}
             transition={{ duration: 0.8, delay: 0.2 }}
-            className="mb-4"
+            className="flex flex-col space-y-6 lg:space-y-8 text-center lg:text-left"
           >
-            <span className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-foreground/10 backdrop-blur-sm border border-foreground/20 text-xs md:text-sm font-semibold tracking-wider uppercase text-foreground/80">
-              <Zap className="w-4 h-4 text-primary" />
-              {section.eyebrow || "THE #1 AI FITNESS VIDEO PLATFORM"}
-            </span>
-          </motion.div>
-
-          {/* 视频展示 - 横屏16:9，居中显示 */}
-          <motion.div
-            initial={{ opacity: 0, scale: 0.95 }}
-            animate={{ opacity: 1, scale: 1 }}
-            transition={{ duration: 0.8, delay: 0.3 }}
-            className="mb-6 flex justify-center"
-          >
-            <div className="relative w-full max-w-[320px] sm:max-w-[480px] lg:max-w-[560px] aspect-video rounded-2xl overflow-hidden shadow-2xl border border-foreground/10 bg-muted">
-              <video
-                autoPlay
-                muted
-                loop
-                playsInline
-                controls
-                className="w-full h-full object-cover"
-              >
-                <source src="/final_video.mp4" type="video/mp4" />
-              </video>
-              {/* 视频遮罩渐变 */}
-              <div className="absolute inset-0 bg-gradient-to-t from-black/30 via-transparent to-transparent pointer-events-none" />
-              {/* 视频标签 */}
-              <div className="absolute bottom-3 left-3 right-3">
-                <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-black/50 backdrop-blur-sm text-white text-xs font-medium">
-                  <span className="w-2 h-2 rounded-full bg-green-500 animate-pulse" />
-                  {section.demo_video_title || "AI Generated Workout Demo"}
-                </span>
-              </div>
-            </div>
-          </motion.div>
-
-          {/* Quote */}
-          <motion.div
-            initial={{ opacity: 0, y: 30 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8, delay: 0.4 }}
-            className="mb-6"
-          >
-            <p className="text-lg md:text-2xl font-medium italic text-primary">
-              {section.quote || '"This Replaced My Personal Trainer."'}
-            </p>
-          </motion.div>
-
-          {/* 主标题 - 炫酷渐变效果 */}
-          <motion.h1
-            initial={{ opacity: 0, scale: 0.8 }}
-            animate={{ opacity: 1, scale: 1 }}
-            transition={{
-              duration: 1,
-              delay: 0.6,
-              type: "spring",
-              bounce: 0.3,
-            }}
-            className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-black leading-tight mb-8"
-          >
-            <span className="block text-foreground">
-              {section.title_line1 || "把身边的一切"}
-            </span>
-            <motion.span
-              className="block mt-2 bg-gradient-to-r from-primary via-secondary to-primary bg-clip-text text-transparent"
-              animate={{
-                backgroundPosition: ["0% 50%", "100% 50%", "0% 50%"],
-              }}
-              transition={{
-                duration: 5,
-                repeat: Infinity,
-                ease: "linear",
-              }}
-              style={{
-                backgroundSize: "200% 200%",
-              }}
+            {/* Eyebrow - 红色醒目 */}
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.6, delay: 0.3 }}
             >
-              {section.title_line2 || "变成你的专属训练视频"}
-            </motion.span>
-          </motion.h1>
+              <span className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-red-500/10 backdrop-blur-sm border border-red-500/30 text-sm md:text-base font-bold tracking-wide uppercase text-red-600 dark:text-red-400">
+                <Zap className="w-4 h-4" />
+                {section.eyebrow || "STIFF NECK? ACHING LOWER BACK?"}
+              </span>
+            </motion.div>
 
-          {/* CTA按钮 */}
-          <motion.div
-            initial={{ opacity: 0, y: 30 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8, delay: 1 }}
-            className="flex flex-col sm:flex-row items-center justify-center gap-4"
-          >
-            <Link
-              href="/ai-video-generator"
-              className="group relative inline-flex items-center justify-center gap-2 px-8 py-4 text-base md:text-lg font-bold rounded-full overflow-hidden transition-all duration-300 hover:scale-105"
+            {/* 主标题 H1 */}
+            <motion.h1
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.8, delay: 0.4 }}
+              className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-black leading-tight"
             >
-              {/* 按钮背景动画 */}
-              <motion.div
-                className="absolute inset-0 bg-gradient-to-r from-primary via-secondary to-primary"
+              <span className="block text-foreground">
+                {section.title_line1 || "Turn Your Workspace Into"}
+              </span>
+              <motion.span
+                className="block mt-2 bg-gradient-to-r from-primary via-secondary to-primary bg-clip-text text-transparent"
                 animate={{
                   backgroundPosition: ["0% 50%", "100% 50%", "0% 50%"],
                 }}
                 transition={{
-                  duration: 3,
+                  duration: 5,
                   repeat: Infinity,
                   ease: "linear",
                 }}
                 style={{
                   backgroundSize: "200% 200%",
                 }}
-              />
-              <span className="relative z-10 text-primary-foreground flex items-center gap-2">
-                <Zap className="w-5 h-5" />
-                {section.cta || "生成我的训练视频"}
-              </span>
+              >
+                {section.title_line2 || "an Instant Relief Station"}
+              </motion.span>
+            </motion.h1>
 
-              {/* 悬停光效 */}
+            {/* 副标题 */}
+            <motion.p
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.8, delay: 0.5 }}
+              className="text-base sm:text-lg md:text-xl text-muted-foreground leading-relaxed max-w-2xl mx-auto lg:mx-0"
+            >
+              {section.description || "AI-powered ergonomic stretches designed for desk workers. Relieve tension in under 3 minutes using just your chair and desk. No gym clothes. No sweating. No equipment."}
+            </motion.p>
+
+            {/* CTA按钮 */}
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.8, delay: 0.6 }}
+              className="flex flex-col items-center lg:items-start gap-4"
+            >
+              <Link
+                href="/ai-video-generator"
+                className="group relative inline-flex items-center justify-center gap-2 px-8 py-4 text-base md:text-lg font-bold rounded-full overflow-hidden transition-all duration-300 hover:scale-105 shadow-lg hover:shadow-xl"
+              >
+                {/* 按钮背景动画 */}
+                <motion.div
+                  className="absolute inset-0 bg-gradient-to-r from-primary via-secondary to-primary"
+                  animate={{
+                    backgroundPosition: ["0% 50%", "100% 50%", "0% 50%"],
+                  }}
+                  transition={{
+                    duration: 3,
+                    repeat: Infinity,
+                    ease: "linear",
+                  }}
+                  style={{
+                    backgroundSize: "200% 200%",
+                  }}
+                />
+                <span className="relative z-10 text-primary-foreground flex items-center gap-2">
+                  <Zap className="w-5 h-5" />
+                  {section.cta || "Start Your Relief Plan"}
+                </span>
+
+                {/* 悬停光效 */}
+                <motion.div
+                  className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-300"
+                  style={{
+                    background:
+                      "radial-gradient(circle at center, rgba(255,255,255,0.3) 0%, transparent 70%)",
+                  }}
+                />
+              </Link>
+
+              {/* 信任背书 - 按钮下方 */}
               <motion.div
-                className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-300"
-                style={{
-                  background:
-                    "radial-gradient(circle at center, rgba(255,255,255,0.3) 0%, transparent 70%)",
-                }}
-              />
-            </Link>
-          </motion.div>
-
-          {/* 用户评价和视频展示区域 */}
-          <motion.div
-            initial={{ opacity: 0, y: 30 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8, delay: 1.2 }}
-            className="pt-6 sm:pt-8 flex flex-col items-center gap-4 sm:gap-6"
-          >
-            {/* 用户头像和评分 */}
-            <div className="flex flex-col items-center gap-3 sm:gap-4">
-              {/* 头像组 */}
-              <div className="flex -space-x-2 sm:-space-x-3">
-                {[14, 15, 16, 17, 18].map((num) => (
-                  <div
-                    key={num}
-                    className="relative w-8 h-8 sm:w-10 sm:h-10 lg:w-12 lg:h-12 rounded-full border-2 border-background overflow-hidden bg-primary/10"
-                  >
-                    <img
-                      src={`/imgs/avatars/${num}.jpg`}
-                      alt={`User ${num}`}
-                      className="w-full h-full object-cover"
-                      loading="lazy"
-                    />
-                  </div>
-                ))}
-              </div>
-
-              {/* 评分和文字 */}
-              <div className="flex flex-col items-center gap-1.5 sm:gap-2">
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                transition={{ duration: 0.8, delay: 0.7 }}
+                className="flex flex-col items-center lg:items-start gap-2"
+              >
                 {/* 五星评分 */}
-                <div className="flex gap-0.5 sm:gap-1">
+                <div className="flex gap-1">
                   {[1, 2, 3, 4, 5].map((star) => (
                     <svg
                       key={star}
-                      className="w-4 h-4 sm:w-5 sm:h-5 fill-amber-500 text-amber-500"
+                      className="w-5 h-5 fill-amber-500 text-amber-500"
                       viewBox="0 0 20 20"
                     >
                       <path d="M10 15l-5.878 3.09 1.123-6.545L.489 6.91l6.572-.955L10 0l2.939 5.955 6.572.955-4.756 4.635 1.123 6.545z" />
                     </svg>
                   ))}
                 </div>
-                <p className="text-xs sm:text-sm lg:text-base text-muted-foreground font-medium px-4 text-center">
+                <p className="text-sm md:text-base text-muted-foreground font-medium">
                   {(
                     section.trusted_by ||
-                    "Trusted by {count}+ Fitness Enthusiasts"
-                  ).replace("{count}", "1,000")}
+                    "⭐⭐⭐⭐⭐ Loved by {count}+ US desk workers"
+                  ).replace("{count}", "10,000")}
                 </p>
-              </div>
-            </div>
+              </motion.div>
+            </motion.div>
           </motion.div>
 
-          {/* 滚动提示 */}
-          {/* <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ delay: 1.5 }}
-            className="absolute bottom-8 left-1/2 -translate-x-1/2"
+          {/* 右侧：场景视频/图片 */}
+          <motion.div
+            initial={{ opacity: 0, x: 50 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ duration: 0.8, delay: 0.4 }}
+            className="relative w-full"
           >
+            <div className="relative w-full aspect-video rounded-2xl overflow-hidden shadow-2xl border border-foreground/10 bg-muted">
+              {/* 视频 */}
+              <video
+                autoPlay
+                muted
+                loop
+                playsInline
+                className="w-full h-full object-cover"
+              >
+                <source src="/final_video.mp4" type="video/mp4" />
+              </video>
+
+              {/* 视频遮罩渐变 */}
+              <div className="absolute inset-0 bg-gradient-to-t from-black/30 via-transparent to-transparent pointer-events-none" />
+
+              {/* 视频标签 */}
+              <div className="absolute bottom-4 left-4 right-4">
+                <span className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-black/60 backdrop-blur-sm text-white text-xs md:text-sm font-medium">
+                  <span className="w-2 h-2 rounded-full bg-green-500 animate-pulse" />
+                  {section.demo_video_title || "Office Relief Demo"}
+                </span>
+              </div>
+
+              {/* Quote 叠加在视频上 */}
+              {section.quote && (
+                <div className="absolute top-4 left-4 right-4">
+                  <p className="text-sm md:text-base lg:text-lg font-medium italic text-white bg-black/50 backdrop-blur-sm px-4 py-2 rounded-lg">
+                    {section.quote}
+                  </p>
+                </div>
+              )}
+            </div>
+
+            {/* 装饰元素 */}
             <motion.div
-              animate={{ y: [0, 10, 0] }}
-              transition={{ duration: 2, repeat: Infinity, ease: "easeInOut" }}
-              className="w-6 h-10 rounded-full border-2 border-foreground/30 flex justify-center pt-2"
-            >
-              <motion.div
-                animate={{ opacity: [1, 0, 1], y: [0, 8, 0] }}
-                transition={{
-                  duration: 2,
-                  repeat: Infinity,
-                  ease: "easeInOut",
-                }}
-                className="w-1.5 h-3 rounded-full bg-primary"
-              />
-            </motion.div>
-          </motion.div> */}
-        </motion.div>
+              className="absolute -z-10 -top-4 -right-4 w-72 h-72 rounded-full opacity-20 blur-3xl bg-gradient-to-br from-primary to-secondary"
+              animate={{
+                scale: [1, 1.2, 1],
+                rotate: [0, 90, 0],
+              }}
+              transition={{
+                duration: 8,
+                repeat: Infinity,
+                ease: "easeInOut",
+              }}
+            />
+          </motion.div>
+        </div>
       </div>
     </section>
   );

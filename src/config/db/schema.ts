@@ -476,9 +476,7 @@ export const aiTask = table(
   'ai_task',
   {
     id: text('id').primaryKey(),
-    userId: text('user_id')
-      .notNull()
-      .references(() => user.id, { onDelete: 'cascade' }),
+    userId: text('user_id').notNull(),
     mediaType: text('media_type').notNull(),
     provider: text('provider').notNull(),
     model: text('model').notNull(),
@@ -848,5 +846,41 @@ export const objectVideoMapping = table(
     index('idx_object_video_video').on(table.videoId),
     index('idx_object_video_body_part').on(table.bodyPartId),
     index('idx_object_video_composite').on(table.objectId, table.bodyPartId),
+  ]
+);
+
+// User wizard progress - stores user's step-by-step selections
+export const userWizardProgress = table(
+  'user_wizard_progress',
+  {
+    id: text('id').primaryKey(),
+    userId: text('user_id')
+      .notNull()
+      .references(() => user.id, { onDelete: 'cascade' }),
+    // Step 1: Voice gender
+    voiceGender: text('voice_gender'), // 'male' | 'female'
+    // Step 2: Age group
+    ageGroup: text('age_group'), // 'young' | 'middle' | 'senior'
+    // Step 3: Difficulty
+    difficulty: text('difficulty'), // 'easy' | 'medium' | 'hard'
+    // Step 4: Reference images (JSON array of URLs)
+    referenceImages: text('reference_images'), // JSON string: ["url1", "url2"]
+    // Step 5: Selected body parts (JSON array)
+    selectedBodyParts: text('selected_body_parts'), // JSON string: ["neck", "shoulders", "chest"]
+    // Current step (1-5)
+    currentStep: integer('current_step').default(1).notNull(),
+    // Additional settings
+    aspectRatio: text('aspect_ratio').default('adaptive'),
+    duration: integer('duration').default(12),
+    generateAudio: boolean('generate_audio').default(true).notNull(),
+    createdAt: timestamp('created_at').defaultNow().notNull(),
+    updatedAt: timestamp('updated_at')
+      .defaultNow()
+      .$onUpdate(() => new Date())
+      .notNull(),
+  },
+  (table) => [
+    index('idx_wizard_progress_user').on(table.userId),
+    index('idx_wizard_progress_updated').on(table.updatedAt),
   ]
 );

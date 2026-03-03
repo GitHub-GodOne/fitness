@@ -4,6 +4,7 @@
       "hero",
       "stats",
       "how-it-works",
+      "benefits",
       "features",
       "use-cases",
       "testimonials",
@@ -16,18 +17,18 @@
       "hero": {
         "block": "hero",
         "id": "hero",
-        "eyebrow": "THE #1 AI FITNESS VIDEO PLATFORM",
-        "quote": "\"This Replaced My Personal Trainer.\"",
-        "title_line1": "Turn Anything Around You",
-        "title_line2": "Into a Real Workout",
-        "cta": "Generate My AI Workout",
-        "title": "Turn Anything Around You Into a Real Workout",
-        "description": "Upload a photo of any everyday object. Choose your target muscle group. Get an AI-generated personalized workout video in seconds.",
-        "trusted_by": "Trusted by {count}+ Fitness Enthusiasts",
-        "demo_video_title": "AI Generated Workout Demo",
+        "eyebrow": "STIFF NECK? ACHING LOWER BACK?",
+        "quote": "\"This Replaced My Chiropractor.\"",
+        "title_line1": "Turn Your Workspace Into",
+        "title_line2": "an Instant Relief Station",
+        "cta": "Start Your Relief Plan",
+        "title": "Turn Your Workspace Into an Instant Relief Station",
+        "description": "AI-powered ergonomic stretches designed for desk workers. Relieve tension in under 3 minutes using just your chair and desk. No gym clothes. No sweating. No equipment.",
+        "trusted_by": "⭐⭐⭐⭐⭐ Loved by {count}+ US desk workers",
+        "demo_video_title": "Office Relief Demo",
         "buttons": [
           {
-            "title": "Generate My AI Workout",
+            "title": "Start Your Relief Plan",
             "url": "/ai-video-generator",
             "target": "_self",
             "variant": "default"
@@ -50,33 +51,58 @@
       "how-it-works": {
         "block": "features-step",
         "id": "how-it-works",
-        "title": "How It Works",
-        "description": "Get your personalized workout in 3 simple steps",
+        "title": "Feel Better in 3 Simple Steps",
+        "description": "Our AI instantly analyzes your surroundings to build a safe, ergonomic stretching routine.",
         "items": [
           {
-            "title": "Upload Your Photo",
-            "description": "Take a picture of any room or outdoor space with everyday objects",
+            "title": "Step 1: Snap Your Space",
+            "description": "Take a quick photo of your current setup—office, home, or couch.",
             "icon": "Camera"
           },
           {
-            "title": "Choose Target Muscles",
-            "description": "Select the muscle groups you want to train (chest, arms, legs, core, etc.)",
+            "title": "Step 2: Pinpoint the Tension",
+            "description": "Tell us where it hurts. Select your trouble zones like Stiff Neck or Lower Back.",
             "icon": "Target"
           },
           {
-            "title": "Get AI Workout Video",
-            "description": "Receive a custom workout video using objects from your photo",
+            "title": "Step 3: Get Your Micro-Break",
+            "description": "Instantly receive a guided, 3-minute stretch routine using your exact objects.",
             "icon": "Play"
           }
         ],
         "buttons": [
           {
-            "title": "Try It Now",
+            "title": "Start Your Relief Plan",
             "url": "/ai-video-generator",
             "target": "_self",
             "variant": "default"
           }
         ],
+        "className": "bg-background"
+      },
+      "benefits": {
+        "block": "benefits-premium",
+        "id": "benefits",
+        "title": "Designed for the Reality of Your Workday",
+        "description": "",
+        "items": [
+          {
+            "title": "Work-Clothes Friendly",
+            "description": "All stretches are safe and discreet. No awkward poses, no need to change out of your suit or jeans.",
+            "icon": "Shirt"
+          },
+          {
+            "title": "Zero Sweating Required",
+            "description": "Gentle, physical-therapy-inspired movements designed to increase blood flow, not your heart rate.",
+            "icon": "Droplet"
+          },
+          {
+            "title": "Built for Busy Schedules",
+            "description": "Got a call in 5 minutes? Our routines range from 1 to 3 minutes, fitting perfectly between your Zoom meetings.",
+            "icon": "Clock"
+          }
+        ],
+        "buttons": [],
         "className": "bg-background"
       },
       "features": {
@@ -119,23 +145,23 @@
       },
       "testimonials": {
         "id": "testimonials",
-        "title": "Real Results From Real Users",
+        "title": "Real Relief for Real Desk Workers",
         "description": "",
         "items": [
           {
-            "name": "Mike Johnson",
-            "role": "Fitness Enthusiast",
-            "quote": "Game changer! I use my water bottle and desk chair for daily workouts. The AI knows exactly what exercises work with my setup.",
+            "name": "David R.",
+            "role": "Software Engineer",
+            "quote": "Sitting in front of code for 10 hours a day wrecked my posture. I use this app twice a day just using my desk chair. The neck tension is completely gone.",
             "image": {
               "src": "/imgs/avatars/14.jpg",
-              "alt": "Mike"
+              "alt": "David"
             },
             "rating": 5
           },
           {
-            "name": "Sarah Chen",
-            "role": "Busy Professional",
-            "quote": "Perfect for my small apartment. No gym equipment needed, just my coffee table and towels. Lost 15 lbs in 2 months!",
+            "name": "Sarah M.",
+            "role": "Financial Analyst",
+            "quote": "Finally, something that fits my schedule. I do a 2-minute shoulder release using my kitchen counter while working from home. Highly recommend!",
             "image": {
               "src": "/imgs/avatars/15.jpg",
               "alt": "Sarah"
@@ -143,12 +169,12 @@
             "rating": 5
           },
           {
-            "name": "David Martinez",
-            "role": "Personal Trainer",
-            "quote": "I recommend this to all my clients. The AI creates safe, effective workouts using everyday items. Brilliant technology!",
+            "name": "Michael T.",
+            "role": "Marketing Manager",
+            "quote": "No more chiropractor visits! These quick stretches between meetings have saved my lower back. Simple, effective, and professional.",
             "image": {
               "src": "/imgs/avatars/16.jpg",
-              "alt": "David"
+              "alt": "Michael"
             },
             "rating": 5
           }
@@ -245,27 +271,27 @@
       "faq": {
         "id": "faq",
         "title": "Frequently Asked Questions",
-        "description": "Everything you need to know about AI Fitness Trainer",
+        "description": "Everything you need to know about OfficeReliefAI",
         "items": [
           {
-            "question": "What makes these workout videos special?",
-            "answer": "Each video is custom-created based on your environment and available objects. Our AI analyzes your photo and creates personalized exercises that you can do with everyday items around you."
+            "question": "Do I need to be flexible to do this?",
+            "answer": "Not at all. Our routines are designed for everyday bodies, targeting the stiffness that comes from prolonged sitting."
           },
           {
-            "question": "How long does it take to receive the video?",
-            "answer": "Your personalized workout video is generated in just 2-5 minutes. We use advanced AI technology to create your custom workout quickly while ensuring exercise safety and effectiveness."
+            "question": "Will these exercises make me sweat?",
+            "answer": "No. Our platform focuses on relief and mobility. You can do these comfortably in your regular work attire."
           },
           {
-            "question": "What objects can I use for workouts?",
-            "answer": "Almost anything! Water bottles, chairs, towels, backpacks, stairs, walls - our AI can create effective exercises using common household items. Just take a photo of your space."
+            "question": "What if I'm in an open office and don't want to look silly?",
+            "answer": "We've got you covered. Select \"Discreet Stretches\" and the AI will generate subtle movements you can do without drawing attention."
           },
           {
-            "question": "Is this suitable for beginners?",
-            "answer": "Absolutely! Our AI creates workouts tailored to all fitness levels. You can specify your experience level and any limitations, and we'll generate appropriate exercises."
+            "question": "How long does each routine take?",
+            "answer": "Our routines range from 1 to 3 minutes, designed to fit perfectly between your meetings and tasks."
           },
           {
-            "question": "Can I target specific muscle groups?",
-            "answer": "Yes! You can choose to focus on chest, arms, legs, core, back, or full body workouts. The AI will create exercises targeting your selected muscle groups."
+            "question": "Do I need any special equipment?",
+            "answer": "No equipment needed. Just your desk, chair, and the space around you. The AI creates stretches using what you already have."
           },
           {
             "question": "What if generation fails?",
@@ -285,9 +311,23 @@
       },
       "cta": {
         "id": "cta",
-        "title": "Ready to Turn Your Space Into a Gym?",
-        "description": "Upload a photo, pick your muscles, and get a workout video in seconds. No equipment needed.",
-        "buttons": [{ "title": "Generate My Workout", "url": "/ai-video-generator", "target": "_self", "icon": "Sparkles" }],
+        "title": "Don't Let Your Desk Dictate Your Posture",
+        "description": "Start releasing tension today. Join thousands of desk workers who've found relief.",
+        "buttons": [
+          {
+            "title": "Start Healing Your Back Today",
+            "url": "/ai-video-generator",
+            "target": "_self",
+            "icon": "Sparkles",
+            "variant": "default"
+          },
+          {
+            "title": "View Pricing",
+            "url": "/pricing",
+            "target": "_self",
+            "variant": "secondary"
+          }
+        ],
         "className": "bg-background"
       },
       "contact": {

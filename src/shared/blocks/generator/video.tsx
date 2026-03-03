@@ -43,7 +43,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/shared/components/ui/select";
-import { BodyPartSelector } from "@/shared/components/body-part-selector";
+import { BodyPartSelector2D } from "@/shared/components/body-part-selector-2d";
 import { Badge } from "@/shared/components/ui/badge";
 import {
   Table,
@@ -386,25 +386,137 @@ export function VideoGenerator({
   const [selectedBodyParts, setSelectedBodyParts] = useState<string[]>([]);
   const TOTAL_STEPS = 5;
 
-  // Load voice gender from cookies on client side only (avoid hydration mismatch)
-  useEffect(() => {
-    if (typeof document !== "undefined") {
-      const savedGender = document.cookie
-        .split("; ")
-        .find((row) => row.startsWith("voice_gender="))
-        ?.split("=")[1] as "male" | "female" | undefined;
-      if (savedGender && savedGender !== voiceGender) {
-        setVoiceGender(savedGender);
-      }
-    }
-  }, []);
-
+  // Get user context first (needed for wizard progress)
   const { user, isCheckSign, setIsShowSignModal, fetchUserCredits } =
     useAppContext();
 
   const isDesktop = useMediaQuery("(min-width: 768px)");
   const pathname = usePathname();
   const router = useRouter();
+
+  // Helper functions for cookies
+  const setCookie = (name: string, value: string, days = 30) => {
+    const expires = new Date();
+    expires.setTime(expires.getTime() + days * 24 * 60 * 60 * 1000);
+    document.cookie = `${name}=${value};expires=${expires.toUTCString()};path=/`;
+  };
+
+  const getCookie = (name: string): string | null => {
+    const value = `; ${document.cookie}`;
+    const parts = value.split(`; ${name}=`);
+    if (parts.length === 2) return parts.pop()?.split(';').shift() || null;
+    return null;
+  };
+
+  // Load wizard progress from cookies first, then database
+  const loadWizardProgress = useCallback(async () => {
+    // Load from cookies (works for all users)
+    try {
+      const savedVoiceGender = getCookie('wizard_voiceGender');
+      const savedAgeGroup = getCookie('wizard_ageGroup');
+      const savedDifficulty = getCookie('wizard_difficulty');
+      const savedBodyParts = getCookie('wizard_bodyParts');
+      const savedStep = getCookie('wizard_currentStep');
+      const savedRatio = getCookie('wizard_ratio');
+      const savedDuration = getCookie('wizard_duration');
+      const savedGenerateAudio = getCookie('wizard_generateAudio');
+      const savedReferenceImages = getCookie('wizard_referenceImages');
+
+      if (savedVoiceGender) setVoiceGender(savedVoiceGender as "male" | "female");
+      if (savedAgeGroup) setAgeGroup(savedAgeGroup as any);
+      if (savedDifficulty) setDifficulty(savedDifficulty as any);
+      if (savedBodyParts) setSelectedBodyParts(JSON.parse(savedBodyParts));
+      if (savedStep) setCurrentStep(parseInt(savedStep));
+      if (savedRatio) setRatio(savedRatio as any);
+      if (savedDuration) setDuration(parseInt(savedDuration));
+      if (savedGenerateAudio) setGenerateAudio(savedGenerateAudio === 'true');
+      if (savedReferenceImages) setReferenceImageUrls(JSON.parse(savedReferenceImages));
+    } catch (error) {
+      console.error('Failed to load wizard progress from cookies:', error);
+    }
+
+    // If user is logged in, also load from database (database takes precedence)
+    if (!user) return;
+
+    try {
+      const resp = await fetch('/api/wizard-progress');
+      if (resp.ok) {
+        const { data } = await resp.json();
+        if (data) {
+          if (data.voiceGender) setVoiceGender(data.voiceGender);
+          if (data.ageGroup) setAgeGroup(data.ageGroup);
+          if (data.difficulty) setDifficulty(data.difficulty);
+          if (data.selectedBodyParts) setSelectedBodyParts(data.selectedBodyParts);
+          if (data.currentStep) setCurrentStep(data.currentStep);
+          if (data.aspectRatio) setRatio(data.aspectRatio);
+          if (data.duration) setDuration(data.duration);
+          if (data.generateAudio !== undefined) setGenerateAudio(data.generateAudio);
+          if (data.referenceImages && data.referenceImages.length > 0) {
+            setReferenceImageUrls(data.referenceImages);
+          }
+        }
+      }
+    } catch (error) {
+      console.error('Failed to load wizard progress from database:', error);
+    }
+  }, [user]);
+
+  // Save wizard progress to both cookies and database
+  const saveWizardProgress = useCallback(async () => {
+    // Always save to cookies (works for all users)
+    try {
+      setCookie('wizard_voiceGender', voiceGender);
+      if (ageGroup) setCookie('wizard_ageGroup', ageGroup);
+      if (difficulty) setCookie('wizard_difficulty', difficulty);
+      setCookie('wizard_bodyParts', JSON.stringify(selectedBodyParts));
+      setCookie('wizard_currentStep', String(currentStep));
+      setCookie('wizard_ratio', ratio);
+      setCookie('wizard_duration', String(duration));
+      setCookie('wizard_generateAudio', String(generateAudio));
+      setCookie('wizard_referenceImages', JSON.stringify(referenceImageUrls));
+    } catch (error) {
+      console.error('Failed to save wizard progress to cookies:', error);
+    }
+
+    // If user is logged in, also save to database
+    if (!user) return;
+
+    try {
+      await fetch('/api/wizard-progress', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          voiceGender,
+          ageGroup: ageGroup || undefined,
+          difficulty: difficulty || undefined,
+          selectedBodyParts,
+          currentStep,
+          aspectRatio: ratio,
+          duration,
+          generateAudio,
+          referenceImages: referenceImageUrls,
+        }),
+      });
+    } catch (error) {
+      console.error('Failed to save wizard progress to database:', error);
+    }
+  }, [user, voiceGender, ageGroup, difficulty, selectedBodyParts, currentStep, ratio, duration, generateAudio, referenceImageUrls]);
+
+  // Load progress on mount (for both logged in and guest users)
+  useEffect(() => {
+    loadWizardProgress();
+  }, [loadWizardProgress]);
+
+  // Auto-save progress when state changes (for both logged in and guest users)
+  useEffect(() => {
+    if (isMounted) {
+      const timer = setTimeout(() => {
+        saveWizardProgress();
+      }, 500); // Debounce 500ms
+      return () => clearTimeout(timer);
+    }
+  }, [isMounted, voiceGender, ageGroup, difficulty, selectedBodyParts, currentStep, ratio, duration, generateAudio, referenceImageUrls, saveWizardProgress]);
+
 
   useEffect(() => {
     setIsMounted(true);
@@ -1107,12 +1219,8 @@ export function VideoGenerator({
   };
 
   const handleGenerate = async () => {
-    if (!user) {
-      setIsShowSignModal(true);
-      return;
-    }
-
-    if (remainingCredits < costCredits) {
+    // Check credits only for logged-in users
+    if (user && remainingCredits < costCredits) {
       toast.error("Insufficient credits. Please top up to keep creating.");
       return;
     }
@@ -1389,7 +1497,7 @@ export function VideoGenerator({
     <div className="min-h-screen flex flex-col px-4 pt-24 pb-12">
       {srOnlyTitle && <h2 className="sr-only">{srOnlyTitle}</h2>}
 
-      {/* Progress bar */}
+      {/* Progress bar with step navigation */}
       <div className="w-full max-w-xl mx-auto mb-6">
         <div className="h-1 w-full bg-muted rounded-full overflow-hidden">
           <div
@@ -1404,6 +1512,28 @@ export function VideoGenerator({
           <span className="text-[13px] text-muted-foreground tracking-wide">
             {Math.round((currentStep / TOTAL_STEPS) * 100)}%
           </span>
+        </div>
+
+        {/* Step navigation buttons */}
+        <div className="flex gap-2 mt-4 justify-center flex-wrap">
+          {[1, 2, 3, 4, 5].map((step) => (
+            <button
+              key={step}
+              type="button"
+              onClick={() => setCurrentStep(step)}
+              disabled={isGenerating}
+              className={cn(
+                "w-10 h-10 rounded-full text-sm font-medium transition-all",
+                currentStep === step
+                  ? "bg-primary text-primary-foreground shadow-md"
+                  : "bg-muted text-muted-foreground hover:bg-muted/80",
+                isGenerating && "opacity-50 cursor-not-allowed"
+              )}
+              title={`${t("wizard.go_to_step")} ${step}`}
+            >
+              {step}
+            </button>
+          ))}
         </div>
       </div>
 
@@ -1616,7 +1746,7 @@ export function VideoGenerator({
               <p className="text-[15px] text-muted-foreground text-center mb-6">{t("wizard.body_parts.description")}</p>
 
               <div className="w-full mb-8">
-                <BodyPartSelector
+                <BodyPartSelector2D
                   selected={selectedBodyParts}
                   onChange={setSelectedBodyParts}
                   disabled={isGenerating}
@@ -1634,7 +1764,7 @@ export function VideoGenerator({
                     <Loader2 className="mr-2 h-4 w-4 animate-spin" /> {t("checking_account")}
                   </button>
 // __STEP5_BUTTONS_CONTINUE__
-                ) : user ? (
+                ) : (
                   <button
                     type="button"
                     onClick={handleGenerate}
@@ -1646,14 +1776,6 @@ export function VideoGenerator({
                     ) : (
                       <><Sparkles className="mr-2 h-5 w-5" /> {t("generate")}</>
                     )}
-                  </button>
-                ) : (
-                  <button
-                    type="button"
-                    onClick={() => setIsShowSignModal(true)}
-                    className="w-full flex items-center justify-center px-6 py-3 rounded-xl bg-primary text-primary-foreground hover:bg-primary/90 font-medium text-[15px] shadow-sm hover:shadow transition-all"
-                  >
-                    <User className="mr-2 h-5 w-5" /> {t("sign_in_to_generate")}
                   </button>
                 )}
 

@@ -15,17 +15,22 @@ export async function POST(req: Request) {
     }
 
     const user = await getUserInfo();
-    if (!user) {
-      return respErr('no auth, please sign in');
-    }
 
     const task = await findAITaskById(taskId);
     if (!task || !task.taskId) {
       return respErr('task not found');
     }
 
-    if (task.userId !== user.id) {
-      return respErr('no permission');
+    // Check permission: logged-in users can only see their own tasks
+    // Anonymous users can see tasks with userId='anonymous'
+    if (user) {
+      if (task.userId !== user.id) {
+        return respErr('no permission');
+      }
+    } else {
+      if (task.userId !== 'anonymous') {
+        return respErr('no permission');
+      }
     }
 
     // If task is already completed (SUCCESS or FAILED), return it directly

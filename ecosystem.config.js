@@ -1,13 +1,13 @@
 module.exports = {
   apps: [
     {
-      name: "jenkins-object2workout",
+      name: "jenkins-fitness",
       // 关键改动：直接用 node 启动，让 PM2 彻底掌控集群句柄
       script: "node_modules/next/dist/bin/next",
       args: "start",
       instances: "max", // 先改成 2 个，稳定后再考虑更多
       exec_mode: "cluster",
-      cwd: "/var/www/jenkins-object2workout/current",
+      cwd: "/var/www/jenkins-fitness/current",
       env: {
         PORT: 3001,
         NODE_ENV: "production",

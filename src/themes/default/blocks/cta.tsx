@@ -6,6 +6,7 @@ import { Button } from "@/shared/components/ui/button";
 import { ScrollAnimation } from "@/shared/components/ui/scroll-animation";
 import { cn } from "@/shared/lib/utils";
 import { Section } from "@/shared/types/blocks/landing";
+import { motion } from "framer-motion";
 
 type ButtonVariant =
   | "default"
@@ -26,27 +27,58 @@ export function Cta({
     <section
       id={section.id}
       className={cn(
-        "py-8 sm:py-10 md:py-12 lg:py-16",
+        "relative py-16 sm:py-20 md:py-24 lg:py-32 overflow-hidden",
         section.className,
         className,
       )}
     >
+      {/* 背景装饰 */}
+      <div className="absolute inset-0 -z-10">
+        {/* 动态光效 */}
+        <motion.div
+          className="absolute top-1/4 -left-1/4 w-96 h-96 rounded-full bg-primary/10 blur-3xl"
+          animate={{
+            x: [0, 100, 0],
+            y: [0, -50, 0],
+            scale: [1, 1.2, 1],
+          }}
+          transition={{
+            duration: 20,
+            repeat: Infinity,
+            ease: "easeInOut",
+          }}
+        />
+        <motion.div
+          className="absolute bottom-1/4 -right-1/4 w-96 h-96 rounded-full bg-secondary/10 blur-3xl"
+          animate={{
+            x: [0, -100, 0],
+            y: [0, 50, 0],
+            scale: [1, 1.3, 1],
+          }}
+          transition={{
+            duration: 25,
+            repeat: Infinity,
+            ease: "easeInOut",
+          }}
+        />
+      </div>
+
       <div className="container px-4 sm:px-6">
         <div className="text-center">
           <ScrollAnimation>
-            <h2 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-semibold text-balance px-4 text-foreground">
+            <h2 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-black text-balance px-4 text-foreground">
               {section.title}
             </h2>
           </ScrollAnimation>
           <ScrollAnimation delay={0.15}>
             <p
-              className="mt-3 sm:mt-4 text-sm sm:text-base px-4 text-muted-foreground"
+              className="mt-4 sm:mt-6 text-base sm:text-lg md:text-xl px-4 opacity-90 text-foreground"
               dangerouslySetInnerHTML={{ __html: section.description ?? "" }}
             />
           </ScrollAnimation>
 
           <ScrollAnimation delay={0.3}>
-            <div className="mt-6 sm:mt-8 md:mt-10 lg:mt-12 flex flex-col sm:flex-row flex-wrap justify-center gap-3 sm:gap-4 px-4">
+            <div className="mt-8 sm:mt-10 md:mt-12 lg:mt-16 flex flex-col sm:flex-row flex-wrap justify-center gap-4 sm:gap-6 px-4">
               {section.buttons?.map((button, idx) => {
                 const btn = button as any;
                 const safeVariant: ButtonVariant =
@@ -64,13 +96,14 @@ export function Cta({
                 return (
                   <Button
                     asChild
-                    size={btn.size || "default"}
+                    size="lg"
                     variant={safeVariant}
                     key={idx}
                     className={cn(
-                      "h-auto min-h-11 text-sm sm:min-h-12 sm:text-base",
+                      "h-auto min-h-14 text-base sm:text-lg font-bold",
                       "flex items-center justify-center gap-2 whitespace-normal break-words text-center",
-                      "px-4 sm:px-6 py-2.5 sm:py-3",
+                      "px-8 sm:px-10 py-4 sm:py-5 rounded-full",
+                      "shadow-xl hover:shadow-2xl transition-all duration-300 hover:scale-105",
                     )}
                   >
                     <Link
@@ -81,7 +114,7 @@ export function Cta({
                       {btn.icon && (
                         <SmartIcon
                           name={btn.icon as string}
-                          className="h-4 w-4 sm:h-5 sm:w-5 shrink-0"
+                          className="h-5 w-5 sm:h-6 sm:w-6 shrink-0"
                         />
                       )}
                       <span className="break-words">{btn.title}</span>

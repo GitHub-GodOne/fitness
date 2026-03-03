@@ -5,13 +5,43 @@ import { themes, defaultTheme, type ThemeColors } from '@/config/theme/themes';
 
 const THEME_STORAGE_KEY = 'app-theme-color';
 
-// Get initial theme from localStorage (client-side only)
+// Get theme from cookies
+const getThemeFromCookie = () => {
+  if (typeof document === 'undefined') return null;
+  const cookies = document.cookie.split(';');
+  const themeCookie = cookies.find(c => c.trim().startsWith(`${THEME_STORAGE_KEY}=`));
+  if (themeCookie) {
+    return themeCookie.split('=')[1].trim();
+  }
+  return null;
+};
+
+// Set theme to cookies
+const setThemeToCookie = (theme: string) => {
+  if (typeof document === 'undefined') return;
+  const expires = new Date();
+  expires.setFullYear(expires.getFullYear() + 1); // 1 year expiry
+  document.cookie = `${THEME_STORAGE_KEY}=${theme};expires=${expires.toUTCString()};path=/`;
+};
+
+// Get initial theme from cookies or localStorage (client-side only)
 const getInitialTheme = () => {
   if (typeof window === 'undefined') return defaultTheme;
+
+  // Try cookies first (for SSR consistency)
+  const cookieTheme = getThemeFromCookie();
+  if (cookieTheme && themes.find((t) => t.name === cookieTheme)) {
+    return cookieTheme;
+  }
+
+  // Fallback to localStorage
   const savedTheme = localStorage.getItem(THEME_STORAGE_KEY);
   if (savedTheme && themes.find((t) => t.name === savedTheme)) {
+    // Migrate to cookie
+    setThemeToCookie(savedTheme);
     return savedTheme;
   }
+
   return defaultTheme;
 };
 
@@ -86,8 +116,9 @@ export function useThemeColor() {
     root.style.setProperty('--chart-2', colors.secondary);
     root.style.setProperty('--chart-3', colors.accent);
 
-    // Save to localStorage
+    // Save to both localStorage and cookie
     localStorage.setItem(THEME_STORAGE_KEY, currentTheme);
+    setThemeToCookie(currentTheme);
   }, [currentTheme, isDark]);
 
   const changeTheme = (themeName: string) => {

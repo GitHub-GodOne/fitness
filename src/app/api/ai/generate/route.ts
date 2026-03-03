@@ -10,11 +10,8 @@ import { getAIService } from "@/shared/services/ai";
 export async function POST(request: Request) {
   let taskId: string | undefined;
   try {
-    // get current user
+    // get current user (optional for free access)
     const user = await getUserInfo();
-    if (!user) {
-      throw new Error("no auth, please sign in");
-    }
 
     let provider, mediaType, model, prompt, options, scene;
     taskId = getUuid(); // Generate taskId early
@@ -123,10 +120,13 @@ export async function POST(request: Request) {
       throw new Error("invalid mediaType");
     }
 
-    // check credits
-    const remainingCredits = await getRemainingCredits(user.id);
-    if (remainingCredits < costCredits) {
-      throw new Error("insufficient credits");
+    // check credits only for logged-in users
+    let remainingCredits = 0;
+    if (user) {
+      remainingCredits = await getRemainingCredits(user.id);
+      if (remainingCredits < costCredits) {
+        throw new Error("insufficient credits");
+      }
     }
 
     // Validate video settings for free users (only 3 free credits)
@@ -135,8 +135,8 @@ export async function POST(request: Request) {
       const duration = options.duration;
       const ratio = options.ratio;
 
-      // Free users (with only 3 credits) can only use 480p
-      if (remainingCredits <= 3) {
+      // Free users (not logged in or with only 3 credits) can only use 480p
+      if (!user || remainingCredits <= 3) {
         if (resolution && resolution !== "480p") {
           throw new Error(
             "Free users can only use 480p resolution. Please purchase credits to unlock 720p and 1080p.",
@@ -179,6 +179,8 @@ export async function POST(request: Request) {
       callbackUrl,
       options,
       taskId,
+      user, // Pass user info to provider
+      remainingCredits, // Pass remaining credits to provider
     };
 
     // create ai task
@@ -190,7 +192,7 @@ export async function POST(request: Request) {
 
     const newAITask: NewAITask = {
       id: getUuid(),
-      userId: user.id,
+      userId: user?.id || 'anonymous', // Use 'anonymous' for non-logged-in users
       mediaType,
       provider,
       model,
@@ -198,7 +200,7 @@ export async function POST(request: Request) {
       scene,
       options: options ? JSON.stringify(options) : null,
       status: AITaskStatus.PENDING,
-      costCredits,
+      costCredits: user ? costCredits : 0, // Free for anonymous users
       taskId: taskId,
     };
     await createAITask(newAITask);

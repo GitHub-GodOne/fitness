@@ -15,6 +15,20 @@
       "when": 1771932650838,
       "tag": "0001_smart_ozymandias",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1772507373452,
+      "tag": "0002_first_patriot",
+      "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "7",
+      "when": 1772536607609,
+      "tag": "0003_dazzling_daimon_hellstrom",
+      "breakpoints": true
     }
   ]
 }

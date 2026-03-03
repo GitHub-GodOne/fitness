@@ -257,20 +257,6 @@ export function ImageUploader({
   };
 
   const handleFiles = (selectedFiles: File[]) => {
-    // Check if user is logged in before uploading
-    if (!user) {
-      // Set callback URL to current page for redirect after login
-      const callbackUrl = pathname || "/ai-video-generator";
-      setIsShowSignModal(true);
-      // Store callback URL in sessionStorage for SignModal to use
-      if (typeof window !== "undefined") {
-        sessionStorage.setItem("signInCallbackUrl", callbackUrl);
-      }
-      toast.error("Please sign in to upload images");
-      if (inputRef.current) inputRef.current.value = "";
-      return;
-    }
-
     const replaceTargetId = replaceTargetIdRef.current;
     if (replaceTargetId) {
       // reset immediately to avoid sticky replace mode
@@ -475,18 +461,6 @@ export function ImageUploader({
   };
 
   const openFilePicker = () => {
-    // Check if user is logged in before opening file picker
-    if (!user) {
-      // Set callback URL to current page for redirect after login
-      const callbackUrl = pathname || "/ai-video-generator";
-      setIsShowSignModal(true);
-      // Store callback URL in sessionStorage for SignModal to use
-      if (typeof window !== "undefined") {
-        sessionStorage.setItem("signInCallbackUrl", callbackUrl);
-      }
-      toast.error("Please sign in to upload images");
-      return;
-    }
     inputRef.current?.click();
   };
 

@@ -202,10 +202,20 @@ Output: a single JSON with "matchedObject" set to the exact name from the list, 
     }: {
         params: AIGenerateParams;
     }): Promise<AITaskResult> {
-        const { prompt, options, taskId: paramTaskId } = params;
+        const { prompt, options, taskId: paramTaskId, user, remainingCredits } = params as any;
         const taskId = paramTaskId || `vl-${Date.now()}`;
         const targetMuscleGroup = (options as any)?.target_muscle_group || (options as any)?.user_feeling || prompt || 'full_body';
         const apiKey = this.configs.apiKey;
+
+        // Determine access type based on user login status and credits
+        // Free: not logged in OR logged in with ≤3 credits
+        // Premium: logged in with >3 credits
+        let accessType: 'free' | 'premium' = 'free';
+        if (user && remainingCredits > 3) {
+            accessType = 'premium';
+        }
+
+        console.log(`[VideoLibrary] User: ${user ? user.id : 'anonymous'}, Credits: ${remainingCredits}, Access Type: ${accessType}`);
 
         // Split comma-separated body parts into array
         const bodyPartsList = targetMuscleGroup.split(',').map((s: string) => s.trim()).filter(Boolean);
@@ -256,7 +266,7 @@ Output: a single JSON with "matchedObject" set to the exact name from the list, 
                     console.log(`[VideoLibrary] Searching for videos: object="${matchedObject}", bodyParts=${JSON.stringify(bodyPartsList)}`);
                     const matchedVideos = await findVideosByObjectAndBodyParts(
                         matchedObject, bodyPartsList,
-                        { limit: 10, difficulty: userDifficulty, gender: userGender, accessType: 'free', ageGroup: userAgeGroup }
+                        { limit: 10, difficulty: userDifficulty, gender: userGender, accessType, ageGroup: userAgeGroup }
                     );
                     for (const mv of matchedVideos) {
                         if (!seenVideoIds.has(mv.video.id)) {
@@ -277,7 +287,7 @@ Output: a single JSON with "matchedObject" set to the exact name from the list, 
                     for (const bp of bodyPartsList) {
                         if (allVideos.length >= 10) break;
                         const genericVideos = await getVideosByBodyPart(bp, {
-                            limit: 10 - allVideos.length, difficulty: userDifficulty, gender: userGender, accessType: 'free', ageGroup: userAgeGroup
+                            limit: 10 - allVideos.length, difficulty: userDifficulty, gender: userGender, accessType, ageGroup: userAgeGroup
                         });
                         for (const video of genericVideos) {
                             if (!seenVideoIds.has(video.id)) {
@@ -331,9 +341,9 @@ Output: a single JSON with "matchedObject" set to the exact name from the list, 
                 const seenVideoIds = new Set<string>();
 
                 for (const bp of bodyPartsList) {
-                    console.log(`[VideoLibrary] Query params: bodyPart="${bp}", gender="${userGender}", ageGroup="${userAgeGroup}", difficulty="${userDifficulty}", accessType="free"`);
+                    console.log(`[VideoLibrary] Query params: bodyPart="${bp}", gender="${userGender}", ageGroup="${userAgeGroup}", difficulty="${userDifficulty}", accessType="${accessType}"`);
                     const genericVideos = await getVideosByBodyPart(bp, {
-                        limit: 10, difficulty: userDifficulty, gender: userGender, accessType: 'free', ageGroup: userAgeGroup
+                        limit: 10, difficulty: userDifficulty, gender: userGender, accessType, ageGroup: userAgeGroup
                     });
 
                     for (const video of genericVideos) {

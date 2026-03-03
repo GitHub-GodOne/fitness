@@ -3,6 +3,7 @@ import "@/config/style/global.css";
 import { JetBrains_Mono, Merriweather, Noto_Sans_Mono } from "next/font/google";
 import { getLocale, setRequestLocale } from "next-intl/server";
 import NextTopLoader from "nextjs-toploader";
+import { cookies } from "next/headers";
 
 import { envConfigs } from "@/config";
 import { locales } from "@/config/locale";
@@ -13,6 +14,7 @@ import { getAdsService } from "@/shared/services/ads";
 import { getAffiliateService } from "@/shared/services/affiliate";
 import { getAnalyticsService } from "@/shared/services/analytics";
 import { getCustomerService } from "@/shared/services/customer_service";
+import { themes, defaultTheme } from "@/config/theme/themes";
 
 const notoSansMono = Noto_Sans_Mono({
   subsets: ["latin"],
@@ -49,6 +51,18 @@ export default async function RootLayout({
 
   // app url
   const appUrl = envConfigs.app_url || "";
+
+  // Get theme from cookie
+  const cookieStore = await cookies();
+  const themeCookie = cookieStore.get('app-theme-color');
+  const savedTheme = themeCookie?.value;
+  const currentTheme = savedTheme && themes.find(t => t.name === savedTheme)
+    ? savedTheme
+    : defaultTheme;
+
+  // Get theme colors (use light mode for SSR, client will adjust)
+  const themeConfig = themes.find(t => t.name === currentTheme);
+  const themeColors = themeConfig?.colors.light || themes.find(t => t.name === defaultTheme)!.colors.light;
 
   // ads components
   let adsMetaTags = null;
@@ -107,6 +121,28 @@ export default async function RootLayout({
       lang={locale}
       className={`${notoSansMono.variable} ${merriweather.variable} ${jetbrainsMono.variable}`}
       suppressHydrationWarning
+      style={{
+        '--primary': themeColors.primary,
+        '--secondary': themeColors.secondary,
+        '--accent': themeColors.accent,
+        '--background': themeColors.background,
+        '--foreground': themeColors.foreground,
+        '--muted': themeColors.muted,
+        '--border': themeColors.border,
+        '--input': themeColors.border,
+        '--ring': themeColors.primary,
+        '--primary-foreground': themeColors.background,
+        '--secondary-foreground': themeColors.background,
+        '--accent-foreground': themeColors.foreground,
+        '--muted-foreground': themeColors.foreground,
+        '--card': themeColors.background,
+        '--card-foreground': themeColors.foreground,
+        '--popover': themeColors.background,
+        '--popover-foreground': themeColors.foreground,
+        '--chart-1': themeColors.primary,
+        '--chart-2': themeColors.secondary,
+        '--chart-3': themeColors.accent,
+      } as React.CSSProperties}
     >
       <head>
         <link rel="icon" href={envConfigs.app_favicon} />
