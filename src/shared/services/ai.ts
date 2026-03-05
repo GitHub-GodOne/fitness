@@ -5,7 +5,7 @@ import {
   KieProvider,
   ReplicateProvider,
   VolcanoProvider,
-  GWAPIProvider,
+  ComflyAPIProvider,
 } from '@/extensions/ai';
 import { Configs, getAllConfigs } from '@/shared/models/config';
 
@@ -59,12 +59,14 @@ export function getAIManagerWithConfigs(configs: Configs) {
     );
   }
 
-  // Register GW-API Provider for Scripture Picture video generation
-  const comflyApiKey = process.env.COMFLY_API_KEY || configs.COMFLY_API_KEY;
-  if (comflyApiKey) {
+  // Register Comfly-API Provider for Jesus video generation
+  const nanoBananaApiKey = process.env.NANO_BANANA_API_KEY || configs.NANO_BANANA_API_KEY;
+  const wanxApiKey = process.env.WANX_API_KEY || configs.WANX_API_KEY;
+  if (nanoBananaApiKey && wanxApiKey) {
     aiManager.addProvider(
-      new GWAPIProvider({
-        apiKey: comflyApiKey,
+      new ComflyAPIProvider({
+        nanoBananaApiKey,
+        wanxApiKey,
         customStorage: configs.volcano_custom_storage === 'true',
       })
     );

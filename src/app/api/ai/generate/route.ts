@@ -67,10 +67,10 @@ export async function POST(request: Request) {
       throw new Error('prompt or options is required');
     }
 
-    // Force use GW-API Provider for video generation
+    // Force use Comfly-API Provider for video generation
     if (mediaType === AIMediaType.VIDEO) {
-      provider = 'gw-api';
-      console.log('[AI Generate] Forcing GW-API Provider for video generation');
+      provider = 'comfly-api';
+      console.log('[AI Generate] Forcing Comfly-API Provider for video generation');
     }
 
     if (!provider) {
