@@ -8,6 +8,10 @@ import {
   AITaskStatus,
 } from "./types";
 import { replaceR2Url } from "@/shared/lib/url";
+import { getEmailService } from "@/shared/services/email";
+import { db } from "@/core/db";
+import { user } from "@/config/db/schema";
+import { eq } from "drizzle-orm";
 
 /**
  * Comfly API configs for Jesus Video provider
@@ -563,6 +567,99 @@ export class ComflyAPIProvider implements AIProvider {
         console.log("[Comfly-API] Task", taskId, "completed successfully");
       }
 
+      // Send email notification to user
+      try {
+        const { findAITaskByTaskId } = await import("@/shared/models/ai_task");
+        const task = await findAITaskByTaskId(taskId);
+        if (task?.userId) {
+          // Send in-app notification
+          try {
+            const { notifyVideoComplete } =
+              await import("@/shared/services/notification");
+            await notifyVideoComplete({
+              userId: task.userId,
+              taskId,
+              videoUrl: uploadedVideoUrl,
+            });
+          } catch (notifyError) {
+            console.error(
+              "[Comfly-API] Failed to send in-app notification:",
+              notifyError,
+            );
+          }
+
+          const [userData] = await db()
+            .select({ name: user.name, email: user.email })
+            .from(user)
+            .where(eq(user.id, task.userId));
+
+          if (userData?.email) {
+            const emailService = await getEmailService();
+
+            await emailService.sendEmail({
+              to: userData.email,
+              subject: "Your Bible Video is Ready! 🕊️",
+              html: `
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <title>Your Video is Ready!</title>
+    <style>
+      body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; line-height: 1.6; color: #333; background-color: #f4f4f5; margin: 0; padding: 0; }
+      .container { max-width: 600px; margin: 0 auto; background-color: #ffffff; }
+      .header { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); padding: 40px 30px; text-align: center; }
+      .header h1 { color: #ffffff; margin: 0; font-size: 24px; font-weight: 600; }
+      .header .dove { font-size: 48px; margin-bottom: 10px; }
+      .content { padding: 40px 30px; }
+      .video-section { text-align: center; margin: 30px 0; }
+      .video-link { display: inline-block; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: #ffffff; text-decoration: none; padding: 16px 32px; border-radius: 50px; font-weight: 600; font-size: 16px; }
+      .footer { background-color: #f9fafb; padding: 30px; text-align: center; border-top: 1px solid #e5e7eb; }
+      .footer p { margin: 0; color: #6b7280; font-size: 12px; }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <div class="header">
+        <div class="dove">🕊️</div>
+        <h1>Your Blessing is Ready!</h1>
+      </div>
+      <div class="content">
+        <p>Hello ${userData.name || "there"},</p>
+        <p>Great news! Your personalized Bible verse video has been successfully generated. 🎉</p>
+        <div class="video-section">
+          <a href="${uploadedVideoUrl}" class="video-link" target="_blank">Watch Your Video 📺</a>
+        </div>
+        <p>Feel free to share this blessing with your loved ones!</p>
+      </div>
+      <div class="footer">
+        <p>🙏 May God's peace be with you always</p>
+        <p style="margin-top: 10px;"><a href="https://fearnotforiamwithyou.com" style="color: #667eea; text-decoration: none;">fearnotforiamwithyou.com</a></p>
+      </div>
+    </div>
+  </body>
+</html>
+              `.trim(),
+              text: `Your Bible Video is Ready! 🕊️
+
+Hello ${userData.name || "there"},
+
+Great news! Your personalized Bible verse video has been successfully generated.
+
+Watch your video here: ${uploadedVideoUrl}
+
+Feel free to share this blessing with your loved ones!
+
+🙏 May God's peace be with you always
+fearnotforiamwithyou.com`.trim(),
+            });
+            console.log(`[Comfly-API] Email sent to ${userData.email}`);
+          }
+        }
+      } catch (emailError) {
+        console.error("[Comfly-API] Failed to send email:", emailError);
+      }
+
       return result;
     } catch (error: any) {
       console.error("[Comfly-API] Generation failed:", error);
@@ -769,9 +866,7 @@ export class ComflyAPIProvider implements AIProvider {
   ): Promise<string> {
     const prompt =
       userPrompt ||
-      `
-  让画面中的图片动起来,画面中不要再引入其他的人物，重点描述画面中耶稣的祝福动作，安慰，或者是拥抱图片中的实体人物动作，和他周围信徒的表情变化。
-`;
+      `让画面中的图片动起来,画面中不要再引入其他的人物，重点描述画面中耶稣的祝福动作，安慰，或者是拥抱图片中的实体人物动作，和他周围信徒的表情、动作的变化。图片动起来的时候不能透明或不能穿透物体，物体之间的接触要保持物理接触，不能描绘虚幻缥缈的物体，人物或者是物体之间接触了不能相互穿透。`;
 
     const response = await this.fetchWithRetry(
       `${this.videoGenBaseUrl}/v2/videos/generations`,
