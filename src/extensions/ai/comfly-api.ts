@@ -399,7 +399,7 @@ export class ComflyAPIProvider implements AIProvider {
         imageFile = await fs.readFile(fullPath);
       }
 
-      const editedImageUrl = await this.editImageWithNanoBanana(
+      const editedImageUrl = await this.editImageWithNanoBananaWithRetry(
         imageFile,
         imageUrl,
       );
@@ -855,6 +855,55 @@ fearnotforiamwithyou.com`.trim(),
     }
 
     return data.data[0].url;
+  }
+
+  /**
+   * Edit image with NanoBanana with retry logic
+   */
+  private async editImageWithNanoBananaWithRetry(
+    imageFile?: Buffer | string,
+    imageUrl?: string,
+    maxRetries: number = 3,
+  ): Promise<string> {
+    let lastError: Error | null = null;
+
+    for (let attempt = 1; attempt <= maxRetries; attempt++) {
+      try {
+        console.log(
+          `[Comfly-API] NanoBanana image edit attempt ${attempt}/${maxRetries}`,
+        );
+
+        const editedImageUrl = await this.editImageWithNanoBanana(
+          imageFile,
+          imageUrl,
+        );
+
+        console.log(
+          `[Comfly-API] NanoBanana image edit succeeded on attempt ${attempt}`,
+        );
+        return editedImageUrl;
+      } catch (error: any) {
+        lastError = error;
+        console.error(
+          `[Comfly-API] NanoBanana image edit attempt ${attempt}/${maxRetries} failed:`,
+          error.message,
+        );
+
+        // If this is not the last attempt, wait before retrying
+        if (attempt < maxRetries) {
+          const waitTime = 5000 * attempt; // 5s, 10s, 15s
+          console.log(
+            `[Comfly-API] Waiting ${waitTime}ms before retry...`,
+          );
+          await new Promise((resolve) => setTimeout(resolve, waitTime));
+        }
+      }
+    }
+
+    // All retries exhausted
+    throw new Error(
+      `NanoBanana image edit failed after ${maxRetries} attempts: ${lastError?.message}`,
+    );
   }
 
   /**
