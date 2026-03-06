@@ -283,12 +283,29 @@ export function VideoHistoryTable({
                       );
                       let finalPrompt = "";
                       let verseReference = "";
+
+                      // Try to extract from taskResult first (for comfly-api)
                       try {
-                        if (task.options) {
+                        if (task.taskResult) {
+                          const taskResult = JSON.parse(task.taskResult);
+                          if (taskResult.verse_reference) {
+                            verseReference = taskResult.verse_reference;
+                          }
+                          if (taskResult.narration) {
+                            finalPrompt = taskResult.narration;
+                          }
+                        }
+                      } catch (e) {
+                        // Ignore parse error
+                      }
+
+                      // Fallback to options.final_prompt (for gw-api)
+                      try {
+                        if (task.options && !verseReference) {
                           const options = JSON.parse(task.options);
-                          finalPrompt = options.final_prompt || "";
+                          finalPrompt = options.final_prompt || finalPrompt;
                           // Extract verse_reference from final_prompt JSON
-                          if (finalPrompt) {
+                          if (finalPrompt && !verseReference) {
                             try {
                               const analysis = JSON.parse(finalPrompt);
                               verseReference = analysis.verse_reference || "";

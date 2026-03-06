@@ -435,6 +435,8 @@ export class ComflyAPIProvider implements AIProvider {
       // Step 4: Generate script text (if needed)
       let scriptText = options?.scriptText || prompt;
       let verseReference = options?.title || "";
+      let verseText = "";
+      let scriptResult: any = null;
       // options?.generateScript
       if (true) {
         progress.currentStep = ComflyTaskStep.GENERATING_SCRIPT;
@@ -447,13 +449,14 @@ export class ComflyAPIProvider implements AIProvider {
           progress.progress,
         );
 
-        const scriptResult = await this.generateScriptText(
+        scriptResult = await this.generateScriptText(
           options?.userFeelings || prompt,
         );
 
         console.log("生成文案成功 文案内容为------->", scriptResult);
         scriptText = scriptResult.narration;
         verseReference = scriptResult.verse_reference;
+        verseText = scriptResult.verse_text;
       }
 
       // Step 5: Generate audio
@@ -552,6 +555,11 @@ export class ComflyAPIProvider implements AIProvider {
           edited_image_url: uploadedEditedImageUrl,
           audio_url: uploadedAudioUrl,
           original_video_url: uploadedOriginalVideoUrl,
+          verse_reference: verseReference,
+          verse_text: verseText,
+          narration: scriptText,
+          original_prompt: prompt,
+          user_feeling: options?.userFeelings || prompt,
         },
       };
 
