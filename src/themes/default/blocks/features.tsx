@@ -231,7 +231,7 @@ export function Features({
             className="text-center mt-12 md:mt-16  text-muted-foreground"
           >
             {section.buttons.map((button, index) => (
-              <Button key={index} asChild size="lg" className="group">
+              <Button key={index} asChild size="lg" className="group text-sm sm:text-base">
                 <Link
                   href={button.url || "/ai-video-generator"}
                   className="flex items-center gap-2"

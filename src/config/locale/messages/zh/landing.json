@@ -34,7 +34,7 @@
     },
     "buttons": [
       {
-        "title": "开始免费试用",
+        "title": "立即开始",
         "url": "/ai-video-generator",
         "icon": "Sparkles",
         "variant": "default"

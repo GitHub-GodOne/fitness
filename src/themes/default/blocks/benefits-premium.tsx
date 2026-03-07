@@ -115,7 +115,7 @@ function BenefitCard({
             >
               {IconComponent && (
                 <IconComponent
-                  className="w-32 h-32 lg:w-40 lg:h-40 text-primary"
+                  className="w-16 h-16 sm:w-20 sm:h-20 lg:w-24 lg:h-24 text-primary"
                   strokeWidth={1.5}
                 />
               )}

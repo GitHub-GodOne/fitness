@@ -26,21 +26,21 @@
           "icon": "Heart"
         },
         {
+          "title": "Pricing",
+          "url": "/pricing",
+          "icon": "DollarSign"
+        },
+        {
           "title": "FAQ",
           "description": "Frequently asked questions",
           "url": "/#faq",
           "icon": "HelpCircle"
-        },
-        {
-          "title": "Pricing",
-          "url": "/pricing",
-          "icon": "DollarSign"
         }
       ]
     },
     "buttons": [
       {
-        "title": "Start Free Trial",
+        "title": "Get Started",
         "url": "/ai-video-generator",
         "icon": "Sparkles",
         "variant": "default"

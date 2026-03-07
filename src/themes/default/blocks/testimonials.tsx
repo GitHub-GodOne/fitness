@@ -292,7 +292,7 @@ export function Testimonials({
                     asChild
                     size="lg"
                     variant={safeVariant}
-                    className="group"
+                    className="group text-sm sm:text-base"
                   >
                     <Link
                       href={btn.url || ""}

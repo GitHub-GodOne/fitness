@@ -93,6 +93,7 @@ export function ShowcasesFlow({
                 key={button.title}
                 variant={button.variant || 'default'}
                 size={button.size || 'sm'}
+                className="text-sm sm:text-base"
                 asChild
               >
                 <Link href={button.url || ''} target={button.target || '_self'}>

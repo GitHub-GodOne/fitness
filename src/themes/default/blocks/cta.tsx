@@ -100,9 +100,9 @@ export function Cta({
                     variant={safeVariant}
                     key={idx}
                     className={cn(
-                      "h-auto min-h-14 text-base sm:text-lg font-bold",
-                      "flex items-center justify-center gap-2 whitespace-normal break-words text-center",
-                      "px-8 sm:px-10 py-4 sm:py-5 rounded-full",
+                      "h-auto min-h-12 sm:min-h-14 text-xs sm:text-base md:text-lg font-bold",
+                      "flex items-center justify-center gap-2 whitespace-nowrap text-center",
+                      "px-4 sm:px-8 md:px-10 py-3 sm:py-4 md:py-5 rounded-full",
                       "shadow-xl hover:shadow-2xl transition-all duration-300 hover:scale-105",
                     )}
                   >

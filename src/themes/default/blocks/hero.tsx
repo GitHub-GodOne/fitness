@@ -157,14 +157,14 @@ export function Hero({
       )}
 
       {/* 主内容区域 - 左右分栏布局 */}
-      <div className="relative z-10 container mx-auto px-4 sm:px-6 lg:px-8 py-12 sm:py-16 lg:py-20 min-h-screen flex items-center">
+      <div className="relative z-10 container mx-auto px-4 sm:px-6 lg:px-8 pt-24 sm:pt-16 lg:pt-20 pb-12 sm:pb-16 lg:pb-20 min-h-screen flex items-center">
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-12 items-center w-full">
-          {/* 左侧：文案内容 */}
+          {/* 左侧：文案内容 - 在移动端显示在下方 */}
           <motion.div
             initial={{ opacity: 0, x: -50 }}
             animate={{ opacity: 1, x: 0 }}
             transition={{ duration: 0.8, delay: 0.2 }}
-            className="flex flex-col space-y-6 lg:space-y-8 text-center lg:text-left"
+            className="flex flex-col space-y-6 lg:space-y-8 text-center lg:text-left order-2 lg:order-1"
           >
             {/* Eyebrow - 红色醒目 */}
             <motion.div
@@ -172,8 +172,8 @@ export function Hero({
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.6, delay: 0.3 }}
             >
-              <span className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-red-500/10 backdrop-blur-sm border border-red-500/30 text-sm md:text-base font-bold tracking-wide uppercase text-red-600 dark:text-red-400">
-                <Zap className="w-4 h-4" />
+              <span className="inline-flex items-center gap-2 px-3 sm:px-4 py-2 rounded-full bg-red-500/10 backdrop-blur-sm border border-red-500/30 text-xs sm:text-sm md:text-base font-bold tracking-wide uppercase text-red-600 dark:text-red-400 whitespace-nowrap">
+                <Zap className="w-3 h-3 sm:w-4 sm:h-4" />
                 {section.eyebrow || "STIFF NECK? ACHING LOWER BACK?"}
               </span>
             </motion.div>
@@ -225,7 +225,7 @@ export function Hero({
             >
               <Link
                 href="/ai-video-generator"
-                className="group relative inline-flex items-center justify-center gap-2 px-8 py-4 text-base md:text-lg font-bold rounded-full overflow-hidden transition-all duration-300 hover:scale-105 shadow-lg hover:shadow-xl"
+                className="group relative inline-flex items-center justify-center gap-2 px-6 sm:px-8 py-3 sm:py-4 text-sm sm:text-base md:text-lg font-bold rounded-full overflow-hidden transition-all duration-300 hover:scale-105 shadow-lg hover:shadow-xl whitespace-nowrap"
               >
                 {/* 按钮背景动画 */}
                 <motion.div
@@ -286,12 +286,12 @@ export function Hero({
             </motion.div>
           </motion.div>
 
-          {/* 右侧：场景视频/图片 */}
+          {/* 右侧：场景视频/图片 - 在移动端显示在上方 */}
           <motion.div
             initial={{ opacity: 0, x: 50 }}
             animate={{ opacity: 1, x: 0 }}
             transition={{ duration: 0.8, delay: 0.4 }}
-            className="relative w-full"
+            className="relative w-full order-1 lg:order-2"
           >
             <div className="relative w-full aspect-video rounded-2xl overflow-hidden shadow-2xl border border-foreground/10 bg-muted">
               {/* 视频 */}
@@ -302,28 +302,8 @@ export function Hero({
                 playsInline
                 className="w-full h-full object-cover"
               >
-                <source src="/final_video.mp4" type="video/mp4" />
+                <source src="/video/380c4931-5d5a-42b1-a83b-87cd219ffa1b.mp4" type="video/mp4" />
               </video>
-
-              {/* 视频遮罩渐变 */}
-              <div className="absolute inset-0 bg-gradient-to-t from-black/30 via-transparent to-transparent pointer-events-none" />
-
-              {/* 视频标签 */}
-              <div className="absolute bottom-4 left-4 right-4">
-                <span className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-black/60 backdrop-blur-sm text-white text-xs md:text-sm font-medium">
-                  <span className="w-2 h-2 rounded-full bg-green-500 animate-pulse" />
-                  {section.demo_video_title || "Office Relief Demo"}
-                </span>
-              </div>
-
-              {/* Quote 叠加在视频上 */}
-              {section.quote && (
-                <div className="absolute top-4 left-4 right-4">
-                  <p className="text-sm md:text-base lg:text-lg font-medium italic text-white bg-black/50 backdrop-blur-sm px-4 py-2 rounded-lg">
-                    {section.quote}
-                  </p>
-                </div>
-              )}
             </div>
 
             {/* 装饰元素 */}

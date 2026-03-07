@@ -2,15 +2,12 @@
   "page": {
     "show_sections": [
       "hero",
-      "stats",
+      "authority",
       "how-it-works",
       "benefits",
-      "features",
-      "use-cases",
       "testimonials",
-      "what-you-get",
-      "cta",
       "faq",
+      "cta",
       "contact"
     ],
     "sections": {
@@ -20,11 +17,11 @@
         "eyebrow": "颈部僵硬？腰背酸痛？",
         "quote": "「这取代了我的按摩师。」",
         "title_line1": "把你的办公桌",
-        "title_line2": "变成即时缓解站",
+        "title_line2": "变成临床验证的缓解站",
         "cta": "开始缓解计划",
         "title": "把你的办公桌变成即时缓解站",
-        "description": "专为久坐办公人群设计的AI人体工学拉伸。仅用椅子和桌子，3分钟内缓解紧张。无需运动服。无需出汗。无需器械。",
-        "trusted_by": "⭐⭐⭐⭐⭐ 已有 {count}+ 美国办公人群喜爱",
+        "description": "专为久坐办公人群设计的AI人体工学拉伸，由真正的医疗专业人士演示。仅用椅子和桌子，3分钟内缓解紧张。无需运动服。无需出汗。只需即时、安全的缓解。",
+        "trusted_by": "经临床专家验证的方案 & 已有 {count}+ 美国办公人群喜爱",
         "demo_video_title": "办公室缓解演示",
         "buttons": [
           {
@@ -34,6 +31,18 @@
             "variant": "default"
           }
         ]
+      },
+      "authority": {
+        "block": "authority",
+        "id": "authority",
+        "title": "真正的医疗专家。真正的日常着装。",
+        "description": "注意到我们的视频有什么不同吗？您不会在这里看到健身模特或紧身瑜伽裤。指导您日常微休息的是来自南宁壮瑶坊中医医院的执业医生、护士和康复专家。我们要求临床团队脱下白大褂，穿上日常服装，以证明一点：您不需要运动服就能缓解颈部僵硬或腰背紧张。",
+        "additional_text": "在广西科学院大健康产业研究院的支持下，我们的演示合作伙伴将超过30年的临床研究和物理治疗专业知识直接带到您的屏幕上。他们专注于颈部、肩部和腰部疼痛的临床康复——证明真正的医疗级缓解可以无缝融入您的正常工作日。",
+        "image": {
+          "src": "/imgs/authority-behind-scenes.jpg",
+          "alt": "医疗专业人士穿着日常服装演示拉伸动作"
+        },
+        "className": "bg-muted/30"
       },
       "how-it-works": {
         "block": "features-step",
@@ -75,52 +84,24 @@
         "items": [
           {
             "title": "适合工作服装",
-            "description": "所有拉伸动作都安全且低调。无尴尬姿势，无需脱下西装或牛仔裤。",
+            "description": "如果我们的临床专家可以穿着便装演示这些动作，您也可以穿着办公服装完成。无尴尬姿势，无需换衣服。",
             "icon": "Shirt"
           },
           {
-            "title": "无需出汗",
-            "description": "温和的物理治疗式动作，旨在增加血液流动，而非心率。",
+            "title": "零出汗，100%临床功效",
+            "description": "这些不是锻炼。它们是由康复专家设计的物理治疗式动作，旨在增加血液流动、舒缓神经紧张和调整脊柱——而非提高心率。",
             "icon": "Droplet"
           },
           {
             "title": "为忙碌日程打造",
-            "description": "5分钟后有电话会议？我们的方案从1到3分钟不等，完美契合您的Zoom会议间隙。",
+            "description": "5分钟后有电话会议？我们的方案从1到3分钟不等，完美契合您的Zoom会议间隙，同时提供医疗级缓解。",
             "icon": "Clock"
           }
         ],
         "buttons": [],
         "className": "bg-background"
       },
-      "features": {
-        "block": "features",
-        "id": "features",
-        "title": "为什么选择AI健身教练",
-        "description": "革命性的方式，用身边的物品进行锻炼",
-        "items": [
-          {
-            "title": "无需器械",
-            "description": "将日常物品变成健身器材。水瓶、椅子、毛巾 - 任何东西都可以！",
-            "icon": "Dumbbell"
-          },
-          {
-            "title": "个性化计划",
-            "description": "AI分析你的照片，根据可用物品和你的目标创建定制运动。",
-            "icon": "User"
-          },
-          {
-            "title": "视频指导",
-            "description": "清晰的视频演示，展示如何安全有效地完成每个动作。",
-            "icon": "Video"
-          },
-          {
-            "title": "进度跟踪",
-            "description": "通过详细的分析和成就跟踪监控你的健身旅程。",
-            "icon": "TrendingUp"
-          }
-        ],
-        "className": "bg-background"
-      },
+
       "testimonials": {
         "id": "testimonials",
         "title": "真实办公人群的真实缓解效果",
@@ -168,6 +149,102 @@
         ],
         "className": "bg-background"
       },
+
+      "faq": {
+        "id": "faq",
+        "title": "常见问题",
+        "description": "关于 OfficeReliefAI 您需要了解的一切",
+        "items": [
+          {
+            "question": "视频中演示拉伸动作的是什么人？",
+            "answer": "他们是真正的医疗专业人士！我们与医生和康复专家合作，演示每一个动作。我们特意要求他们穿着日常便装，以展示将安全、临床验证的缓解方法融入日常生活是多么容易，无需运动服。"
+          },
+          {
+            "question": "这些方案对整天久坐的人安全吗？",
+            "answer": "绝对安全。这些方案来自权威健康组织，由专门从事关节活动性和姿势矫正的临床人员执行。每个拉伸动作都旨在安全地抵消长时间久坐带来的特定身体负担。"
+          },
+          {
+            "question": "这些动作会让我出汗吗？",
+            "answer": "不会。我们的平台专注于缓解和活动性。您可以穿着日常工作服舒适地完成这些动作。"
+          },
+          {
+            "question": "如果我在开放式办公室，不想看起来很傻怎么办？",
+            "answer": "我们为您考虑到了。选择\"低调拉伸\"，AI会生成您可以在不引人注意的情况下完成的细微动作。"
+          },
+          {
+            "question": "每个方案需要多长时间？",
+            "answer": "我们的方案从1到3分钟不等，完美契合您的会议和任务间隙。"
+          },
+          {
+            "question": "我需要任何特殊设备吗？",
+            "answer": "不需要任何设备。只需要您的办公桌、椅子和周围的空间。AI会利用您已有的物品创建拉伸方案。"
+          },
+          {
+            "question": "如果生成失败怎么办？",
+            "answer": "如果由于技术问题导致视频生成失败，您不会损失任何积分。我们会自动退还您的积分，您可以立即重试。"
+          }
+        ],
+        "buttons": [
+          {
+            "title": "开始AI训练",
+            "url": "/ai-video-generator",
+            "target": "_self",
+            "variant": "default",
+            "icon": "Zap"
+          }
+        ],
+        "className": "bg-background"
+      },
+      "cta": {
+        "id": "cta",
+        "title": "别让办公桌决定你的姿势",
+        "description": "今天就开始释放紧张。",
+        "buttons": [
+          {
+            "title": "今天就开始治愈你的背部",
+            "url": "/ai-video-generator",
+            "target": "_self",
+            "icon": "Sparkles",
+            "variant": "default"
+          },
+          {
+            "title": "查看价格",
+            "url": "/pricing",
+            "target": "_self",
+            "variant": "secondary"
+          }
+        ],
+        "className": "bg-background"
+      },
+      "features": {
+        "block": "features",
+        "id": "features",
+        "title": "为什么选择AI健身教练",
+        "description": "革命性的方式，用身边的物品进行锻炼",
+        "items": [
+          {
+            "title": "无需器械",
+            "description": "将日常物品变成健身器材。水瓶、椅子、毛巾 - 任何东西都可以！",
+            "icon": "Dumbbell"
+          },
+          {
+            "title": "个性化计划",
+            "description": "AI分析你的照片，根据可用物品和你的目标创建定制运动。",
+            "icon": "User"
+          },
+          {
+            "title": "视频指导",
+            "description": "清晰的视频演示，展示如何安全有效地完成每个动作。",
+            "icon": "Video"
+          },
+          {
+            "title": "进度跟踪",
+            "description": "通过详细的分析和成就跟踪监控你的健身旅程。",
+            "icon": "TrendingUp"
+          }
+        ],
+        "className": "bg-background"
+      },
       "stats": {
         "block": "stats",
         "id": "stats",
@@ -180,20 +257,51 @@
         ],
         "className": "bg-background"
       },
+
       "use-cases": {
         "block": "features-media",
         "id": "use-cases",
         "title": "适用于各种场景的训练",
         "description": "无论你在哪里，都能把周围环境变成健身房",
         "items": [
-          { "title": "家庭办公室", "description": "桌子、椅子和水瓶训练", "icon": "Monitor" },
-          { "title": "酒店房间", "description": "用毛巾和行李箱进行旅行健身", "icon": "Building" },
-          { "title": "客厅", "description": "沙发、靠垫和茶几训练", "icon": "Sofa" },
-          { "title": "户外", "description": "公园长椅、楼梯和墙壁训练", "icon": "TreePine" },
-          { "title": "厨房", "description": "台面、椅子和水壶训练", "icon": "CookingPot" },
-          { "title": "车库", "description": "重物和阻力训练", "icon": "Warehouse" }
+          {
+            "title": "家庭办公室",
+            "description": "桌子、椅子和水瓶训练",
+            "icon": "Monitor"
+          },
+          {
+            "title": "酒店房间",
+            "description": "用毛巾和行李箱进行旅行健身",
+            "icon": "Building"
+          },
+          {
+            "title": "客厅",
+            "description": "沙发、靠垫和茶几训练",
+            "icon": "Sofa"
+          },
+          {
+            "title": "户外",
+            "description": "公园长椅、楼梯和墙壁训练",
+            "icon": "TreePine"
+          },
+          {
+            "title": "厨房",
+            "description": "台面、椅子和水壶训练",
+            "icon": "CookingPot"
+          },
+          {
+            "title": "车库",
+            "description": "重物和阻力训练",
+            "icon": "Warehouse"
+          }
         ],
-        "buttons": [{ "title": "开始训练", "url": "/ai-video-generator", "target": "_self" }],
+        "buttons": [
+          {
+            "title": "开始训练",
+            "url": "/ai-video-generator",
+            "target": "_self"
+          }
+        ],
         "className": "bg-background"
       },
       "what-you-get": {
@@ -202,11 +310,31 @@
         "title": "你将获得什么",
         "description": "完整训练体验所需的一切",
         "items": [
-          { "title": "AI匹配视频", "description": "AI识别照片中的物品，为你的目标肌肉匹配最佳训练动作", "icon": "Video" },
-          { "title": "难度分级", "description": "选择初级、中级或高级——每个训练都适应你的健身水平", "icon": "BarChart" },
-          { "title": "即时结果", "description": "几秒钟内获得个性化训练视频，无需等待，无需订阅", "icon": "Zap" }
+          {
+            "title": "AI匹配视频",
+            "description": "AI识别照片中的物品，为你的目标肌肉匹配最佳训练动作",
+            "icon": "Video"
+          },
+          {
+            "title": "难度分级",
+            "description": "选择初级、中级或高级——每个训练都适应你的健身水平",
+            "icon": "BarChart"
+          },
+          {
+            "title": "即时结果",
+            "description": "几秒钟内获得个性化训练视频，无需等待，无需订阅",
+            "icon": "Zap"
+          }
         ],
-        "buttons": [{ "title": "免费试用", "url": "/ai-video-generator", "target": "_self", "variant": "default", "icon": "Zap" }],
+        "buttons": [
+          {
+            "title": "免费试用",
+            "url": "/ai-video-generator",
+            "target": "_self",
+            "variant": "default",
+            "icon": "Zap"
+          }
+        ],
         "className": "bg-background"
       },
       "showcases": {
@@ -246,68 +374,7 @@
         ],
         "className": "bg-background"
       },
-      "faq": {
-        "id": "faq",
-        "title": "常见问题",
-        "description": "关于 OfficeReliefAI 您需要了解的一切",
-        "items": [
-          {
-            "question": "我需要很灵活才能做这些吗？",
-            "answer": "完全不需要。我们的方案是为普通人设计的，针对长时间久坐带来的僵硬问题。"
-          },
-          {
-            "question": "这些动作会让我出汗吗？",
-            "answer": "不会。我们的平台专注于缓解和活动性。您可以穿着日常工作服舒适地完成这些动作。"
-          },
-          {
-            "question": "如果我在开放式办公室，不想看起来很傻怎么办？",
-            "answer": "我们为您考虑到了。选择\"低调拉伸\"，AI会生成您可以在不引人注意的情况下完成的细微动作。"
-          },
-          {
-            "question": "每个方案需要多长时间？",
-            "answer": "我们的方案从1到3分钟不等，完美契合您的会议和任务间隙。"
-          },
-          {
-            "question": "我需要任何特殊设备吗？",
-            "answer": "不需要任何设备。只需要您的办公桌、椅子和周围的空间。AI会利用您已有的物品创建拉伸方案。"
-          },
-          {
-            "question": "如果生成失败怎么办？",
-            "answer": "如果由于技术问题导致视频生成失败，您不会损失任何积分。我们会自动退还您的积分，您可以立即重试。"
-          }
-        ],
-        "buttons": [
-          {
-            "title": "开始AI训练",
-            "url": "/ai-video-generator",
-            "target": "_self",
-            "variant": "default",
-            "icon": "Zap"
-          }
-        ],
-        "className": "bg-background"
-      },
-      "cta": {
-        "id": "cta",
-        "title": "别让办公桌决定你的姿势",
-        "description": "今天就开始释放紧张。加入数千名已找到缓解方法的办公人群。",
-        "buttons": [
-          {
-            "title": "今天就开始治愈你的背部",
-            "url": "/ai-video-generator",
-            "target": "_self",
-            "icon": "Sparkles",
-            "variant": "default"
-          },
-          {
-            "title": "查看价格",
-            "url": "/pricing",
-            "target": "_self",
-            "variant": "secondary"
-          }
-        ],
-        "className": "bg-background"
-      },
+
       "contact": {
         "block": "contact",
         "id": "contact",

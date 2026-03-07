@@ -76,7 +76,7 @@ export function Faq({
                   key={index}
                   asChild
                   size="default"
-                  className="h-11 sm:h-12 text-sm sm:text-base px-6 sm:px-8 font-semibold shadow-lg hover:shadow-xl transition-all"
+                  className="h-10 sm:h-11 md:h-12 text-sm sm:text-base px-5 sm:px-6 md:px-8 font-semibold shadow-lg hover:shadow-xl transition-all"
                   variant={button.variant || "default"}
                 >
                   <Link

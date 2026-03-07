@@ -55,6 +55,7 @@ export function FeaturesList({
                       key={idx}
                       variant={button.variant || "default"}
                       size={button.size || "default"}
+                      className="text-sm sm:text-base"
                     >
                       <Link
                         href={button.url ?? ""}
