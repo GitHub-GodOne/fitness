@@ -68,7 +68,7 @@ export function SignModal({ callbackUrl }: { callbackUrl?: string }) {
         <SignInForm callbackUrl={effectiveCallbackUrl} className="mt-8 px-4" />
         <DrawerFooter className="pt-4">
           <DrawerClose asChild>
-            <Button variant="outline">{t("cancel_title")}</Button>
+            <Button variant="outline" className="text-foreground">{t("cancel_title")}</Button>
           </DrawerClose>
         </DrawerFooter>
       </DrawerContent>
