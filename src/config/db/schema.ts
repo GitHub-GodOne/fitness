@@ -789,17 +789,16 @@ export const bodyPart = table(
 );
 
 // 健身视频表 - 视频资源库
-export const fitnessVideo = table(
-  'fitness_video',
+// 健身视频组表 - 一个视频组包含多个不同角度的视频
+export const fitnessVideoGroup = table(
+  'fitness_video_group',
   {
     id: text('id').primaryKey(),
-    title: text('title').notNull(), // 视频标题
-    titleZh: text('title_zh'), // 视频标题 (中文)
-    description: text('description'), // 视频描述
-    descriptionZh: text('description_zh'), // 视频描述 (中文)
-    videoUrl: text('video_url').notNull(), // 视频URL
+    title: text('title').notNull(), // 视频组标题
+    titleZh: text('title_zh'), // 视频组标题 (中文)
+    description: text('description'), // 视频组描述
+    descriptionZh: text('description_zh'), // 视频组描述 (中文)
     thumbnailUrl: text('thumbnail_url'), // 缩略图URL
-    duration: integer('duration'), // 视频时长 (秒)
     difficulty: text('difficulty').notNull().default('beginner'), // beginner, intermediate, advanced
     gender: text('gender').notNull().default('unisex'), // male, female, unisex
     accessType: text('access_type').notNull().default('free'), // free, premium, hidden
@@ -817,14 +816,39 @@ export const fitnessVideo = table(
     deletedAt: timestamp('deleted_at'),
   },
   (table) => [
-    index('idx_fitness_video_status').on(table.status),
-    index('idx_fitness_video_difficulty').on(table.difficulty),
-    index('idx_fitness_video_gender').on(table.gender),
-    index('idx_fitness_video_created').on(table.createdAt),
+    index('idx_fitness_video_group_status').on(table.status),
+    index('idx_fitness_video_group_difficulty').on(table.difficulty),
+    index('idx_fitness_video_group_gender').on(table.gender),
+    index('idx_fitness_video_group_created').on(table.createdAt),
   ]
 );
 
-// 物品-视频关联表 - 物品可以用于哪些健身视频
+// 健身视频表 - 属于某个视频组的单个视频（不同角度）
+export const fitnessVideo = table(
+  'fitness_video',
+  {
+    id: text('id').primaryKey(),
+    groupId: text('group_id')
+      .notNull()
+      .references(() => fitnessVideoGroup.id, { onDelete: 'cascade' }),
+    viewAngle: text('view_angle').notNull(), // 视角标签：front (正面), side (侧面), back (背面), 或自定义
+    viewAngleZh: text('view_angle_zh'), // 视角标签中文
+    videoUrl: text('video_url').notNull(), // 视频URL
+    duration: integer('duration'), // 视频时长 (秒)
+    sort: integer('sort').default(0).notNull(), // 排序
+    status: text('status').notNull().default('active'), // active, inactive
+    createdAt: timestamp('created_at').defaultNow().notNull(),
+    updatedAt: timestamp('updated_at')
+      .$onUpdate(() => new Date())
+      .notNull(),
+  },
+  (table) => [
+    index('idx_fitness_video_group').on(table.groupId),
+    index('idx_fitness_video_status').on(table.status),
+  ]
+);
+
+// 物品-视频组关联表 - 物品可以用于哪些健身视频组
 export const objectVideoMapping = table(
   'object_video_mapping',
   {
@@ -832,9 +856,9 @@ export const objectVideoMapping = table(
     objectId: text('object_id')
       .notNull()
       .references(() => fitnessObject.id, { onDelete: 'cascade' }),
-    videoId: text('video_id')
+    videoGroupId: text('video_group_id')
       .notNull()
-      .references(() => fitnessVideo.id, { onDelete: 'cascade' }),
+      .references(() => fitnessVideoGroup.id, { onDelete: 'cascade' }),
     bodyPartId: text('body_part_id')
       .notNull()
       .references(() => bodyPart.id, { onDelete: 'cascade' }),
@@ -843,7 +867,7 @@ export const objectVideoMapping = table(
   },
   (table) => [
     index('idx_object_video_object').on(table.objectId),
-    index('idx_object_video_video').on(table.videoId),
+    index('idx_object_video_group').on(table.videoGroupId),
     index('idx_object_video_body_part').on(table.bodyPartId),
     index('idx_object_video_composite').on(table.objectId, table.bodyPartId),
   ]

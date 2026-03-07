@@ -258,45 +258,71 @@ Output: a single JSON with "matchedObject" set to the exact name from the list, 
 
                 const { findVideosByObjectAndBodyParts, getVideosByBodyPart } = await import('@/shared/models/video_library');
 
-                const allVideos: any[] = [];
-                const seenVideoIds = new Set<string>();
+                const allVideoGroups: any[] = [];
+                const seenGroupIds = new Set<string>();
 
-                // Try object + body parts matching (prioritizes videos covering most body parts)
+                // Try object + body parts matching (prioritizes video groups covering most body parts)
                 if (matchedObject !== 'Universal') {
                     console.log(`[VideoLibrary] Searching for videos: object="${matchedObject}", bodyParts=${JSON.stringify(bodyPartsList)}`);
-                    const matchedVideos = await findVideosByObjectAndBodyParts(
+                    const matchedGroups = await findVideosByObjectAndBodyParts(
                         matchedObject, bodyPartsList,
                         { limit: 10, difficulty: userDifficulty, gender: userGender, accessType, ageGroup: userAgeGroup }
                     );
-                    for (const mv of matchedVideos) {
-                        if (!seenVideoIds.has(mv.video.id)) {
-                            seenVideoIds.add(mv.video.id);
-                            allVideos.push({
-                                id: mv.video.id, title: mv.video.title, titleZh: mv.video.titleZh,
-                                videoUrl: mv.video.videoUrl, thumbnailUrl: mv.video.thumbnailUrl,
-                                duration: mv.video.duration, difficulty: mv.video.difficulty,
-                                instructions: mv.video.instructions, matchedObject: mv.object?.name,
-                                matchedBpCount: mv.matchedBpCount,
+                    for (const mg of matchedGroups) {
+                        if (!seenGroupIds.has(mg.videoGroup.id)) {
+                            seenGroupIds.add(mg.videoGroup.id);
+                            allVideoGroups.push({
+                                id: mg.videoGroup.id,
+                                title: mg.videoGroup.title,
+                                titleZh: mg.videoGroup.titleZh,
+                                description: mg.videoGroup.description,
+                                descriptionZh: mg.videoGroup.descriptionZh,
+                                thumbnailUrl: mg.videoGroup.thumbnailUrl,
+                                difficulty: mg.videoGroup.difficulty,
+                                instructions: mg.videoGroup.instructions,
+                                instructionsZh: mg.videoGroup.instructionsZh,
+                                videos: mg.videos.map((v: any) => ({
+                                    id: v.id,
+                                    videoUrl: v.videoUrl,
+                                    viewAngle: v.viewAngle,
+                                    viewAngleZh: v.viewAngleZh,
+                                    duration: v.duration,
+                                })),
+                                matchedObject: mg.object?.name,
+                                matchedBpCount: mg.matchedBpCount,
                             });
                         }
                     }
                 }
 
-                // Fallback: fill remaining slots with generic body part videos
-                if (allVideos.length < 10) {
+                // Fallback: fill remaining slots with generic body part video groups
+                if (allVideoGroups.length < 10) {
                     for (const bp of bodyPartsList) {
-                        if (allVideos.length >= 10) break;
-                        const genericVideos = await getVideosByBodyPart(bp, {
-                            limit: 10 - allVideos.length, difficulty: userDifficulty, gender: userGender, accessType, ageGroup: userAgeGroup
+                        if (allVideoGroups.length >= 10) break;
+                        const genericGroups = await getVideosByBodyPart(bp, {
+                            limit: 10 - allVideoGroups.length, difficulty: userDifficulty, gender: userGender, accessType, ageGroup: userAgeGroup
                         });
-                        for (const video of genericVideos) {
-                            if (!seenVideoIds.has(video.id)) {
-                                seenVideoIds.add(video.id);
-                                allVideos.push({
-                                    id: video.id, title: video.title, titleZh: video.titleZh,
-                                    videoUrl: video.videoUrl, thumbnailUrl: video.thumbnailUrl,
-                                    duration: video.duration, difficulty: video.difficulty,
-                                    instructions: video.instructions, matchedObject: null,
+                        for (const group of genericGroups) {
+                            if (!seenGroupIds.has(group.videoGroup.id)) {
+                                seenGroupIds.add(group.videoGroup.id);
+                                allVideoGroups.push({
+                                    id: group.videoGroup.id,
+                                    title: group.videoGroup.title,
+                                    titleZh: group.videoGroup.titleZh,
+                                    description: group.videoGroup.description,
+                                    descriptionZh: group.videoGroup.descriptionZh,
+                                    thumbnailUrl: group.videoGroup.thumbnailUrl,
+                                    difficulty: group.videoGroup.difficulty,
+                                    instructions: group.videoGroup.instructions,
+                                    instructionsZh: group.videoGroup.instructionsZh,
+                                    videos: group.videos.map((v: any) => ({
+                                        id: v.id,
+                                        videoUrl: v.videoUrl,
+                                        viewAngle: v.viewAngle,
+                                        viewAngleZh: v.viewAngleZh,
+                                        duration: v.duration,
+                                    })),
+                                    matchedObject: null,
                                     matchedBpCount: 0,
                                 });
                             }
@@ -304,10 +330,19 @@ Output: a single JSON with "matchedObject" set to the exact name from the list, 
                     }
                 }
 
-                videosForResult = allVideos.slice(0, 10);
+                videosForResult = allVideoGroups.slice(0, 10);
 
                 if (videosForResult.length === 0) {
                     throw new Error('No matching videos found for the identified object and selected body parts. Please try different options.');
+                }
+
+                // Randomly select one video if multiple matches found
+                if (videosForResult.length > 1) {
+                    const randomIndex = Math.floor(Math.random() * videosForResult.length);
+                    videosForResult = [videosForResult[randomIndex]];
+                    console.log(`[VideoLibrary] Randomly selected 1 video from ${allVideoGroups.length} matches`);
+                } else {
+                    console.log(`[VideoLibrary] Found ${videosForResult.length} video(s)`);
                 }
 
                 const taskResult = {
@@ -337,38 +372,54 @@ Output: a single JSON with "matchedObject" set to the exact name from the list, 
                 console.log('[VideoLibrary] No image provided, matching by body parts...');
                 const { getVideosByBodyPart } = await import('@/shared/models/video_library');
 
-                const allVideos: any[] = [];
-                const seenVideoIds = new Set<string>();
+                const allVideoGroups: any[] = [];
+                const seenGroupIds = new Set<string>();
 
                 for (const bp of bodyPartsList) {
                     console.log(`[VideoLibrary] Query params: bodyPart="${bp}", gender="${userGender}", ageGroup="${userAgeGroup}", difficulty="${userDifficulty}", accessType="${accessType}"`);
-                    const genericVideos = await getVideosByBodyPart(bp, {
+                    const genericGroups = await getVideosByBodyPart(bp, {
                         limit: 10, difficulty: userDifficulty, gender: userGender, accessType, ageGroup: userAgeGroup
                     });
 
-                    for (const video of genericVideos) {
-                        if (!seenVideoIds.has(video.id)) {
-                            seenVideoIds.add(video.id);
-                            allVideos.push({
-                                id: video.id,
-                                title: video.title,
-                                titleZh: video.titleZh,
-                                videoUrl: video.videoUrl,
-                                thumbnailUrl: video.thumbnailUrl,
-                                duration: video.duration,
-                                difficulty: video.difficulty,
-                                instructions: video.instructions,
+                    for (const group of genericGroups) {
+                        if (!seenGroupIds.has(group.videoGroup.id)) {
+                            seenGroupIds.add(group.videoGroup.id);
+                            allVideoGroups.push({
+                                id: group.videoGroup.id,
+                                title: group.videoGroup.title,
+                                titleZh: group.videoGroup.titleZh,
+                                description: group.videoGroup.description,
+                                descriptionZh: group.videoGroup.descriptionZh,
+                                thumbnailUrl: group.videoGroup.thumbnailUrl,
+                                difficulty: group.videoGroup.difficulty,
+                                instructions: group.videoGroup.instructions,
+                                instructionsZh: group.videoGroup.instructionsZh,
+                                videos: group.videos.map((v: any) => ({
+                                    id: v.id,
+                                    videoUrl: v.videoUrl,
+                                    viewAngle: v.viewAngle,
+                                    viewAngleZh: v.viewAngleZh,
+                                    duration: v.duration,
+                                })),
                                 matchedObject: null,
+                                matchedBpCount: 0,
                             });
                         }
                     }
                 }
 
-                videosForResult = allVideos.slice(0, 10);
+                videosForResult = allVideoGroups.slice(0, 10);
                 console.log(`[VideoLibrary] Found ${videosForResult.length} videos for body parts: ${bodyPartsList.join(', ')}`);
 
                 if (videosForResult.length === 0) {
                     throw new Error('No matching videos found for the selected body parts. Please try different options.');
+                }
+
+                // Randomly select one video if multiple matches found
+                if (videosForResult.length > 1) {
+                    const randomIndex = Math.floor(Math.random() * videosForResult.length);
+                    videosForResult = [videosForResult[randomIndex]];
+                    console.log(`[VideoLibrary] Randomly selected 1 video from ${allVideoGroups.length} matches`);
                 }
 
                 const taskResult = {

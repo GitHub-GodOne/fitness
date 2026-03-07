@@ -82,29 +82,47 @@ interface BodyPart {
   createdAt: string;
 }
 
-interface FitnessVideo {
+interface FitnessVideoGroup {
   id: string;
   title: string;
   titleZh?: string;
   description?: string;
-  videoUrl: string;
+  descriptionZh?: string;
   thumbnailUrl?: string;
-  duration?: number;
   difficulty: string;
   gender: string;
   accessType: string;
   ageGroup: string;
   instructions?: string;
+  instructionsZh?: string;
+  tags?: string;
   status: string;
   viewCount: number;
+  sort: number;
   createdAt: string;
+}
+
+interface FitnessVideo {
+  id: string;
+  groupId: string;
+  viewAngle: string;
+  viewAngleZh?: string;
+  videoUrl: string;
+  duration?: number;
+  sort: number;
+  status: string;
+  createdAt: string;
+}
+
+interface VideoGroupWithVideos extends FitnessVideoGroup {
+  videos?: FitnessVideo[];
 }
 
 interface VideoMapping {
   mapping: {
     id: string;
     objectId: string;
-    videoId: string;
+    videoGroupId: string;
     bodyPartId: string;
     isPrimary: boolean;
     createdAt: string;
@@ -146,24 +164,35 @@ export default function VideoLibraryPage() {
     sort: 0,
   });
 
-  // Videos state
-  const [videos, setVideos] = useState<FitnessVideo[]>([]);
-  const [videoDialogOpen, setVideoDialogOpen] = useState(false);
-  const [editingVideo, setEditingVideo] = useState<FitnessVideo | null>(null);
-  const [videoForm, setVideoForm] = useState({
+  // Video Groups state
+  const [videoGroups, setVideoGroups] = useState<VideoGroupWithVideos[]>([]);
+  const [videoGroupDialogOpen, setVideoGroupDialogOpen] = useState(false);
+  const [editingVideoGroup, setEditingVideoGroup] = useState<VideoGroupWithVideos | null>(null);
+  const [videoGroupForm, setVideoGroupForm] = useState({
     title: "",
     titleZh: "",
     description: "",
-    videoUrl: "",
+    descriptionZh: "",
     thumbnailUrl: "",
-    duration: 0,
     difficulty: "beginner",
     gender: "unisex",
     accessType: "free",
     ageGroup: "all",
     instructions: "",
+    instructionsZh: "",
+    tags: "",
     status: "active",
+    sort: 0,
   });
+
+  // Videos within a group
+  const [groupVideos, setGroupVideos] = useState<Array<{
+    viewAngle: string;
+    viewAngleZh: string;
+    videoUrl: string;
+    duration: number;
+    sort: number;
+  }>>([]);
 
   // Video upload state
   const [videoUploading, setVideoUploading] = useState(false);
@@ -172,7 +201,7 @@ export default function VideoLibraryPage() {
   const thumbnailInputRef = useRef<HTMLInputElement>(null);
   const [mappings, setMappings] = useState<VideoMapping[]>([]);
   const [mappingDialogOpen, setMappingDialogOpen] = useState(false);
-  const [selectedVideoForMapping, setSelectedVideoForMapping] =
+  const [selectedVideoGroupForMapping, setSelectedVideoGroupForMapping] =
     useState<string>("");
   const [mappingForm, setMappingForm] = useState({
     objectId: "",
@@ -205,27 +234,27 @@ export default function VideoLibraryPage() {
     }
   }, []);
 
-  const fetchVideos = useCallback(async () => {
+  const fetchVideoGroups = useCallback(async () => {
     try {
       const res = await fetch("/api/admin/video-library/videos");
       const data = await res.json();
       if (data.code === 0) {
-        setVideos(data.data.videos || []);
+        setVideoGroups(data.data.videoGroups || []);
       }
     } catch (error) {
-      console.error("Failed to fetch videos:", error);
+      console.error("Failed to fetch video groups:", error);
     }
   }, []);
 
-  const fetchMappings = useCallback(async (videoId?: string) => {
+  const fetchMappings = useCallback(async (videoGroupId?: string) => {
     try {
-      const url = videoId
-        ? `/api/admin/video-library/mappings?videoId=${videoId}`
+      const url = videoGroupId
+        ? `/api/admin/video-library/mappings?videoGroupId=${videoGroupId}`
         : "/api/admin/video-library/mappings";
       const res = await fetch(url);
       const data = await res.json();
       if (data.code === 0) {
-        if (videoId) {
+        if (videoGroupId) {
           setMappings(data.data.mappings || []);
         }
       }
@@ -237,8 +266,8 @@ export default function VideoLibraryPage() {
   useEffect(() => {
     fetchObjects();
     fetchBodyParts();
-    fetchVideos();
-  }, [fetchObjects, fetchBodyParts, fetchVideos]);
+    fetchVideoGroups();
+  }, [fetchObjects, fetchBodyParts, fetchVideoGroups]);
 
   // Object CRUD
   const handleSaveObject = async () => {
@@ -356,14 +385,14 @@ export default function VideoLibraryPage() {
     }
   };
 
-  // Video CRUD
-  const handleSaveVideo = async () => {
+  // Video Group CRUD
+  const handleSaveVideoGroup = async () => {
     setLoading(true);
     try {
-      const method = editingVideo ? "PUT" : "POST";
-      const body = editingVideo
-        ? { id: editingVideo.id, ...videoForm }
-        : videoForm;
+      const method = editingVideoGroup ? "PUT" : "POST";
+      const body = editingVideoGroup
+        ? { id: editingVideoGroup.id, ...videoGroupForm, videos: groupVideos }
+        : { ...videoGroupForm, videos: groupVideos };
 
       const res = await fetch("/api/admin/video-library/videos", {
         method,
@@ -373,50 +402,77 @@ export default function VideoLibraryPage() {
 
       const data = await res.json();
       if (data.code === 0) {
-        toast.success(editingVideo ? "Video updated" : "Video created");
-        setVideoDialogOpen(false);
-        setEditingVideo(null);
-        setVideoForm({
+        toast.success(editingVideoGroup ? "Video group updated" : "Video group created");
+        setVideoGroupDialogOpen(false);
+        setEditingVideoGroup(null);
+        setVideoGroupForm({
           title: "",
           titleZh: "",
           description: "",
-          videoUrl: "",
+          descriptionZh: "",
           thumbnailUrl: "",
-          duration: 0,
           difficulty: "beginner",
           gender: "unisex",
           accessType: "free",
           ageGroup: "all",
           instructions: "",
+          instructionsZh: "",
+          tags: "",
           status: "active",
+          sort: 0,
         });
-        fetchVideos();
+        setGroupVideos([]);
+        fetchVideoGroups();
       } else {
-        toast.error(data.message || "Failed to save video");
+        toast.error(data.message || "Failed to save video group");
       }
     } catch (error: any) {
-      toast.error(error.message || "Failed to save video");
+      toast.error(error.message || "Failed to save video group");
     } finally {
       setLoading(false);
     }
   };
 
-  const handleDeleteVideo = async (id: string) => {
-    if (!confirm("Are you sure you want to delete this video?")) return;
+  const handleDeleteVideoGroup = async (id: string) => {
+    if (!confirm("Are you sure you want to delete this video group?")) return;
     try {
       const res = await fetch(`/api/admin/video-library/videos?id=${id}`, {
         method: "DELETE",
       });
       const data = await res.json();
       if (data.code === 0) {
-        toast.success("Video deleted");
-        fetchVideos();
+        toast.success("Video group deleted");
+        fetchVideoGroups();
       } else {
-        toast.error(data.message || "Failed to delete video");
+        toast.error(data.message || "Failed to delete video group");
       }
     } catch (error: any) {
-      toast.error(error.message || "Failed to delete video");
+      toast.error(error.message || "Failed to delete video group");
     }
+  };
+
+  // Manage videos within a group
+  const handleAddVideoToGroup = () => {
+    setGroupVideos([
+      ...groupVideos,
+      {
+        viewAngle: "",
+        viewAngleZh: "",
+        videoUrl: "",
+        duration: 0,
+        sort: groupVideos.length,
+      },
+    ]);
+  };
+
+  const handleRemoveVideoFromGroup = (index: number) => {
+    setGroupVideos(groupVideos.filter((_, i) => i !== index));
+  };
+
+  const handleUpdateGroupVideo = (index: number, field: string, value: any) => {
+    const updated = [...groupVideos];
+    updated[index] = { ...updated[index], [field]: value };
+    setGroupVideos(updated);
   };
 
   // Upload handlers
@@ -452,6 +508,7 @@ export default function VideoLibraryPage() {
 
   const handleVideoUpload = async (
     event: React.ChangeEvent<HTMLInputElement>,
+    videoIndex?: number,
   ) => {
     const file = event.target.files?.[0];
     if (!file) return;
@@ -471,7 +528,10 @@ export default function VideoLibraryPage() {
     setVideoUploading(true);
     const url = await uploadFile(file, "video");
     if (url) {
-      setVideoForm({ ...videoForm, videoUrl: url });
+      if (videoIndex !== undefined) {
+        // Update specific video in group
+        handleUpdateGroupVideo(videoIndex, "videoUrl", url);
+      }
       toast.success("Video uploaded successfully");
     }
     setVideoUploading(false);
@@ -501,7 +561,7 @@ export default function VideoLibraryPage() {
     setThumbnailUploading(true);
     const url = await uploadFile(file, "image");
     if (url) {
-      setVideoForm({ ...videoForm, thumbnailUrl: url });
+      setVideoGroupForm({ ...videoGroupForm, thumbnailUrl: url });
       toast.success("Thumbnail uploaded successfully");
     }
     setThumbnailUploading(false);
@@ -512,8 +572,8 @@ export default function VideoLibraryPage() {
 
   // Mappings CRUD
   const handleSaveMapping = async () => {
-    if (!selectedVideoForMapping) {
-      toast.error("Please select a video first");
+    if (!selectedVideoGroupForMapping) {
+      toast.error("Please select a video group first");
       return;
     }
     if (!mappingForm.objectId || mappingForm.bodyPartIds.length === 0) {
@@ -527,7 +587,7 @@ export default function VideoLibraryPage() {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
-            videoId: selectedVideoForMapping,
+            videoGroupId: selectedVideoGroupForMapping,
             objectId: mappingForm.objectId,
             bodyPartId,
             isPrimary: mappingForm.isPrimary,
@@ -542,7 +602,7 @@ export default function VideoLibraryPage() {
       }
       toast.success(`${mappingForm.bodyPartIds.length} mapping(s) created`);
       setMappingForm({ objectId: "", bodyPartIds: [], isPrimary: false });
-      fetchMappings(selectedVideoForMapping);
+      fetchMappings(selectedVideoGroupForMapping);
     } catch (error: any) {
       toast.error(error.message || "Failed to create mapping");
     } finally {
@@ -559,8 +619,8 @@ export default function VideoLibraryPage() {
       const data = await res.json();
       if (data.code === 0) {
         toast.success("Mapping deleted");
-        if (selectedVideoForMapping) {
-          fetchMappings(selectedVideoForMapping);
+        if (selectedVideoGroupForMapping) {
+          fetchMappings(selectedVideoGroupForMapping);
         }
       } else {
         toast.error(data.message || "Failed to delete mapping");
@@ -600,29 +660,32 @@ export default function VideoLibraryPage() {
         <TabsContent value="videos">
           <Card>
             <CardHeader className="flex flex-row items-center justify-between">
-              <CardTitle>Fitness Videos</CardTitle>
+              <CardTitle>Fitness Video Groups</CardTitle>
               <Button
                 onClick={() => {
-                  setEditingVideo(null);
-                  setVideoForm({
+                  setEditingVideoGroup(null);
+                  setVideoGroupForm({
                     title: "",
                     titleZh: "",
                     description: "",
-                    videoUrl: "",
+                    descriptionZh: "",
                     thumbnailUrl: "",
-                    duration: 0,
                     difficulty: "beginner",
                     gender: "unisex",
                     accessType: "free",
                     ageGroup: "all",
                     instructions: "",
+                    instructionsZh: "",
+                    tags: "",
                     status: "active",
+                    sort: 0,
                   });
-                  setVideoDialogOpen(true);
+                  setGroupVideos([]);
+                  setVideoGroupDialogOpen(true);
                 }}
               >
                 <Plus className="h-4 w-4 mr-2" />
-                Add Video
+                Add Video Group
               </Button>
             </CardHeader>
             <CardContent>
@@ -630,72 +693,74 @@ export default function VideoLibraryPage() {
                 <TableHeader>
                   <TableRow>
                     <TableHead>Title</TableHead>
+                    <TableHead>Videos</TableHead>
                     <TableHead>Difficulty</TableHead>
                     <TableHead>Gender</TableHead>
                     <TableHead>Age Group</TableHead>
                     <TableHead>Access</TableHead>
-                    <TableHead>Duration</TableHead>
                     <TableHead>Views</TableHead>
                     <TableHead>Status</TableHead>
                     <TableHead>Actions</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
-                  {videos.map((video) => (
-                    <TableRow key={video.id}>
+                  {videoGroups.map((group) => (
+                    <TableRow key={group.id}>
                       <TableCell>
                         <div>
-                          <div className="font-medium">{video.title}</div>
-                          {video.titleZh && (
+                          <div className="font-medium">{group.title}</div>
+                          {group.titleZh && (
                             <div className="text-sm text-gray-500">
-                              {video.titleZh}
+                              {group.titleZh}
                             </div>
                           )}
                         </div>
                       </TableCell>
                       <TableCell>
+                        <Badge variant="outline">
+                          {group.videos?.length || 0} videos
+                        </Badge>
+                      </TableCell>
+                      <TableCell>
                         <Badge
                           variant={
-                            video.difficulty === "beginner"
+                            group.difficulty === "beginner"
                               ? "secondary"
-                              : video.difficulty === "intermediate"
+                              : group.difficulty === "intermediate"
                                 ? "default"
                                 : "destructive"
                           }
                         >
-                          {video.difficulty}
+                          {group.difficulty}
                         </Badge>
                       </TableCell>
                       <TableCell>
-                        <Badge variant="outline">{video.gender || "unisex"}</Badge>
+                        <Badge variant="outline">{group.gender || "unisex"}</Badge>
                       </TableCell>
                       <TableCell>
-                        <Badge variant="outline">{video.ageGroup || "all"}</Badge>
+                        <Badge variant="outline">{group.ageGroup || "all"}</Badge>
                       </TableCell>
                       <TableCell>
                         <Badge
                           variant={
-                            video.accessType === "free"
+                            group.accessType === "free"
                               ? "secondary"
-                              : video.accessType === "premium"
+                              : group.accessType === "premium"
                                 ? "default"
                                 : "destructive"
                           }
                         >
-                          {video.accessType || "free"}
+                          {group.accessType || "free"}
                         </Badge>
                       </TableCell>
-                      <TableCell>
-                        {video.duration ? `${video.duration}s` : "-"}
-                      </TableCell>
-                      <TableCell>{video.viewCount}</TableCell>
+                      <TableCell>{group.viewCount}</TableCell>
                       <TableCell>
                         <Badge
                           variant={
-                            video.status === "active" ? "default" : "secondary"
+                            group.status === "active" ? "default" : "secondary"
                           }
                         >
-                          {video.status}
+                          {group.status}
                         </Badge>
                       </TableCell>
                       <TableCell>
@@ -704,22 +769,33 @@ export default function VideoLibraryPage() {
                             variant="ghost"
                             size="sm"
                             onClick={() => {
-                              setEditingVideo(video);
-                              setVideoForm({
-                                title: video.title,
-                                titleZh: video.titleZh || "",
-                                description: video.description || "",
-                                videoUrl: video.videoUrl,
-                                thumbnailUrl: video.thumbnailUrl || "",
-                                duration: video.duration || 0,
-                                difficulty: video.difficulty,
-                                gender: video.gender || "unisex",
-                                accessType: video.accessType || "free",
-                                ageGroup: video.ageGroup || "all",
-                                instructions: video.instructions || "",
-                                status: video.status,
+                              setEditingVideoGroup(group);
+                              setVideoGroupForm({
+                                title: group.title,
+                                titleZh: group.titleZh || "",
+                                description: group.description || "",
+                                descriptionZh: group.descriptionZh || "",
+                                thumbnailUrl: group.thumbnailUrl || "",
+                                difficulty: group.difficulty,
+                                gender: group.gender || "unisex",
+                                accessType: group.accessType || "free",
+                                ageGroup: group.ageGroup || "all",
+                                instructions: group.instructions || "",
+                                instructionsZh: group.instructionsZh || "",
+                                tags: group.tags || "",
+                                status: group.status,
+                                sort: group.sort || 0,
                               });
-                              setVideoDialogOpen(true);
+                              setGroupVideos(
+                                group.videos?.map(v => ({
+                                  viewAngle: v.viewAngle,
+                                  viewAngleZh: v.viewAngleZh || "",
+                                  videoUrl: v.videoUrl,
+                                  duration: v.duration || 0,
+                                  sort: v.sort || 0,
+                                })) || []
+                              );
+                              setVideoGroupDialogOpen(true);
                             }}
                           >
                             <Edit className="h-4 w-4" />
@@ -727,7 +803,7 @@ export default function VideoLibraryPage() {
                           <Button
                             variant="ghost"
                             size="sm"
-                            onClick={() => handleDeleteVideo(video.id)}
+                            onClick={() => handleDeleteVideoGroup(group.id)}
                           >
                             <Trash2 className="h-4 w-4 text-red-500" />
                           </Button>
@@ -940,23 +1016,23 @@ export default function VideoLibraryPage() {
               <CardTitle>Video-Object-BodyPart Mappings</CardTitle>
             </CardHeader>
             <CardContent className="space-y-6">
-              {/* Select Video */}
+              {/* Select Video Group */}
               <div className="space-y-2">
-                <Label>Select Video to Manage Mappings</Label>
+                <Label>Select Video Group to Manage Mappings</Label>
                 <Select
-                  value={selectedVideoForMapping}
+                  value={selectedVideoGroupForMapping}
                   onValueChange={(v) => {
-                    setSelectedVideoForMapping(v);
+                    setSelectedVideoGroupForMapping(v);
                     if (v) fetchMappings(v);
                   }}
                 >
                   <SelectTrigger>
-                    <SelectValue placeholder="Select a video" />
+                    <SelectValue placeholder="Select a video group" />
                   </SelectTrigger>
                   <SelectContent>
-                    {videos.map((video) => (
-                      <SelectItem key={video.id} value={video.id}>
-                        {video.title} ({video.titleZh || "-"})
+                    {videoGroups.map((group) => (
+                      <SelectItem key={group.id} value={group.id}>
+                        {group.title} ({group.titleZh || "-"})
                       </SelectItem>
                     ))}
                   </SelectContent>
@@ -964,7 +1040,7 @@ export default function VideoLibraryPage() {
               </div>
 
               {/* Add New Mapping */}
-              {selectedVideoForMapping && (
+              {selectedVideoGroupForMapping && (
                 <div className="border rounded-lg p-4 space-y-4 bg-muted/50">
                   <h3 className="font-medium">Add New Mapping</h3>
                   <div className="grid grid-cols-3 gap-4">
@@ -1069,7 +1145,7 @@ export default function VideoLibraryPage() {
               )}
 
               {/* Existing Mappings */}
-              {selectedVideoForMapping && mappings.length > 0 && (
+              {selectedVideoGroupForMapping && mappings.length > 0 && (
                 <div>
                   <h3 className="font-medium mb-3">Current Mappings</h3>
                   <Table>
@@ -1131,9 +1207,9 @@ export default function VideoLibraryPage() {
                 </div>
               )}
 
-              {selectedVideoForMapping && mappings.length === 0 && (
+              {selectedVideoGroupForMapping && mappings.length === 0 && (
                 <div className="text-center text-gray-500 py-8">
-                  No mappings found for this video. Add one above.
+                  No mappings found for this video group. Add one above.
                 </div>
               )}
             </CardContent>
@@ -1353,297 +1429,396 @@ export default function VideoLibraryPage() {
         </DialogContent>
       </Dialog>
 
-      {/* Video Dialog */}
-      <Dialog open={videoDialogOpen} onOpenChange={setVideoDialogOpen}>
-        <DialogContent className="max-w-2xl">
+      {/* Video Group Dialog */}
+      <Dialog open={videoGroupDialogOpen} onOpenChange={setVideoGroupDialogOpen}>
+        <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
           <DialogHeader>
             <DialogTitle>
-              {editingVideo ? "Edit Video" : "Add Video"}
+              {editingVideoGroup ? "Edit Video Group" : "Add Video Group"}
             </DialogTitle>
           </DialogHeader>
-          <div className="space-y-4 max-h-[60vh] overflow-y-auto">
-            <div className="grid grid-cols-2 gap-4">
-              <div>
-                <Label>Title (EN)</Label>
-                <Input
-                  value={videoForm.title}
-                  onChange={(e) =>
-                    setVideoForm({ ...videoForm, title: e.target.value })
-                  }
-                  placeholder="Video title"
-                />
+          <div className="space-y-6">
+            {/* Group Metadata */}
+            <div className="space-y-4">
+              <h3 className="font-medium text-sm">Group Information</h3>
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <Label>Title (EN)</Label>
+                  <Input
+                    value={videoGroupForm.title}
+                    onChange={(e) =>
+                      setVideoGroupForm({ ...videoGroupForm, title: e.target.value })
+                    }
+                    placeholder="e.g. Chair Squats"
+                  />
+                </div>
+                <div>
+                  <Label>Title (ZH)</Label>
+                  <Input
+                    value={videoGroupForm.titleZh}
+                    onChange={(e) =>
+                      setVideoGroupForm({ ...videoGroupForm, titleZh: e.target.value })
+                    }
+                    placeholder="e.g. 椅子深蹲"
+                  />
+                </div>
+              </div>
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <Label>Description (EN)</Label>
+                  <Textarea
+                    value={videoGroupForm.description}
+                    onChange={(e) =>
+                      setVideoGroupForm({ ...videoGroupForm, description: e.target.value })
+                    }
+                    placeholder="Exercise description"
+                  />
+                </div>
+                <div>
+                  <Label>Description (ZH)</Label>
+                  <Textarea
+                    value={videoGroupForm.descriptionZh}
+                    onChange={(e) =>
+                      setVideoGroupForm({ ...videoGroupForm, descriptionZh: e.target.value })
+                    }
+                    placeholder="运动描述"
+                  />
+                </div>
               </div>
               <div>
-                <Label>Title (ZH)</Label>
-                <Input
-                  value={videoForm.titleZh}
-                  onChange={(e) =>
-                    setVideoForm({ ...videoForm, titleZh: e.target.value })
-                  }
-                  placeholder="视频标题"
+                <Label>Thumbnail</Label>
+                <input
+                  type="file"
+                  accept="image/*"
+                  ref={thumbnailInputRef}
+                  onChange={handleThumbnailUpload}
+                  className="hidden"
                 />
-              </div>
-            </div>
-            <div>
-              <Label>Video</Label>
-              <input
-                type="file"
-                accept="video/*"
-                ref={videoInputRef}
-                onChange={handleVideoUpload}
-                className="hidden"
-              />
-              {videoForm.videoUrl ? (
-                <div className="flex items-center gap-2 p-3 border rounded-lg bg-muted/50">
-                  <Video className="h-5 w-5 text-primary" />
-                  <span className="flex-1 truncate text-sm">
-                    {videoForm.videoUrl}
-                  </span>
+                {videoGroupForm.thumbnailUrl ? (
+                  <div className="space-y-2">
+                    <div className="relative w-32 h-24 rounded-lg overflow-hidden border">
+                      <img
+                        src={videoGroupForm.thumbnailUrl}
+                        alt="Thumbnail"
+                        className="w-full h-full object-cover"
+                      />
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <Button
+                        type="button"
+                        variant="outline"
+                        size="sm"
+                        onClick={() => thumbnailInputRef.current?.click()}
+                        disabled={thumbnailUploading}
+                      >
+                        {thumbnailUploading ? (
+                          <Loader2 className="h-4 w-4 animate-spin" />
+                        ) : (
+                          <>
+                            <Upload className="h-4 w-4 mr-2" />
+                            Change
+                          </>
+                        )}
+                      </Button>
+                      <Button
+                        type="button"
+                        variant="outline"
+                        size="sm"
+                        onClick={() =>
+                          setVideoGroupForm({ ...videoGroupForm, thumbnailUrl: "" })
+                        }
+                      >
+                        <X className="h-4 w-4 text-red-500" />
+                      </Button>
+                    </div>
+                  </div>
+                ) : (
                   <Button
                     type="button"
-                    variant="ghost"
-                    size="sm"
-                    onClick={() => videoInputRef.current?.click()}
-                    disabled={videoUploading}
+                    variant="outline"
+                    className="w-full"
+                    onClick={() => thumbnailInputRef.current?.click()}
+                    disabled={thumbnailUploading}
                   >
-                    {videoUploading ? (
-                      <Loader2 className="h-4 w-4 animate-spin" />
+                    {thumbnailUploading ? (
+                      <>
+                        <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                        Uploading...
+                      </>
                     ) : (
-                      <Upload className="h-4 w-4" />
+                      <>
+                        <Upload className="h-4 w-4 mr-2" />
+                        Upload Thumbnail
+                      </>
                     )}
                   </Button>
-                  <Button
-                    type="button"
-                    variant="ghost"
-                    size="sm"
-                    onClick={() => setVideoForm({ ...videoForm, videoUrl: "" })}
+                )}
+              </div>
+              <div className="grid grid-cols-3 gap-4">
+                <div>
+                  <Label>Difficulty</Label>
+                  <Select
+                    value={videoGroupForm.difficulty}
+                    onValueChange={(v) =>
+                      setVideoGroupForm({ ...videoGroupForm, difficulty: v })
+                    }
                   >
-                    <X className="h-4 w-4 text-red-500" />
-                  </Button>
+                    <SelectTrigger>
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="beginner">Beginner</SelectItem>
+                      <SelectItem value="intermediate">Intermediate</SelectItem>
+                      <SelectItem value="advanced">Advanced</SelectItem>
+                    </SelectContent>
+                  </Select>
                 </div>
-              ) : (
-                <Button
-                  type="button"
-                  variant="outline"
-                  className="w-full"
-                  onClick={() => videoInputRef.current?.click()}
-                  disabled={videoUploading}
-                >
-                  {videoUploading ? (
-                    <>
-                      <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-                      Uploading...
-                    </>
-                  ) : (
-                    <>
-                      <Upload className="h-4 w-4 mr-2" />
-                      Upload Video
-                    </>
-                  )}
-                </Button>
-              )}
-            </div>
-            <div>
-              <Label>Thumbnail</Label>
-              <input
-                type="file"
-                accept="image/*"
-                ref={thumbnailInputRef}
-                onChange={handleThumbnailUpload}
-                className="hidden"
-              />
-              {videoForm.thumbnailUrl ? (
-                <div className="space-y-2">
-                  <div className="relative w-32 h-24 rounded-lg overflow-hidden border">
-                    <img
-                      src={videoForm.thumbnailUrl}
-                      alt="Thumbnail"
-                      className="w-full h-full object-cover"
-                    />
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <Button
-                      type="button"
-                      variant="outline"
-                      size="sm"
-                      onClick={() => thumbnailInputRef.current?.click()}
-                      disabled={thumbnailUploading}
-                    >
-                      {thumbnailUploading ? (
-                        <Loader2 className="h-4 w-4 animate-spin" />
-                      ) : (
-                        <Upload className="h-4 w-4 mr-2" />
-                      )}
-                      Change
-                    </Button>
-                    <Button
-                      type="button"
-                      variant="outline"
-                      size="sm"
-                      onClick={() =>
-                        setVideoForm({ ...videoForm, thumbnailUrl: "" })
-                      }
-                    >
-                      <X className="h-4 w-4 text-red-500" />
-                    </Button>
-                  </div>
+                <div>
+                  <Label>Gender</Label>
+                  <Select
+                    value={videoGroupForm.gender}
+                    onValueChange={(v) =>
+                      setVideoGroupForm({ ...videoGroupForm, gender: v })
+                    }
+                  >
+                    <SelectTrigger>
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="unisex">Unisex</SelectItem>
+                      <SelectItem value="male">Male</SelectItem>
+                      <SelectItem value="female">Female</SelectItem>
+                    </SelectContent>
+                  </Select>
                 </div>
-              ) : (
-                <Button
-                  type="button"
-                  variant="outline"
-                  className="w-full"
-                  onClick={() => thumbnailInputRef.current?.click()}
-                  disabled={thumbnailUploading}
-                >
-                  {thumbnailUploading ? (
-                    <>
-                      <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-                      Uploading...
-                    </>
-                  ) : (
-                    <>
-                      <Upload className="h-4 w-4 mr-2" />
-                      Upload Thumbnail
-                    </>
-                  )}
-                </Button>
-              )}
-            </div>
-            <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <Label>Access Type</Label>
+                  <Select
+                    value={videoGroupForm.accessType}
+                    onValueChange={(v) =>
+                      setVideoGroupForm({ ...videoGroupForm, accessType: v })
+                    }
+                  >
+                    <SelectTrigger>
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="free">Free</SelectItem>
+                      <SelectItem value="premium">Premium</SelectItem>
+                      <SelectItem value="hidden">Hidden</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+              </div>
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <Label>Age Group</Label>
+                  <Select
+                    value={videoGroupForm.ageGroup}
+                    onValueChange={(v) =>
+                      setVideoGroupForm({ ...videoGroupForm, ageGroup: v })
+                    }
+                  >
+                    <SelectTrigger>
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="all">All Ages</SelectItem>
+                      <SelectItem value="young">Young (18-35)</SelectItem>
+                      <SelectItem value="middle">Middle-aged (36-55)</SelectItem>
+                      <SelectItem value="senior">Senior (56+)</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div>
+                  <Label>Sort Order</Label>
+                  <Input
+                    type="number"
+                    value={videoGroupForm.sort}
+                    onChange={(e) =>
+                      setVideoGroupForm({
+                        ...videoGroupForm,
+                        sort: parseInt(e.target.value) || 0,
+                      })
+                    }
+                  />
+                </div>
+              </div>
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <Label>Instructions (EN)</Label>
+                  <Textarea
+                    value={videoGroupForm.instructions}
+                    onChange={(e) =>
+                      setVideoGroupForm({ ...videoGroupForm, instructions: e.target.value })
+                    }
+                    placeholder="Exercise instructions"
+                  />
+                </div>
+                <div>
+                  <Label>Instructions (ZH)</Label>
+                  <Textarea
+                    value={videoGroupForm.instructionsZh}
+                    onChange={(e) =>
+                      setVideoGroupForm({ ...videoGroupForm, instructionsZh: e.target.value })
+                    }
+                    placeholder="运动说明"
+                  />
+                </div>
+              </div>
               <div>
-                <Label>Duration (seconds)</Label>
+                <Label>Tags (comma-separated)</Label>
                 <Input
-                  type="number"
-                  value={videoForm.duration}
+                  value={videoGroupForm.tags}
                   onChange={(e) =>
-                    setVideoForm({
-                      ...videoForm,
-                      duration: parseInt(e.target.value) || 0,
-                    })
+                    setVideoGroupForm({ ...videoGroupForm, tags: e.target.value })
                   }
+                  placeholder="e.g. legs, strength, beginner"
                 />
               </div>
               <div>
-                <Label>Difficulty</Label>
+                <Label>Status</Label>
                 <Select
-                  value={videoForm.difficulty}
+                  value={videoGroupForm.status}
                   onValueChange={(v) =>
-                    setVideoForm({ ...videoForm, difficulty: v })
+                    setVideoGroupForm({ ...videoGroupForm, status: v })
                   }
                 >
                   <SelectTrigger>
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="beginner">Beginner</SelectItem>
-                    <SelectItem value="intermediate">Intermediate</SelectItem>
-                    <SelectItem value="advanced">Advanced</SelectItem>
+                    <SelectItem value="active">Active</SelectItem>
+                    <SelectItem value="inactive">Inactive</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
             </div>
-            <div className="grid grid-cols-2 gap-4">
-              <div>
-                <Label>Gender</Label>
-                <Select
-                  value={videoForm.gender}
-                  onValueChange={(v) =>
-                    setVideoForm({ ...videoForm, gender: v })
-                  }
+
+            {/* Videos within Group */}
+            <div className="space-y-4 border-t pt-4">
+              <div className="flex items-center justify-between">
+                <h3 className="font-medium text-sm">Videos (View Angles)</h3>
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  onClick={handleAddVideoToGroup}
                 >
-                  <SelectTrigger>
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="unisex">Unisex</SelectItem>
-                    <SelectItem value="male">Male</SelectItem>
-                    <SelectItem value="female">Female</SelectItem>
-                  </SelectContent>
-                </Select>
+                  <Plus className="h-4 w-4 mr-2" />
+                  Add Video
+                </Button>
               </div>
-              <div>
-                <Label>Access Type</Label>
-                <Select
-                  value={videoForm.accessType}
-                  onValueChange={(v) =>
-                    setVideoForm({ ...videoForm, accessType: v })
-                  }
-                >
-                  <SelectTrigger>
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="free">Free</SelectItem>
-                    <SelectItem value="premium">Premium</SelectItem>
-                    <SelectItem value="hidden">Hidden</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-            </div>
-            <div className="grid grid-cols-2 gap-4">
-              <div>
-                <Label>Age Group</Label>
-                <Select
-                  value={videoForm.ageGroup}
-                  onValueChange={(v) =>
-                    setVideoForm({ ...videoForm, ageGroup: v })
-                  }
-                >
-                  <SelectTrigger>
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="all">All Ages</SelectItem>
-                    <SelectItem value="young">Young (18-35)</SelectItem>
-                    <SelectItem value="middle">Middle-aged (36-55)</SelectItem>
-                    <SelectItem value="senior">Senior (56+)</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-            </div>
-            <div>
-              <Label>Description</Label>
-              <Textarea
-                value={videoForm.description}
-                onChange={(e) =>
-                  setVideoForm({ ...videoForm, description: e.target.value })
-                }
-                placeholder="Video description"
-              />
-            </div>
-            <div>
-              <Label>Instructions</Label>
-              <Textarea
-                value={videoForm.instructions}
-                onChange={(e) =>
-                  setVideoForm({ ...videoForm, instructions: e.target.value })
-                }
-                placeholder="Exercise instructions"
-              />
-            </div>
-            <div>
-              <Label>Status</Label>
-              <Select
-                value={videoForm.status}
-                onValueChange={(v) => setVideoForm({ ...videoForm, status: v })}
-              >
-                <SelectTrigger>
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="active">Active</SelectItem>
-                  <SelectItem value="inactive">Inactive</SelectItem>
-                  <SelectItem value="pending">Pending</SelectItem>
-                </SelectContent>
-              </Select>
+              {groupVideos.length === 0 ? (
+                <p className="text-sm text-muted-foreground text-center py-4">
+                  No videos added yet. Click "Add Video" to add viewing angles.
+                </p>
+              ) : (
+                <div className="space-y-4">
+                  {groupVideos.map((video, index) => (
+                    <div key={index} className="border rounded-lg p-4 space-y-3">
+                      <div className="flex items-center justify-between">
+                        <span className="text-sm font-medium">Video {index + 1}</span>
+                        <Button
+                          type="button"
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => handleRemoveVideoFromGroup(index)}
+                        >
+                          <Trash2 className="h-4 w-4 text-red-500" />
+                        </Button>
+                      </div>
+                      <div className="grid grid-cols-2 gap-3">
+                        <div>
+                          <Label>View Angle (EN)</Label>
+                          <Input
+                            value={video.viewAngle}
+                            onChange={(e) =>
+                              handleUpdateGroupVideo(index, "viewAngle", e.target.value)
+                            }
+                            placeholder="e.g. Front View"
+                          />
+                        </div>
+                        <div>
+                          <Label>View Angle (ZH)</Label>
+                          <Input
+                            value={video.viewAngleZh}
+                            onChange={(e) =>
+                              handleUpdateGroupVideo(index, "viewAngleZh", e.target.value)
+                            }
+                            placeholder="e.g. 正面视角"
+                          />
+                        </div>
+                      </div>
+                      <div>
+                        <Label>Video URL</Label>
+                        <div className="flex gap-2">
+                          <Input
+                            value={video.videoUrl}
+                            onChange={(e) =>
+                              handleUpdateGroupVideo(index, "videoUrl", e.target.value)
+                            }
+                            placeholder="Video URL or upload below"
+                          />
+                          <input
+                            type="file"
+                            accept="video/*"
+                            ref={videoInputRef}
+                            onChange={(e) => handleVideoUpload(e, index)}
+                            className="hidden"
+                            id={`video-upload-${index}`}
+                          />
+                          <Button
+                            type="button"
+                            variant="outline"
+                            size="sm"
+                            onClick={() => document.getElementById(`video-upload-${index}`)?.click()}
+                            disabled={videoUploading}
+                          >
+                            {videoUploading ? (
+                              <Loader2 className="h-4 w-4 animate-spin" />
+                            ) : (
+                              <Upload className="h-4 w-4" />
+                            )}
+                          </Button>
+                        </div>
+                      </div>
+                      <div className="grid grid-cols-2 gap-3">
+                        <div>
+                          <Label>Duration (seconds)</Label>
+                          <Input
+                            type="number"
+                            value={video.duration}
+                            onChange={(e) =>
+                              handleUpdateGroupVideo(index, "duration", parseInt(e.target.value) || 0)
+                            }
+                          />
+                        </div>
+                        <div>
+                          <Label>Sort Order</Label>
+                          <Input
+                            type="number"
+                            value={video.sort}
+                            onChange={(e) =>
+                              handleUpdateGroupVideo(index, "sort", parseInt(e.target.value) || 0)
+                            }
+                          />
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
             </div>
           </div>
           <DialogFooter>
-            <Button variant="outline" onClick={() => setVideoDialogOpen(false)}>
+            <Button
+              variant="outline"
+              onClick={() => setVideoGroupDialogOpen(false)}
+            >
               Cancel
             </Button>
-            <Button onClick={handleSaveVideo} disabled={loading}>
+            <Button onClick={handleSaveVideoGroup} disabled={loading}>
               {loading && <Loader2 className="h-4 w-4 mr-2 animate-spin" />}
               Save
             </Button>

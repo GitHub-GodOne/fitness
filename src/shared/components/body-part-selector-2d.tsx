@@ -16,6 +16,7 @@ const BODY_PARTS = [
   "front-shoulders",
   "chest",
   "traps",
+  "neck",
   "hamstrings",
   "glutes",
   "triceps",
@@ -31,25 +32,38 @@ interface BodyPartSelector2DProps {
   selected: string[];
   onChange: (parts: string[]) => void;
   disabled?: boolean;
+  singleSelect?: boolean; // New prop for single selection mode
 }
 
 export function BodyPartSelector2D({
   selected,
   onChange,
   disabled,
+  singleSelect = false, // Default to multi-select for backward compatibility
 }: BodyPartSelector2DProps) {
   const t = useTranslations("ai.video.generator.wizard.body_parts");
 
   const toggle = useCallback(
     (part: string) => {
       if (disabled) return;
-      if (selected.includes(part)) {
-        onChange(selected.filter((p) => p !== part));
+
+      if (singleSelect) {
+        // Single select mode: replace selection
+        if (selected.includes(part)) {
+          onChange([]); // Deselect if clicking the same part
+        } else {
+          onChange([part]); // Select only this part
+        }
       } else {
-        onChange([...selected, part]);
+        // Multi-select mode: toggle
+        if (selected.includes(part)) {
+          onChange(selected.filter((p) => p !== part));
+        } else {
+          onChange([...selected, part]);
+        }
       }
     },
-    [disabled, selected, onChange],
+    [disabled, selected, onChange, singleSelect],
   );
 
   const isSelected = (part: string) => selected.includes(part);
@@ -182,6 +196,19 @@ export function BodyPartSelector2D({
               <path d="M426.68,210c-18.26-.34-34.53,5.69-37.89,7.02-10.92-3.79-16.12-7.47-16.12-17.47v-20.84c3.12,2.97,8.63,7.96,12.31,9.83,3.08,1.57,11.48,5.18,18.88,8.35,4.83,2.06,9.39,4.02,11.35,4.94,2.98,1.39,7.29,4.83,10.44,7.35.37.3.71.57,1.02.81Z" fill="currentColor" />
             </g>
 
+            {/* Neck */}
+            <g
+              id="neck"
+              className={cn(
+                "cursor-pointer transition-colors",
+                isSelected("neck") ? "text-red-500" : "text-gray-400 hover:text-red-300"
+              )}
+              onClick={() => toggle("neck")}
+            >
+              {/* Front neck area - simple rectangle between head and shoulders */}
+              <path d="M289.56,162.48h81.84v56.92h-81.84Z" fill="currentColor" />
+            </g>
+
             {/* Forearms */}
             <g
               id="forearms"
@@ -306,6 +333,19 @@ export function BodyPartSelector2D({
               onClick={() => toggle("traps")}
             >
               <path d="M233.69,210.53c3.21-1.97,7.59-4.66,10.69-6.06,1.99-.9,6.6-2.81,11.49-4.84,5-2.07,10.45-4.34,14.44-6.07.04,0,.07,0,.11-.02,19.55-5.27,40.39-4.24,51.58-3.69,1.19.06,2.28.11,3.24.16,3.33.14,6.72.14,10.04,0,.96-.04,2.04-.1,3.23-.16,11.2-.55,32.03-1.58,51.58,3.69.04,0,.07.02.11.02,4,1.73,9.45,4,14.45,6.07,4.89,2.03,9.5,3.94,11.49,4.84,3.08,1.4,7.48,4.09,10.69,6.06.06.04.12.08.19.11-16.13,2.35-25.59,11.71-30.85,17.43h0s-.02.03-.02.04c-.36.39-.71.77-1.03,1.12l-.53.58-.04.04c-6.7,7.33-11.8,6.41-24.14,4.2-9.02-1.62-21.37-3.83-40.14-3.83s-31.12,2.21-40.14,3.83c-12.33,2.21-17.44,3.12-24.14-4.2-.02-.02-.03-.04-.04-.04l-.52-.58c-5-5.5-14.62-16.06-31.89-18.59.05-.04.11-.08.18-.11Z" fill="currentColor" />
+            </g>
+
+            {/* Neck Back */}
+            <g
+              id="neck-back"
+              className={cn(
+                "cursor-pointer transition-colors",
+                isSelected("neck") ? "text-red-500" : "text-gray-400 hover:text-red-300"
+              )}
+              onClick={() => toggle("neck")}
+            >
+              {/* Back neck area - adjusted smaller and lower */}
+              <path d="M290,135h80v50h-80Z" fill="currentColor" />
             </g>
 
             {/* Traps Middle Back */}

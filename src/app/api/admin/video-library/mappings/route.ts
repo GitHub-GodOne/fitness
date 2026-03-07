@@ -7,13 +7,13 @@ import {
     createObjectVideoMapping,
     deleteObjectVideoMapping,
     getVideoMappings,
-    getFitnessVideoById,
+    getFitnessVideoGroupById,
     listFitnessObjects,
     listBodyParts,
 } from '@/shared/models/video_library';
 
 /**
- * Get all mappings for a video (admin only)
+ * Get all mappings for a video group (admin only)
  */
 export async function GET(req: NextRequest) {
     try {
@@ -28,9 +28,9 @@ export async function GET(req: NextRequest) {
         }
 
         const { searchParams } = new URL(req.url);
-        const videoId = searchParams.get('videoId');
+        const videoGroupId = searchParams.get('videoGroupId');
 
-        if (!videoId) {
+        if (!videoGroupId) {
             // Return all objects and body parts for selection
             const [objects, bodyParts] = await Promise.all([
                 listFitnessObjects({ status: 'active', limit: 1000 }),
@@ -39,8 +39,8 @@ export async function GET(req: NextRequest) {
             return respData({ objects, bodyParts });
         }
 
-        const mappings = await getVideoMappings(videoId);
-        return respData({ mappings, videoId });
+        const mappings = await getVideoMappings(videoGroupId);
+        return respData({ mappings, videoGroupId });
     } catch (e: any) {
         console.error('[Admin Video Library Mappings] GET failed:', e);
         return respErr(e.message || 'Failed to get mappings', 500);
@@ -63,21 +63,21 @@ export async function POST(req: NextRequest) {
         }
 
         const body = await req.json();
-        const { objectId, videoId, bodyPartId, isPrimary } = body;
+        const { objectId, videoGroupId, bodyPartId, isPrimary } = body;
 
-        if (!objectId || !videoId || !bodyPartId) {
-            return respErr('objectId, videoId, and bodyPartId are required');
+        if (!objectId || !videoGroupId || !bodyPartId) {
+            return respErr('objectId, videoGroupId, and bodyPartId are required');
         }
 
-        // Verify video exists
-        const video = await getFitnessVideoById(videoId);
-        if (!video) {
-            return respErr('video not found', 404);
+        // Verify video group exists
+        const videoGroup = await getFitnessVideoGroupById(videoGroupId);
+        if (!videoGroup) {
+            return respErr('video group not found', 404);
         }
 
         const newMapping = await createObjectVideoMapping({
             objectId,
-            videoId,
+            videoGroupId,
             bodyPartId,
             isPrimary,
         });

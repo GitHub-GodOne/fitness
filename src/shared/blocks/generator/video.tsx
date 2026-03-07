@@ -234,15 +234,29 @@ function parseTaskResult(taskResult: string | null): any {
   }
 }
 
+function extractVideoGroups(result: any): any[] {
+  if (!result) return [];
+  if (result.matchedVideos && Array.isArray(result.matchedVideos)) {
+    return result.matchedVideos;
+  }
+  return [];
+}
+
 function extractVideoUrls(result: any): string[] {
   if (!result) {
     return [];
   }
 
-  // check matchedVideos array (video-library provider format)
+  // check matchedVideos array (video-library provider format with groups)
   if (result.matchedVideos && Array.isArray(result.matchedVideos) && result.matchedVideos.length > 0) {
     return result.matchedVideos
-      .map((item: any) => item?.videoUrl)
+      .map((group: any) => {
+        // Extract first video URL from each group
+        if (group.videos && Array.isArray(group.videos) && group.videos.length > 0) {
+          return group.videos[0].videoUrl;
+        }
+        return group.videoUrl;
+      })
       .filter(Boolean);
   }
 
@@ -1750,6 +1764,7 @@ export function VideoGenerator({
                   selected={selectedBodyParts}
                   onChange={setSelectedBodyParts}
                   disabled={isGenerating}
+                  singleSelect={true}
                 />
               </div>
 

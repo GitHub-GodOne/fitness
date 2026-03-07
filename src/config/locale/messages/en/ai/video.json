@@ -145,7 +145,8 @@
       "no_history": "No history found",
       "showing": "Showing {start}-{end} of {total}",
       "previous": "Previous",
-      "next": "Next"
+      "next": "Next",
+      "videos": "videos"
     },
     "wizard": {
       "step_indicator": "Step {current} of {total}",

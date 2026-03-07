@@ -145,7 +145,8 @@
       "no_history": "暂无历史记录",
       "showing": "显示 {start}-{end} / 共 {total} 条",
       "previous": "上一页",
-      "next": "下一页"
+      "next": "下一页",
+      "videos": "个视频"
     },
     "wizard": {
       "step_indicator": "第 {current} 步 / 共 {total} 步",

@@ -9,6 +9,7 @@ import {
   fitnessObject,
   bodyPart,
   fitnessVideo,
+  fitnessVideoGroup,
   objectVideoMapping,
 } from '@/config/db/schema';
 
@@ -383,17 +384,15 @@ export async function listBodyParts(options?: {
 }
 
 // ============================================
-// Fitness Video (健身视频) CRUD
+// Fitness Video Group (健身视频组) CRUD
 // ============================================
 
-export interface CreateFitnessVideo {
+export interface CreateFitnessVideoGroup {
   title: string;
   titleZh?: string;
   description?: string;
   descriptionZh?: string;
-  videoUrl: string;
   thumbnailUrl?: string;
-  duration?: number;
   difficulty?: string;
   gender?: string;
   accessType?: string;
@@ -405,14 +404,12 @@ export interface CreateFitnessVideo {
   sort?: number;
 }
 
-export interface UpdateFitnessVideo {
+export interface UpdateFitnessVideoGroup {
   title?: string;
   titleZh?: string;
   description?: string;
   descriptionZh?: string;
-  videoUrl?: string;
   thumbnailUrl?: string;
-  duration?: number;
   difficulty?: string;
   gender?: string;
   accessType?: string;
@@ -424,19 +421,17 @@ export interface UpdateFitnessVideo {
   sort?: number;
 }
 
-export async function createFitnessVideo(data: CreateFitnessVideo) {
+export async function createFitnessVideoGroup(data: CreateFitnessVideoGroup) {
   const id = nanoid();
   const result = await db()
-    .insert(fitnessVideo)
+    .insert(fitnessVideoGroup)
     .values({
       id,
       title: data.title,
       titleZh: data.titleZh,
       description: data.description,
       descriptionZh: data.descriptionZh,
-      videoUrl: data.videoUrl,
       thumbnailUrl: data.thumbnailUrl,
-      duration: data.duration,
       difficulty: data.difficulty || 'beginner',
       gender: data.gender || 'unisex',
       accessType: data.accessType || 'free',
@@ -451,36 +446,36 @@ export async function createFitnessVideo(data: CreateFitnessVideo) {
   return result[0];
 }
 
-export async function updateFitnessVideo(id: string, data: UpdateFitnessVideo) {
+export async function updateFitnessVideoGroup(id: string, data: UpdateFitnessVideoGroup) {
   const result = await db()
-    .update(fitnessVideo)
+    .update(fitnessVideoGroup)
     .set({
       ...data,
       tags: data.tags ? JSON.stringify(data.tags) : undefined,
     })
-    .where(eq(fitnessVideo.id, id))
+    .where(eq(fitnessVideoGroup.id, id))
     .returning();
   return result[0];
 }
 
-export async function deleteFitnessVideo(id: string) {
+export async function deleteFitnessVideoGroup(id: string) {
   // Soft delete
   await db()
-    .update(fitnessVideo)
+    .update(fitnessVideoGroup)
     .set({ deletedAt: new Date(), status: 'deleted' })
-    .where(eq(fitnessVideo.id, id));
+    .where(eq(fitnessVideoGroup.id, id));
 }
 
-export async function getFitnessVideoById(id: string) {
+export async function getFitnessVideoGroupById(id: string) {
   const result = await db()
     .select()
-    .from(fitnessVideo)
-    .where(eq(fitnessVideo.id, id))
+    .from(fitnessVideoGroup)
+    .where(eq(fitnessVideoGroup.id, id))
     .limit(1);
   return result[0];
 }
 
-export async function listFitnessVideos(options?: {
+export async function listFitnessVideoGroups(options?: {
   status?: string;
   difficulty?: string;
   gender?: string;
@@ -494,33 +489,39 @@ export async function listFitnessVideos(options?: {
   const limit = options?.limit || 50;
   const offset = (page - 1) * limit;
 
-  let query = db().select().from(fitnessVideo);
+  let query = db().select().from(fitnessVideoGroup);
 
   const conditions = [];
   if (options?.status) {
-    conditions.push(eq(fitnessVideo.status, options.status));
+    conditions.push(eq(fitnessVideoGroup.status, options.status));
   }
   if (options?.difficulty) {
-    conditions.push(eq(fitnessVideo.difficulty, options.difficulty));
+    conditions.push(eq(fitnessVideoGroup.difficulty, options.difficulty));
   }
   if (options?.gender) {
     conditions.push(
-      sql`(${fitnessVideo.gender} = ${options.gender} OR ${fitnessVideo.gender} = 'unisex')`
+      sql`(${fitnessVideoGroup.gender} = ${options.gender} OR ${fitnessVideoGroup.gender} = 'unisex')`
     );
   }
   if (options?.accessType) {
-    conditions.push(eq(fitnessVideo.accessType, options.accessType));
+    if (options.accessType === 'premium') {
+      // Premium users can see both free and premium content
+      conditions.push(sql`${fitnessVideoGroup.accessType} IN ('free', 'premium')`);
+    } else {
+      // Free users can only see free content
+      conditions.push(eq(fitnessVideoGroup.accessType, 'free'));
+    }
   } else {
     // Exclude hidden by default
-    conditions.push(sql`${fitnessVideo.accessType} != 'hidden'`);
+    conditions.push(sql`${fitnessVideoGroup.accessType} != 'hidden'`);
   }
   if (options?.ageGroup) {
     conditions.push(
-      sql`(${fitnessVideo.ageGroup} = ${options.ageGroup} OR ${fitnessVideo.ageGroup} = 'all')`
+      sql`(${fitnessVideoGroup.ageGroup} = ${options.ageGroup} OR ${fitnessVideoGroup.ageGroup} = 'all')`
     );
   }
   if (options?.search) {
-    conditions.push(like(fitnessVideo.title, `%${options.search}%`));
+    conditions.push(like(fitnessVideoGroup.title, `%${options.search}%`));
   }
 
   if (conditions.length > 0) {
@@ -528,17 +529,95 @@ export async function listFitnessVideos(options?: {
   }
 
   const result = await query
-    .orderBy(asc(fitnessVideo.sort), desc(fitnessVideo.createdAt))
+    .orderBy(asc(fitnessVideoGroup.sort), desc(fitnessVideoGroup.createdAt))
     .limit(limit)
     .offset(offset);
   return result;
 }
 
-export async function incrementVideoViewCount(id: string) {
+export async function incrementVideoGroupViewCount(id: string) {
   await db()
+    .update(fitnessVideoGroup)
+    .set({ viewCount: sql`${fitnessVideoGroup.viewCount} + 1` })
+    .where(eq(fitnessVideoGroup.id, id));
+}
+
+// ============================================
+// Fitness Video (健身视频) CRUD
+// ============================================
+
+export interface CreateFitnessVideo {
+  groupId: string;
+  viewAngle: string;
+  viewAngleZh?: string;
+  videoUrl: string;
+  duration?: number;
+  status?: string;
+  sort?: number;
+}
+
+export interface UpdateFitnessVideo {
+  viewAngle?: string;
+  viewAngleZh?: string;
+  videoUrl?: string;
+  duration?: number;
+  status?: string;
+  sort?: number;
+}
+
+export async function createFitnessVideo(data: CreateFitnessVideo) {
+  const id = nanoid();
+  const result = await db()
+    .insert(fitnessVideo)
+    .values({
+      id,
+      groupId: data.groupId,
+      viewAngle: data.viewAngle,
+      viewAngleZh: data.viewAngleZh,
+      videoUrl: data.videoUrl,
+      duration: data.duration,
+      status: data.status || 'active',
+      sort: data.sort || 0,
+    })
+    .returning();
+  return result[0];
+}
+
+export async function updateFitnessVideo(id: string, data: UpdateFitnessVideo) {
+  const result = await db()
     .update(fitnessVideo)
-    .set({ viewCount: sql`${fitnessVideo.viewCount} + 1` })
+    .set(data)
+    .where(eq(fitnessVideo.id, id))
+    .returning();
+  return result[0];
+}
+
+export async function deleteFitnessVideo(id: string) {
+  // Hard delete since videos are part of a group
+  await db()
+    .delete(fitnessVideo)
     .where(eq(fitnessVideo.id, id));
+}
+
+export async function getFitnessVideoById(id: string) {
+  const result = await db()
+    .select()
+    .from(fitnessVideo)
+    .where(eq(fitnessVideo.id, id))
+    .limit(1);
+  return result[0];
+}
+
+export async function listFitnessVideosByGroup(groupId: string) {
+  const result = await db()
+    .select()
+    .from(fitnessVideo)
+    .where(and(
+      eq(fitnessVideo.groupId, groupId),
+      eq(fitnessVideo.status, 'active')
+    ))
+    .orderBy(asc(fitnessVideo.sort));
+  return result;
 }
 
 // ============================================
@@ -547,7 +626,7 @@ export async function incrementVideoViewCount(id: string) {
 
 export interface CreateObjectVideoMapping {
   objectId: string;
-  videoId: string;
+  videoGroupId: string;
   bodyPartId: string;
   isPrimary?: boolean;
 }
@@ -559,7 +638,7 @@ export async function createObjectVideoMapping(data: CreateObjectVideoMapping) {
     .values({
       id,
       objectId: data.objectId,
-      videoId: data.videoId,
+      videoGroupId: data.videoGroupId,
       bodyPartId: data.bodyPartId,
       isPrimary: data.isPrimary || false,
     })
@@ -571,11 +650,11 @@ export async function deleteObjectVideoMapping(id: string) {
   await db().delete(objectVideoMapping).where(eq(objectVideoMapping.id, id));
 }
 
-export async function deleteObjectVideoMappingsByVideoId(videoId: string) {
-  await db().delete(objectVideoMapping).where(eq(objectVideoMapping.videoId, videoId));
+export async function deleteObjectVideoMappingsByVideoId(videoGroupId: string) {
+  await db().delete(objectVideoMapping).where(eq(objectVideoMapping.videoGroupId, videoGroupId));
 }
 
-export async function getVideoMappings(videoId: string) {
+export async function getVideoMappings(videoGroupId: string) {
   const result = await db()
     .select({
       mapping: objectVideoMapping,
@@ -585,7 +664,7 @@ export async function getVideoMappings(videoId: string) {
     .from(objectVideoMapping)
     .leftJoin(fitnessObject, eq(objectVideoMapping.objectId, fitnessObject.id))
     .leftJoin(bodyPart, eq(objectVideoMapping.bodyPartId, bodyPart.id))
-    .where(eq(objectVideoMapping.videoId, videoId));
+    .where(eq(objectVideoMapping.videoGroupId, videoGroupId));
   return result;
 }
 
@@ -626,58 +705,64 @@ export async function findVideosByObjectAndBodyParts(
   }
   if (bpIds.length === 0) return [];
 
-  // Build video filter conditions
+  // Build video group filter conditions
   const conditions = [
     inArray(objectVideoMapping.objectId, objectIds),
     inArray(objectVideoMapping.bodyPartId, bpIds),
-    eq(fitnessVideo.status, 'active'),
+    eq(fitnessVideoGroup.status, 'active'),
   ];
   if (options?.difficulty) {
-    conditions.push(eq(fitnessVideo.difficulty, options.difficulty));
+    conditions.push(eq(fitnessVideoGroup.difficulty, options.difficulty));
   }
   if (options?.gender) {
     conditions.push(
-      sql`(${fitnessVideo.gender} = ${options.gender} OR ${fitnessVideo.gender} = 'unisex')`
+      sql`(${fitnessVideoGroup.gender} = ${options.gender} OR ${fitnessVideoGroup.gender} = 'unisex')`
     );
   }
   if (options?.accessType) {
-    conditions.push(eq(fitnessVideo.accessType, options.accessType));
+    if (options.accessType === 'premium') {
+      // Premium users can see both free and premium content
+      conditions.push(sql`${fitnessVideoGroup.accessType} IN ('free', 'premium')`);
+    } else {
+      // Free users can only see free content
+      conditions.push(eq(fitnessVideoGroup.accessType, 'free'));
+    }
   } else {
-    conditions.push(sql`${fitnessVideo.accessType} != 'hidden'`);
+    conditions.push(sql`${fitnessVideoGroup.accessType} != 'hidden'`);
   }
   if (options?.ageGroup) {
     conditions.push(
-      sql`(${fitnessVideo.ageGroup} = ${options.ageGroup} OR ${fitnessVideo.ageGroup} = 'all')`
+      sql`(${fitnessVideoGroup.ageGroup} = ${options.ageGroup} OR ${fitnessVideoGroup.ageGroup} = 'all')`
     );
   }
 
   // Query all mappings for this object across all requested body parts
   const rows = await db()
     .select({
-      video: fitnessVideo,
+      videoGroup: fitnessVideoGroup,
       mapping: objectVideoMapping,
       object: fitnessObject,
     })
     .from(objectVideoMapping)
-    .innerJoin(fitnessVideo, eq(objectVideoMapping.videoId, fitnessVideo.id))
+    .innerJoin(fitnessVideoGroup, eq(objectVideoMapping.videoGroupId, fitnessVideoGroup.id))
     .innerJoin(fitnessObject, eq(objectVideoMapping.objectId, fitnessObject.id))
     .where(and(...conditions))
-    .orderBy(desc(objectVideoMapping.isPrimary), asc(fitnessVideo.sort));
+    .orderBy(desc(objectVideoMapping.isPrimary), asc(fitnessVideoGroup.sort));
 
-  // Group by video and count how many requested body parts each video covers
-  const videoMap = new Map<string, { video: typeof fitnessVideo.$inferSelect; object: typeof fitnessObject.$inferSelect; matchedBpCount: number; matchedBpIds: Set<string> }>();
+  // Group by video group and count how many requested body parts each group covers
+  const groupMap = new Map<string, { videoGroup: typeof fitnessVideoGroup.$inferSelect; object: typeof fitnessObject.$inferSelect; matchedBpCount: number; matchedBpIds: Set<string> }>();
 
   for (const row of rows) {
-    const vid = row.video.id;
-    if (!videoMap.has(vid)) {
-      videoMap.set(vid, {
-        video: row.video,
+    const gid = row.videoGroup.id;
+    if (!groupMap.has(gid)) {
+      groupMap.set(gid, {
+        videoGroup: row.videoGroup,
         object: row.object,
         matchedBpCount: 0,
         matchedBpIds: new Set(),
       });
     }
-    const entry = videoMap.get(vid)!;
+    const entry = groupMap.get(gid)!;
     const bpId = row.mapping.bodyPartId;
     if (!entry.matchedBpIds.has(bpId)) {
       entry.matchedBpIds.add(bpId);
@@ -686,18 +771,34 @@ export async function findVideosByObjectAndBodyParts(
   }
 
   // Sort: most body parts matched first, then by sort order
-  const sorted = Array.from(videoMap.values())
+  const sorted = Array.from(groupMap.values())
     .sort((a, b) => b.matchedBpCount - a.matchedBpCount);
 
-  return sorted.slice(0, limit).map(entry => ({
-    video: entry.video,
-    object: entry.object,
-    matchedBpCount: entry.matchedBpCount,
-  }));
+  // Get all videos for each video group
+  const result = [];
+  for (const entry of sorted.slice(0, limit)) {
+    const videos = await db()
+      .select()
+      .from(fitnessVideo)
+      .where(and(
+        eq(fitnessVideo.groupId, entry.videoGroup.id),
+        eq(fitnessVideo.status, 'active')
+      ))
+      .orderBy(asc(fitnessVideo.sort));
+
+    result.push({
+      videoGroup: entry.videoGroup,
+      videos: videos,
+      object: entry.object,
+      matchedBpCount: entry.matchedBpCount,
+    });
+  }
+
+  return result;
 }
 
 /**
- * Get all videos for a specific body part
+ * Get all video groups for a specific body part
  */
 export async function getVideosByBodyPart(
   bodyPartName: string,
@@ -713,25 +814,31 @@ export async function getVideosByBodyPart(
 
   const bp = await getBodyPartByName(bodyPartName);
 
-  // Helper to build common video filter conditions
-  const buildVideoConditions = () => {
-    const conds = [eq(fitnessVideo.status, 'active')];
+  // Helper to build common video group filter conditions
+  const buildVideoGroupConditions = () => {
+    const conds = [eq(fitnessVideoGroup.status, 'active')];
     if (options?.difficulty) {
-      conds.push(eq(fitnessVideo.difficulty, options.difficulty));
+      conds.push(eq(fitnessVideoGroup.difficulty, options.difficulty));
     }
     if (options?.gender) {
       conds.push(
-        sql`(${fitnessVideo.gender} = ${options.gender} OR ${fitnessVideo.gender} = 'unisex')`
+        sql`(${fitnessVideoGroup.gender} = ${options.gender} OR ${fitnessVideoGroup.gender} = 'unisex')`
       );
     }
     if (options?.accessType) {
-      conds.push(eq(fitnessVideo.accessType, options.accessType));
+      if (options.accessType === 'premium') {
+        // Premium users can see both free and premium content
+        conds.push(sql`${fitnessVideoGroup.accessType} IN ('free', 'premium')`);
+      } else {
+        // Free users can only see free content
+        conds.push(eq(fitnessVideoGroup.accessType, 'free'));
+      }
     } else {
-      conds.push(sql`${fitnessVideo.accessType} != 'hidden'`);
+      conds.push(sql`${fitnessVideoGroup.accessType} != 'hidden'`);
     }
     if (options?.ageGroup) {
       conds.push(
-        sql`(${fitnessVideo.ageGroup} = ${options.ageGroup} OR ${fitnessVideo.ageGroup} = 'all')`
+        sql`(${fitnessVideoGroup.ageGroup} = ${options.ageGroup} OR ${fitnessVideoGroup.ageGroup} = 'all')`
       );
     }
     return conds;
@@ -741,28 +848,47 @@ export async function getVideosByBodyPart(
   if (bp) {
     const conditions = [
       eq(objectVideoMapping.bodyPartId, bp.id),
-      ...buildVideoConditions()
+      ...buildVideoGroupConditions()
     ];
 
-    const result = await db()
+    const rows = await db()
       .select({
-        video: fitnessVideo,
+        videoGroup: fitnessVideoGroup,
         mapping: objectVideoMapping,
       })
       .from(objectVideoMapping)
-      .innerJoin(fitnessVideo, eq(objectVideoMapping.videoId, fitnessVideo.id))
+      .innerJoin(fitnessVideoGroup, eq(objectVideoMapping.videoGroupId, fitnessVideoGroup.id))
       .where(and(...conditions))
-      .orderBy(asc(fitnessVideo.sort), desc(fitnessVideo.viewCount))
+      .orderBy(asc(fitnessVideoGroup.sort), desc(fitnessVideoGroup.viewCount))
       .limit(limit);
 
-    if (result.length > 0) {
-      const uniqueVideos = new Map();
-      for (const r of result) {
-        if (!uniqueVideos.has(r.video.id)) {
-          uniqueVideos.set(r.video.id, r.video);
+    if (rows.length > 0) {
+      const uniqueGroups = new Map();
+      for (const r of rows) {
+        if (!uniqueGroups.has(r.videoGroup.id)) {
+          uniqueGroups.set(r.videoGroup.id, r.videoGroup);
         }
       }
-      return Array.from(uniqueVideos.values());
+
+      // Get all videos for each group
+      const result = [];
+      for (const group of uniqueGroups.values()) {
+        const videos = await db()
+          .select()
+          .from(fitnessVideo)
+          .where(and(
+            eq(fitnessVideo.groupId, group.id),
+            eq(fitnessVideo.status, 'active')
+          ))
+          .orderBy(asc(fitnessVideo.sort));
+
+        result.push({
+          videoGroup: group,
+          videos: videos,
+        });
+      }
+
+      return result;
     }
   }
 

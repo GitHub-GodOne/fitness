@@ -5,16 +5,20 @@ import { getUserInfo } from '@/shared/models/user';
 import { hasPermission } from '@/shared/services/rbac';
 import {
     createFitnessVideo,
-    listFitnessVideos,
+    createFitnessVideoGroup,
+    listFitnessVideoGroups,
     updateFitnessVideo,
+    updateFitnessVideoGroup,
     deleteFitnessVideo,
+    deleteFitnessVideoGroup,
     getVideoMappings,
     createObjectVideoMapping,
     deleteObjectVideoMappingsByVideoId,
+    listFitnessVideosByGroup,
 } from '@/shared/models/video_library';
 
 /**
- * Get all fitness videos (admin only)
+ * Get all fitness video groups (admin only)
  */
 export async function GET(req: NextRequest) {
     try {
@@ -35,7 +39,7 @@ export async function GET(req: NextRequest) {
         const page = parseInt(searchParams.get('page') || '1', 10);
         const limit = parseInt(searchParams.get('limit') || '50', 10);
 
-        const videos = await listFitnessVideos({
+        const videoGroups = await listFitnessVideoGroups({
             status,
             difficulty,
             search,
@@ -43,15 +47,26 @@ export async function GET(req: NextRequest) {
             limit,
         });
 
-        return respData({ videos, page, limit });
+        // Fetch videos for each group
+        const videoGroupsWithVideos = await Promise.all(
+            videoGroups.map(async (group) => {
+                const videos = await listFitnessVideosByGroup(group.id);
+                return {
+                    ...group,
+                    videos,
+                };
+            })
+        );
+
+        return respData({ videoGroups: videoGroupsWithVideos, page, limit });
     } catch (e: any) {
         console.error('[Admin Video Library Videos] GET failed:', e);
-        return respErr(e.message || 'Failed to get videos', 500);
+        return respErr(e.message || 'Failed to get video groups', 500);
     }
 }
 
 /**
- * Create a new fitness video with mappings (admin only)
+ * Create a new fitness video group with videos and mappings (admin only)
  */
 export async function POST(req: NextRequest) {
     try {
@@ -71,9 +86,7 @@ export async function POST(req: NextRequest) {
             titleZh,
             description,
             descriptionZh,
-            videoUrl,
             thumbnailUrl,
-            duration,
             difficulty,
             gender,
             accessType,
@@ -83,22 +96,21 @@ export async function POST(req: NextRequest) {
             tags,
             status,
             sort,
+            videos, // Array of { viewAngle, viewAngleZh, videoUrl, duration, sort }
             mappings, // Array of { objectId, bodyPartId, isPrimary }
         } = body;
 
-        if (!title || !videoUrl) {
-            return respErr('title and videoUrl are required');
+        if (!title) {
+            return respErr('title is required');
         }
 
-        // Create video
-        const newVideo = await createFitnessVideo({
+        // Create video group
+        const newGroup = await createFitnessVideoGroup({
             title,
             titleZh,
             description,
             descriptionZh,
-            videoUrl,
             thumbnailUrl,
-            duration,
             difficulty,
             gender,
             accessType,
@@ -110,30 +122,45 @@ export async function POST(req: NextRequest) {
             sort,
         });
 
+        // Create videos for this group
+        if (videos && Array.isArray(videos)) {
+            for (const video of videos) {
+                await createFitnessVideo({
+                    groupId: newGroup.id,
+                    viewAngle: video.viewAngle,
+                    viewAngleZh: video.viewAngleZh,
+                    videoUrl: video.videoUrl,
+                    duration: video.duration,
+                    sort: video.sort,
+                });
+            }
+        }
+
         // Create mappings if provided
         if (mappings && Array.isArray(mappings)) {
             for (const mapping of mappings) {
                 await createObjectVideoMapping({
                     objectId: mapping.objectId,
-                    videoId: newVideo.id,
+                    videoGroupId: newGroup.id,
                     bodyPartId: mapping.bodyPartId,
                     isPrimary: mapping.isPrimary,
                 });
             }
         }
 
-        // Get full video with mappings
-        const videoMappings = await getVideoMappings(newVideo.id);
+        // Get full group with videos and mappings
+        const groupVideos = await listFitnessVideosByGroup(newGroup.id);
+        const videoMappings = await getVideoMappings(newGroup.id);
 
-        return respData({ video: newVideo, mappings: videoMappings });
+        return respData({ videoGroup: newGroup, videos: groupVideos, mappings: videoMappings });
     } catch (e: any) {
         console.error('[Admin Video Library Videos] POST failed:', e);
-        return respErr(e.message || 'Failed to create video', 500);
+        return respErr(e.message || 'Failed to create video group', 500);
     }
 }
 
 /**
- * Update a fitness video with mappings (admin only)
+ * Update a fitness video group with videos and mappings (admin only)
  */
 export async function PUT(req: NextRequest) {
     try {
@@ -154,9 +181,7 @@ export async function PUT(req: NextRequest) {
             titleZh,
             description,
             descriptionZh,
-            videoUrl,
             thumbnailUrl,
-            duration,
             difficulty,
             gender,
             accessType,
@@ -166,6 +191,7 @@ export async function PUT(req: NextRequest) {
             tags,
             status,
             sort,
+            videos, // Array of { id?, viewAngle, viewAngleZh, videoUrl, duration, sort }
             mappings, // Array of { objectId, bodyPartId, isPrimary }
         } = body;
 
@@ -173,15 +199,13 @@ export async function PUT(req: NextRequest) {
             return respErr('id is required');
         }
 
-        // Update video
-        const updatedVideo = await updateFitnessVideo(id, {
+        // Update video group
+        const updatedGroup = await updateFitnessVideoGroup(id, {
             title,
             titleZh,
             description,
             descriptionZh,
-            videoUrl,
             thumbnailUrl,
-            duration,
             difficulty,
             gender,
             accessType,
@@ -193,34 +217,54 @@ export async function PUT(req: NextRequest) {
             sort,
         });
 
+        // Update videos if provided (simplified: delete all and recreate)
+        if (videos && Array.isArray(videos)) {
+            const existingVideos = await listFitnessVideosByGroup(id);
+            for (const video of existingVideos) {
+                await deleteFitnessVideo(video.id);
+            }
+
+            for (const video of videos) {
+                await createFitnessVideo({
+                    groupId: id,
+                    viewAngle: video.viewAngle,
+                    viewAngleZh: video.viewAngleZh,
+                    videoUrl: video.videoUrl,
+                    duration: video.duration,
+                    sort: video.sort,
+                });
+            }
+        }
+
         // Update mappings if provided
         if (mappings && Array.isArray(mappings)) {
             // Delete existing mappings
             await deleteObjectVideoMappingsByVideoId(id);
-            
+
             // Create new mappings
             for (const mapping of mappings) {
                 await createObjectVideoMapping({
                     objectId: mapping.objectId,
-                    videoId: id,
+                    videoGroupId: id,
                     bodyPartId: mapping.bodyPartId,
                     isPrimary: mapping.isPrimary,
                 });
             }
         }
 
-        // Get full video with mappings
+        // Get full group with videos and mappings
+        const groupVideos = await listFitnessVideosByGroup(id);
         const videoMappings = await getVideoMappings(id);
 
-        return respData({ video: updatedVideo, mappings: videoMappings });
+        return respData({ videoGroup: updatedGroup, videos: groupVideos, mappings: videoMappings });
     } catch (e: any) {
         console.error('[Admin Video Library Videos] PUT failed:', e);
-        return respErr(e.message || 'Failed to update video', 500);
+        return respErr(e.message || 'Failed to update video group', 500);
     }
 }
 
 /**
- * Delete a fitness video (admin only)
+ * Delete a fitness video group (admin only)
  */
 export async function DELETE(req: NextRequest) {
     try {
@@ -243,13 +287,13 @@ export async function DELETE(req: NextRequest) {
 
         // Delete mappings first
         await deleteObjectVideoMappingsByVideoId(id);
-        
-        // Delete video (soft delete)
-        await deleteFitnessVideo(id);
+
+        // Delete video group (cascade will delete videos)
+        await deleteFitnessVideoGroup(id);
 
         return respData({ success: true });
     } catch (e: any) {
         console.error('[Admin Video Library Videos] DELETE failed:', e);
-        return respErr(e.message || 'Failed to delete video', 500);
+        return respErr(e.message || 'Failed to delete video group', 500);
     }
 }
