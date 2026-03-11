@@ -1,12 +1,17 @@
 'use client';
 
 import { useEffect, useMemo, useState } from 'react';
-import { Loader2, PlayCircle } from 'lucide-react';
+import { ChevronDown, Loader2, PlayCircle } from 'lucide-react';
 import { toast } from 'sonner';
 
 import { useRouter } from '@/core/i18n/navigation';
 import { ImageUploader } from '@/shared/blocks/common';
 import { Button } from '@/shared/components/ui/button';
+import {
+  Collapsible,
+  CollapsibleContent,
+  CollapsibleTrigger,
+} from '@/shared/components/ui/collapsible';
 import { Input } from '@/shared/components/ui/input';
 import { Label } from '@/shared/components/ui/label';
 import {
@@ -63,6 +68,7 @@ export function ShowcaseSubmitForm({
   const [title, setTitle] = useState(selectableTasks[0]?.title || '');
   const [description, setDescription] = useState(selectableTasks[0]?.description || '');
   const [coverUrl, setCoverUrl] = useState(selectableTasks[0]?.coverUrl || '');
+  const [mobilePreviewOpen, setMobilePreviewOpen] = useState(true);
 
   const selectedTask = useMemo(
     () => selectableTasks.find((item) => item.id === sourceTaskId) || selectableTasks[0],
@@ -118,8 +124,47 @@ export function ShowcaseSubmitForm({
     }
   }
 
+  function renderPreviewBody() {
+    if (!selectedTask) {
+      return (
+        <div className="rounded-3xl border border-dashed p-10 text-center text-sm text-muted-foreground">
+          {isZh ? '请选择一个视频后再预览。' : 'Select a video to preview it.'}
+        </div>
+      );
+    }
+
+    return (
+      <>
+        <div className="overflow-hidden rounded-3xl border bg-black">
+          <video
+            key={selectedTask.id}
+            controls
+            preload="metadata"
+            poster={coverUrl || selectedTask.coverUrl || undefined}
+            src={selectedTask.videoUrl}
+            className="aspect-[9/16] w-full object-cover"
+          />
+        </div>
+
+        <div className="space-y-3">
+          <div className="flex items-center gap-2 text-sm text-muted-foreground">
+            <PlayCircle className="size-4" />
+            <span>{isZh ? '当前选中视频' : 'Selected video'}</span>
+          </div>
+          <h3 className="text-xl font-semibold">{selectedTask.title}</h3>
+          {selectedTask.description ? (
+            <p className="text-sm text-muted-foreground">{selectedTask.description}</p>
+          ) : null}
+        </div>
+      </>
+    );
+  }
+
   return (
-    <form onSubmit={handleSubmit} className="grid gap-8 lg:grid-cols-[minmax(0,1.1fr)_minmax(320px,420px)]">
+    <form
+      onSubmit={handleSubmit}
+      className="grid gap-8 xl:grid-cols-[minmax(0,1.2fr)_minmax(360px,0.9fr)]"
+    >
       <div className="space-y-6 rounded-3xl border bg-card p-6">
         <div className="space-y-2">
           <h2 className="text-2xl font-semibold">
@@ -146,6 +191,39 @@ export function ShowcaseSubmitForm({
               ))}
             </SelectContent>
           </Select>
+        </div>
+
+        <div className="xl:hidden">
+          <Collapsible open={mobilePreviewOpen} onOpenChange={setMobilePreviewOpen}>
+            <div className="rounded-3xl border bg-card/60">
+              <CollapsibleTrigger asChild>
+                <button
+                  type="button"
+                  className="flex w-full items-center justify-between gap-4 px-4 py-4 text-left"
+                >
+                  <div className="space-y-1">
+                    <div className="text-lg font-semibold">
+                      {isZh ? '视频预览' : 'Video Preview'}
+                    </div>
+                    <p className="text-sm text-muted-foreground">
+                      {isZh
+                        ? '确认当前选中的视频内容是否正确。'
+                        : 'Confirm that the selected video is the one you want to submit.'}
+                    </p>
+                  </div>
+                  <ChevronDown
+                    className={`size-5 shrink-0 transition-transform ${
+                      mobilePreviewOpen ? 'rotate-180' : ''
+                    }`}
+                  />
+                </button>
+              </CollapsibleTrigger>
+
+              <CollapsibleContent className="space-y-4 px-4 pb-4">
+                {renderPreviewBody()}
+              </CollapsibleContent>
+            </div>
+          </Collapsible>
         </div>
 
         <div className="space-y-2">
@@ -210,7 +288,7 @@ export function ShowcaseSubmitForm({
         </Button>
       </div>
 
-      <div className="space-y-4 rounded-3xl border bg-card p-6">
+      <div className="hidden space-y-4 rounded-3xl border bg-card p-6 xl:block">
         <div className="space-y-2">
           <h2 className="text-2xl font-semibold">{isZh ? '视频预览' : 'Video Preview'}</h2>
           <p className="text-sm text-muted-foreground">
@@ -220,35 +298,7 @@ export function ShowcaseSubmitForm({
           </p>
         </div>
 
-        {selectedTask ? (
-          <>
-            <div className="overflow-hidden rounded-3xl border bg-black">
-              <video
-                key={selectedTask.id}
-                controls
-                preload="metadata"
-                poster={coverUrl || selectedTask.coverUrl || undefined}
-                src={selectedTask.videoUrl}
-                className="aspect-[9/16] w-full object-cover"
-              />
-            </div>
-
-            <div className="space-y-3">
-              <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                <PlayCircle className="size-4" />
-                <span>{isZh ? '当前选中视频' : 'Selected video'}</span>
-              </div>
-              <h3 className="text-xl font-semibold">{selectedTask.title}</h3>
-              {selectedTask.description ? (
-                <p className="text-sm text-muted-foreground">{selectedTask.description}</p>
-              ) : null}
-            </div>
-          </>
-        ) : (
-          <div className="rounded-3xl border border-dashed p-10 text-center text-sm text-muted-foreground">
-            {isZh ? '请选择一个视频后再预览。' : 'Select a video to preview it.'}
-          </div>
-        )}
+        {renderPreviewBody()}
       </div>
     </form>
   );

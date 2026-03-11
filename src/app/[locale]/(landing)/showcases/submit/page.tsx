@@ -202,7 +202,7 @@ export default async function ShowcaseSubmitPage({
 
   return (
     <div className="container pb-16 pt-24 lg:pt-28">
-      <div className="mx-auto max-w-3xl space-y-8">
+      <div className="mx-auto max-w-6xl space-y-8">
         <div className="space-y-3">
           <Link
             href="/showcases"
