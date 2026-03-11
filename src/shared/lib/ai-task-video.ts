@@ -46,14 +46,75 @@ function pickFirstVideoUrl(value: any): string | null {
   );
 }
 
+function looksLikeVideoAsset(value: string) {
+  const normalized = value.toLowerCase().split('?')[0].split('#')[0];
+
+  return (
+    normalized.startsWith('http://') ||
+    normalized.startsWith('https://') ||
+    normalized.startsWith('/') ||
+    normalized.includes('.mp4') ||
+    normalized.includes('.mov') ||
+    normalized.includes('.webm') ||
+    normalized.includes('.m4v')
+  );
+}
+
+function collectMatchingVideoUrls(value: any, matcher: (value: string) => boolean) {
+  const matches: string[] = [];
+  const visited = new Set<any>();
+
+  function walk(node: any) {
+    if (!node || visited.has(node)) {
+      return;
+    }
+
+    if (typeof node === 'string') {
+      if (looksLikeVideoAsset(node) && matcher(node)) {
+        matches.push(node);
+      }
+      return;
+    }
+
+    if (typeof node !== 'object') {
+      return;
+    }
+
+    visited.add(node);
+
+    if (Array.isArray(node)) {
+      node.forEach(walk);
+      return;
+    }
+
+    const directUrl = pickFirstVideoUrl(node);
+    if (directUrl && looksLikeVideoAsset(directUrl) && matcher(directUrl)) {
+      matches.push(directUrl);
+    }
+
+    Object.values(node).forEach(walk);
+  }
+
+  walk(value);
+  return matches;
+}
+
 export function extractVideoUrlFromAITask(params: {
   taskInfo?: string | null;
   taskResult?: string | null;
 }) {
   const taskResult = parseJson(params.taskResult);
   const taskInfo = parseJson(params.taskInfo);
+  const preferredFinalVideoUrl =
+    collectMatchingVideoUrls(taskResult, (value) =>
+      value.toLowerCase().includes('final_video.mp4')
+    )[0] ||
+    collectMatchingVideoUrls(taskInfo, (value) =>
+      value.toLowerCase().includes('final_video.mp4')
+    )[0];
 
   const url =
+    preferredFinalVideoUrl ||
     taskResult?.saved_video_url ||
     pickFirstVideoUrl(taskResult?.saved_video_urls) ||
     taskResult?.original_video_url ||
