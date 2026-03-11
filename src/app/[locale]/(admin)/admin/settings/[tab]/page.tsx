@@ -1,4 +1,5 @@
 import { getTranslations, setRequestLocale } from 'next-intl/server';
+import { revalidatePath } from 'next/cache';
 
 import { PERMISSIONS, requireAllPermissions } from '@/core/rbac';
 import { Header, Main, MainHeader } from '@/shared/blocks/dashboard';
@@ -56,6 +57,8 @@ export default async function SettingsPage({
     });
 
     await saveConfigs(configs);
+    revalidatePath(`/${locale}/admin/settings/${passby?.tab || tab}`);
+    revalidatePath('/admin/settings/[tab]', 'page');
 
     return {
       status: 'success',

@@ -330,6 +330,8 @@ export function Form({
 
       if (res.redirect_url) {
         router.push(res.redirect_url as any);
+      } else {
+        router.refresh();
       }
 
       setLoading(false);

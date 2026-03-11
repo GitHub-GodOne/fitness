@@ -11,7 +11,7 @@ export const revalidate = 3600;
 const BLOCKED_PREFIXES = [
   'wp-', 'wordpress', '.env', 'admin', 'login', 'assets',
   'cgi-bin', 'vendor', 'node_modules', '.git', 'xmlrpc',
-  'phpmyadmin', 'config', '.well-known',
+  'phpmyadmin', 'config', '.well-known', 'actuator',
 ];
 
 // dynamic page metadata
