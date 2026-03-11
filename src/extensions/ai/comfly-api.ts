@@ -894,6 +894,12 @@ interface VideoProcessTaskStatusResponse {
   };
 }
 
+interface InputImageAsset {
+  buffer: Buffer;
+  contentType: string;
+  extension: string;
+}
+
 /**
  * Comfly API Provider - Jesus Video Generation
  * Workflow: Upload Image -> Edit with nano-banana -> Generate Video with wanx2.1 -> Generate Audio -> Merge Video
@@ -919,6 +925,88 @@ export class ComflyAPIProvider implements AIProvider {
 
   private getImageEditPrompt() {
     return resolveComflyPrompts(this.configs).imageEditPrompt;
+  }
+
+  private isHttpUrl(value: string) {
+    return value.startsWith("http://") || value.startsWith("https://");
+  }
+
+  private normalizeImageExtension(extension: string) {
+    const normalized = extension.toLowerCase().replace(/^\./, "");
+
+    if (normalized === "jpeg") {
+      return "jpg";
+    }
+
+    if (["jpg", "png", "webp", "gif"].includes(normalized)) {
+      return normalized;
+    }
+
+    return "png";
+  }
+
+  private getImageContentType(extension: string) {
+    switch (this.normalizeImageExtension(extension)) {
+      case "jpg":
+        return "image/jpeg";
+      case "webp":
+        return "image/webp";
+      case "gif":
+        return "image/gif";
+      default:
+        return "image/png";
+    }
+  }
+
+  private getExtensionFromUrl(url: string) {
+    try {
+      const pathname = new URL(url).pathname;
+      const match = pathname.match(/\.([a-zA-Z0-9]+)$/);
+      return this.normalizeImageExtension(match?.[1] || "png");
+    } catch {
+      const match = url.match(/\.([a-zA-Z0-9]+)(?:[?#].*)?$/);
+      return this.normalizeImageExtension(match?.[1] || "png");
+    }
+  }
+
+  private async loadInputImageAsset(source: string): Promise<InputImageAsset> {
+    if (this.isHttpUrl(source)) {
+      const response = await this.fetchWithRetry(source);
+      if (!response.ok) {
+        throw new Error(`Failed to fetch source image: ${response.status}`);
+      }
+
+      const contentTypeHeader = response.headers.get("content-type") || "";
+      const extensionFromHeader = contentTypeHeader.split("/")[1] || "";
+      const extension = extensionFromHeader
+        ? this.normalizeImageExtension(extensionFromHeader)
+        : this.getExtensionFromUrl(source);
+
+      return {
+        buffer: Buffer.from(await response.arrayBuffer()),
+        contentType:
+          contentTypeHeader || this.getImageContentType(extension),
+        extension,
+      };
+    }
+
+    const fs = await import("fs/promises");
+    const path = await import("path");
+
+    let fullPath = source;
+    if (source.startsWith("/")) {
+      fullPath = path.join(process.cwd(), "public", source.substring(1));
+    }
+
+    const extension = this.normalizeImageExtension(
+      path.extname(fullPath).replace(".", "") || "png",
+    );
+
+    return {
+      buffer: await fs.readFile(fullPath),
+      contentType: this.getImageContentType(extension),
+      extension,
+    };
   }
 
   private getDefaultVideoPrompt() {
@@ -1392,8 +1480,9 @@ export class ComflyAPIProvider implements AIProvider {
       // Read image file if it's a local path
       let imageFile: Buffer | undefined;
       let imageUrl: string | undefined;
+      let originalInputImageUrl = imagePath;
       console.log("imagePath:" + imagePath);
-      if (imagePath.startsWith("http://") || imagePath.startsWith("https://")) {
+      if (this.isHttpUrl(imagePath)) {
         // It's a URL
         imageUrl = imagePath;
       } else {
@@ -1515,6 +1604,7 @@ export class ComflyAPIProvider implements AIProvider {
       let uploadedEditedImageUrl = editedImageUrl;
       let uploadedOriginalVideoUrl = videoUrl;
       let uploadedAudioUrl = audioUrl;
+      let uploadedInputImageUrl = originalInputImageUrl;
 
       if (this.configs.customStorage) {
         progress.currentStep = ComflyTaskStep.UPLOADING_TO_R2;
@@ -1534,11 +1624,13 @@ export class ComflyAPIProvider implements AIProvider {
             editedImageUrl,
             videoUrl,
             audioUrl,
+            originalInputImageUrl,
           );
           uploadedVideoUrl = uploadResults.finalVideoUrl;
           uploadedEditedImageUrl = uploadResults.editedImageUrl;
           uploadedOriginalVideoUrl = uploadResults.originalVideoUrl;
           uploadedAudioUrl = uploadResults.audioUrl;
+          uploadedInputImageUrl = uploadResults.inputImageUrl;
         } catch (uploadError: any) {
           console.warn(
             `[Comfly-API] R2 upload failed, using original URLs: ${uploadError.message}`,
@@ -1562,6 +1654,7 @@ export class ComflyAPIProvider implements AIProvider {
               thumbnailUrl: uploadedEditedImageUrl,
             },
           ],
+          inputImageUrl: uploadedInputImageUrl,
           progress,
         },
         taskResult: {
@@ -1569,6 +1662,10 @@ export class ComflyAPIProvider implements AIProvider {
           edited_image_url: uploadedEditedImageUrl,
           audio_url: uploadedAudioUrl,
           original_video_url: uploadedOriginalVideoUrl,
+          input_image_url: uploadedInputImageUrl,
+          original_image_urls: uploadedInputImageUrl
+            ? [uploadedInputImageUrl]
+            : [],
           verse_reference: verseReference,
           verse_text: verseText,
           narration: scriptText,
@@ -2673,16 +2770,45 @@ fearnotforiamwithyou.com`.trim(),
     editedImageUrl: string,
     originalVideoUrl: string,
     audioUrl: string,
+    inputImageSource?: string,
   ): Promise<{
     finalVideoUrl: string;
     editedImageUrl: string;
     originalVideoUrl: string;
     audioUrl: string;
+    inputImageUrl: string;
   }> {
     console.log(`[Comfly-API] Uploading files to R2 for task ${taskId}`);
 
     const { getStorageService } = await import("@/shared/services/storage");
     const storageService = await getStorageService();
+
+    let uploadedInputImageUrl = inputImageSource || "";
+    if (inputImageSource) {
+      try {
+        const inputImageAsset = await this.loadInputImageAsset(inputImageSource);
+        const inputImageKey = this.getR2Key(
+          taskId,
+          `input_image.${inputImageAsset.extension}`,
+        );
+        const inputImageUploadResult = await storageService.uploadFile({
+          body: inputImageAsset.buffer,
+          key: inputImageKey,
+          contentType: inputImageAsset.contentType,
+          bucket: this.configs.r2_bucket_name,
+        });
+        if (inputImageUploadResult.success && inputImageUploadResult.url) {
+          uploadedInputImageUrl = replaceR2Url(inputImageUploadResult.url);
+          console.log(
+            `[Comfly-API] Input image uploaded to R2: ${uploadedInputImageUrl}`,
+          );
+        }
+      } catch (error: any) {
+        console.warn(
+          `[Comfly-API] Failed to upload input image: ${error.message}`,
+        );
+      }
+    }
 
     // Upload final video (with subtitles)
     let uploadedFinalVideoUrl = finalVideoUrl;
@@ -2796,6 +2922,7 @@ fearnotforiamwithyou.com`.trim(),
       editedImageUrl: uploadedEditedImageUrl,
       originalVideoUrl: uploadedOriginalVideoUrl,
       audioUrl: uploadedAudioUrl,
+      inputImageUrl: uploadedInputImageUrl,
     };
   }
 }

@@ -90,6 +90,7 @@ export interface AITaskInfo {
   songs?: AISong[];
   images?: AIImage[];
   videos?: AIVideo[];
+  inputImageUrl?: string;
   status?: string; // provider task status
   errorCode?: string;
   errorMessage?: string;

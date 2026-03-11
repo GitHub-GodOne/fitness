@@ -84,6 +84,7 @@ import { useMediaQuery } from "@/shared/hooks/use-media-query";
 import { useAppContext } from "@/shared/contexts/app";
 import { SignModal } from "@/shared/blocks/sign/sign-modal";
 import { usePathname } from "@/core/i18n/navigation";
+import { extractOriginalImageUrlsFromAITask } from "@/shared/lib/ai-task-video";
 
 interface VideoGeneratorProps {
   maxSizeMB?: number;
@@ -1347,7 +1348,10 @@ export function VideoGenerator({
       const taskResult = task.taskResult ? JSON.parse(task.taskResult) : {};
       const imageUrls = withWatermark
         ? taskResult.image_urls
-        : taskResult.original_image_urls;
+        : extractOriginalImageUrlsFromAITask({
+            taskInfo: task.taskInfo,
+            taskResult: task.taskResult,
+          });
 
       if (!imageUrls || !Array.isArray(imageUrls) || imageUrls.length === 0) {
         toast.error(

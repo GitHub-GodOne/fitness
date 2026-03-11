@@ -12,6 +12,14 @@ function parseJson(value: string | null | undefined) {
   }
 }
 
+function normalizeImageUrl(value: unknown) {
+  if (typeof value !== 'string' || !value.trim()) {
+    return null;
+  }
+
+  return replaceR2Url(value.trim());
+}
+
 function pickFirstVideoUrl(value: any): string | null {
   if (!value) {
     return null;
@@ -138,6 +146,33 @@ export function extractVideoCoverFromAITask(taskResult?: string | null) {
     null;
 
   return cover ? replaceR2Url(cover) : null;
+}
+
+export function extractOriginalImageUrlsFromAITask(params: {
+  taskInfo?: string | null;
+  taskResult?: string | null;
+}) {
+  const result = parseJson(params.taskResult);
+  const info = parseJson(params.taskInfo);
+
+  const preferredInputImage = normalizeImageUrl(
+    result?.input_image_url || info?.inputImageUrl
+  );
+
+  const originalImages = Array.isArray(result?.original_image_urls)
+    ? result.original_image_urls
+        .map((item: unknown) => normalizeImageUrl(item))
+        .filter((item: string | null): item is string => Boolean(item))
+    : [];
+
+  if (preferredInputImage) {
+    return [
+      preferredInputImage,
+      ...originalImages.filter((url: string) => url !== preferredInputImage),
+    ];
+  }
+
+  return originalImages;
 }
 
 export function extractShowcaseTitleFromAITask(params: {

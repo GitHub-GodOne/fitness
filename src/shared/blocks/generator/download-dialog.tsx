@@ -36,6 +36,7 @@ import {
   TabsTrigger,
 } from "@/shared/components/ui/tabs";
 import { useMediaQuery } from "@/shared/hooks/use-media-query";
+import { extractOriginalImageUrlsFromAITask } from "@/shared/lib/ai-task-video";
 
 interface DownloadDialogProps {
   open: boolean;
@@ -214,24 +215,12 @@ export function DownloadDialog({
     }
   }, [taskResult]);
 
-  const inputImageUrl = useMemo<string | null>(() => {
-    try {
-      if (!taskInfo) return null;
-      const info = JSON.parse(taskInfo);
-      return info.inputImageUrl || null;
-    } catch {
-      return null;
-    }
-  }, [taskInfo]);
-
-  // Merge inputImageUrl into original images
   const allOriginalImages = useMemo(() => {
-    const originals = resultData.original_image_urls || [];
-    if (inputImageUrl) {
-      return [inputImageUrl, ...originals];
-    }
-    return originals;
-  }, [resultData.original_image_urls, inputImageUrl]);
+    return extractOriginalImageUrlsFromAITask({
+      taskInfo,
+      taskResult,
+    });
+  }, [taskInfo, taskResult]);
 
   const hasVideo = Boolean(resultData.video_url);
   const hasImagesWithText = Boolean(resultData.image_urls?.length);
@@ -327,7 +316,9 @@ export function DownloadDialog({
     if (currentSelectedImages.size === currentImages.length) {
       setCurrentSelectedImages(new Set());
     } else {
-      setCurrentSelectedImages(new Set(currentImages.map((_, i) => i)));
+      setCurrentSelectedImages(
+        new Set(currentImages.map((_: string, i: number) => i)),
+      );
     }
   }, [
     currentSelectedImages.size,
