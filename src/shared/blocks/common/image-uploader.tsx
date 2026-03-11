@@ -343,7 +343,7 @@ export function ImageUploader({
     const newItems = filesToAdd.map((file) => ({
       id: `${file.name}-${file.lastModified}-${Math.random()}`,
       preview: URL.createObjectURL(file),
-      file: uploadOnSelect ? undefined : file,
+      file,
       size: file.size,
       status: uploadOnSelect
         ? ("uploading" as UploadStatus)

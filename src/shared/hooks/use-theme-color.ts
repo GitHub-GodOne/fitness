@@ -1,14 +1,22 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { themes, defaultTheme, type ThemeColors } from '@/config/theme/themes';
-
-const THEME_STORAGE_KEY = 'app-theme-color';
+import {
+  APPEARANCE_STORAGE_KEY,
+  defaultTheme,
+  getThemeCssVariables,
+  themes,
+  THEME_COLOR_STORAGE_KEY,
+} from '@/config/theme/themes';
 
 // Get initial theme from localStorage (client-side only)
 const getInitialTheme = () => {
   if (typeof window === 'undefined') return defaultTheme;
-  const savedTheme = localStorage.getItem(THEME_STORAGE_KEY);
+  const hydratedTheme = document.documentElement.dataset.themeColor;
+  if (hydratedTheme && themes.find((t) => t.name === hydratedTheme)) {
+    return hydratedTheme;
+  }
+  const savedTheme = localStorage.getItem(THEME_COLOR_STORAGE_KEY);
   if (savedTheme && themes.find((t) => t.name === savedTheme)) {
     return savedTheme;
   }
@@ -23,11 +31,19 @@ export function useThemeColor() {
   useEffect(() => {
     // Check dark mode
     const darkModeQuery = window.matchMedia('(prefers-color-scheme: dark)');
-    setIsDark(darkModeQuery.matches || document.documentElement.classList.contains('dark'));
+    const storedAppearance = localStorage.getItem(APPEARANCE_STORAGE_KEY);
+    const initialIsDark =
+      storedAppearance === 'dark' ||
+      (storedAppearance !== 'light' &&
+        (darkModeQuery.matches || document.documentElement.classList.contains('dark')));
+    setIsDark(initialIsDark);
 
     // Listen for dark mode changes
     const handleDarkModeChange = (e: MediaQueryListEvent) => {
-      setIsDark(e.matches);
+      const nextAppearance = localStorage.getItem(APPEARANCE_STORAGE_KEY);
+      if (!nextAppearance || nextAppearance === 'system') {
+        setIsDark(e.matches);
+      }
     };
 
     // Listen for class changes on html element
@@ -54,40 +70,15 @@ export function useThemeColor() {
 
   // Apply theme colors to CSS variables
   useEffect(() => {
-    const theme = themes.find((t) => t.name === currentTheme);
-    if (!theme) return;
-
-    const colors = isDark ? theme.colors.dark : theme.colors.light;
     const root = document.documentElement;
-
-    // Apply theme colors
-    root.style.setProperty('--primary', colors.primary);
-    root.style.setProperty('--secondary', colors.secondary);
-    root.style.setProperty('--accent', colors.accent);
-    root.style.setProperty('--background', colors.background);
-    root.style.setProperty('--foreground', colors.foreground);
-    root.style.setProperty('--muted', colors.muted);
-    root.style.setProperty('--border', colors.border);
-    root.style.setProperty('--input', colors.border);
-    root.style.setProperty('--ring', colors.primary);
-
-    // Update related colors
-    root.style.setProperty('--primary-foreground', colors.background);
-    root.style.setProperty('--secondary-foreground', colors.background);
-    root.style.setProperty('--accent-foreground', colors.foreground);
-    root.style.setProperty('--muted-foreground', colors.foreground);
-    root.style.setProperty('--card', colors.background);
-    root.style.setProperty('--card-foreground', colors.foreground);
-    root.style.setProperty('--popover', colors.background);
-    root.style.setProperty('--popover-foreground', colors.foreground);
-
-    // Update charts
-    root.style.setProperty('--chart-1', colors.primary);
-    root.style.setProperty('--chart-2', colors.secondary);
-    root.style.setProperty('--chart-3', colors.accent);
+    const cssVariables = getThemeCssVariables(currentTheme, isDark);
+    Object.entries(cssVariables).forEach(([key, value]) => {
+      root.style.setProperty(key, value);
+    });
+    root.dataset.themeColor = currentTheme;
 
     // Save to localStorage
-    localStorage.setItem(THEME_STORAGE_KEY, currentTheme);
+    localStorage.setItem(THEME_COLOR_STORAGE_KEY, currentTheme);
   }, [currentTheme, isDark]);
 
   const changeTheme = (themeName: string) => {

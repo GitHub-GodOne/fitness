@@ -10,6 +10,7 @@ export type UpdateTaxonomy = Partial<Omit<NewTaxonomy, 'id' | 'createdAt'>>;
 export enum TaxonomyType {
   CATEGORY = 'category',
   TAG = 'tag',
+  SHOWCASE_CATEGORY = 'showcase_category',
 }
 
 export enum TaxonomyStatus {

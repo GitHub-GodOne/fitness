@@ -23,12 +23,731 @@ export interface ComflyAPIConfigs extends AIConfigs {
   videoProcessBaseUrl?: string;
   imageEditBaseUrl?: string;
   videoGenBaseUrl?: string;
+  imageEditPrompt?: string;
+  defaultVideoPrompt?: string;
+  scriptSystemPrompt?: string;
+  ttsVoice?: string;
+  ttsSpeed?: string | number;
+  mergeBgmUrl?: string;
+  mergeBgmVolume?: string | number;
+  mergeVoiceVolume?: string | number;
+  mergeMaxWordsPerLine?: string | number;
+  mergeLongTokenDurS?: string | number;
   customStorage?: boolean;
   r2_bucket_name?: string;
   // Fallback models
   fallbackImageModels?: string[]; // e.g., ["nano-banana", "gpt-image-1"]
   fallbackVideoModels?: string[]; // e.g., ["wanx2.1-i2v-turbo", "wanx2.0-i2v"]
   fallbackTTSModels?: string[]; // e.g., ["default", "gpt-4o-mini-tts"]
+}
+
+export const DEFAULT_COMFLY_IMAGE_EDIT_PROMPT = `
+Please preserve the original image intact.
+
+All figures, faces, and identification information must not be altered.
+
+Do not remove or replace any figures.
+
+The image should depict the gentle yet dignified image of Jesus Christ, interacting with people in a compassionate and caring manner. The image of Jesus should be painted in an oil painting style, naturally integrated into the composition. If figures appear in the image, they should be people caring for the subjects. Followers may be present around Jesus. Added objects should be rendered as solid objects in the oil painting style; they should not be transparent or appear to pass through objects, maintaining physical contact. Avoid depicting ethereal objects,Jesus must not be depicted within a frame or displayed in an image; anything added to the image must not be a frame or similar element.
+`.trim();
+
+export const DEFAULT_COMFLY_VIDEO_PROMPT = `让画面中的图片动起来,画面中不要再引入其他的人物，重点描述画面中耶稣的祝福动作，安慰，或者是拥抱图片中的实体人物动作，和他周围信徒的表情、动作的变化。图片动起来的时候不能透明或不能穿透物体，物体之间的接触要保持物理接触，不能描绘虚幻缥缈的物体，人物或者是物体之间接触了不能相互穿透。`;
+
+export const DEFAULT_COMFLY_SCRIPT_SYSTEM_PROMPT = `
+# Role
+You are "The Comforter," an empathetic AI scriptwriter designed to create healing narration for American users facing emotional distress.
+
+# Input
+- \`User_Feeling\`: User's emotional state (e.g., "Lonely", "Anxious", "Heartbroken").
+
+# Task
+Generate a structured JSON object containing:
+1. A matching Bible verse reference
+2. The complete verse text (New International Version or English Standard Version)
+3. A short narration that incorporates the verse naturally
+
+# Content Guidelines
+- **Tone:** Warm, intimate, slow-paced, non-judgmental. Like a wise friend whispering in a quiet room.
+- **Language:** Natural American English. Avoid archaic "Thee/Thou." Use soothing words like "Breathe," "Rest," "Stillness," "Presence."
+- **Narration Structure:**
+  1. Acknowledge the feeling (1-2 sentences)
+  2. Introduce the Bible verse naturally (include the complete verse text)
+  3. Offer comfort and hope (1-2 sentences)
+- **Mark pauses** in narration with "..." for natural breathing room.
+- **Length:** Keep total narration under 100 words for a short video.
+
+# Output Format (JSON Only)
+{
+  "verse_reference": "Book Chapter:Verse (e.g. Isaiah 41:10)",
+  "verse_text": "The complete verse text from the Bible",
+  "narration": "The complete narration script that includes the verse naturally"
+}
+`.trim();
+
+export const DEFAULT_COMFLY_TTS_VOICE = "output.wav";
+export const DEFAULT_COMFLY_TTS_SPEED = "1";
+export const DEFAULT_COMFLY_MERGE_BGM_URL =
+  "https://clonevoice.nailai.net/static/ttslist/music.mp3";
+export const DEFAULT_COMFLY_MERGE_BGM_VOLUME = "3";
+export const DEFAULT_COMFLY_MERGE_VOICE_VOLUME = "1.0";
+export const DEFAULT_COMFLY_MERGE_MAX_WORDS_PER_LINE = "20";
+export const DEFAULT_COMFLY_MERGE_LONG_TOKEN_DUR_S = "0.8";
+
+export enum ComflyPromptType {
+  IMAGE_EDIT = "image_edit",
+  VIDEO = "video",
+  SCRIPT = "script",
+  AUDIO = "audio",
+  MERGE_VIDEO = "merge_video",
+}
+
+export interface ResolvedComflyPrompts {
+  imageEditPrompt: string;
+  defaultVideoPrompt: string;
+  scriptSystemPrompt: string;
+}
+
+export interface ComflyScriptGenerationResult {
+  verse_reference: string;
+  verse_text: string;
+  narration: string;
+}
+
+export interface ComflyPromptPreviewResult {
+  type: ComflyPromptType;
+  prompt: string;
+  payload: Record<string, any>;
+  request?: {
+    url: string;
+    method: string;
+    headers?: Record<string, string>;
+  };
+  supportsExecution: boolean;
+}
+
+export interface ComflyPromptTestResult extends ComflyPromptPreviewResult {
+  executed: boolean;
+  result?: any;
+}
+
+export interface ComflyTestRequestOptions {
+  type: ComflyPromptType;
+  input?: string;
+  imageUrl?: string;
+  videoUrl?: string;
+  audioUrl?: string;
+  model?: string;
+  voice?: string;
+  language?: string;
+  speed?: number;
+  title?: string;
+  bgmUrl?: string;
+  bgmVolume?: string;
+  voiceVolume?: string;
+  maxWordsPerLine?: string;
+  longTokenDurS?: string;
+}
+
+const DEFAULT_COMFLY_SCRIPT_SCHEMA = {
+  name: "video_script_response",
+  strict: true,
+  schema: {
+    type: "object",
+    required: ["verse_reference", "verse_text", "narration"],
+    properties: {
+      verse_reference: { type: "string" },
+      verse_text: { type: "string" },
+      narration: { type: "string" },
+    },
+    additionalProperties: false,
+  },
+} as const;
+
+export function resolveComflyPrompts(
+  configs: Partial<
+    Pick<
+      ComflyAPIConfigs,
+      "imageEditPrompt" | "defaultVideoPrompt" | "scriptSystemPrompt"
+    >
+  > = {},
+): ResolvedComflyPrompts {
+  return {
+    imageEditPrompt:
+      configs.imageEditPrompt?.trim() || DEFAULT_COMFLY_IMAGE_EDIT_PROMPT,
+    defaultVideoPrompt:
+      configs.defaultVideoPrompt?.trim() || DEFAULT_COMFLY_VIDEO_PROMPT,
+    scriptSystemPrompt:
+      configs.scriptSystemPrompt?.trim() || DEFAULT_COMFLY_SCRIPT_SYSTEM_PROMPT,
+  };
+}
+
+export function buildComflyImageEditPayload({ prompt }: { prompt: string }) {
+  return {
+    model: "nano-banana",
+    prompt,
+    response_format: "url",
+    aspect_ratio: "",
+  };
+}
+
+export function buildComflyImageEditRequest({
+  baseUrl,
+  apiKey,
+  prompt,
+  image,
+}: {
+  baseUrl: string;
+  apiKey: string;
+  prompt: string;
+  image?: Blob;
+}) {
+  const payload = buildComflyImageEditPayload({ prompt });
+  const formData = new FormData();
+  formData.append("model", payload.model);
+  formData.append("prompt", payload.prompt);
+  if (image) {
+    formData.append("image", image, "input_image.jpg");
+  }
+  formData.append("response_format", payload.response_format);
+  formData.append("aspect_ratio", payload.aspect_ratio);
+
+  return {
+    url: `${baseUrl}/v1/images/edits`,
+    payload,
+    init: {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${apiKey}`,
+      },
+      body: formData,
+    } satisfies RequestInit,
+  };
+}
+
+export function buildComflyVideoGenerationPayload({
+  prompt,
+  imageUrl,
+  model = "wanx2.1-i2v-turbo",
+}: {
+  prompt: string;
+  imageUrl: string;
+  model?: string;
+}) {
+  return {
+    prompt,
+    watermark: false,
+    images: [imageUrl],
+    model,
+  };
+}
+
+export function buildComflyVideoGenerationRequest({
+  baseUrl,
+  apiKey,
+  prompt,
+  imageUrl,
+  model = "wanx2.1-i2v-turbo",
+}: {
+  baseUrl: string;
+  apiKey: string;
+  prompt: string;
+  imageUrl: string;
+  model?: string;
+}) {
+  const payload = buildComflyVideoGenerationPayload({
+    prompt,
+    imageUrl,
+    model,
+  });
+
+  return {
+    url: `${baseUrl}/v2/videos/generations`,
+    payload,
+    init: {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${apiKey}`,
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(payload),
+    } satisfies RequestInit,
+  };
+}
+
+export function buildComflyScriptGenerationPayload({
+  systemPrompt,
+  userFeelings,
+  model = "gpt-4o-2024-08-06",
+}: {
+  systemPrompt: string;
+  userFeelings: string;
+  model?: string;
+}) {
+  return {
+    model,
+    response_format: {
+      type: "json_schema",
+      json_schema: DEFAULT_COMFLY_SCRIPT_SCHEMA,
+    },
+    messages: [
+      {
+        role: "system",
+        content: systemPrompt,
+      },
+      {
+        role: "user",
+        content: userFeelings,
+      },
+    ],
+  };
+}
+
+export function buildComflyScriptGenerationRequest({
+  baseUrl,
+  apiKey,
+  systemPrompt,
+  userFeelings,
+  model = "gpt-4o-2024-08-06",
+}: {
+  baseUrl: string;
+  apiKey: string;
+  systemPrompt: string;
+  userFeelings: string;
+  model?: string;
+}) {
+  const payload = buildComflyScriptGenerationPayload({
+    systemPrompt,
+    userFeelings,
+    model,
+  });
+
+  return {
+    url: `${baseUrl}/v1/chat/completions`,
+    payload,
+    init: {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${apiKey}`,
+      },
+      body: JSON.stringify(payload),
+    } satisfies RequestInit,
+  };
+}
+
+export function buildComflyAudioGenerationPayload({
+  text,
+  language = "en",
+  speed = 1,
+  voice = DEFAULT_COMFLY_TTS_VOICE,
+  model = "default",
+}: {
+  text: string;
+  language?: string;
+  speed?: number;
+  voice?: string;
+  model?: string;
+}) {
+  return {
+    voice,
+    model,
+    text,
+    language,
+    speed: String(speed),
+  };
+}
+
+export function buildComflyAudioGenerationRequest({
+  baseUrl,
+  text,
+  language = "en",
+  speed = 1,
+  voice = DEFAULT_COMFLY_TTS_VOICE,
+  model = "default",
+}: {
+  baseUrl: string;
+  text: string;
+  language?: string;
+  speed?: number;
+  voice?: string;
+  model?: string;
+}) {
+  const payload = buildComflyAudioGenerationPayload({
+    text,
+    language,
+    speed,
+    voice,
+    model,
+  });
+
+  const body = new URLSearchParams();
+  body.append("voice", payload.voice);
+  body.append("model", payload.model);
+  body.append("text", payload.text);
+  body.append("language", payload.language);
+  body.append("speed", payload.speed);
+
+  return {
+    url: `${baseUrl}/tts_async`,
+    payload,
+    init: {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/x-www-form-urlencoded; charset=UTF-8",
+      },
+      body: body.toString(),
+    } satisfies RequestInit,
+  };
+}
+
+export function buildComflyVideoMergePayload({
+  videoUrl,
+  audioUrl,
+  textContent,
+  language = "en",
+  bgmVolume = "4",
+  voiceVolume = "1.0",
+  maxWordsPerLine = "20",
+  longTokenDurS = "0.8",
+  title = "",
+  titleStart = "0",
+  titleEnd = "1000",
+  bgmUrl = DEFAULT_COMFLY_MERGE_BGM_URL,
+}: {
+  videoUrl: string;
+  audioUrl: string;
+  textContent: string;
+  language?: string;
+  bgmVolume?: string;
+  voiceVolume?: string;
+  maxWordsPerLine?: string;
+  longTokenDurS?: string;
+  title?: string;
+  titleStart?: string;
+  titleEnd?: string;
+  bgmUrl?: string;
+}) {
+  return {
+    video_url: videoUrl,
+    audio_url: audioUrl,
+    text_content: textContent,
+    language,
+    bgm_volume: bgmVolume,
+    voice_volume: voiceVolume,
+    max_words_per_line: maxWordsPerLine,
+    long_token_dur_s: longTokenDurS,
+    title,
+    title_start: titleStart,
+    title_end: titleEnd,
+    bgm_url: bgmUrl,
+  };
+}
+
+export function buildComflyVideoMergeRequest({
+  baseUrl,
+  videoUrl,
+  audioUrl,
+  textContent,
+  language = "en",
+  title = "",
+  bgmUrl = DEFAULT_COMFLY_MERGE_BGM_URL,
+  bgmVolume = DEFAULT_COMFLY_MERGE_BGM_VOLUME,
+  voiceVolume = DEFAULT_COMFLY_MERGE_VOICE_VOLUME,
+  maxWordsPerLine = DEFAULT_COMFLY_MERGE_MAX_WORDS_PER_LINE,
+  longTokenDurS = DEFAULT_COMFLY_MERGE_LONG_TOKEN_DUR_S,
+  titleStart = "0",
+  titleEnd = "1000",
+}: {
+  baseUrl: string;
+  videoUrl: string;
+  audioUrl: string;
+  textContent: string;
+  language?: string;
+  title?: string;
+  bgmUrl?: string;
+  bgmVolume?: string;
+  voiceVolume?: string;
+  maxWordsPerLine?: string;
+  longTokenDurS?: string;
+  titleStart?: string;
+  titleEnd?: string;
+}) {
+  const payload = buildComflyVideoMergePayload({
+    videoUrl,
+    audioUrl,
+    textContent,
+    language,
+    title,
+    bgmUrl,
+    bgmVolume,
+    voiceVolume,
+    maxWordsPerLine,
+    longTokenDurS,
+    titleStart,
+    titleEnd,
+  });
+
+  const formData = new FormData();
+  Object.entries(payload).forEach(([key, value]) => {
+    if (value) {
+      formData.append(key, value);
+    }
+  });
+
+  return {
+    url: `${baseUrl}/process_video_async`,
+    payload,
+    init: {
+      method: "POST",
+      body: formData,
+    } satisfies RequestInit,
+  };
+}
+
+export function previewComflyPromptTest({
+  configs,
+  type,
+  input = "",
+  imageUrl = "",
+  videoUrl = "",
+  audioUrl = "",
+  model,
+  voice,
+  language = "en",
+  speed = 1,
+  title = "",
+  bgmUrl,
+  bgmVolume,
+  voiceVolume,
+  maxWordsPerLine,
+  longTokenDurS,
+}: {
+  configs?: Partial<ComflyAPIConfigs>;
+  type: ComflyPromptType;
+  input?: string;
+  imageUrl?: string;
+  videoUrl?: string;
+  audioUrl?: string;
+  model?: string;
+  voice?: string;
+  language?: string;
+  speed?: number;
+  title?: string;
+  bgmUrl?: string;
+  bgmVolume?: string;
+  voiceVolume?: string;
+  maxWordsPerLine?: string;
+  longTokenDurS?: string;
+}): ComflyPromptPreviewResult {
+  const prompts = resolveComflyPrompts(configs);
+  const imageEditBaseUrl =
+    configs?.imageEditBaseUrl || "https://ai.comfly.chat";
+  const videoGenBaseUrl = configs?.videoGenBaseUrl || "https://ai.comfly.chat";
+  const ttsBaseUrl = configs?.ttsBaseUrl || "https://clonevoice.nailai.net";
+  const videoProcessBaseUrl =
+    configs?.videoProcessBaseUrl || "https://clonevoice.nailai.net";
+
+  switch (type) {
+    case ComflyPromptType.IMAGE_EDIT:
+      const imageEditPrompt = prompts.imageEditPrompt;
+      return {
+        type,
+        prompt: imageEditPrompt,
+        payload: buildComflyImageEditPayload({
+          prompt: imageEditPrompt,
+        }),
+        request: configs?.nanoBananaApiKey
+          ? {
+              url: buildComflyImageEditRequest({
+                baseUrl: imageEditBaseUrl,
+                apiKey: configs.nanoBananaApiKey,
+                prompt: imageEditPrompt,
+              }).url,
+              method: "POST",
+              headers: {
+                Authorization: "Bearer ***",
+              },
+            }
+          : undefined,
+        supportsExecution: Boolean(imageUrl),
+      };
+    case ComflyPromptType.VIDEO:
+      const videoPrompt = input?.trim() || prompts.defaultVideoPrompt;
+      return {
+        type,
+        prompt: videoPrompt,
+        payload: buildComflyVideoGenerationPayload({
+          prompt: videoPrompt,
+          imageUrl: imageUrl || "https://example.com/input-image.jpg",
+          model,
+        }),
+        request: configs?.wanxApiKey
+          ? {
+              url: buildComflyVideoGenerationRequest({
+                baseUrl: videoGenBaseUrl,
+                apiKey: configs.wanxApiKey,
+                prompt: videoPrompt,
+                imageUrl: imageUrl || "https://example.com/input-image.jpg",
+                model,
+              }).url,
+              method: "POST",
+              headers: {
+                Authorization: "Bearer ***",
+                "Content-Type": "application/json",
+              },
+            }
+          : undefined,
+        supportsExecution: false,
+      };
+    case ComflyPromptType.SCRIPT:
+      const systemPrompt = prompts.scriptSystemPrompt;
+      return {
+        type: ComflyPromptType.SCRIPT,
+        prompt: systemPrompt,
+        payload: buildComflyScriptGenerationPayload({
+          systemPrompt,
+          userFeelings: input,
+          model,
+        }),
+        request: configs?.nanoBananaApiKey
+          ? {
+              url: buildComflyScriptGenerationRequest({
+                baseUrl: imageEditBaseUrl,
+                apiKey: configs.nanoBananaApiKey,
+                systemPrompt,
+                userFeelings: input,
+                model,
+              }).url,
+              method: "POST",
+              headers: {
+                Authorization: "Bearer ***",
+                "Content-Type": "application/json",
+              },
+            }
+          : undefined,
+        supportsExecution: true,
+      };
+    case ComflyPromptType.AUDIO:
+      return {
+        type,
+        prompt: input,
+        payload: buildComflyAudioGenerationPayload({
+          text: input,
+          language,
+          speed,
+          voice: voice || configs?.ttsVoice || DEFAULT_COMFLY_TTS_VOICE,
+          model: model || configs?.fallbackTTSModels?.[0] || "default",
+        }),
+        request: input?.trim()
+          ? {
+              url: buildComflyAudioGenerationRequest({
+                baseUrl: ttsBaseUrl,
+                text: input,
+                language,
+                speed,
+                voice: voice || configs?.ttsVoice || DEFAULT_COMFLY_TTS_VOICE,
+                model: model || configs?.fallbackTTSModels?.[0] || "default",
+              }).url,
+              method: "POST",
+              headers: {
+                "Content-Type":
+                  "application/x-www-form-urlencoded; charset=UTF-8",
+              },
+            }
+          : undefined,
+        supportsExecution: Boolean(input?.trim()),
+      };
+    case ComflyPromptType.MERGE_VIDEO:
+      return {
+        type,
+        prompt: input,
+        payload: buildComflyVideoMergePayload({
+          videoUrl: videoUrl || "https://example.com/video.mp4",
+          audioUrl: audioUrl || "https://example.com/audio.wav",
+          textContent: input || "Sample subtitle text",
+          language,
+          title,
+          bgmUrl:
+            bgmUrl || configs?.mergeBgmUrl || DEFAULT_COMFLY_MERGE_BGM_URL,
+          bgmVolume:
+            bgmVolume ||
+            String(configs?.mergeBgmVolume || DEFAULT_COMFLY_MERGE_BGM_VOLUME),
+          voiceVolume:
+            voiceVolume ||
+            String(
+              configs?.mergeVoiceVolume || DEFAULT_COMFLY_MERGE_VOICE_VOLUME,
+            ),
+          maxWordsPerLine:
+            maxWordsPerLine ||
+            String(
+              configs?.mergeMaxWordsPerLine ||
+                DEFAULT_COMFLY_MERGE_MAX_WORDS_PER_LINE,
+            ),
+          longTokenDurS:
+            longTokenDurS ||
+            String(
+              configs?.mergeLongTokenDurS ||
+                DEFAULT_COMFLY_MERGE_LONG_TOKEN_DUR_S,
+            ),
+        }),
+        request:
+          videoUrl?.trim() && audioUrl?.trim()
+            ? {
+                url: buildComflyVideoMergeRequest({
+                  baseUrl: videoProcessBaseUrl,
+                  videoUrl: videoUrl || "https://example.com/video.mp4",
+                  audioUrl: audioUrl || "https://example.com/audio.wav",
+                  textContent: input || "Sample subtitle text",
+                  language,
+                  title,
+                  bgmUrl:
+                    bgmUrl ||
+                    configs?.mergeBgmUrl ||
+                    DEFAULT_COMFLY_MERGE_BGM_URL,
+                  bgmVolume:
+                    bgmVolume ||
+                    String(
+                      configs?.mergeBgmVolume ||
+                        DEFAULT_COMFLY_MERGE_BGM_VOLUME,
+                    ),
+                  voiceVolume:
+                    voiceVolume ||
+                    String(
+                      configs?.mergeVoiceVolume ||
+                        DEFAULT_COMFLY_MERGE_VOICE_VOLUME,
+                    ),
+                  maxWordsPerLine:
+                    maxWordsPerLine ||
+                    String(
+                      configs?.mergeMaxWordsPerLine ||
+                        DEFAULT_COMFLY_MERGE_MAX_WORDS_PER_LINE,
+                    ),
+                  longTokenDurS:
+                    longTokenDurS ||
+                    String(
+                      configs?.mergeLongTokenDurS ||
+                        DEFAULT_COMFLY_MERGE_LONG_TOKEN_DUR_S,
+                    ),
+                }).url,
+                method: "POST",
+              }
+            : undefined,
+        supportsExecution: Boolean(
+          input?.trim() && videoUrl?.trim() && audioUrl?.trim(),
+        ),
+      };
+    default:
+      return {
+        type: ComflyPromptType.SCRIPT,
+        prompt: prompts.scriptSystemPrompt,
+        payload: buildComflyScriptGenerationPayload({
+          systemPrompt: prompts.scriptSystemPrompt,
+          userFeelings: input,
+          model,
+        }),
+        supportsExecution: true,
+      };
+  }
 }
 
 /**
@@ -196,6 +915,301 @@ export class ComflyAPIProvider implements AIProvider {
     this.ttsBaseUrl = configs.ttsBaseUrl || "https://clonevoice.nailai.net";
     this.videoProcessBaseUrl =
       configs.videoProcessBaseUrl || "https://clonevoice.nailai.net";
+  }
+
+  private getImageEditPrompt() {
+    return resolveComflyPrompts(this.configs).imageEditPrompt;
+  }
+
+  private getDefaultVideoPrompt() {
+    return resolveComflyPrompts(this.configs).defaultVideoPrompt;
+  }
+
+  private getScriptSystemPrompt() {
+    return resolveComflyPrompts(this.configs).scriptSystemPrompt;
+  }
+
+  private getTTSVoice() {
+    return String(this.configs.ttsVoice || DEFAULT_COMFLY_TTS_VOICE);
+  }
+
+  private getTTSSpeed() {
+    const rawSpeed = this.configs.ttsSpeed;
+    const parsedSpeed =
+      typeof rawSpeed === "number"
+        ? rawSpeed
+        : rawSpeed
+          ? Number(rawSpeed)
+          : Number(DEFAULT_COMFLY_TTS_SPEED);
+
+    return Number.isFinite(parsedSpeed)
+      ? parsedSpeed
+      : Number(DEFAULT_COMFLY_TTS_SPEED);
+  }
+
+  private getMergeBgmUrl() {
+    return String(this.configs.mergeBgmUrl || DEFAULT_COMFLY_MERGE_BGM_URL);
+  }
+
+  private getMergeBgmVolume() {
+    return String(
+      this.configs.mergeBgmVolume || DEFAULT_COMFLY_MERGE_BGM_VOLUME,
+    );
+  }
+
+  private getMergeVoiceVolume() {
+    return String(
+      this.configs.mergeVoiceVolume || DEFAULT_COMFLY_MERGE_VOICE_VOLUME,
+    );
+  }
+
+  private getMergeMaxWordsPerLine() {
+    return String(
+      this.configs.mergeMaxWordsPerLine ||
+        DEFAULT_COMFLY_MERGE_MAX_WORDS_PER_LINE,
+    );
+  }
+
+  private getMergeLongTokenDurS() {
+    return String(
+      this.configs.mergeLongTokenDurS || DEFAULT_COMFLY_MERGE_LONG_TOKEN_DUR_S,
+    );
+  }
+
+  getResolvedPrompts(): ResolvedComflyPrompts {
+    return resolveComflyPrompts(this.configs);
+  }
+
+  previewPromptTest({
+    type,
+    input = "",
+    imageUrl = "",
+    videoUrl = "",
+    audioUrl = "",
+    model,
+    voice,
+    language = "en",
+    speed = 1,
+    title = "",
+    bgmUrl,
+    bgmVolume,
+    voiceVolume,
+    maxWordsPerLine,
+    longTokenDurS,
+  }: {
+    type: ComflyPromptType;
+    input?: string;
+    imageUrl?: string;
+    videoUrl?: string;
+    audioUrl?: string;
+    model?: string;
+    voice?: string;
+    language?: string;
+    speed?: number;
+    title?: string;
+    bgmUrl?: string;
+    bgmVolume?: string;
+    voiceVolume?: string;
+    maxWordsPerLine?: string;
+    longTokenDurS?: string;
+  }): ComflyPromptPreviewResult {
+    return previewComflyPromptTest({
+      configs: this.configs,
+      type,
+      input,
+      imageUrl,
+      videoUrl,
+      audioUrl,
+      model,
+      voice,
+      language,
+      speed,
+      title,
+      bgmUrl,
+      bgmVolume,
+      voiceVolume,
+      maxWordsPerLine,
+      longTokenDurS,
+    });
+  }
+
+  async testPrompt({
+    type,
+    input = "",
+    imageUrl = "",
+    videoUrl = "",
+    audioUrl = "",
+    model,
+    voice,
+    language = "en",
+    speed,
+    title = "",
+    bgmUrl,
+    bgmVolume,
+    voiceVolume,
+    maxWordsPerLine,
+    longTokenDurS,
+  }: {
+    type: ComflyPromptType;
+    input?: string;
+    imageUrl?: string;
+    videoUrl?: string;
+    audioUrl?: string;
+    model?: string;
+    voice?: string;
+    language?: string;
+    speed?: number;
+    title?: string;
+    bgmUrl?: string;
+    bgmVolume?: string;
+    voiceVolume?: string;
+    maxWordsPerLine?: string;
+    longTokenDurS?: string;
+  }): Promise<ComflyPromptTestResult> {
+    const preview = this.previewPromptTest({
+      type,
+      input,
+      imageUrl,
+      videoUrl,
+      audioUrl,
+      model,
+      voice,
+      language,
+      speed: speed ?? this.getTTSSpeed(),
+      title,
+      bgmUrl,
+      bgmVolume: bgmVolume || this.getMergeBgmVolume(),
+      voiceVolume: voiceVolume || this.getMergeVoiceVolume(),
+      maxWordsPerLine: maxWordsPerLine || this.getMergeMaxWordsPerLine(),
+      longTokenDurS: longTokenDurS || this.getMergeLongTokenDurS(),
+    });
+
+    if (type === ComflyPromptType.SCRIPT) {
+      const result = await this.generateScriptText(input, model);
+      return {
+        ...preview,
+        executed: true,
+        result,
+      };
+    }
+
+    if (type === ComflyPromptType.IMAGE_EDIT && imageUrl) {
+      const result = await this.editImageWithNanoBanana(undefined, imageUrl);
+      return {
+        ...preview,
+        executed: true,
+        result: {
+          editedImageUrl: result,
+        },
+      };
+    }
+
+    if (type === ComflyPromptType.AUDIO && input.trim()) {
+      const generatedAudioUrl = await this.generateAudioTest({
+        text: input,
+        language,
+        speed: speed ?? this.getTTSSpeed(),
+        voice: voice || this.getTTSVoice(),
+      });
+      return {
+        ...preview,
+        executed: true,
+        result: {
+          audioUrl: generatedAudioUrl,
+        },
+      };
+    }
+
+    if (
+      type === ComflyPromptType.MERGE_VIDEO &&
+      input.trim() &&
+      videoUrl.trim() &&
+      audioUrl.trim()
+    ) {
+      const finalVideoUrl = await this.mergeVideoTest({
+        videoUrl,
+        audioUrl,
+        textContent: input,
+        language,
+        title,
+        bgmUrl: bgmUrl || this.getMergeBgmUrl(),
+        bgmVolume: bgmVolume || this.getMergeBgmVolume(),
+        voiceVolume: voiceVolume || this.getMergeVoiceVolume(),
+        maxWordsPerLine: maxWordsPerLine || this.getMergeMaxWordsPerLine(),
+        longTokenDurS: longTokenDurS || this.getMergeLongTokenDurS(),
+      });
+      return {
+        ...preview,
+        executed: true,
+        result: {
+          finalVideoUrl,
+        },
+      };
+    }
+
+    return {
+      ...preview,
+      executed: false,
+    };
+  }
+
+  async generateAudioTest({
+    text,
+    language = "en",
+    speed,
+    voice,
+  }: {
+    text: string;
+    language?: string;
+    speed?: number;
+    voice?: string;
+  }) {
+    return this.generateAudioAsyncWithRetry(
+      text,
+      language,
+      speed ?? this.getTTSSpeed(),
+      3,
+      voice || this.getTTSVoice(),
+    );
+  }
+
+  async mergeVideoTest({
+    videoUrl,
+    audioUrl,
+    textContent,
+    language = "en",
+    title = "",
+    bgmUrl,
+    bgmVolume,
+    voiceVolume,
+    maxWordsPerLine,
+    longTokenDurS,
+  }: {
+    videoUrl: string;
+    audioUrl: string;
+    textContent: string;
+    language?: string;
+    title?: string;
+    bgmUrl?: string;
+    bgmVolume?: string;
+    voiceVolume?: string;
+    maxWordsPerLine?: string;
+    longTokenDurS?: string;
+  }) {
+    return this.mergeVideoWithAudioAsyncWithRetry(
+      videoUrl,
+      audioUrl,
+      textContent,
+      {
+        language,
+        title,
+        bgmUrl: bgmUrl || this.getMergeBgmUrl(),
+        bgmVolume: bgmVolume || this.getMergeBgmVolume(),
+        voiceVolume: voiceVolume || this.getMergeVoiceVolume(),
+        maxWordsPerLine: maxWordsPerLine || this.getMergeMaxWordsPerLine(),
+        longTokenDurS: longTokenDurS || this.getMergeLongTokenDurS(),
+      },
+    );
   }
 
   /**
@@ -803,15 +1817,7 @@ fearnotforiamwithyou.com`.trim(),
     imageFile?: Buffer | string,
     imageUrl?: string,
   ): Promise<string> {
-    const prompt = `
-  Please preserve the original image intact.
-
-  All figures, faces, and identification information must not be altered.
-
-  Do not remove or replace any figures.
-
-  The image should depict the gentle yet dignified image of Jesus Christ, interacting with people in a compassionate and caring manner. The image of Jesus should be painted in an oil painting style, naturally integrated into the composition. If figures appear in the image, they should be people caring for the subjects. Followers may be present around Jesus. Added objects should be rendered as solid objects in the oil painting style; they should not be transparent or appear to pass through objects, maintaining physical contact. Avoid depicting ethereal objects.
-`;
+    const prompt = this.getImageEditPrompt();
 
     let imageBlob: Blob;
 
@@ -834,23 +1840,14 @@ fearnotforiamwithyou.com`.trim(),
       throw new Error("Either imageFile or imageUrl must be provided");
     }
 
-    const formData = new FormData();
-    formData.append("model", "nano-banana");
-    formData.append("prompt", prompt);
-    formData.append("image", imageBlob, "input_image.jpg");
-    formData.append("response_format", "url");
-    formData.append("aspect_ratio", "");
+    const request = buildComflyImageEditRequest({
+      baseUrl: this.imageEditBaseUrl,
+      apiKey: this.configs.nanoBananaApiKey,
+      prompt,
+      image: imageBlob,
+    });
 
-    const response = await this.fetchWithRetry(
-      `${this.imageEditBaseUrl}/v1/images/edits`,
-      {
-        method: "POST",
-        headers: {
-          Authorization: `Bearer ${this.configs.nanoBananaApiKey}`,
-        },
-        body: formData,
-      },
-    );
+    const response = await this.fetchWithRetry(request.url, request.init);
 
     if (!response.ok) {
       throw new Error(`Nano-banana edit failed: ${response.statusText}`);
@@ -900,9 +1897,7 @@ fearnotforiamwithyou.com`.trim(),
         // If this is not the last attempt, wait before retrying
         if (attempt < maxRetries) {
           const waitTime = 5000 * attempt; // 5s, 10s, 15s
-          console.log(
-            `[Comfly-API] Waiting ${waitTime}ms before retry...`,
-          );
+          console.log(`[Comfly-API] Waiting ${waitTime}ms before retry...`);
           await new Promise((resolve) => setTimeout(resolve, waitTime));
         }
       }
@@ -921,26 +1916,16 @@ fearnotforiamwithyou.com`.trim(),
     imageUrl: string,
     userPrompt?: string,
   ): Promise<string> {
-    const prompt =
-      userPrompt ||
-      `让画面中的图片动起来,画面中不要再引入其他的人物，重点描述画面中耶稣的祝福动作，安慰，或者是拥抱图片中的实体人物动作，和他周围信徒的表情、动作的变化。图片动起来的时候不能透明或不能穿透物体，物体之间的接触要保持物理接触，不能描绘虚幻缥缈的物体，人物或者是物体之间接触了不能相互穿透。`;
+    const prompt = userPrompt || this.getDefaultVideoPrompt();
+    const request = buildComflyVideoGenerationRequest({
+      baseUrl: this.videoGenBaseUrl,
+      apiKey: this.configs.wanxApiKey,
+      prompt,
+      imageUrl,
+      model: "wanx2.1-i2v-turbo",
+    });
 
-    const response = await this.fetchWithRetry(
-      `${this.videoGenBaseUrl}/v2/videos/generations`,
-      {
-        method: "POST",
-        headers: {
-          Authorization: `Bearer ${this.configs.wanxApiKey}`,
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          prompt,
-          watermark: false,
-          images: [imageUrl],
-          model: "wanx2.1-i2v-turbo",
-        }),
-      },
-    );
+    const response = await this.fetchWithRetry(request.url, request.init);
 
     if (!response.ok) {
       throw new Error(`Wanx video generation failed: ${response.statusText}`);
@@ -1088,28 +2073,21 @@ fearnotforiamwithyou.com`.trim(),
     userPrompt?: string,
     model: string = "wanx2.1-i2v-turbo",
   ): Promise<string> {
-    const prompt =
-      userPrompt ||
-      `
-  让画面中的图片动起来,画面中不要再引入其他的人物，重点描述画面中耶稣的祝福动作，安慰，或者是拥抱图片中的实体人物动作，和他周围信徒的表情变化。
-`;
+    const prompt = userPrompt || this.getDefaultVideoPrompt();
+    const payload = buildComflyVideoGenerationPayload({
+      prompt,
+      imageUrl,
+      model,
+    });
+    const request = buildComflyVideoGenerationRequest({
+      baseUrl: this.videoGenBaseUrl,
+      apiKey: this.configs.wanxApiKey,
+      prompt: payload.prompt,
+      imageUrl,
+      model,
+    });
 
-    const response = await this.fetchWithRetry(
-      `${this.videoGenBaseUrl}/v2/videos/generations`,
-      {
-        method: "POST",
-        headers: {
-          Authorization: `Bearer ${this.configs.wanxApiKey}`,
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          prompt,
-          watermark: false,
-          images: [imageUrl],
-          model: model,
-        }),
-      },
-    );
+    const response = await this.fetchWithRetry(request.url, request.init);
 
     if (!response.ok) {
       throw new Error(`Wanx video generation failed: ${response.statusText}`);
@@ -1123,59 +2101,16 @@ fearnotforiamwithyou.com`.trim(),
   /**
    * Generate script text from user feelings (with model fallback)
    */
-  private async generateScriptText(userFeelings: string): Promise<{
-    verse_reference: string;
-    verse_text: string;
-    narration: string;
-  }> {
-    const scriptSchema = {
-      name: "video_script_response",
-      strict: true,
-      schema: {
-        type: "object",
-        required: ["verse_reference", "verse_text", "narration"],
-        properties: {
-          verse_reference: { type: "string" },
-          verse_text: { type: "string" },
-          narration: { type: "string" },
-        },
-        additionalProperties: false,
-      },
-    };
-
-    const systemPrompt = `
-# Role
-You are "The Comforter," an empathetic AI scriptwriter designed to create healing narration for American users facing emotional distress.
-
-# Input
-- \`User_Feeling\`: User's emotional state (e.g., "Lonely", "Anxious", "Heartbroken").
-
-# Task
-Generate a structured JSON object containing:
-1. A matching Bible verse reference
-2. The complete verse text (New International Version or English Standard Version)
-3. A short narration that incorporates the verse naturally
-
-# Content Guidelines
-- **Tone:** Warm, intimate, slow-paced, non-judgmental. Like a wise friend whispering in a quiet room.
-- **Language:** Natural American English. Avoid archaic "Thee/Thou." Use soothing words like "Breathe," "Rest," "Stillness," "Presence."
-- **Narration Structure:**
-  1. Acknowledge the feeling (1-2 sentences)
-  2. Introduce the Bible verse naturally (include the complete verse text)
-  3. Offer comfort and hope (1-2 sentences)
-- **Mark pauses** in narration with "..." for natural breathing room.
-- **Length:** Keep total narration under 100 words for a short video.
-
-# Output Format (JSON Only)
-{
-  "verse_reference": "Book Chapter:Verse (e.g. Isaiah 41:10)",
-  "verse_text": "The complete verse text from the Bible",
-  "narration": "The complete narration script that includes the verse naturally"
-}
-    `;
+  private async generateScriptText(
+    userFeelings: string,
+    overrideModel?: string,
+  ): Promise<ComflyScriptGenerationResult> {
+    const systemPrompt = this.getScriptSystemPrompt();
 
     // Fallback models chain
-    const fallbackModels = ["gpt-4o-2024-08-06"];
+    const fallbackModels = overrideModel
+      ? [overrideModel]
+      : ["gpt-4o-2024-08-06"];
 
     let lastError: Error | null = null;
 
@@ -1183,36 +2118,14 @@ Generate a structured JSON object containing:
     for (const model of fallbackModels) {
       try {
         console.log(`[Comfly-API] Trying script generation model: ${model}`);
-
-        const payload = {
+        const request = buildComflyScriptGenerationRequest({
+          baseUrl: this.imageEditBaseUrl,
+          apiKey: this.configs.nanoBananaApiKey,
+          systemPrompt,
+          userFeelings,
           model,
-          response_format: {
-            type: "json_schema",
-            json_schema: scriptSchema,
-          },
-          messages: [
-            {
-              role: "system",
-              content: systemPrompt,
-            },
-            {
-              role: "user",
-              content: userFeelings,
-            },
-          ],
-        };
-
-        // Use gw-api vision endpoint (it supports text-only requests too)
-        const apiUrl = `${this.imageEditBaseUrl}/v1/chat/completions`;
-
-        const resp = await this.fetchWithRetry(apiUrl, {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${this.configs.nanoBananaApiKey}`,
-          },
-          body: JSON.stringify(payload),
         });
+        const resp = await this.fetchWithRetry(request.url, request.init);
 
         if (!resp.ok) {
           const errorText = await resp.text();
@@ -1282,20 +2195,21 @@ Generate a structured JSON object containing:
     text: string,
     language: string = "en",
     speed: number = 1,
+    voice: string = this.getTTSVoice(),
   ): Promise<string> {
-    const formData = new URLSearchParams();
-    formData.append("voice", "output.wav");
-    formData.append("model", "default");
-    formData.append("text", text);
-    formData.append("language", language);
-    formData.append("speed", speed.toString());
+    const request = buildComflyAudioGenerationRequest({
+      baseUrl: this.ttsBaseUrl,
+      text,
+      language,
+      speed,
+      voice,
+      model: "default",
+    });
 
     const response = await this.fetchWithRetry(`${this.ttsBaseUrl}/tts`, {
       method: "POST",
-      headers: {
-        "Content-Type": "application/x-www-form-urlencoded; charset=UTF-8",
-      },
-      body: formData.toString(),
+      headers: request.init.headers,
+      body: request.init.body,
     });
 
     if (!response.ok) {
@@ -1318,25 +2232,18 @@ Generate a structured JSON object containing:
     text: string,
     language: string = "en",
     speed: number = 1,
+    voice: string = this.getTTSVoice(),
   ): Promise<string> {
-    // Step 1: Submit async TTS task
-    const formData = new URLSearchParams();
-    formData.append("voice", "output.wav");
-    formData.append("model", "default");
-    formData.append("text", text);
-    formData.append("language", language);
-    formData.append("speed", speed.toString());
+    const request = buildComflyAudioGenerationRequest({
+      baseUrl: this.ttsBaseUrl,
+      text,
+      language,
+      speed,
+      voice,
+      model: "default",
+    });
 
-    const submitResponse = await this.fetchWithRetry(
-      `${this.ttsBaseUrl}/tts_async`,
-      {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/x-www-form-urlencoded; charset=UTF-8",
-        },
-        body: formData.toString(),
-      },
-    );
+    const submitResponse = await this.fetchWithRetry(request.url, request.init);
 
     if (!submitResponse.ok) {
       throw new Error(`TTS async submit failed: ${submitResponse.statusText}`);
@@ -1406,8 +2313,9 @@ Generate a structured JSON object containing:
   private async generateAudioAsyncWithRetry(
     text: string,
     language: string = "en",
-    speed: number = 1,
+    speed: number = this.getTTSSpeed(),
     maxRetries: number = 3,
+    voice: string = this.getTTSVoice(),
   ): Promise<string> {
     // Fallback models chain
     const fallbackModels = this.configs.fallbackTTSModels || ["default"];
@@ -1424,24 +2332,18 @@ Generate a structured JSON object containing:
             `[Comfly-API] TTS generation with ${model}, attempt ${attempt}/${maxRetries}`,
           );
 
-          // Submit TTS task with specific model
-          const formData = new URLSearchParams();
-          formData.append("voice", "output.wav");
-          formData.append("model", model);
-          formData.append("text", text);
-          formData.append("language", language);
-          formData.append("speed", speed.toString());
+          const request = buildComflyAudioGenerationRequest({
+            baseUrl: this.ttsBaseUrl,
+            text,
+            language,
+            speed,
+            voice,
+            model,
+          });
 
           const submitResponse = await this.fetchWithRetry(
-            `${this.ttsBaseUrl}/tts_async`,
-            {
-              method: "POST",
-              headers: {
-                "Content-Type":
-                  "application/x-www-form-urlencoded; charset=UTF-8",
-              },
-              body: formData.toString(),
-            },
+            request.url,
+            request.init,
           );
 
           if (!submitResponse.ok) {
@@ -1517,15 +2419,21 @@ Generate a structured JSON object containing:
     formData.append("audio", audioBlob, "audio.wav");
     formData.append("text_content", textContent);
     formData.append("language", options?.language || "en");
-    formData.append("bgm_volume", options?.bgmVolume?.toString() || "3");
-    formData.append("voice_volume", options?.voiceVolume?.toString() || "1.0");
+    formData.append(
+      "bgm_volume",
+      options?.bgmVolume?.toString() || this.getMergeBgmVolume(),
+    );
+    formData.append(
+      "voice_volume",
+      options?.voiceVolume?.toString() || this.getMergeVoiceVolume(),
+    );
     formData.append(
       "max_words_per_line",
-      options?.maxWordsPerLine?.toString() || "20",
+      options?.maxWordsPerLine?.toString() || this.getMergeMaxWordsPerLine(),
     );
     formData.append(
       "long_token_dur_s",
-      options?.longTokenDurS?.toString() || "0.8",
+      options?.longTokenDurS?.toString() || this.getMergeLongTokenDurS(),
     );
     formData.append("title", options?.title || "");
     formData.append("title_start", options?.titleStart?.toString() || "0");
@@ -1567,39 +2475,32 @@ Generate a structured JSON object containing:
     textContent: string,
     options?: any,
   ): Promise<string> {
-    const formData = new FormData();
-    formData.append("video_url", videoUrl);
-    formData.append("audio_url", audioUrl);
-    formData.append("text_content", textContent);
-    formData.append("language", options?.language || "en");
-    formData.append("bgm_volume", options?.bgmVolume?.toString() || "3");
-    formData.append("voice_volume", options?.voiceVolume?.toString() || "1.0");
-    formData.append(
-      "max_words_per_line",
-      options?.maxWordsPerLine?.toString() || "20",
-    );
-    formData.append(
-      "long_token_dur_s",
-      options?.longTokenDurS?.toString() || "0.8",
-    );
-    formData.append("title", options?.title || "");
-    formData.append("title_start", options?.titleStart?.toString() || "0");
-    formData.append("title_end", options?.titleEnd?.toString() || "1000");
-    formData.append("loop_video", options?.loopVideo?.toString() || "1");
+    const request = buildComflyVideoMergeRequest({
+      baseUrl: this.videoProcessBaseUrl,
+      videoUrl,
+      audioUrl,
+      textContent,
+      language: options?.language || "en",
+      title: options?.title || "",
+      bgmUrl: options?.bgmUrl || this.getMergeBgmUrl(),
+      bgmVolume: options?.bgmVolume?.toString() || this.getMergeBgmVolume(),
+      voiceVolume:
+        options?.voiceVolume?.toString() || this.getMergeVoiceVolume(),
+      maxWordsPerLine:
+        options?.maxWordsPerLine?.toString() || this.getMergeMaxWordsPerLine(),
+      longTokenDurS:
+        options?.longTokenDurS?.toString() || this.getMergeLongTokenDurS(),
+      titleStart: options?.titleStart?.toString() || "0",
+      titleEnd: options?.titleEnd?.toString() || "1000",
+    });
 
-    // Add BGM URL if provided
-    if (options?.bgmUrl) {
-      formData.append("bgm_url", options.bgmUrl);
-    }
+    const requestFormData = request.init.body as FormData;
+    requestFormData.append("loop_video", options?.loopVideo?.toString() || "1");
 
-    // Step 1: Submit async video processing task
-    const submitResponse = await this.fetchWithRetry(
-      `${this.videoProcessBaseUrl}/process_video_async`,
-      {
-        method: "POST",
-        body: formData,
-      },
-    );
+    const submitResponse = await this.fetchWithRetry(request.url, {
+      ...request.init,
+      body: requestFormData,
+    });
 
     if (!submitResponse.ok) {
       throw new Error(
@@ -1688,43 +2589,29 @@ Generate a structured JSON object containing:
           `[Comfly-API] Video merge attempt ${attempt}/${maxRetries}`,
         );
 
-        const formData = new FormData();
-        formData.append("video_url", videoUrl);
-        formData.append("audio_url", audioUrl);
-        formData.append("text_content", textContent);
-        formData.append("language", options?.language || "en");
-        formData.append("bgm_volume", options?.bgmVolume?.toString() || "4");
-        formData.append(
-          "voice_volume",
-          options?.voiceVolume?.toString() || "1.0",
-        );
-        formData.append(
-          "max_words_per_line",
-          options?.maxWordsPerLine?.toString() || "20",
-        );
-        formData.append(
-          "long_token_dur_s",
-          options?.longTokenDurS?.toString() || "0.8",
-        );
-        formData.append("title", options?.title || "");
-        formData.append("title_start", options?.titleStart?.toString() || "0");
-        formData.append("title_end", options?.titleEnd?.toString() || "1000");
+        const request = buildComflyVideoMergeRequest({
+          baseUrl: this.videoProcessBaseUrl,
+          videoUrl,
+          audioUrl,
+          textContent,
+          language: options?.language || "en",
+          title: options?.title || "",
+          bgmUrl: options?.bgmUrl || this.getMergeBgmUrl(),
+          bgmVolume: options?.bgmVolume?.toString() || this.getMergeBgmVolume(),
+          voiceVolume:
+            options?.voiceVolume?.toString() || this.getMergeVoiceVolume(),
+          maxWordsPerLine:
+            options?.maxWordsPerLine?.toString() ||
+            this.getMergeMaxWordsPerLine(),
+          longTokenDurS:
+            options?.longTokenDurS?.toString() || this.getMergeLongTokenDurS(),
+          titleStart: options?.titleStart?.toString() || "0",
+          titleEnd: options?.titleEnd?.toString() || "1000",
+        });
 
-        // Add BGM URL if provided options?.bgmUrl
-        if (true) {
-          formData.append(
-            "bgm_url",
-            "https://clonevoice.nailai.net/static/ttslist/music.mp3",
-          );
-        }
-
-        // Submit async video processing task
         const submitResponse = await this.fetchWithRetry(
-          `${this.videoProcessBaseUrl}/process_video_async`,
-          {
-            method: "POST",
-            body: formData,
-          },
+          request.url,
+          request.init,
         );
 
         if (!submitResponse.ok) {

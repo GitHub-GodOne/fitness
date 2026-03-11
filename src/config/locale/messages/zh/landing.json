@@ -195,6 +195,7 @@
       ]
     },
     "show_theme": true,
+    "show_theme_switcher": true,
     "show_locale": true,
     "feedback_labels": {
       "title": "联系支持",

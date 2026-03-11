@@ -1,0 +1,119 @@
+'use client';
+
+import { useState } from 'react';
+import { X } from 'lucide-react';
+
+import {
+  Dialog,
+  DialogClose,
+  DialogContent,
+  DialogDescription,
+  DialogTitle,
+} from '@/shared/components/ui/dialog';
+import type { ShowcaseVideo } from '@/shared/models/showcase-video';
+
+export function ShowcaseVideoGallery({
+  videos,
+  locale,
+  isZh,
+}: {
+  videos: ShowcaseVideo[];
+  locale: string;
+  isZh: boolean;
+}) {
+  const [activeVideo, setActiveVideo] = useState<ShowcaseVideo | null>(null);
+
+  return (
+    <>
+      <div className="grid gap-6 md:grid-cols-2 xl:grid-cols-3">
+        {videos.map((video) => (
+          <button
+            key={video.id}
+            type="button"
+            onClick={() => setActiveVideo(video)}
+            className="group overflow-hidden rounded-3xl border bg-card text-left transition hover:border-primary/40 hover:shadow-sm"
+          >
+            <div className="relative aspect-[16/10] bg-muted">
+              <video
+                src={video.videoUrl}
+                poster={video.coverUrl || undefined}
+                preload="metadata"
+                muted
+                playsInline
+                className="h-full w-full object-cover transition duration-300 group-hover:scale-[1.02]"
+              />
+            </div>
+
+            <div className="space-y-3 p-5">
+              <div className="flex items-center justify-between gap-3">
+                <h2 className="text-xl font-semibold">{video.title}</h2>
+                <span className="text-xs text-muted-foreground">
+                  {new Date(video.publishedAt || video.createdAt).toLocaleDateString(
+                    locale === 'zh' ? 'zh-CN' : 'en-US'
+                  )}
+                </span>
+              </div>
+              <p className="line-clamp-3 text-sm text-muted-foreground">
+                {video.description ||
+                  (isZh
+                    ? '点击在当前页面全屏查看这个视频作品。'
+                    : 'Open this showcase video in the current page.')}
+              </p>
+            </div>
+          </button>
+        ))}
+      </div>
+
+      <Dialog open={Boolean(activeVideo)} onOpenChange={(open) => !open && setActiveVideo(null)}>
+        <DialogContent
+          showCloseButton={false}
+          className="h-screen w-screen max-w-screen translate-x-[-50%] translate-y-[-50%] rounded-none border-0 bg-black p-0 sm:max-w-screen"
+        >
+          {activeVideo ? (
+            <div className="relative h-full overflow-hidden bg-black">
+              <div className="sr-only">
+                <DialogTitle>{activeVideo.title}</DialogTitle>
+                <DialogDescription>
+                  {activeVideo.description || activeVideo.title}
+                </DialogDescription>
+              </div>
+
+              <DialogClose className="absolute right-4 top-4 z-20 inline-flex h-10 w-10 items-center justify-center rounded-full bg-black/55 text-white transition hover:bg-black/75 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/70 sm:right-6 sm:top-6">
+                <X className="size-5" />
+                <span className="sr-only">{isZh ? '关闭视频' : 'Close video'}</span>
+              </DialogClose>
+
+              <video
+                src={activeVideo.videoUrl}
+                poster={activeVideo.coverUrl || undefined}
+                controls
+                autoPlay
+                playsInline
+                preload="auto"
+                className="absolute inset-0 h-full w-full bg-black object-contain"
+              />
+
+              <div className="pointer-events-none absolute inset-x-0 top-0 z-10 bg-gradient-to-b from-black/75 via-black/35 to-transparent px-4 py-4 text-white sm:px-6">
+                <div className="max-w-3xl">
+                  <div className="pr-14 text-lg font-semibold sm:pr-16">
+                    {activeVideo.title}
+                  </div>
+                  {activeVideo.description ? (
+                    <p className="mt-1 text-sm text-white/70">
+                      {activeVideo.description}
+                    </p>
+                  ) : null}
+                  <div className="mt-2 text-xs text-white/60">
+                    {new Date(
+                      activeVideo.publishedAt || activeVideo.createdAt
+                    ).toLocaleDateString(locale === 'zh' ? 'zh-CN' : 'en-US')}
+                  </div>
+                </div>
+              </div>
+            </div>
+          ) : null}
+        </DialogContent>
+      </Dialog>
+    </>
+  );
+}

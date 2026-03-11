@@ -11,6 +11,7 @@ import {
 } from "@/shared/blocks/common";
 import { FeedbackDialog } from "@/shared/blocks/common/feedback-dialog";
 import { SmartIcon } from "@/shared/blocks/common/smart-icon";
+import { ThemeSwitcher } from "@/shared/components/theme-switcher";
 import { NavItem } from "@/shared/types/blocks/common";
 import { Footer as FooterType } from "@/shared/types/blocks/landing";
 
@@ -90,9 +91,20 @@ export function Footer({ footer }: { footer: FooterType }) {
         <div className="flex min-w-0 flex-wrap items-center gap-4 sm:gap-8">
           {footer.show_built_with !== false ? <BuiltWith /> : null}
           <div className="min-w-0 flex-1" />
-          {footer.show_theme !== false ? <ThemeToggler type="toggle" /> : null}
-          {footer.show_locale !== false ? (
-            <LocaleSelector type="button" />
+          {footer.show_theme !== false ||
+          footer.show_theme_switcher !== false ||
+          footer.show_locale !== false ? (
+            <div className="flex items-center gap-1 rounded-full border border-border/70 bg-background/80 px-2 py-1">
+              {footer.show_theme_switcher !== false ? (
+                <ThemeSwitcher className="text-muted-foreground hover:text-foreground" />
+              ) : null}
+              {footer.show_theme !== false ? (
+                <ThemeToggler
+                  className="relative inline-flex items-center justify-center rounded-md p-2 text-muted-foreground transition-colors hover:text-foreground"
+                />
+              ) : null}
+              {footer.show_locale !== false ? <LocaleSelector type="button" /> : null}
+            </div>
           ) : null}
         </div>
 

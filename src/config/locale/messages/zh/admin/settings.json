@@ -13,6 +13,7 @@
     "openrouter": "OpenRouter",
     "replicate": "Replicate",
     "fal": "Fal",
+    "comfly": "Comfly API",
     "google_analytics": "谷歌分析",
     "clarity": "Clarity",
     "plausible": "Plausible",
@@ -25,7 +26,8 @@
     "crisp": "Crisp",
     "credit": "积分",
     "appinfo": "应用信息",
-    "user_role": "用户角色"
+    "user_role": "用户角色",
+    "showcases": "案例展示"
   },
   "edit": {
     "title": "设置",
@@ -41,6 +43,7 @@
       "email": "邮箱",
       "storage": "存储",
       "ai": "AI",
+      "comfly": "Comfly API",
       "analytics": "分析",
       "ads": "广告",
       "affiliate": "联盟营销",

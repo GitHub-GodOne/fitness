@@ -84,34 +84,67 @@
       "title": "Business",
       "items": [
         {
-          "title": "Comments",
-          "url": "/admin/comments",
-          "icon": "MessageSquare"
+          "title": "Video Library",
+          "icon": "Video",
+          "children": [
+            {
+              "title": "Videos",
+              "url": "/admin/videos",
+              "icon": "Video"
+            },
+            {
+              "title": "Showcase Categories",
+              "url": "/admin/showcase-categories",
+              "icon": "Folder"
+            },
+            {
+              "title": "Showcase Videos",
+              "url": "/admin/showcase-videos",
+              "icon": "Video"
+            }
+          ]
         },
         {
-          "title": "AI Tasks",
-          "url": "/admin/ai-tasks",
-          "icon": "Brain"
+          "title": "AI Workspace",
+          "icon": "Brain",
+          "children": [
+            {
+              "title": "AI Tasks",
+              "url": "/admin/ai-tasks",
+              "icon": "Brain"
+            },
+            {
+              "title": "AI Chats",
+              "url": "/admin/chats",
+              "icon": "MessageCircle"
+            }
+          ]
         },
         {
-          "title": "Videos",
-          "url": "/admin/videos",
-          "icon": "Video"
+          "title": "Community",
+          "icon": "MessageSquare",
+          "children": [
+            {
+              "title": "Comments",
+              "url": "/admin/comments",
+              "icon": "MessageSquare"
+            },
+            {
+              "title": "Support Chat",
+              "url": "/admin/support-chat",
+              "icon": "Headphones"
+            },
+            {
+              "title": "Notifications",
+              "url": "/admin/notifications",
+              "icon": "Bell"
+            }
+          ]
         },
         {
-          "title": "AI Chats",
-          "url": "/admin/chats",
-          "icon": "MessageCircle"
-        },
-        {
-          "title": "Support Chat",
-          "url": "/admin/support-chat",
-          "icon": "Headphones"
-        },
-        {
-          "title": "Notifications",
-          "url": "/admin/notifications",
-          "icon": "Bell"
+          "title": "Media Assets",
+          "url": "/admin/media-assets",
+          "icon": "Folder"
         }
       ]
     }

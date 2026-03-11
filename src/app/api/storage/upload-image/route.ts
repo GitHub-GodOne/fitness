@@ -1,4 +1,6 @@
-import { md5 } from '@/shared/lib/hash';
+import path from 'path';
+
+import { getUuid, md5 } from '@/shared/lib/hash';
 import { respData, respErr } from '@/shared/lib/resp';
 import { replaceR2Url } from '@/shared/lib/url';
 import { getUserInfo } from '@/shared/models/user';
@@ -19,80 +21,99 @@ const extFromMime = (mimeType: string) => {
   return map[mimeType] || '';
 };
 
+const isFileLike = (
+  value: FormDataEntryValue | null | undefined
+): value is File => {
+  if (!value || typeof value === 'string') {
+    return false;
+  }
+
+  return (
+    typeof value === 'object' &&
+    typeof value.arrayBuffer === 'function' &&
+    typeof value.type === 'string' &&
+    typeof value.name === 'string'
+  );
+};
+
 export async function POST(req: Request) {
   try {
-    // Check user authentication first
     const user = await getUserInfo();
     if (!user) {
-      return respErr('no auth, please sign in');
+      return respErr('no auth, please sign in', 401);
     }
 
     const formData = await req.formData();
-    const files = formData.getAll('files') as File[];
+    const rawFiles = formData.getAll('files');
+    const files = rawFiles.filter(isFileLike);
 
-    console.log('[API] Received files:', files.length);
-    files.forEach((file, i) => {
-      console.log(`[API] File ${i}:`, {
-        name: file.name,
-        type: file.type,
-        size: file.size,
-      });
-    });
-
-    if (!files || files.length === 0) {
-      return respErr('No files provided');
+    if (files.length === 0) {
+      return respErr('No files provided', 400);
     }
 
-    // Save to local public/pic/{date} folder
-    const fs = await import('fs/promises');
-    const path = await import('path');
-    const uploadResults = [];
+    const storageService = await getStorageService();
+    const hasStorageProvider = storageService.getProviderNames().length > 0;
 
-    // Get current date in YYYYMMDD format
+    const fs = await import('fs/promises');
+    const uploadResults = [];
     const now = new Date();
     const year = now.getFullYear();
     const month = String(now.getMonth() + 1).padStart(2, '0');
     const day = String(now.getDate()).padStart(2, '0');
     const dateFolder = `${year}${month}${day}`;
 
-    // Ensure public/pic/{date} directory exists
     const picDir = path.join(process.cwd(), 'public', 'pic', dateFolder);
-    try {
+
+    if (!hasStorageProvider) {
       await fs.mkdir(picDir, { recursive: true });
-      console.log('[API] Created pic directory:', picDir);
-    } catch (err) {
-      console.error('[API] Failed to create pic directory:', err);
     }
 
     for (const file of files) {
-      // Validate file type
-      if (!file.type.startsWith('image/')) {
-        return respErr(`File ${file.name} is not an image`);
+      if (!file.type || !file.type.startsWith('image/')) {
+        return respErr(`File ${file.name} is not an image`, 400);
       }
 
-      // Convert file to buffer
       const arrayBuffer = await file.arrayBuffer();
       const body = Buffer.from(arrayBuffer);
-
       const digest = md5(body);
       const ext = extFromMime(file.type) || file.name.split('.').pop() || 'bin';
+
+      if (hasStorageProvider) {
+        const key = `images/${dateFolder}/${getUuid()}-${digest}.${ext}`;
+        const uploadResult = await storageService.uploadFile({
+          body,
+          key,
+          contentType: file.type || 'application/octet-stream',
+          disposition: 'inline',
+        });
+
+        if (!uploadResult.success || !uploadResult.url) {
+          return respErr(uploadResult.error || 'upload image failed', 500);
+        }
+
+        uploadResults.push({
+          url: replaceR2Url(uploadResult.url),
+          key,
+          filename: file.name,
+          deduped: false,
+          provider: uploadResult.provider,
+        });
+        continue;
+      }
+
       const filename = `${digest}.${ext}`;
       const filePath = path.join(picDir, filename);
-
-      // Check if file already exists (deduplication)
       let exists = false;
+
       try {
         await fs.access(filePath);
         exists = true;
-        console.log('[API] File already exists, reusing:', filename);
       } catch {
-        // File doesn't exist, will upload
+        exists = false;
       }
 
       if (!exists) {
-        // Save file to disk
         await fs.writeFile(filePath, body);
-        console.log('[API] File saved:', filePath);
       }
 
       const publicUrl = `/pic/${dateFolder}/${filename}`;
@@ -101,20 +122,16 @@ export async function POST(req: Request) {
         key: filename,
         filename: file.name,
         deduped: exists,
+        provider: 'local',
       });
     }
-
-    console.log(
-      '[API] All uploads complete. Returning URLs:',
-      uploadResults.map((r) => r.url)
-    );
 
     return respData({
       urls: uploadResults.map((r) => r.url),
       results: uploadResults,
     });
-  } catch (e) {
+  } catch (e: any) {
     console.error('upload image failed:', e);
-    return respErr('upload image failed');
+    return respErr(e?.message || 'upload image failed', 500);
   }
 }
