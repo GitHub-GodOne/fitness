@@ -1,0 +1,46 @@
+{
+  "page": {
+    "title": "Translations",
+    "crumbs": {
+      "admin": "Admin",
+      "translations": "Translations"
+    },
+    "description": "Edit locale-specific overrides without changing the source JSON files."
+  },
+  "manager": {
+    "filters": {
+      "locale": "Locale",
+      "namespace": "Namespace",
+      "search": "Search key or text",
+      "searchPlaceholder": "Search keys or values"
+    },
+    "summary": {
+      "title": "Default JSON + database override",
+      "description": "Rows come from the source JSON file. Save an override to replace the default value at runtime. Reset removes the override and falls back to the file value."
+    },
+    "columns": {
+      "key": "Key",
+      "defaultValue": "Default Value",
+      "overrideValue": "Override Value"
+    },
+    "actions": {
+      "save": "Save Override",
+      "reset": "Reset to Default",
+      "saving": "Saving...",
+      "resetting": "Resetting..."
+    },
+    "messages": {
+      "loading": "Loading...",
+      "saved": "Translation override saved",
+      "reset": "Translation override removed",
+      "saveFailed": "Failed to save translation override",
+      "resetFailed": "Failed to reset translation override",
+      "noRows": "No translatable values found for the selected namespace.",
+      "noSearchResults": "No translation rows match the current search."
+    },
+    "badges": {
+      "overridden": "Override active",
+      "default": "Default"
+    }
+  }
+}

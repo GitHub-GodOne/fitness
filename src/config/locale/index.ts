@@ -50,6 +50,7 @@ export const localeMessagesPaths = [
   'admin/media-assets',
   'admin/showcase-categories',
   'admin/showcase-videos',
+  'admin/translations',
   'ai/music',
   'ai/chat',
   'ai/image',

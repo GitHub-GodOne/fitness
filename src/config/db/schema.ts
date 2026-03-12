@@ -6,6 +6,7 @@ import {
   pgTable,
   text,
   timestamp,
+  uniqueIndex,
 } from 'drizzle-orm/pg-core';
 
 import { envConfigs } from '@/config';
@@ -121,6 +122,33 @@ export const config = table('config', {
   name: text('name').unique().notNull(),
   value: text('value'),
 });
+
+export const i18nMessage = table(
+  'i18n_message',
+  {
+    id: text('id').primaryKey(),
+    locale: text('locale').notNull(),
+    namespace: text('namespace').notNull(),
+    key: text('key').notNull(),
+    value: text('value').notNull(),
+    updatedBy: text('updated_by').references(() => user.id, {
+      onDelete: 'set null',
+    }),
+    createdAt: timestamp('created_at').defaultNow().notNull(),
+    updatedAt: timestamp('updated_at')
+      .defaultNow()
+      .$onUpdate(() => /* @__PURE__ */ new Date())
+      .notNull(),
+  },
+  (table) => [
+    uniqueIndex('idx_i18n_message_locale_namespace_key').on(
+      table.locale,
+      table.namespace,
+      table.key
+    ),
+    index('idx_i18n_message_locale_namespace').on(table.locale, table.namespace),
+  ]
+);
 
 export const taxonomy = table(
   'taxonomy',

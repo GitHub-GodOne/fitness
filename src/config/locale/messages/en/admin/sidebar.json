@@ -49,6 +49,11 @@
               "title": "Posts",
               "icon": "FileText",
               "url": "/admin/posts"
+            },
+            {
+              "title": "Translations",
+              "icon": "Languages",
+              "url": "/admin/translations"
             }
           ]
         },
