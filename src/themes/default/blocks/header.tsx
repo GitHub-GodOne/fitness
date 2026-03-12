@@ -248,7 +248,7 @@ export function Header({ header }: { header: HeaderType }) {
             "max-lg:in-data-[state=active]:bg-background max-lg:h-14 max-lg:overflow-hidden max-lg:in-data-[state=active]:h-screen",
           )}
         >
-          <div className="px-4 sm:px-2 lg:px-8">
+          <div className="container px-4 sm:px-6 md:px-8">
             <div className="relative flex items-center justify-between h-14 lg:h-18">
               {/* Left section: Brand Logo + Navigation */}
               <div className="flex items-center gap-8">

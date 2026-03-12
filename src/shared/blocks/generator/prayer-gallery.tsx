@@ -21,6 +21,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/shared/components/ui/dialog";
+import { extractVideoUrlFromAITask } from "@/shared/lib/ai-task-video";
 
 interface HistoryTask {
   id: string;
@@ -44,42 +45,6 @@ interface PrayerGalleryProps {
   onPageChange: (page: number) => void;
   onRefresh: () => void;
   className?: string;
-}
-
-function extractVideoUrl(
-  taskInfo: string | null,
-  taskResult: string | null,
-): string | null {
-  try {
-    if (taskResult) {
-      const result = JSON.parse(taskResult);
-      // Check for saved video URL first
-      if (
-        result.saved_video_url &&
-        typeof result.saved_video_url === "string"
-      ) {
-        return result.saved_video_url;
-      }
-      // Check for original video URL
-      if (
-        result.original_video_url &&
-        typeof result.original_video_url === "string"
-      ) {
-        return result.original_video_url;
-      }
-      // Check for content.video_url (Volcano Engine format)
-      if (
-        result.content?.video_url &&
-        typeof result.content.video_url === "string"
-      ) {
-        return result.content.video_url;
-      }
-      return result.video_url || null;
-    }
-  } catch (e) {
-    // Ignore parse errors
-  }
-  return null;
 }
 
 function extractVerseReference(task: HistoryTask): string {
@@ -135,7 +100,10 @@ export function PrayerGallery({
 
   const handleDownload = useCallback(
     async (task: HistoryTask) => {
-      const videoUrl = extractVideoUrl(task.taskInfo, task.taskResult);
+      const videoUrl = extractVideoUrlFromAITask({
+        taskInfo: task.taskInfo,
+        taskResult: task.taskResult,
+      });
       if (!videoUrl) {
         toast.error(t("no_video_found"));
         return;
@@ -234,10 +202,10 @@ export function PrayerGallery({
               {/* Cards Grid */}
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
                 {tasks.map((task) => {
-                  const videoUrl = extractVideoUrl(
-                    task.taskInfo,
-                    task.taskResult,
-                  );
+                  const videoUrl = extractVideoUrlFromAITask({
+                    taskInfo: task.taskInfo,
+                    taskResult: task.taskResult,
+                  });
                   const verseReference = extractVerseReference(task);
                   const statusDisplay = getStatusDisplay(task.status);
                   const isProcessing =

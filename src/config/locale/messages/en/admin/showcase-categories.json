@@ -1,0 +1,59 @@
+{
+  "fields": {
+    "slug": "Slug",
+    "title": "Title",
+    "description": "Description",
+    "image": "Category Image",
+    "sort": "Sort",
+    "status": "Status",
+    "updatedAt": "Updated",
+    "copyMessage": "Copied",
+    "slugTip": "Unique slug, prefer kebab-case"
+  },
+  "statuses": {
+    "published": "Published",
+    "draft": "Draft",
+    "pending": "Pending",
+    "archived": "Archived"
+  },
+  "list": {
+    "title": "Showcase Categories",
+    "crumbs": {
+      "admin": "Admin",
+      "categories": "Showcase Categories"
+    },
+    "buttons": {
+      "add": "Add Category",
+      "edit": "Edit"
+    }
+  },
+  "add": {
+    "title": "Add Showcase Category",
+    "crumbs": {
+      "admin": "Admin",
+      "categories": "Showcase Categories",
+      "add": "Add"
+    },
+    "buttons": {
+      "submit": "Create Category"
+    },
+    "messages": {
+      "success": "Showcase category created"
+    }
+  },
+  "edit": {
+    "title": "Edit Showcase Category",
+    "crumbs": {
+      "admin": "Admin",
+      "categories": "Showcase Categories",
+      "edit": "Edit"
+    },
+    "buttons": {
+      "submit": "Save Changes"
+    },
+    "messages": {
+      "notFound": "Showcase category not found",
+      "success": "Showcase category updated"
+    }
+  }
+}

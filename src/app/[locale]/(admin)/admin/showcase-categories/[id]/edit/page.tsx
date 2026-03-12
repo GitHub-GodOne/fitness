@@ -1,4 +1,4 @@
-import { setRequestLocale } from 'next-intl/server';
+import { getTranslations, setRequestLocale } from 'next-intl/server';
 
 import { PERMISSIONS, requirePermission } from '@/core/rbac';
 import { Empty } from '@/shared/blocks/common';
@@ -21,7 +21,6 @@ export default async function ShowcaseCategoryEditPage({
   params: Promise<{ locale: string; id: string }>;
 }) {
   const { locale, id } = await params;
-  const isZh = locale === 'zh';
   setRequestLocale(locale);
 
   await requirePermission({
@@ -30,15 +29,17 @@ export default async function ShowcaseCategoryEditPage({
     locale,
   });
 
+  const t = await getTranslations('admin.showcase-categories');
+
   const category = await findTaxonomy({ id });
   if (!category || category.type !== TaxonomyType.SHOWCASE_CATEGORY) {
-    return <Empty message={isZh ? '案例分类不存在' : 'Showcase category not found'} />;
+    return <Empty message={t('edit.messages.notFound')} />;
   }
 
   const crumbs: Crumb[] = [
-    { title: isZh ? '后台' : 'Admin', url: '/admin' },
-    { title: isZh ? '案例分类' : 'Showcase Categories', url: '/admin/showcase-categories' },
-    { title: isZh ? '编辑' : 'Edit', is_active: true },
+    { title: t('edit.crumbs.admin'), url: '/admin' },
+    { title: t('edit.crumbs.categories'), url: '/admin/showcase-categories' },
+    { title: t('edit.crumbs.edit'), is_active: true },
   ];
 
   const form: Form = {
@@ -46,49 +47,49 @@ export default async function ShowcaseCategoryEditPage({
       {
         name: 'slug',
         type: 'text',
-        title: 'Slug',
-        tip: isZh ? '唯一标识，建议用英文短横线格式' : 'Unique slug, prefer kebab-case',
+        title: t('fields.slug'),
+        tip: t('fields.slugTip'),
         validation: { required: true },
       },
       {
         name: 'title',
         type: 'text',
-        title: isZh ? '标题' : 'Title',
+        title: t('fields.title'),
         validation: { required: true },
       },
       {
         name: 'description',
         type: 'textarea',
-        title: isZh ? '描述' : 'Description',
+        title: t('fields.description'),
         attributes: { rows: 5 },
       },
       {
         name: 'image',
         type: 'upload_image',
-        title: isZh ? '分类图片' : 'Category Image',
+        title: t('fields.image'),
         metadata: { max: 1 },
       },
       {
         name: 'sort',
         type: 'number',
-        title: isZh ? '排序' : 'Sort',
+        title: t('fields.sort'),
       },
       {
         name: 'status',
         type: 'select',
-        title: isZh ? '状态' : 'Status',
+        title: t('fields.status'),
         options: [
-          { title: isZh ? '已发布' : 'Published', value: TaxonomyStatus.PUBLISHED },
-          { title: isZh ? '草稿' : 'Draft', value: TaxonomyStatus.DRAFT },
-          { title: isZh ? '待审核' : 'Pending', value: TaxonomyStatus.PENDING },
-          { title: isZh ? '已归档' : 'Archived', value: TaxonomyStatus.ARCHIVED },
+          { title: t('statuses.published'), value: TaxonomyStatus.PUBLISHED },
+          { title: t('statuses.draft'), value: TaxonomyStatus.DRAFT },
+          { title: t('statuses.pending'), value: TaxonomyStatus.PENDING },
+          { title: t('statuses.archived'), value: TaxonomyStatus.ARCHIVED },
         ],
       },
     ],
     data: category,
     submit: {
       button: {
-        title: isZh ? '保存修改' : 'Save Changes',
+        title: t('edit.buttons.submit'),
       },
       handler: async (data) => {
         'use server';
@@ -127,7 +128,7 @@ export default async function ShowcaseCategoryEditPage({
 
         return {
           status: 'success',
-          message: isZh ? '案例分类已更新' : 'Showcase category updated',
+          message: t('edit.messages.success'),
           redirect_url: '/admin/showcase-categories',
         };
       },
@@ -138,7 +139,7 @@ export default async function ShowcaseCategoryEditPage({
     <>
       <Header crumbs={crumbs} />
       <Main>
-        <MainHeader title={isZh ? '编辑案例分类' : 'Edit Showcase Category'} />
+        <MainHeader title={t('edit.title')} />
         <FormCard form={form} className="md:max-w-xl" />
       </Main>
     </>

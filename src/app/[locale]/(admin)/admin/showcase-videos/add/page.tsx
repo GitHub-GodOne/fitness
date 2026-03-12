@@ -1,26 +1,25 @@
 import { getTranslations, setRequestLocale } from 'next-intl/server';
 
 import { PERMISSIONS, requirePermission } from '@/core/rbac';
-import { Empty } from '@/shared/blocks/common';
 import { Header, Main, MainHeader } from '@/shared/blocks/dashboard';
 import { FormCard } from '@/shared/blocks/form';
+import { getUuid } from '@/shared/lib/hash';
 import {
-  findShowcaseVideoById,
+  addShowcaseVideo,
   ShowcaseVideoStatus,
-  updateShowcaseVideo,
 } from '@/shared/models/showcase-video';
-import type { UpdateShowcaseVideo } from '@/shared/models/showcase-video';
+import type { NewShowcaseVideo } from '@/shared/models/showcase-video';
 import { getTaxonomies, TaxonomyType } from '@/shared/models/taxonomy';
 import { getUserInfo } from '@/shared/models/user';
 import type { Crumb } from '@/shared/types/blocks/common';
 import type { Form } from '@/shared/types/blocks/form';
 
-export default async function ShowcaseVideoEditPage({
+export default async function ShowcaseVideoAddPage({
   params,
 }: {
-  params: Promise<{ locale: string; id: string }>;
+  params: Promise<{ locale: string }>;
 }) {
-  const { locale, id } = await params;
+  const { locale } = await params;
   setRequestLocale(locale);
 
   await requirePermission({
@@ -31,20 +30,15 @@ export default async function ShowcaseVideoEditPage({
 
   const t = await getTranslations('admin.showcase-videos');
 
-  const video = await findShowcaseVideoById(id);
-  if (!video) {
-    return <Empty message={t('edit.messages.notFound')} />;
-  }
-
   const categories = await getTaxonomies({
     type: TaxonomyType.SHOWCASE_CATEGORY,
     limit: 200,
   });
 
   const crumbs: Crumb[] = [
-    { title: t('edit.crumbs.admin'), url: '/admin' },
-    { title: t('edit.crumbs.videos'), url: '/admin/showcase-videos' },
-    { title: t('edit.crumbs.edit'), is_active: true },
+    { title: t('add.crumbs.admin'), url: '/admin' },
+    { title: t('add.crumbs.videos'), url: '/admin/showcase-videos' },
+    { title: t('add.crumbs.add'), is_active: true },
   ];
 
   const form: Form = {
@@ -79,7 +73,7 @@ export default async function ShowcaseVideoEditPage({
         metadata: {
           mediaLibraryPicker: {
             mediaType: 'video',
-            buttonText: t('edit.buttons.chooseVideo'),
+            buttonText: t('add.buttons.chooseVideo'),
           },
         },
       },
@@ -93,6 +87,7 @@ export default async function ShowcaseVideoEditPage({
         name: 'status',
         type: 'select',
         title: t('fields.status'),
+        value: ShowcaseVideoStatus.PENDING,
         validation: { required: true },
         options: [
           { title: t('statuses.draft'), value: ShowcaseVideoStatus.DRAFT },
@@ -106,11 +101,13 @@ export default async function ShowcaseVideoEditPage({
         name: 'featured',
         type: 'switch',
         title: t('fields.featuredSwitch'),
+        value: false,
       },
       {
         name: 'sort',
         type: 'number',
         title: t('fields.sort'),
+        value: 0,
       },
       {
         name: 'reviewNote',
@@ -119,10 +116,10 @@ export default async function ShowcaseVideoEditPage({
         attributes: { rows: 4 },
       },
     ],
-    data: video,
+    data: {},
     submit: {
       button: {
-        title: t('edit.buttons.submit'),
+        title: t('add.buttons.submit'),
       },
       handler: async (data) => {
         'use server';
@@ -146,13 +143,12 @@ export default async function ShowcaseVideoEditPage({
           throw new Error('missing required fields');
         }
 
-        const publishedAt =
-          status === ShowcaseVideoStatus.PUBLISHED
-            ? video.publishedAt || new Date()
-            : null;
-
-        const updateData: UpdateShowcaseVideo = {
+        const newVideo: NewShowcaseVideo = {
+          id: getUuid(),
+          userId: user.id,
           categoryId,
+          sourceTaskId: null,
+          sourceType: 'upload',
           title,
           description,
           videoUrl,
@@ -161,17 +157,18 @@ export default async function ShowcaseVideoEditPage({
           featured,
           sort: Number.isFinite(sort) ? sort : 0,
           reviewNote,
-          publishedAt,
+          publishedAt:
+            status === ShowcaseVideoStatus.PUBLISHED ? new Date() : null,
         };
 
-        const result = await updateShowcaseVideo(video.id, updateData);
+        const result = await addShowcaseVideo(newVideo);
         if (!result) {
-          throw new Error('update showcase video failed');
+          throw new Error('add showcase video failed');
         }
 
         return {
           status: 'success',
-          message: t('edit.messages.success'),
+          message: t('add.messages.success'),
           redirect_url: '/admin/showcase-videos',
         };
       },
@@ -182,7 +179,7 @@ export default async function ShowcaseVideoEditPage({
     <>
       <Header crumbs={crumbs} />
       <Main>
-        <MainHeader title={t('edit.title')} />
+        <MainHeader title={t('add.title')} />
         <FormCard form={form} className="md:max-w-2xl" />
       </Main>
     </>

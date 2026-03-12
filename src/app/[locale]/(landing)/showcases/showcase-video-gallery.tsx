@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import { X } from 'lucide-react';
+import { useTranslations } from 'next-intl';
 
 import {
   Dialog,
@@ -15,12 +16,11 @@ import type { ShowcaseVideo } from '@/shared/models/showcase-video';
 export function ShowcaseVideoGallery({
   videos,
   locale,
-  isZh,
 }: {
   videos: ShowcaseVideo[];
   locale: string;
-  isZh: boolean;
 }) {
+  const t = useTranslations('pages.showcases.page.gallery');
   const [activeVideo, setActiveVideo] = useState<ShowcaseVideo | null>(null);
 
   return (
@@ -54,10 +54,7 @@ export function ShowcaseVideoGallery({
                 </span>
               </div>
               <p className="line-clamp-3 text-sm text-muted-foreground">
-                {video.description ||
-                  (isZh
-                    ? '点击在当前页面全屏查看这个视频作品。'
-                    : 'Open this showcase video in the current page.')}
+                {video.description || t('descriptionFallback')}
               </p>
             </div>
           </button>
@@ -80,7 +77,7 @@ export function ShowcaseVideoGallery({
 
               <DialogClose className="absolute right-4 top-4 z-20 inline-flex h-10 w-10 items-center justify-center rounded-full bg-black/55 text-white transition hover:bg-black/75 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/70 sm:right-6 sm:top-6">
                 <X className="size-5" />
-                <span className="sr-only">{isZh ? '关闭视频' : 'Close video'}</span>
+                <span className="sr-only">{t('closeVideo')}</span>
               </DialogClose>
 
               <video

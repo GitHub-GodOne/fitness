@@ -1,0 +1,52 @@
+{
+  "title": "R2 目录浏览器",
+  "description": "直接读取 R2 桶目录结构。支持自定义路径上传、目录浏览、文件预览、下载和删除。",
+  "actions": {
+    "refresh": "刷新",
+    "uploadFiles": "上传文件",
+    "createFolder": "创建文件夹",
+    "upOneLevel": "返回上级目录",
+    "preview": "预览",
+    "download": "下载",
+    "open": "打开",
+    "deleteFile": "删除文件",
+    "cancel": "取消",
+    "confirmDelete": "确认删除",
+    "confirmCreate": "创建"
+  },
+  "fields": {
+    "uploadDirectoryPath": "上传目录路径",
+    "uploadDirectoryPlaceholder": "例如 media-library/sermons",
+    "uploadDirectoryHint": "默认使用当前浏览目录。保存到 R2 时会以这个路径作为对象 key 前缀。",
+    "currentDirectory": "当前目录",
+    "root": "根目录",
+    "folders": "目录",
+    "files": "文件",
+    "folderName": "文件夹名称",
+    "folderNamePlaceholder": "例如 sermons"
+  },
+  "fileTypes": {
+    "video": "视频",
+    "image": "图片",
+    "file": "文件"
+  },
+  "messages": {
+    "loadFailed": "加载资源目录失败",
+    "uploaded": "已上传 {count} 个文件",
+    "uploadFailed": "上传失败",
+    "deleted": "文件已删除",
+    "deleteFailed": "删除失败",
+    "missingFolderName": "请输入文件夹名称",
+    "invalidFolderName": "文件夹名称不能包含斜杠",
+    "folderCreated": "文件夹已创建",
+    "createFolderFailed": "创建文件夹失败",
+    "invalidFileUrl": "文件地址无效",
+    "downloadFailed": "下载失败",
+    "noFolders": "当前目录下没有子目录。",
+    "noFiles": "当前目录下还没有文件。",
+    "inlinePreviewUnavailable": "该文件暂不支持内联预览，请使用打开或下载。",
+    "deleteDescription": "确认删除“{name}”吗？这会删除 R2 中对应对象，并清理同 key 的资源库记录。",
+    "createFolderDescription": "会在当前目录 {path} 下创建新的子文件夹。",
+    "counts": "{folders} 个目录 · {files} 个文件"
+  }
+}

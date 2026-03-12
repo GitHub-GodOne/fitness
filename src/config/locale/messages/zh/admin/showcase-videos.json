@@ -1,0 +1,75 @@
+{
+  "fields": {
+    "title": "标题",
+    "category": "分类",
+    "user": "用户",
+    "status": "状态",
+    "featured": "推荐位",
+    "createdAt": "提交时间",
+    "description": "描述",
+    "videoUrl": "视频地址",
+    "coverUrl": "封面图",
+    "sort": "排序",
+    "reviewNote": "审核备注",
+    "featuredSwitch": "推荐展示"
+  },
+  "statuses": {
+    "draft": "草稿",
+    "pending": "待审核",
+    "published": "已发布",
+    "rejected": "已拒绝",
+    "archived": "已归档"
+  },
+  "featuredOptions": {
+    "featured": "推荐",
+    "normal": "普通"
+  },
+  "list": {
+    "title": "案例视频审核",
+    "crumbs": {
+      "admin": "后台",
+      "videos": "案例视频"
+    },
+    "buttons": {
+      "add": "新增案例视频",
+      "edit": "审核 / 编辑"
+    },
+    "tabs": {
+      "all": "全部",
+      "pending": "待审核",
+      "published": "已发布",
+      "rejected": "已拒绝"
+    }
+  },
+  "add": {
+    "title": "新增案例视频",
+    "crumbs": {
+      "admin": "后台",
+      "videos": "案例视频",
+      "add": "新增"
+    },
+    "buttons": {
+      "submit": "创建案例视频",
+      "chooseVideo": "从资源库选择视频"
+    },
+    "messages": {
+      "success": "案例视频已创建"
+    }
+  },
+  "edit": {
+    "title": "审核案例视频",
+    "crumbs": {
+      "admin": "后台",
+      "videos": "案例视频",
+      "edit": "编辑"
+    },
+    "buttons": {
+      "submit": "保存审核结果",
+      "chooseVideo": "从资源库选择视频"
+    },
+    "messages": {
+      "notFound": "案例视频不存在",
+      "success": "案例视频已更新"
+    }
+  }
+}

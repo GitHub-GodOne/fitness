@@ -21,6 +21,19 @@ export async function addMediaAsset(data: NewMediaAsset) {
   const [result] = await db()
     .insert(mediaAsset)
     .values(normalizedData)
+    .onConflictDoUpdate({
+      target: mediaAsset.key,
+      set: {
+        userId: normalizedData.userId,
+        provider: normalizedData.provider,
+        mediaType: normalizedData.mediaType,
+        name: normalizedData.name,
+        url: normalizedData.url,
+        contentType: normalizedData.contentType,
+        size: normalizedData.size,
+        updatedAt: new Date(),
+      },
+    })
     .returning();
   if (!result) {
     return result;
@@ -89,6 +102,22 @@ export async function deleteMediaAssetById(id: string) {
   const [result] = await db()
     .delete(mediaAsset)
     .where(eq(mediaAsset.id, id))
+    .returning();
+
+  if (!result) {
+    return null;
+  }
+
+  return {
+    ...result,
+    url: replaceR2Url(result.url),
+  };
+}
+
+export async function deleteMediaAssetByKey(key: string) {
+  const [result] = await db()
+    .delete(mediaAsset)
+    .where(eq(mediaAsset.key, key))
     .returning();
 
   if (!result) {

@@ -1,7 +1,11 @@
 import type {
   StorageConfigs,
   StorageDeleteOptions,
+  StorageDirectoryEntry,
   StorageDownloadUploadOptions,
+  StorageFileEntry,
+  StorageListOptions,
+  StorageListResult,
   StorageProvider,
   StorageUploadOptions,
   StorageUploadResult,
@@ -62,6 +66,35 @@ export class R2Provider implements StorageProvider {
     const uploadBucket = bucket || this.configs.bucket;
     const uploadPath = this.getUploadPath();
     return `${this.getEndpoint()}/${uploadBucket}/${uploadPath}/${key}`;
+  }
+
+  private escapeXml(value: string) {
+    return value
+      .replace(/&amp;/g, '&')
+      .replace(/&lt;/g, '<')
+      .replace(/&gt;/g, '>')
+      .replace(/&quot;/g, '"')
+      .replace(/&#39;/g, "'");
+  }
+
+  private getRelativePrefix(prefix: string) {
+    const uploadPath = this.getUploadPath();
+    const normalizedUploadPath = uploadPath ? `${uploadPath}/` : '';
+
+    if (normalizedUploadPath && prefix.startsWith(normalizedUploadPath)) {
+      return prefix.slice(normalizedUploadPath.length);
+    }
+
+    return prefix;
+  }
+
+  private normalizeListPrefix(prefix?: string) {
+    const trimmed = (prefix || '').trim().replace(/^\/+/, '');
+    if (!trimmed) {
+      return '';
+    }
+
+    return trimmed.endsWith('/') ? trimmed : `${trimmed}/`;
   }
 
   private buildObjectUrlFromPublicUrl({
@@ -316,6 +349,130 @@ export class R2Provider implements StorageProvider {
         success: false,
         error: error instanceof Error ? error.message : 'Unknown error',
         provider: this.name,
+      };
+    }
+  }
+
+  async listFiles(options: StorageListOptions): Promise<StorageListResult> {
+    try {
+      const uploadBucket = options.bucket || this.configs.bucket;
+      if (!uploadBucket) {
+        return {
+          success: false,
+          error: 'Bucket is required',
+          provider: this.name,
+          prefix: options.prefix || '',
+          directories: [],
+          files: [],
+        };
+      }
+
+      const { AwsClient } = await import('aws4fetch');
+      const client = new AwsClient({
+        accessKeyId: this.configs.accessKeyId,
+        secretAccessKey: this.configs.secretAccessKey,
+        region: this.configs.region || 'auto',
+      });
+
+      const currentPrefix = this.normalizeListPrefix(options.prefix);
+      const uploadPath = this.getUploadPath();
+      const fullPrefix = currentPrefix ? `${uploadPath}/${currentPrefix}` : `${uploadPath}/`;
+      const maxKeys = String(options.limit || 200);
+
+      const url = new URL(`${this.getEndpoint()}/${uploadBucket}`);
+      url.searchParams.set('list-type', '2');
+      url.searchParams.set('delimiter', '/');
+      url.searchParams.set('prefix', fullPrefix);
+      url.searchParams.set('max-keys', maxKeys);
+
+      const response = await client.fetch(
+        new Request(url.toString(), {
+          method: 'GET',
+        })
+      );
+
+      if (!response.ok) {
+        const errorText = await response.text().catch(() => 'Unable to read error response');
+        return {
+          success: false,
+          error: `List failed: ${response.statusText} (${response.status}) - ${errorText}`,
+          provider: this.name,
+          prefix: currentPrefix,
+          directories: [],
+          files: [],
+        };
+      }
+
+      const xml = await response.text();
+      const directories: StorageDirectoryEntry[] = [];
+      const files: StorageFileEntry[] = [];
+
+      const commonPrefixMatches = xml.matchAll(/<CommonPrefixes>\s*<Prefix>([\s\S]*?)<\/Prefix>\s*<\/CommonPrefixes>/g);
+      for (const match of commonPrefixMatches) {
+        const fullDirPrefix = this.escapeXml(match[1] || '');
+        const relativePrefix = this.getRelativePrefix(fullDirPrefix).replace(/\/$/, '');
+        const name = relativePrefix.split('/').filter(Boolean).pop();
+        if (!name) {
+          continue;
+        }
+
+        directories.push({
+          name,
+          prefix: relativePrefix,
+        });
+      }
+
+      const contentMatches = xml.matchAll(/<Contents>([\s\S]*?)<\/Contents>/g);
+      for (const match of contentMatches) {
+        const block = match[1] || '';
+        const keyMatch = block.match(/<Key>([\s\S]*?)<\/Key>/);
+        if (!keyMatch) {
+          continue;
+        }
+
+        const fullKey = this.escapeXml(keyMatch[1]);
+        if (fullKey === fullPrefix || fullKey.endsWith('/')) {
+          continue;
+        }
+
+        const relativeKey = this.getRelativePrefix(fullKey);
+        if (!relativeKey) {
+          continue;
+        }
+
+        const name = relativeKey.split('/').pop() || relativeKey;
+        if (name === '.keep') {
+          continue;
+        }
+        const size = Number((block.match(/<Size>([\s\S]*?)<\/Size>/)?.[1] || '0').trim());
+        const lastModified = this.escapeXml(
+          block.match(/<LastModified>([\s\S]*?)<\/LastModified>/)?.[1] || ''
+        );
+
+        files.push({
+          key: relativeKey,
+          name,
+          url: this.getPublicUrl({ key: relativeKey, bucket: uploadBucket }),
+          size: Number.isFinite(size) ? size : 0,
+          lastModified: lastModified || undefined,
+        });
+      }
+
+      return {
+        success: true,
+        provider: this.name,
+        prefix: currentPrefix.replace(/\/$/, ''),
+        directories,
+        files,
+      };
+    } catch (error) {
+      return {
+        success: false,
+        error: error instanceof Error ? error.message : 'Unknown error',
+        provider: this.name,
+        prefix: options.prefix || '',
+        directories: [],
+        files: [],
       };
     }
   }
