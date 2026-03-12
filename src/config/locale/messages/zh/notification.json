@@ -13,7 +13,13 @@
   "types": {
     "comment_reply": "评论回复",
     "video_complete": "视频完成",
-    "image_complete": "图片完成"
+    "image_complete": "图片完成",
+    "system": "系统通知",
+    "announcement": "公告"
+  },
+  "detail": {
+    "title": "通知详情",
+    "go_to_link": "查看详情"
   },
   "messages": {
     "comment_reply_title": "收到新的评论回复",

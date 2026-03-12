@@ -1,5 +1,6 @@
 import type {
   StorageConfigs,
+  StorageDeleteOptions,
   StorageDownloadUploadOptions,
   StorageProvider,
   StorageUploadOptions,
@@ -38,6 +39,30 @@ export class S3Provider implements StorageProvider {
       ? `${this.configs.publicDomain}/${options.key}`
       : url;
   };
+
+  private buildObjectUrl({
+    key,
+    bucket,
+  }: {
+    key: string;
+    bucket?: string;
+  }) {
+    const uploadBucket = bucket || this.configs.bucket;
+    return `${this.configs.endpoint}/${uploadBucket}/${key}`;
+  }
+
+  private buildObjectUrlFromPublicUrl({
+    url,
+    bucket,
+  }: {
+    url: string;
+    bucket?: string;
+  }) {
+    const uploadBucket = bucket || this.configs.bucket;
+    const parsed = new URL(url);
+    const path = parsed.pathname.replace(/^\/+/, '');
+    return `${this.configs.endpoint}/${uploadBucket}/${path}`;
+  }
 
   exists = async (options: { key: string; bucket?: string }) => {
     try {
@@ -124,6 +149,94 @@ export class S3Provider implements StorageProvider {
         key: options.key,
         filename: options.key.split('/').pop(),
         url: publicUrl,
+        provider: this.name,
+      };
+    } catch (error) {
+      return {
+        success: false,
+        error: error instanceof Error ? error.message : 'Unknown error',
+        provider: this.name,
+      };
+    }
+  }
+
+  async deleteFile(options: StorageDeleteOptions): Promise<{
+    success: boolean;
+    error?: string;
+    provider: string;
+  }> {
+    try {
+      const uploadBucket = options.bucket || this.configs.bucket;
+      if (!uploadBucket) {
+        return {
+          success: false,
+          error: 'Bucket is required',
+          provider: this.name,
+        };
+      }
+
+      const { AwsClient } = await import('aws4fetch');
+      const client = new AwsClient({
+        accessKeyId: this.configs.accessKeyId,
+        secretAccessKey: this.configs.secretAccessKey,
+        region: this.configs.region,
+      });
+
+      const candidateUrls = [
+        options.url
+          ? this.buildObjectUrlFromPublicUrl({
+              url: options.url,
+              bucket: uploadBucket,
+            })
+          : null,
+        this.buildObjectUrl({
+          key: options.key,
+          bucket: uploadBucket,
+        }),
+      ].filter(Boolean) as string[];
+
+      let deleted = false;
+      let lastError = '';
+
+      for (const candidateUrl of candidateUrls) {
+        const deleteResponse = await client.fetch(
+          new Request(candidateUrl, {
+            method: 'DELETE',
+          })
+        );
+
+        if (!deleteResponse.ok) {
+          const errorText = await deleteResponse
+            .text()
+            .catch(() => 'Unable to read error response');
+          lastError = `Delete failed: ${deleteResponse.statusText} (${deleteResponse.status}) - ${errorText}`;
+          continue;
+        }
+
+        const verifyResponse = await client.fetch(
+          new Request(candidateUrl, {
+            method: 'HEAD',
+          })
+        );
+
+        if (!verifyResponse.ok) {
+          deleted = true;
+          break;
+        }
+
+        lastError = `Object still exists after delete verification for ${candidateUrl}`;
+      }
+
+      if (!deleted) {
+        return {
+          success: false,
+          error: lastError || 'Delete verification failed',
+          provider: this.name,
+        };
+      }
+
+      return {
+        success: true,
         provider: this.name,
       };
     } catch (error) {

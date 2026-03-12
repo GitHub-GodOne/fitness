@@ -83,3 +83,4 @@ export * from './sp';
 export * from './gw-api';
 export * from './fitness-video-provider';
 export * from './video-library-provider';
+export * from './comfly-api';

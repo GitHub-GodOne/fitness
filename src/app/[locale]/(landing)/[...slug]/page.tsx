@@ -7,6 +7,13 @@ import { getLocalPage } from '@/shared/models/post';
 
 export const revalidate = 3600;
 
+// Common bot/scanner path prefixes to reject early
+const BLOCKED_PREFIXES = [
+  'wp-', 'wordpress', '.env', 'admin', 'login', 'assets',
+  'cgi-bin', 'vendor', 'node_modules', '.git', 'xmlrpc',
+  'phpmyadmin', 'config', '.well-known', 'actuator',
+];
+
 // dynamic page metadata
 export async function generateMetadata({
   params,
@@ -29,6 +36,12 @@ export async function generateMetadata({
 
   // filter invalid slug
   if (staticPageSlug.includes('.')) {
+    return;
+  }
+
+  // block bot/scanner paths early
+  const firstSegment = staticPageSlug.split('/')[0].toLowerCase();
+  if (BLOCKED_PREFIXES.some((p) => firstSegment.startsWith(p))) {
     return;
   }
 
@@ -63,20 +76,25 @@ export async function generateMetadata({
     typeof slug === 'string' ? slug : (slug as string[]).join('.') || '';
 
   const messageKey = `pages.${dynamicPageSlug}`;
-  const t = await getTranslations({ locale, namespace: messageKey });
 
-  // return dynamic page metadata
-  if (t.has('metadata')) {
-    title = t.raw('metadata.title');
-    description = t.raw('metadata.description');
+  try {
+    const t = await getTranslations({ locale, namespace: messageKey });
 
-    return {
-      title,
-      description,
-      alternates: {
-        canonical: canonicalUrl,
-      },
-    };
+    // return dynamic page metadata
+    if (t.has('metadata')) {
+      title = t.raw('metadata.title');
+      description = t.raw('metadata.description');
+
+      return {
+        title,
+        description,
+        alternates: {
+          canonical: canonicalUrl,
+        },
+      };
+    }
+  } catch {
+    // ignore error if translation not found
   }
 
   // 3. return common metadata
@@ -111,6 +129,12 @@ export default async function DynamicPage({
 
   // filter invalid slug
   if (staticPageSlug.includes('.')) {
+    return notFound();
+  }
+
+  // block bot/scanner paths early
+  const firstSegment = staticPageSlug.split('/')[0].toLowerCase();
+  if (BLOCKED_PREFIXES.some((p) => firstSegment.startsWith(p))) {
     return notFound();
   }
 

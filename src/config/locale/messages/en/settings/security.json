@@ -1,34 +1,38 @@
 {
   "fields": {
     "email": "Email",
-    "password": "Current Password",
+    "current_password": "Current Password",
     "new_password": "New Password",
     "confirm_password": "Confirm Password"
   },
-  "set_password": {
-    "title": "Set Password",
-    "description": "Set a password for your account so you can also sign in with email and password.",
-    "buttons": {
-      "submit": "Set Password"
-    }
-  },
   "change_password": {
     "title": "Change Password",
-    "description": "Update your account password.",
-    "buttons": {
-      "submit": "Change Password"
-    }
-  },
-  "reset_password": {
-    "title": "Reset Password",
-    "description": "Reset your password",
-    "tip": "We will send you an email to reset your password.",
-    "crumbs": {
-      "settings": "Settings",
-      "security": "Security"
-    },
+    "description": "Change your login password",
     "buttons": {
       "submit": "Save"
+    },
+    "success": "Password changed successfully",
+    "error": {
+      "password_mismatch": "Passwords do not match",
+      "password_too_short": "Password must be at least 8 characters",
+      "current_password_required": "Current password is required",
+      "new_password_required": "New password is required"
+    }
+  },
+  "set_password": {
+    "title": "Set Password",
+    "description": "You signed in with a social account. Set a password to also sign in with email.",
+    "force_title": "Set Your Password",
+    "force_description": "First time signing in with a social account. Please set a password to unify your login methods.",
+    "buttons": {
+      "submit": "Set Password",
+      "skip": "Set Later"
+    },
+    "success": "Password set successfully",
+    "error": {
+      "password_mismatch": "Passwords do not match",
+      "password_too_short": "Password must be at least 8 characters",
+      "new_password_required": "New password is required"
     }
   },
   "delete_account": {
@@ -42,12 +46,5 @@
     "buttons": {
       "submit": "Delete"
     }
-  },
-  "messages": {
-    "password_set_success": "Password set successfully!",
-    "password_change_success": "Password changed successfully!",
-    "passwords_not_match": "Passwords do not match",
-    "password_min_length": "Password must be at least 8 characters",
-    "error": "Something went wrong. Please try again."
   }
 }

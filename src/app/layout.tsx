@@ -3,18 +3,23 @@ import "@/config/style/global.css";
 import { JetBrains_Mono, Merriweather, Noto_Sans_Mono } from "next/font/google";
 import { getLocale, setRequestLocale } from "next-intl/server";
 import NextTopLoader from "nextjs-toploader";
-import { cookies } from "next/headers";
 
 import { envConfigs } from "@/config";
 import { locales } from "@/config/locale";
-import { ChunkErrorHandler } from "@/shared/components/chunk-error-handler";
+import {
+  APPEARANCE_STORAGE_KEY,
+  defaultTheme as defaultThemeColor,
+  getThemeCssVariables,
+  THEME_COLOR_STORAGE_KEY,
+  themes,
+} from "@/config/theme/themes";
 import { UtmCapture } from "@/shared/blocks/common/utm-capture";
+import { ChunkErrorHandler } from "@/shared/components/chunk-error-handler";
 import { getAllConfigs } from "@/shared/models/config";
 import { getAdsService } from "@/shared/services/ads";
 import { getAffiliateService } from "@/shared/services/affiliate";
 import { getAnalyticsService } from "@/shared/services/analytics";
 import { getCustomerService } from "@/shared/services/customer_service";
-import { themes, defaultTheme } from "@/config/theme/themes";
 
 const notoSansMono = Noto_Sans_Mono({
   subsets: ["latin"],
@@ -52,18 +57,6 @@ export default async function RootLayout({
   // app url
   const appUrl = envConfigs.app_url || "";
 
-  // Get theme from cookie
-  const cookieStore = await cookies();
-  const themeCookie = cookieStore.get('app-theme-color');
-  const savedTheme = themeCookie?.value;
-  const currentTheme = savedTheme && themes.find(t => t.name === savedTheme)
-    ? savedTheme
-    : defaultTheme;
-
-  // Get theme colors (use light mode for SSR, client will adjust)
-  const themeConfig = themes.find(t => t.name === currentTheme);
-  const themeColors = themeConfig?.colors.light || themes.find(t => t.name === defaultTheme)!.colors.light;
-
   // ads components
   let adsMetaTags = null;
   let adsHeadScripts = null;
@@ -83,6 +76,57 @@ export default async function RootLayout({
   let customerServiceMetaTags = null;
   let customerServiceHeadScripts = null;
   let customerServiceBodyScripts = null;
+
+  const defaultLightThemeVars = getThemeCssVariables(defaultThemeColor, false);
+  const themeVarKeys = Object.keys(defaultLightThemeVars);
+  const themeColorBootstrap = `
+    (() => {
+      try {
+        const themeStorageKey = ${JSON.stringify(THEME_COLOR_STORAGE_KEY)};
+        const appearanceStorageKey = ${JSON.stringify(APPEARANCE_STORAGE_KEY)};
+        const defaultTheme = ${JSON.stringify(defaultThemeColor)};
+        const themes = ${JSON.stringify(themes)};
+        const root = document.documentElement;
+        const savedTheme = localStorage.getItem(themeStorageKey) || defaultTheme;
+        const appearance = localStorage.getItem(appearanceStorageKey);
+        const isDark =
+          appearance === 'dark' ||
+          (appearance !== 'light' && window.matchMedia('(prefers-color-scheme: dark)').matches);
+        const selectedTheme =
+          themes.find((theme) => theme.name === savedTheme) ||
+          themes.find((theme) => theme.name === defaultTheme) ||
+          themes[0];
+        if (!selectedTheme) return;
+        const colors = isDark ? selectedTheme.colors.dark : selectedTheme.colors.light;
+        const vars = {
+          '--primary': colors.primary,
+          '--secondary': colors.secondary,
+          '--accent': colors.accent,
+          '--background': colors.background,
+          '--foreground': colors.foreground,
+          '--muted': colors.muted,
+          '--border': colors.border,
+          '--input': colors.border,
+          '--ring': colors.primary,
+          '--primary-foreground': colors.background,
+          '--secondary-foreground': colors.background,
+          '--accent-foreground': colors.foreground,
+          '--muted-foreground': colors.foreground,
+          '--card': colors.background,
+          '--card-foreground': colors.foreground,
+          '--popover': colors.background,
+          '--popover-foreground': colors.foreground,
+          '--chart-1': colors.primary,
+          '--chart-2': colors.secondary,
+          '--chart-3': colors.accent,
+        };
+        Object.entries(vars).forEach(([key, value]) => {
+          root.style.setProperty(key, value);
+        });
+        root.dataset.themeColor = selectedTheme.name;
+      } catch (error) {}
+    })();
+  `;
 
   if (isProduction || isDebug) {
     const configs = await getAllConfigs();
@@ -120,34 +164,17 @@ export default async function RootLayout({
     <html
       lang={locale}
       className={`${notoSansMono.variable} ${merriweather.variable} ${jetbrainsMono.variable}`}
+      data-theme-color={defaultThemeColor}
       suppressHydrationWarning
-      style={{
-        '--primary': themeColors.primary,
-        '--secondary': themeColors.secondary,
-        '--accent': themeColors.accent,
-        '--background': themeColors.background,
-        '--foreground': themeColors.foreground,
-        '--muted': themeColors.muted,
-        '--border': themeColors.border,
-        '--input': themeColors.border,
-        '--ring': themeColors.primary,
-        '--primary-foreground': themeColors.background,
-        '--secondary-foreground': themeColors.background,
-        '--accent-foreground': themeColors.foreground,
-        '--muted-foreground': themeColors.foreground,
-        '--card': themeColors.background,
-        '--card-foreground': themeColors.foreground,
-        '--popover': themeColors.background,
-        '--popover-foreground': themeColors.foreground,
-        '--chart-1': themeColors.primary,
-        '--chart-2': themeColors.secondary,
-        '--chart-3': themeColors.accent,
-      } as React.CSSProperties}
     >
       <head>
         <link rel="icon" href={envConfigs.app_favicon} />
         <link rel="alternate icon" href="/favicon.ico" />
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <style>{`:root{${themeVarKeys
+          .map((key) => `${key}:${defaultLightThemeVars[key as keyof typeof defaultLightThemeVars]};`)
+          .join('')}}`}</style>
+        <script dangerouslySetInnerHTML={{ __html: themeColorBootstrap }} />
 
         {/* inject locales */}
         {locales ? (
@@ -185,7 +212,11 @@ export default async function RootLayout({
       </head>
       <body suppressHydrationWarning className="overflow-x-hidden">
         <NextTopLoader
+<<<<<<< HEAD
           color="#f97316"
+=======
+          color="#6466F1"
+>>>>>>> fear_not/lumen5
           initialPosition={0.08}
           crawlSpeed={200}
           height={3}
@@ -194,6 +225,10 @@ export default async function RootLayout({
           easing="ease"
           speed={200}
         />
+<<<<<<< HEAD
+=======
+
+>>>>>>> fear_not/lumen5
         <ChunkErrorHandler />
         <UtmCapture />
 

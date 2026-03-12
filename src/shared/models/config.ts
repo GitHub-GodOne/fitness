@@ -37,14 +37,22 @@ export async function saveConfigs(configs: Record<string, string>) {
     return results;
   });
 
+<<<<<<< HEAD
   revalidateTag(CACHE_TAG_CONFIGS, 'default');
+=======
+  revalidateTag(CACHE_TAG_CONFIGS, 'max');
+>>>>>>> fear_not/lumen5
 
   return result;
 }
 
 export async function addConfig(newConfig: NewConfig) {
   const [result] = await db().insert(config).values(newConfig).returning();
+<<<<<<< HEAD
   revalidateTag(CACHE_TAG_CONFIGS, 'default');
+=======
+  revalidateTag(CACHE_TAG_CONFIGS, 'max');
+>>>>>>> fear_not/lumen5
 
   return result;
 }

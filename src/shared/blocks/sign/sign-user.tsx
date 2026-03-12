@@ -33,7 +33,6 @@ import { NavItem, UserNav } from "@/shared/types/blocks/common";
 
 import { SmartIcon } from "../common/smart-icon";
 import { SignModal } from "./sign-modal";
-import { ThemeSwitcherInline } from "@/shared/components/theme-switcher-inline";
 
 export function SignUser({
   isScrolled,
@@ -66,11 +65,9 @@ export function SignUser({
               variant="ghost"
               className="relative h-10 w-10 rounded-full p-0"
             >
-              <Avatar className="border-2 border-border">
+              <Avatar>
                 <AvatarImage src={user.image || ""} alt={user.name || ""} />
-                <AvatarFallback className="text-foreground">
-                  {user.name.charAt(0)}
-                </AvatarFallback>
+                <AvatarFallback>{user.name.charAt(0)}</AvatarFallback>
               </Avatar>
             </Button>
           </DropdownMenuTrigger>
@@ -140,9 +137,6 @@ export function SignUser({
               </>
             )}
 
-            <ThemeSwitcherInline />
-            <DropdownMenuSeparator />
-
             {userNav?.show_sign_out && (
               <DropdownMenuItem
                 className="w-full cursor-pointer"
@@ -163,21 +157,16 @@ export function SignUser({
           </DropdownMenuContent>
         </DropdownMenu>
       ) : (
-        <div className="flex w-full flex-col space-y-3 sm:flex-row sm:gap-3 sm:space-y-0 md:w-fit">
-          <Button
-            asChild
-            size={signButtonSize}
-            className={cn(
-              "border-foreground/10 cursor-pointer ring-0",
-              isScrolled && "lg:hidden",
-            )}
-            onClick={() => setIsShowSignModal(true)}
-          >
-            <span>{t("sign_in_title")}</span>
-          </Button>
-          <SignModal />
-        </div>
+        <Button
+          asChild
+          size="sm"
+          className="rounded-full h-8 px-4 text-xs bg-primary text-primary-foreground hover:bg-primary/90 shadow-sm cursor-pointer"
+          onClick={() => setIsShowSignModal(true)}
+        >
+          <span>{t("sign_in_title")}</span>
+        </Button>
       )}
+      <SignModal />
     </>
   );
 }

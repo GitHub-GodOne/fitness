@@ -11,7 +11,9 @@ import {
   DropdownMenuTrigger,
 } from "@/shared/components/ui/dropdown-menu";
 import { NotificationList } from "./notification-list";
+import { NotificationDetailDialog } from "./notification-detail-dialog";
 import { useAppContext } from "@/shared/contexts/app";
+import type { Notification } from "@/shared/models/notification";
 
 interface NotificationBellProps {
   className?: string;
@@ -23,6 +25,8 @@ export function NotificationBell({ className }: NotificationBellProps) {
   const [unreadCount, setUnreadCount] = useState(0);
   const [isOpen, setIsOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+  const [selectedNotification, setSelectedNotification] =
+    useState<Notification | null>(null);
 
   const fetchUnreadCount = useCallback(async () => {
     // Skip API call if user is not logged in
@@ -70,44 +74,55 @@ export function NotificationBell({ className }: NotificationBellProps) {
   };
 
   return (
-    <DropdownMenu open={isOpen} onOpenChange={setIsOpen}>
-      <DropdownMenuTrigger asChild>
-        <Button
-          variant="ghost"
-          size="icon"
-          className={`relative text-foreground hover:text-primary ${className}`}
-          aria-label={t("bell_aria_label")}
-        >
-          <Bell className="h-5 w-5" />
-          {unreadCount > 0 && (
-            <span className="absolute -top-1 -right-1 flex h-5 w-5 items-center justify-center rounded-full bg-red-500 text-[10px] font-bold text-white animate-pulse">
-              {unreadCount > 99 ? "99+" : unreadCount}
-            </span>
-          )}
-        </Button>
-      </DropdownMenuTrigger>
-      <DropdownMenuContent className="w-80 p-0 sm:w-96" align="end">
-        <div className="flex items-center justify-between border-b px-4 py-3">
-          <h3 className="font-semibold">{t("title")}</h3>
-          {unreadCount > 0 && (
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={handleMarkAllAsRead}
-              disabled={isLoading}
-              className="h-8 text-xs"
-            >
-              {t("mark_all_read")}
-            </Button>
-          )}
-        </div>
-        <NotificationList
-          onNotificationRead={() => {
-            fetchUnreadCount();
-          }}
-          onClose={() => setIsOpen(false)}
-        />
-      </DropdownMenuContent>
-    </DropdownMenu>
+    <>
+      <DropdownMenu open={isOpen} onOpenChange={setIsOpen}>
+        <DropdownMenuTrigger asChild>
+          <button
+            className={`relative inline-flex items-center justify-center rounded-md p-2 text-muted-foreground hover:text-foreground transition-colors ${className}`}
+            aria-label={t("bell_aria_label")}
+          >
+            <Bell className="h-5 w-5" />
+            {unreadCount > 0 && (
+              <span className="absolute -top-1 -right-1 flex h-5 w-5 items-center justify-center rounded-full bg-red-500 text-[10px] font-bold text-white animate-pulse">
+                {unreadCount > 99 ? "99+" : unreadCount}
+              </span>
+            )}
+          </button>
+        </DropdownMenuTrigger>
+        <DropdownMenuContent className="w-80 p-0 sm:w-96" align="end">
+          <div className="flex items-center justify-between border-b px-4 py-3">
+            <h3 className="font-semibold">{t("title")}</h3>
+            {unreadCount > 0 && (
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={handleMarkAllAsRead}
+                disabled={isLoading}
+                className="h-8 text-xs"
+              >
+                {t("mark_all_read")}
+              </Button>
+            )}
+          </div>
+          <NotificationList
+            onNotificationRead={() => {
+              fetchUnreadCount();
+            }}
+            onViewDetail={(n) => {
+              setIsOpen(false);
+              setSelectedNotification(n);
+            }}
+            onClose={() => setIsOpen(false)}
+          />
+        </DropdownMenuContent>
+      </DropdownMenu>
+      <NotificationDetailDialog
+        notification={selectedNotification}
+        open={!!selectedNotification}
+        onOpenChange={(open) => {
+          if (!open) setSelectedNotification(null);
+        }}
+      />
+    </>
   );
 }

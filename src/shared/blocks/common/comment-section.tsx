@@ -113,8 +113,7 @@ export function CommentSection({ className, pageId }: CommentSectionProps) {
           <MessageSquare className="h-5 w-5 sm:h-6 sm:w-6 font-normal text-muted-foreground" />
 
           <span className="text-sm sm:text-base font-normal text-muted-foreground">
-            {t("section.title")}(
-            {comments.length > 0 ? `${comments.length}+` : "0"})
+            ({comments.length > 0 ? `${comments.length}+` : "0"})
           </span>
         </h2>
 

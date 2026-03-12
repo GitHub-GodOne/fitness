@@ -21,6 +21,12 @@ export interface StorageDownloadUploadOptions {
   disposition?: 'inline' | 'attachment';
 }
 
+export interface StorageDeleteOptions {
+  key: string;
+  bucket?: string;
+  url?: string;
+}
+
 /**
  * Storage upload result interface
  */
@@ -61,6 +67,13 @@ export interface StorageProvider {
 
   // upload file
   uploadFile(options: StorageUploadOptions): Promise<StorageUploadResult>;
+
+  // delete file
+  deleteFile?: (options: StorageDeleteOptions) => Promise<{
+    success: boolean;
+    error?: string;
+    provider: string;
+  }>;
 
   // download and upload
   downloadAndUpload(
@@ -126,6 +139,47 @@ export class StorageManager {
     options: StorageDownloadUploadOptions
   ): Promise<StorageUploadResult> {
     return this.ensureDefaultProvider().downloadAndUpload(options);
+  }
+
+  async deleteFile(options: StorageDeleteOptions): Promise<{
+    success: boolean;
+    error?: string;
+    provider: string;
+  }> {
+    const provider = this.ensureDefaultProvider();
+    if (!provider.deleteFile) {
+      return {
+        success: false,
+        error: `Storage provider '${provider.name}' does not support delete`,
+        provider: provider.name,
+      };
+    }
+
+    return provider.deleteFile(options);
+  }
+
+  async deleteFileWithProvider(
+    options: StorageDeleteOptions,
+    providerName: string
+  ): Promise<{
+    success: boolean;
+    error?: string;
+    provider: string;
+  }> {
+    const provider = this.getProvider(providerName);
+    if (!provider) {
+      throw new Error(`Storage provider '${providerName}' not found`);
+    }
+
+    if (!provider.deleteFile) {
+      return {
+        success: false,
+        error: `Storage provider '${provider.name}' does not support delete`,
+        provider: provider.name,
+      };
+    }
+
+    return provider.deleteFile(options);
   }
 
   // check if object exists using default provider (if supported)

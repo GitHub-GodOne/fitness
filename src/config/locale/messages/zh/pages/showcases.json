@@ -1,148 +1,45 @@
 {
   "metadata": {
-    "title": "案例展示",
-    "description": "用 ShipAny 打造的精彩项目"
+    "title": "圣经视频展示",
+    "description": "观看AI生成的圣经经文视频"
   },
   "page": {
-    "title": "案例展示",
+    "title": "圣经视频展示",
+    "description": "观看AI生成的圣经经文视频",
     "sections": {
       "showcases": {
         "id": "showcases",
-        "title": "用 ShipAny 构建的 AI SaaS 创业项目",
-        "description": "简单、快速、高效。",
-        "groups": [
-          {
-            "name": "all",
-            "title": "所有项目"
-          },
-          {
-            "name": "ai-chatbot",
-            "title": "AI 聊天机器人"
-          },
-          {
-            "name": "ai-image",
-            "title": "AI 图片"
-          },
-          {
-            "name": "ai-video",
-            "title": "AI 视频"
-          },
-          {
-            "name": "ai-audio",
-            "title": "AI 音频"
-          },
-          {
-            "name": "ai-music",
-            "title": "AI 音乐"
-          },
-          {
-            "name": "ai-coding",
-            "title": "AI 编程"
-          },
-          {
-            "name": "other",
-            "title": "其他"
-          }
-        ],
+        "block": "showcases-video",
+        "title": "圣经经文视频集锦",
+        "description": "通过AI生成的视频体验上帝的话语，配有美丽的视觉效果和宁静的氛围。",
         "items": [
           {
-            "title": "ThinkAny",
-            "description": "AI 搜索引擎",
-            "url": "https://thinkany.ai",
-            "target": "_blank",
-            "image": {
-              "src": "/imgs/cases/7.png",
-              "alt": "案例展示"
-            },
-            "group": "ai-chatbot"
+            "title": "诗篇 34:18",
+            "description": "耶和华靠近伤心的人，拯救灵性痛悔的人。",
+            "video": {
+              "src": "https://public.pikju.top/uploads/video/20260211/d54d9d97-f4f2-4709-8618-e4b430b57eed/final_video.mp4"
+            }
           },
           {
-            "title": "HeyBeauty",
-            "description": "AI 虚拟试妆",
-            "url": "https://heybeauty.ai",
-            "target": "_blank",
-            "image": {
-              "src": "/imgs/cases/5.png",
-              "alt": "案例展示"
-            },
-            "group": "ai-image"
+            "title": "耶利米书 29:11",
+            "description": "耶和华说：我知道我向你们所怀的意念，是赐平安的意念，不是降灾祸的意念，要叫你们末后有指望。",
+            "video": {
+              "src": "https://public.pikju.top/uploads/video/20260212/2a53d465-3a2b-41aa-8e86-b4c1c7bc4201/final_video.mp4"
+            }
           },
           {
-            "title": "AI Wallpaper",
-            "description": "AI 壁纸生成器",
-            "url": "https://aiwallpaper.shop",
-            "target": "_blank",
-            "image": {
-              "src": "/imgs/cases/1.png",
-              "alt": "案例展示"
-            },
-            "group": "ai-image"
+            "title": "以赛亚书 41:10",
+            "description": "你不要害怕，因为我与你同在；不要惊惶，因为我是你的神。",
+            "video": {
+              "src": "https://public.pikju.top/uploads/video/20260212/cf45be41-786a-469f-b0ea-1749f87c1e84/final_video.mp4"
+            }
           },
           {
-            "title": "AI Cover",
-            "description": "AI 封面生成器",
-            "url": "https://aicover.design",
-            "target": "_blank",
-            "image": {
-              "src": "/imgs/cases/2.png",
-              "alt": "案例展示"
-            },
-            "group": "ai-image"
-          },
-          {
-            "title": "GPTs Works",
-            "description": "GPTs 导航",
-            "url": "https://gpts.works",
-            "target": "_blank",
-            "image": {
-              "src": "/imgs/cases/3.png",
-              "alt": "案例展示"
-            },
-            "group": "other"
-          },
-          {
-            "title": "Melodisco",
-            "description": "AI 音乐播放器",
-            "url": "https://melodis.co",
-            "target": "_blank",
-            "image": {
-              "src": "/imgs/cases/4.png",
-              "alt": "案例展示"
-            },
-            "group": "ai-music"
-          },
-          {
-            "title": "Pagen",
-            "description": "AI 落地页生成器",
-            "url": "https://pagen.so",
-            "target": "_blank",
-            "image": {
-              "src": "/imgs/cases/6.png",
-              "alt": "案例展示"
-            },
-            "group": "ai-coding"
-          },
-          {
-            "title": "SoraFM",
-            "description": "AI 视频生成器",
-            "url": "https://sorafm.trys.ai",
-            "target": "_blank",
-            "image": {
-              "src": "/imgs/cases/8.png",
-              "alt": "案例展示"
-            },
-            "group": "ai-video"
-          },
-          {
-            "title": "PodLM",
-            "description": "AI 播客生成器",
-            "url": "https://podlm.ai",
-            "target": "_blank",
-            "image": {
-              "src": "/imgs/cases/9.png",
-              "alt": "案例展示"
-            },
-            "group": "ai-audio"
+            "title": "诗篇 34:18",
+            "description": "耶和华靠近伤心的人，拯救灵性痛悔的人。",
+            "video": {
+              "src": "https://public.pikju.top/uploads/video/20260212/5413e004-28b8-41f3-9653-ed84dc60480a/final_video.mp4"
+            }
           }
         ]
       }

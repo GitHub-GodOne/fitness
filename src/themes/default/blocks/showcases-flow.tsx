@@ -1,15 +1,15 @@
-'use client';
+"use client";
 
-import { useCallback, useEffect, useMemo, useState } from 'react';
-import { AnimatePresence, motion } from 'framer-motion';
-import { ChevronLeft, ChevronRight, X } from 'lucide-react';
+import { useCallback, useEffect, useMemo, useState } from "react";
+import { AnimatePresence, motion } from "framer-motion";
+import { ChevronLeft, ChevronRight, X } from "lucide-react";
 
-import { Link } from '@/core/i18n/navigation';
-import { LazyImage } from '@/shared/blocks/common';
-import { SmartIcon } from '@/shared/blocks/common/smart-icon';
-import { Button } from '@/shared/components/ui/button';
-import { cn } from '@/shared/lib/utils';
-import { Section } from '@/shared/types/blocks/landing';
+import { Link } from "@/core/i18n/navigation";
+import { LazyImage } from "@/shared/blocks/common";
+import { SmartIcon } from "@/shared/blocks/common/smart-icon";
+import { Button } from "@/shared/components/ui/button";
+import { cn } from "@/shared/lib/utils";
+import { Section } from "@/shared/types/blocks/landing";
 
 export function ShowcasesFlow({
   section,
@@ -20,14 +20,14 @@ export function ShowcasesFlow({
 }) {
   const groups = (section as any).groups || [];
   const [selectedGroup, setSelectedGroup] = useState<string>(
-    groups.length > 0 ? groups[0].name : ''
+    groups.length > 0 ? groups[0].name : "",
   );
   const [selectedIndex, setSelectedIndex] = useState<number | null>(null);
 
   const filteredItems = useMemo(() => {
     if (!section.items) return [];
     if (!selectedGroup || !groups.length) return section.items;
-    if (selectedGroup === 'all') return section.items;
+    if (selectedGroup === "all") return section.items;
     return section.items.filter((item) => item.group === selectedGroup);
   }, [section.items, selectedGroup, groups.length]);
 
@@ -37,7 +37,7 @@ export function ShowcasesFlow({
         ? prev === 0
           ? (filteredItems.length ?? 1) - 1
           : prev - 1
-        : null
+        : null,
     );
   }, [filteredItems.length]);
 
@@ -47,25 +47,25 @@ export function ShowcasesFlow({
         ? prev === (filteredItems.length ?? 1) - 1
           ? 0
           : prev + 1
-        : null
+        : null,
     );
   }, [filteredItems.length]);
 
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
       if (selectedIndex === null) return;
-      if (e.key === 'Escape') setSelectedIndex(null);
-      if (e.key === 'ArrowLeft') handlePrevious();
-      if (e.key === 'ArrowRight') handleNext();
+      if (e.key === "Escape") setSelectedIndex(null);
+      if (e.key === "ArrowLeft") handlePrevious();
+      if (e.key === "ArrowRight") handleNext();
     };
-    window.addEventListener('keydown', handleKeyDown);
-    return () => window.removeEventListener('keydown', handleKeyDown);
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
   }, [selectedIndex, handlePrevious, handleNext]);
 
   return (
     <section
       id={section.id || section.name}
-      className={cn('py-24 md:py-36', section.className, className)}
+      className={cn("py-24 md:py-36", section.className, className)}
     >
       <motion.div
         className="container mb-12 text-center"
@@ -91,12 +91,11 @@ export function ShowcasesFlow({
             {section.buttons.map((button) => (
               <Button
                 key={button.title}
-                variant={button.variant || 'default'}
-                size={button.size || 'sm'}
-                className="text-sm sm:text-base"
+                variant={button.variant || "default"}
+                size={button.size || "sm"}
                 asChild
               >
-                <Link href={button.url || ''} target={button.target || '_self'}>
+                <Link href={button.url || ""} target={button.target || "_self"}>
                   {button.icon && <SmartIcon name={button.icon as string} />}
                   {button.title}
                 </Link>
@@ -126,10 +125,10 @@ export function ShowcasesFlow({
                   key={group.name}
                   onClick={() => setSelectedGroup(group.name)}
                   className={cn(
-                    'relative rounded-lg px-3 py-1.5 text-sm font-medium transition-all',
+                    "relative rounded-lg px-3 py-1.5 text-sm font-medium transition-all",
                     isSelected
-                      ? ''
-                      : 'border-border bg-background text-foreground hover:bg-accent hover:text-accent-foreground border'
+                      ? ""
+                      : "border-border bg-background text-foreground hover:bg-accent hover:text-accent-foreground border",
                   )}
                   initial={{ opacity: 0, scale: 0.9 }}
                   whileInView={{ opacity: 1, scale: 1 }}
@@ -156,21 +155,21 @@ export function ShowcasesFlow({
                   )}
                 </motion.button>
               );
-            }
+            },
           )}
         </motion.div>
       )}
 
       {filteredItems.length > 0 ? (
-        <div className="container mx-auto columns-1 gap-4 space-y-4 sm:columns-2 lg:columns-3 xl:columns-4">
+        <div className="container mx-auto grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
           {filteredItems.map((item, index) => (
             <motion.div
               key={index}
-              className="group relative cursor-zoom-in break-inside-avoid overflow-hidden rounded-xl"
+              className="group relative cursor-zoom-in overflow-hidden rounded-xl"
               onClick={() => setSelectedIndex(index)}
               initial={{ opacity: 0, y: 30, scale: 0.95 }}
               whileInView={{ opacity: 1, y: 0, scale: 1 }}
-              viewport={{ once: true, margin: '-50px' }}
+              viewport={{ once: true, margin: "-50px" }}
               transition={{
                 duration: 0.6,
                 delay: index * 0.1,
@@ -179,8 +178,8 @@ export function ShowcasesFlow({
               whileHover={{ scale: 1.02 }}
             >
               <LazyImage
-                src={item.image?.src ?? ''}
-                alt={item.image?.alt ?? ''}
+                src={item.image?.src ?? ""}
+                alt={item.image?.alt ?? ""}
                 className="h-auto w-full transition-transform duration-300 group-hover:scale-105"
                 sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 25vw"
               />
@@ -200,13 +199,13 @@ export function ShowcasesFlow({
                   >
                     <Button
                       asChild
-                      variant={(item as any).button.variant || 'default'}
-                      size={(item as any).button.size || 'sm'}
+                      variant={(item as any).button.variant || "default"}
+                      size={(item as any).button.size || "sm"}
                       className="bg-primary hover:bg-primary/90 text-primary-foreground h-8 w-full border-0 px-1 py-1.5 text-sm font-medium"
                     >
                       <Link
-                        href={(item as any).button.url || ''}
-                        target={(item as any).button.target || '_self'}
+                        href={(item as any).button.url || ""}
+                        target={(item as any).button.target || "_self"}
                       >
                         {(item as any).button.icon && (
                           <SmartIcon
@@ -283,8 +282,8 @@ export function ShowcasesFlow({
               >
                 <div className="relative max-h-full max-w-full overflow-hidden rounded-lg">
                   <LazyImage
-                    src={filteredItems[selectedIndex].image?.src ?? ''}
-                    alt={filteredItems[selectedIndex].image?.alt ?? ''}
+                    src={filteredItems[selectedIndex].image?.src ?? ""}
+                    alt={filteredItems[selectedIndex].image?.alt ?? ""}
                     className="h-auto max-h-[90vh] w-auto max-w-full object-contain"
                   />
                   <div className="absolute right-0 bottom-0 left-0 bg-gradient-to-t from-black/80 via-black/50 to-transparent p-6 text-white">
@@ -302,22 +301,22 @@ export function ShowcasesFlow({
                           asChild
                           variant={
                             (filteredItems[selectedIndex] as any).button
-                              .variant || 'default'
+                              .variant || "default"
                           }
                           size={
                             (filteredItems[selectedIndex] as any).button.size ||
-                            'default'
+                            "default"
                           }
                           className="bg-primary hover:bg-primary/90 h-8 border-0 px-3 py-1.5 text-sm font-medium text-white"
                         >
                           <Link
                             href={
                               (filteredItems[selectedIndex] as any).button
-                                .url || ''
+                                .url || ""
                             }
                             target={
                               (filteredItems[selectedIndex] as any).button
-                                .target || '_self'
+                                .target || "_self"
                             }
                           >
                             {(filteredItems[selectedIndex] as any).button

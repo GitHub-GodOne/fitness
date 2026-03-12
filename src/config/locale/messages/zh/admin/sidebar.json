@@ -84,29 +84,67 @@
       "title": "业务",
       "items": [
         {
-          "title": "AI任务",
-          "url": "/admin/ai-tasks",
-          "icon": "Brain"
+          "title": "视频内容",
+          "icon": "Video",
+          "children": [
+            {
+              "title": "视频",
+              "url": "/admin/videos",
+              "icon": "Video"
+            },
+            {
+              "title": "案例分类",
+              "url": "/admin/showcase-categories",
+              "icon": "Folder"
+            },
+            {
+              "title": "案例视频",
+              "url": "/admin/showcase-videos",
+              "icon": "Video"
+            }
+          ]
         },
         {
-          "title": "视频",
-          "url": "/admin/videos",
-          "icon": "Video"
+          "title": "AI 工作区",
+          "icon": "Brain",
+          "children": [
+            {
+              "title": "AI任务",
+              "url": "/admin/ai-tasks",
+              "icon": "Brain"
+            },
+            {
+              "title": "AI 对话",
+              "url": "/admin/chats",
+              "icon": "MessageCircle"
+            }
+          ]
         },
         {
-          "title": "AI 对话",
-          "url": "/admin/chats",
-          "icon": "MessageCircle"
+          "title": "社区互动",
+          "icon": "MessageSquare",
+          "children": [
+            {
+              "title": "用户评论",
+              "url": "/admin/comments",
+              "icon": "MessageSquare"
+            },
+            {
+              "title": "Support Chat",
+              "url": "/admin/support-chat",
+              "icon": "Headphones"
+            },
+            {
+              "title": "通知管理",
+              "url": "/admin/notifications",
+              "icon": "Bell"
+            }
+          ]
         },
         {
-          "title": "用户评论",
-          "url": "/admin/comments",
-          "icon": "MessageSquare"
-        },
-        {
-          "title": "视频资源库",
-          "url": "/admin/video-library",
-          "icon": "Library"
+          "title": "资源库",
+          "url": "/admin/media-assets",
+          "icon": "Folder"
         }
       ]
     }

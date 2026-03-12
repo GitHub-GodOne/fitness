@@ -57,6 +57,7 @@ export interface Footer extends Section {
   social?: SocialNav;
   agreement?: AgreementNav;
   show_theme?: boolean;
+  show_theme_switcher?: boolean;
   show_locale?: boolean;
   show_built_with?: boolean;
   className?: string;

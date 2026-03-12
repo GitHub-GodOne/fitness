@@ -257,6 +257,20 @@ export function ImageUploader({
   };
 
   const handleFiles = (selectedFiles: File[]) => {
+    // Check if user is logged in before uploading
+    if (!user) {
+      // Set callback URL to current page for redirect after login
+      const callbackUrl = pathname || "/ai-video-generator";
+      setIsShowSignModal(true);
+      // Store callback URL in sessionStorage for SignModal to use
+      if (typeof window !== "undefined") {
+        sessionStorage.setItem("signInCallbackUrl", callbackUrl);
+      }
+      toast.error("Please sign in to upload images");
+      if (inputRef.current) inputRef.current.value = "";
+      return;
+    }
+
     const replaceTargetId = replaceTargetIdRef.current;
     if (replaceTargetId) {
       // reset immediately to avoid sticky replace mode
@@ -329,7 +343,7 @@ export function ImageUploader({
     const newItems = filesToAdd.map((file) => ({
       id: `${file.name}-${file.lastModified}-${Math.random()}`,
       preview: URL.createObjectURL(file),
-      file: uploadOnSelect ? undefined : file,
+      file,
       size: file.size,
       status: uploadOnSelect
         ? ("uploading" as UploadStatus)
@@ -461,6 +475,18 @@ export function ImageUploader({
   };
 
   const openFilePicker = () => {
+    // Check if user is logged in before opening file picker
+    if (!user) {
+      // Set callback URL to current page for redirect after login
+      const callbackUrl = pathname || "/ai-video-generator";
+      setIsShowSignModal(true);
+      // Store callback URL in sessionStorage for SignModal to use
+      if (typeof window !== "undefined") {
+        sessionStorage.setItem("signInCallbackUrl", callbackUrl);
+      }
+      toast.error("Please sign in to upload images");
+      return;
+    }
     inputRef.current?.click();
   };
 
@@ -524,13 +550,13 @@ export function ImageUploader({
         {items.map((item) => (
           <div
             key={item.id}
-            className="group border-border bg-muted/50 hover:border-border hover:bg-muted relative overflow-hidden rounded-xl border p-1 shadow-sm transition"
+            className="group border-border bg-muted/50 hover:border-border hover:bg-muted relative overflow-hidden rounded-xl border p-1 shadow-sm transition w-full"
           >
             <div className="relative overflow-hidden rounded-lg">
               <img
                 src={item.preview}
                 alt="Reference"
-                className="h-48 w-48 rounded-lg object-cover"
+                className="h-48 w-full rounded-lg object-cover"
               />
               {item.size && (
                 <span className="bg-background text-muted-foreground absolute bottom-2 left-2 rounded-md px-2 py-1 text-xs font-medium">
@@ -575,20 +601,17 @@ export function ImageUploader({
         ))}
 
         {items.length < maxCount && (
-          <div className="group border-border bg-muted/50 hover:border-border hover:bg-muted relative overflow-hidden rounded-xl border border-dashed p-1 shadow-sm transition">
-            <div className="relative overflow-hidden rounded-lg">
+          <div className="group border-border bg-muted/50 hover:border-border hover:bg-muted relative overflow-hidden rounded-xl border border-dashed p-1 shadow-sm transition w-full">
+            <div className="relative overflow-hidden rounded-lg w-full">
               <button
                 type="button"
-                className="flex h-48 w-48 flex-col items-center justify-center gap-3"
+                className="flex h-48 w-full flex-col items-center justify-center gap-3"
                 onClick={openFilePicker}
               >
                 <div className="border-border flex h-14 w-14 items-center justify-center rounded-full border border-dashed">
                   <IconUpload className="h-7 w-7" />
                 </div>
                 <span className="text-sm font-medium">Upload</span>
-                <span className="text-muted-foreground text-xs">
-                  Max {maxSizeMB}MB
-                </span>
               </button>
             </div>
           </div>

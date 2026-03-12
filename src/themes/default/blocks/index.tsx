@@ -5,6 +5,12 @@ export * from "./footer";
 export * from "./hero";
 
 export * from "./features";
+export * from "./hero-comfort";
+export * from "./hero-video";
+export * from "./hero-lumen5";
+
+export * from "./features";
+export * from "./features-alternating";
 export * from "./features-list";
 export * from "./features-accordion";
 export * from "./features-step";

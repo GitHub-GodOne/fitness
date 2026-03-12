@@ -36,12 +36,14 @@ import {
   TabsTrigger,
 } from "@/shared/components/ui/tabs";
 import { useMediaQuery } from "@/shared/hooks/use-media-query";
+import { extractOriginalImageUrlsFromAITask } from "@/shared/lib/ai-task-video";
 
 interface DownloadDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   taskId: string;
   taskResult: string | null;
+  taskInfo?: string | null;
 }
 
 interface TaskResultData {
@@ -189,6 +191,7 @@ export function DownloadDialog({
   onOpenChange,
   taskId,
   taskResult,
+  taskInfo,
 }: DownloadDialogProps) {
   const t = useTranslations("ai.video.generator");
   const isDesktop = useMediaQuery("(min-width: 768px)");
@@ -212,9 +215,16 @@ export function DownloadDialog({
     }
   }, [taskResult]);
 
+  const allOriginalImages = useMemo(() => {
+    return extractOriginalImageUrlsFromAITask({
+      taskInfo,
+      taskResult,
+    });
+  }, [taskInfo, taskResult]);
+
   const hasVideo = Boolean(resultData.video_url);
   const hasImagesWithText = Boolean(resultData.image_urls?.length);
-  const hasOriginalImages = Boolean(resultData.original_image_urls?.length);
+  const hasOriginalImages = Boolean(allOriginalImages.length);
 
   const defaultTab = useMemo<TabType>(() => {
     if (hasVideo) return "video";
@@ -299,14 +309,16 @@ export function DownloadDialog({
   const currentImages =
     currentTab === "images-with-text"
       ? resultData.image_urls || []
-      : resultData.original_image_urls || [];
+      : allOriginalImages;
 
   // Action handlers for header buttons
   const handleSelectAll = useCallback(() => {
     if (currentSelectedImages.size === currentImages.length) {
       setCurrentSelectedImages(new Set());
     } else {
-      setCurrentSelectedImages(new Set(currentImages.map((_, i) => i)));
+      setCurrentSelectedImages(
+        new Set(currentImages.map((_: string, i: number) => i)),
+      );
     }
   }, [
     currentSelectedImages.size,

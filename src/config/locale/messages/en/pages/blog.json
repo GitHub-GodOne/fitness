@@ -1,15 +1,13 @@
 {
   "metadata": {
-    "title": "Blog",
-    "description": "Read latest product features, solutions, and updates."
+    "title": "Blog"
   },
   "page": {
-    "title": "ShipAny Blog",
+    "title": "FearNot Blog",
     "sections": {
       "blog": {
         "id": "blog",
-        "title": "Blog",
-        "description": "Read latest product features, solutions, and updates."
+        "title": "Blog"
       }
     }
   },

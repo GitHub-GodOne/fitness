@@ -29,6 +29,9 @@ export interface ThemeColors {
     };
 }
 
+export const THEME_COLOR_STORAGE_KEY = 'app-theme-color';
+export const APPEARANCE_STORAGE_KEY = 'theme';
+
 export const themes: ThemeColors[] = [
     {
         name: 'divine',
@@ -280,31 +283,46 @@ export const themes: ThemeColors[] = [
             },
         },
     },
-    {
-        name: 'fitness',
-        label: 'Fitness Energy',
-        description: 'Black & Orange - Power, Energy & Performance',
-        colors: {
-            light: {
-                primary: 'oklch(0.65 0.22 35)', // Vibrant Orange
-                secondary: 'oklch(0.55 0.20 25)', // Red-Orange
-                accent: 'oklch(0.75 0.18 40)', // Light Orange
-                background: 'oklch(0.12 0.01 0)', // Deep Black
-                foreground: 'oklch(0.98 0.01 0)', // White Text
-                muted: 'oklch(0.25 0.01 0)', // Dark Gray
-                border: 'oklch(0.30 0.01 0)', // Border Gray
-            },
-            dark: {
-                primary: 'oklch(0.70 0.22 35)', // Vibrant Orange
-                secondary: 'oklch(0.60 0.20 25)', // Red-Orange
-                accent: 'oklch(0.75 0.18 40)', // Light Orange
-                background: 'oklch(0.08 0.01 0)', // Pure Black
-                foreground: 'oklch(0.98 0.01 0)', // White Text
-                muted: 'oklch(0.20 0.01 0)', // Dark Gray
-                border: 'oklch(0.25 0.01 0)', // Border Gray
-            },
-        },
-    },
 ];
 
-export const defaultTheme = 'fitness';
+export const defaultTheme = 'olive-gold';
+
+export function getThemeByName(themeName?: string | null) {
+  if (!themeName) {
+    return themes.find((theme) => theme.name === defaultTheme) || themes[0];
+  }
+
+  return (
+    themes.find((theme) => theme.name === themeName) ||
+    themes.find((theme) => theme.name === defaultTheme) ||
+    themes[0]
+  );
+}
+
+export function getThemeCssVariables(themeName?: string | null, isDark = false) {
+  const theme = getThemeByName(themeName);
+  const colors = isDark ? theme.colors.dark : theme.colors.light;
+
+  return {
+    '--primary': colors.primary,
+    '--secondary': colors.secondary,
+    '--accent': colors.accent,
+    '--background': colors.background,
+    '--foreground': colors.foreground,
+    '--muted': colors.muted,
+    '--border': colors.border,
+    '--input': colors.border,
+    '--ring': colors.primary,
+    '--primary-foreground': colors.background,
+    '--secondary-foreground': colors.background,
+    '--accent-foreground': colors.foreground,
+    '--muted-foreground': colors.foreground,
+    '--card': colors.background,
+    '--card-foreground': colors.foreground,
+    '--popover': colors.background,
+    '--popover-foreground': colors.foreground,
+    '--chart-1': colors.primary,
+    '--chart-2': colors.secondary,
+    '--chart-3': colors.accent,
+  };
+}

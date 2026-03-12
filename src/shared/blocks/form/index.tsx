@@ -3,7 +3,7 @@
 import { isArray } from 'util';
 import { useState } from 'react';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { Loader } from 'lucide-react';
+import { ChevronDown, ChevronUp, Loader } from 'lucide-react';
 import { useForm } from 'react-hook-form';
 import { toast } from 'sonner';
 import { z } from 'zod';
@@ -30,6 +30,7 @@ import {
 import { Checkbox } from './checkbox';
 import { Input } from './input';
 import { Markdown } from './markdown';
+import { PromptTestAction } from './prompt-test-action';
 import { Select } from './select';
 import { Switch } from './switch';
 import { UploadImage } from './upload-image';
@@ -202,6 +203,16 @@ export function Form({
   }
 
   const [loading, setLoading] = useState(false);
+  const [mobileTestingOpen, setMobileTestingOpen] = useState<
+    Record<string, boolean>
+  >({});
+  const [testResults, setTestResults] = useState<
+    Record<string, { title: string; data: any } | null>
+  >({});
+  const isComflySettingsTab = passby?.tab === 'comfly';
+  const formLevelTestActions = Array.isArray(passby?.formTestActions)
+    ? passby.formTestActions
+    : [];
 
   const router = useRouter();
   const FormSchema = generateFormSchema(fields);
@@ -258,6 +269,14 @@ export function Form({
     defaultValues,
   });
 
+  const isTestingOpen = (key: string) => mobileTestingOpen[key] === true;
+  const setTestResult = (key: string, result: { title: string; data: any } | null) => {
+    setTestResults((prev) => ({
+      ...prev,
+      [key]: result,
+    }));
+  };
+
   async function onSubmit(data: z.infer<typeof FormSchema>) {
     // console.log('=== Form Submit Start ===');
     // console.log('[Form Submit] Raw form data:', data);
@@ -311,6 +330,8 @@ export function Form({
 
       if (res.redirect_url) {
         router.push(res.redirect_url as any);
+      } else {
+        router.refresh();
       }
 
       setLoading(false);
@@ -325,83 +346,338 @@ export function Form({
     <FormComponent {...form}>
       <form
         onSubmit={form.handleSubmit(onSubmit)}
-        className="w-full space-y-0 pb-2 md:max-w-xl"
+        className={
+          isComflySettingsTab
+            ? 'w-full space-y-0 pb-2'
+            : 'w-full space-y-0 pb-2 md:max-w-xl'
+        }
       >
         {/* {title && <h2 className="text-lg font-bold">{title}</h2>}
         {description && <p className="text-muted-foreground">{description}</p>} */}
-        <div className="mb-6 space-y-6">
+        <div
+          className={
+            isComflySettingsTab && formLevelTestActions.length > 0
+              ? 'mb-6 grid gap-6 xl:grid-cols-2 xl:items-stretch'
+              : 'mb-6 space-y-6'
+          }
+        >
+          {isComflySettingsTab && formLevelTestActions.length > 0 ? (
+            <div className="h-full rounded-2xl border bg-muted/10 p-4">
+              <div className="flex items-center justify-between gap-3">
+                <div className="text-sm font-medium">Testing</div>
+                <Button
+                  type="button"
+                  variant="ghost"
+                  size="icon-sm"
+                  className="shrink-0 lg:hidden"
+                  onClick={() =>
+                    setMobileTestingOpen((prev) => ({
+                      ...prev,
+                      form: !prev.form,
+                    }))
+                  }
+                >
+                  {isTestingOpen('form') ? (
+                    <ChevronUp className="size-4" />
+                  ) : (
+                    <ChevronDown className="size-4" />
+                  )}
+                </Button>
+              </div>
+              <div
+                className={
+                  isTestingOpen('form')
+                    ? 'mt-3 space-y-3'
+                    : 'mt-3 hidden space-y-3 lg:block'
+                }
+              >
+                {formLevelTestActions.map((action: any, index: number) => (
+                  <PromptTestAction
+                    key={`form-test-action-${index}`}
+                    config={action}
+                    getValues={() => form.getValues()}
+                    updateValue={(name, value) =>
+                      form.setValue(name as any, value, {
+                        shouldDirty: true,
+                        shouldTouch: true,
+                      })
+                    }
+                    onResultChange={(result) =>
+                      setTestResult(`form-test-action-${index}`, result)
+                    }
+                    showInlineResult={false}
+                  />
+                ))}
+              </div>
+            </div>
+          ) : null}
+          <div
+            className={
+              isComflySettingsTab && formLevelTestActions.length > 0
+                ? 'flex h-full flex-col space-y-6 rounded-2xl border bg-background p-4'
+                : 'space-y-6'
+            }
+          >
           {fields.map((item, index) => {
+            const hasTestPanel =
+              Boolean(item.metadata?.testAction) ||
+              (Array.isArray(item.metadata?.testActions) &&
+                item.metadata.testActions.length > 0);
+            const fieldResultKey = `${item.name || `field-${index}`}-primary`;
+            const renderFieldInput = (field: any) => {
+              if (item.type === 'textarea') {
+                return (
+                  <Textarea
+                    {...(field as any)}
+                    placeholder={item.placeholder}
+                    className={
+                      isComflySettingsTab && hasTestPanel
+                        ? 'min-h-[320px] flex-1 resize-y'
+                        : undefined
+                    }
+                    {...item.attributes}
+                  />
+                );
+              }
+
+              if (item.type === 'select') {
+                return <Select field={item} formField={field} data={data} />;
+              }
+
+              if (item.type === 'switch') {
+                return <Switch field={item} formField={field} data={data} />;
+              }
+
+              if (item.type === 'checkbox') {
+                return <Checkbox field={item} formField={field} data={data} />;
+              }
+
+              if (item.type === 'markdown_editor') {
+                return <Markdown field={item} formField={field} data={data} />;
+              }
+
+              if (item.type === 'upload_image') {
+                return (
+                  <UploadImage
+                    field={item}
+                    formField={field}
+                    data={data}
+                    metadata={item.metadata}
+                  />
+                );
+              }
+
+              return <Input field={item} formField={field} data={data} />;
+            };
+
+            const renderTestPanels = () => (
+              <>
+                {item.metadata?.testAction ? (
+                  <PromptTestAction
+                    config={item.metadata.testAction}
+                    getValues={() => form.getValues()}
+                    updateValue={(name, value) =>
+                      form.setValue(name as any, value, {
+                        shouldDirty: true,
+                        shouldTouch: true,
+                      })
+                    }
+                    onResultChange={(result) => setTestResult(fieldResultKey, result)}
+                    showInlineResult={false}
+                  />
+                ) : null}
+                {Array.isArray(item.metadata?.testActions)
+                  ? item.metadata.testActions.map((action: any, index: number) => (
+                      <PromptTestAction
+                        key={`${item.name}-test-action-${index}`}
+                        config={action}
+                        getValues={() => form.getValues()}
+                        updateValue={(name, value) =>
+                          form.setValue(name as any, value, {
+                            shouldDirty: true,
+                            shouldTouch: true,
+                          })
+                        }
+                        onResultChange={(result) =>
+                          setTestResult(`${item.name}-test-action-${index}`, result)
+                        }
+                        showInlineResult={false}
+                      />
+                    ))
+                  : null}
+              </>
+            );
+
             return (
               <FormField
                 key={index}
                 control={form.control}
                 name={item.name || ''}
                 render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>
-                      {item.title}
-                      {item.validation?.required && (
-                        <span className="ml-1 text-red-500">*</span>
-                      )}
-                    </FormLabel>
-                    <FormControl>
-                      {item.type === 'textarea' ? (
-                        <Textarea
-                          {...(field as any)}
-                          placeholder={item.placeholder}
-                          {...item.attributes}
-                        />
-                      ) : item.type === 'select' ? (
-                        <Select field={item} formField={field} data={data} />
-                      ) : item.type === 'switch' ? (
-                        <Switch field={item} formField={field} data={data} />
-                      ) : item.type === 'checkbox' ? (
-                        <Checkbox field={item} formField={field} data={data} />
-                      ) : item.type === 'markdown_editor' ? (
-                        <Markdown field={item} formField={field} data={data} />
-                      ) : item.type === 'upload_image' ? (
-                        <UploadImage
-                          field={item}
-                          formField={field}
-                          data={data}
-                          metadata={item.metadata}
-                        />
-                      ) : (
-                        <Input field={item} formField={field} data={data} />
-                      )}
-                    </FormControl>
-                    {item.tip && (
-                      <FormDescription
-                        dangerouslySetInnerHTML={{ __html: item.tip }}
-                      />
-                    )}
+                  <FormItem className={isComflySettingsTab && hasTestPanel ? 'h-full' : ''}>
+                    <div className="space-y-4">
+                      <div
+                        className={
+                          isComflySettingsTab && hasTestPanel
+                            ? 'grid gap-6 xl:grid-cols-2 xl:items-stretch'
+                          : 'space-y-3'
+                        }
+                      >
+                      {hasTestPanel ? (
+                        <div className="h-full rounded-2xl border bg-muted/10 p-4">
+                          <div className="flex items-center justify-between gap-3">
+                            <div className="text-sm font-medium">Testing</div>
+                            <Button
+                              type="button"
+                              variant="ghost"
+                              size="icon-sm"
+                              className="shrink-0 lg:hidden"
+                              onClick={() =>
+                                setMobileTestingOpen((prev) => ({
+                                  ...prev,
+                                  [item.name || `field-${index}`]:
+                                    !prev[item.name || `field-${index}`],
+                                }))
+                              }
+                            >
+                              {isTestingOpen(item.name || `field-${index}`) ? (
+                                <ChevronUp className="size-4" />
+                              ) : (
+                                <ChevronDown className="size-4" />
+                              )}
+                            </Button>
+                          </div>
+                          <div
+                            className={
+                              isTestingOpen(item.name || `field-${index}`)
+                                ? 'mt-3 space-y-3'
+                                : 'mt-3 hidden space-y-3 lg:block'
+                            }
+                          >
+                            {renderTestPanels()}
+                          </div>
+                        </div>
+                      ) : null}
+
+                      <div
+                        className={
+                          isComflySettingsTab && hasTestPanel
+                            ? 'flex h-full flex-col space-y-3 rounded-2xl border bg-background p-4'
+                            : 'space-y-3'
+                        }
+                      >
+                        <FormLabel>
+                          {item.title}
+                          {item.validation?.required && (
+                            <span className="ml-1 text-red-500">*</span>
+                          )}
+                        </FormLabel>
+                        <FormControl
+                          className={
+                            isComflySettingsTab && hasTestPanel ? 'flex-1' : ''
+                          }
+                        >
+                          {renderFieldInput(field)}
+                        </FormControl>
+                        {item.tip && (
+                          <FormDescription
+                            dangerouslySetInnerHTML={{ __html: item.tip }}
+                          />
+                        )}
+                      </div>
+                      </div>
+                      {isComflySettingsTab && hasTestPanel ? (
+                        <>
+                          {testResults[fieldResultKey] ? (
+                            <div className="rounded-2xl border bg-background p-4">
+                              <div className="mb-2 text-sm font-medium">
+                                {testResults[fieldResultKey]?.title} Result
+                              </div>
+                              <pre className="overflow-x-auto rounded-xl border bg-muted/20 p-3 text-xs leading-6">
+                                {JSON.stringify(testResults[fieldResultKey]?.data, null, 2)}
+                              </pre>
+                            </div>
+                          ) : null}
+                          {Array.isArray(item.metadata?.testActions)
+                            ? item.metadata.testActions.map((action: any, actionIndex: number) => {
+                                const resultKey = `${item.name}-test-action-${actionIndex}`;
+                                const result = testResults[resultKey];
+
+                                if (!result) {
+                                  return null;
+                                }
+
+                                return (
+                                  <div
+                                    key={`${resultKey}-panel`}
+                                    className="rounded-2xl border bg-background p-4"
+                                  >
+                                    <div className="mb-2 text-sm font-medium">
+                                      {result.title} Result
+                                    </div>
+                                    <pre className="overflow-x-auto rounded-xl border bg-muted/20 p-3 text-xs leading-6">
+                                      {JSON.stringify(result.data, null, 2)}
+                                    </pre>
+                                  </div>
+                                );
+                              })
+                            : null}
+                        </>
+                      ) : null}
+                    </div>
                     <FormMessage />
                   </FormItem>
                 )}
               />
             );
           })}
+          </div>
+          {isComflySettingsTab && formLevelTestActions.length > 0
+            ? formLevelTestActions.map((action: any, index: number) => {
+                const result = testResults[`form-test-action-${index}`];
+
+                if (!result) {
+                  return null;
+                }
+
+                return (
+                  <div
+                    key={`form-test-action-${index}-result`}
+                    className="rounded-2xl border bg-background p-4 xl:col-span-2"
+                  >
+                    <div className="mb-2 text-sm font-medium">
+                      {result.title} Result
+                    </div>
+                    <pre className="overflow-x-auto rounded-xl border bg-muted/20 p-3 text-xs leading-6">
+                      {JSON.stringify(result.data, null, 2)}
+                    </pre>
+                  </div>
+                );
+              })
+            : null}
         </div>
         {submit?.button && (
-          <Button
-            type="submit"
-            variant={submit.button.variant}
-            className="flex cursor-pointer items-center justify-center gap-2 font-semibold"
-            disabled={loading}
-            size={submit.button.size || 'sm'}
-          >
-            {loading ? (
-              <Loader className="mr-2 h-4 w-4 animate-spin" />
-            ) : (
-              submit.button.icon && (
-                <SmartIcon
-                  name={submit.button.icon as string}
-                  className="size-4"
-                />
-              )
-            )}
-            {submit.button.title}
-          </Button>
+          <div className={isComflySettingsTab ? 'flex justify-end' : ''}>
+            <Button
+              type="submit"
+              variant={submit.button.variant}
+              className="flex cursor-pointer items-center justify-center gap-2 font-semibold whitespace-normal"
+              disabled={loading}
+              size={submit.button.size || 'sm'}
+            >
+              {loading ? (
+                <Loader className="mr-2 h-4 w-4 animate-spin" />
+              ) : (
+                submit.button.icon && (
+                  <SmartIcon
+                    name={submit.button.icon as string}
+                    className="size-4"
+                  />
+                )
+              )}
+              {submit.button.title}
+            </Button>
+          </div>
         )}
       </form>
     </FormComponent>

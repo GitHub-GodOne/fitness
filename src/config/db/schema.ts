@@ -476,7 +476,9 @@ export const aiTask = table(
   'ai_task',
   {
     id: text('id').primaryKey(),
-    userId: text('user_id').notNull(),
+    userId: text('user_id')
+      .notNull()
+      .references(() => user.id, { onDelete: 'cascade' }),
     mediaType: text('media_type').notNull(),
     provider: text('provider').notNull(),
     model: text('model').notNull(),
@@ -710,6 +712,66 @@ export const videoMerge = table(
   ]
 );
 
+export const showcaseVideo = table(
+  'showcase_video',
+  {
+    id: text('id').primaryKey(),
+    userId: text('user_id')
+      .notNull()
+      .references(() => user.id, { onDelete: 'cascade' }),
+    categoryId: text('category_id').references(() => taxonomy.id, {
+      onDelete: 'set null',
+    }),
+    sourceTaskId: text('source_task_id').references(() => aiTask.id, {
+      onDelete: 'set null',
+    }),
+    sourceType: text('source_type').notNull().default('generated'),
+    title: text('title').notNull(),
+    description: text('description'),
+    videoUrl: text('video_url').notNull(),
+    coverUrl: text('cover_url'),
+    status: text('status').notNull().default('pending'),
+    featured: boolean('featured').notNull().default(false),
+    sort: integer('sort').notNull().default(0),
+    reviewNote: text('review_note'),
+    publishedAt: timestamp('published_at'),
+    createdAt: timestamp('created_at').defaultNow().notNull(),
+    updatedAt: timestamp('updated_at')
+      .$onUpdate(() => new Date())
+      .notNull(),
+  },
+  (table) => [
+    index('idx_showcase_video_status').on(table.status),
+    index('idx_showcase_video_category_status').on(table.categoryId, table.status),
+    index('idx_showcase_video_user_created').on(table.userId, table.createdAt),
+  ]
+);
+
+export const mediaAsset = table(
+  'media_asset',
+  {
+    id: text('id').primaryKey(),
+    userId: text('user_id')
+      .notNull()
+      .references(() => user.id, { onDelete: 'cascade' }),
+    provider: text('provider').notNull().default('r2'),
+    mediaType: text('media_type').notNull(),
+    name: text('name').notNull(),
+    key: text('key').notNull().unique(),
+    url: text('url').notNull(),
+    contentType: text('content_type').notNull(),
+    size: integer('size').notNull().default(0),
+    createdAt: timestamp('created_at').defaultNow().notNull(),
+    updatedAt: timestamp('updated_at')
+      .$onUpdate(() => new Date())
+      .notNull(),
+  },
+  (table) => [
+    index('idx_media_asset_media_type_created').on(table.mediaType, table.createdAt),
+    index('idx_media_asset_user_created').on(table.userId, table.createdAt),
+  ]
+);
+
 export const notification = table(
   'notification',
   {
@@ -876,6 +938,8 @@ export const objectVideoMapping = table(
 // User wizard progress - stores user's step-by-step selections
 export const userWizardProgress = table(
   'user_wizard_progress',
+export const supportChatMessage = table(
+  'support_chat_message',
   {
     id: text('id').primaryKey(),
     userId: text('user_id')
@@ -906,5 +970,11 @@ export const userWizardProgress = table(
   (table) => [
     index('idx_wizard_progress_user').on(table.userId),
     index('idx_wizard_progress_updated').on(table.updatedAt),
+    // Query messages by user ordered by time
+    index('idx_support_chat_user_created').on(table.userId, table.createdAt),
+    // Query unread messages for admin
+    index('idx_support_chat_unread').on(table.type, table.read),
+    // Query by status
+    index('idx_support_chat_status').on(table.status),
   ]
 );

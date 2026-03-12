@@ -1,48 +1,50 @@
-import { envConfigs } from "@/config";
-import { AIMediaType, AITaskStatus } from "@/extensions/ai";
-import { getUuid } from "@/shared/lib/hash";
-import { respData, respErr } from "@/shared/lib/resp";
-import { createAITask, updateAITaskByTaskId, findAITaskByTaskId, NewAITask } from "@/shared/models/ai_task";
-import { getRemainingCredits } from "@/shared/models/credit";
-import { getUserInfo } from "@/shared/models/user";
-import { getAIService } from "@/shared/services/ai";
+import { envConfigs } from '@/config';
+import { AIMediaType, AITaskStatus } from '@/extensions/ai';
+import { getUuid } from '@/shared/lib/hash';
+import { respData, respErr } from '@/shared/lib/resp';
+import { createAITask, NewAITask } from '@/shared/models/ai_task';
+import { getRemainingCredits } from '@/shared/models/credit';
+import { getUserInfo } from '@/shared/models/user';
+import { getAIService } from '@/shared/services/ai';
 
 export async function POST(request: Request) {
-  let taskId: string | undefined;
   try {
-    // get current user (optional for free access)
+    // get current user
     const user = await getUserInfo();
+    if (!user) {
+      throw new Error('no auth, please sign in');
+    }
 
     let provider, mediaType, model, prompt, options, scene;
-    taskId = getUuid(); // Generate taskId early
+    const taskId = getUuid(); // Generate taskId early
 
     // Check content type for multipart/form-data
-    const contentType = request.headers.get("content-type") || "";
+    const contentType = request.headers.get('content-type') || '';
 
-    if (contentType.includes("multipart/form-data")) {
+    if (contentType.includes('multipart/form-data')) {
       const formData = await request.formData();
       // Extract JSON params from 'body' field
-      const bodyJson = formData.get("body") as string;
+      const bodyJson = formData.get('body') as string;
       if (bodyJson) {
         const parsedBody = JSON.parse(bodyJson);
         ({ provider, mediaType, model, prompt, options, scene } = parsedBody);
       }
 
       // Handle file upload
-      const file = formData.get("file") as File;
+      const file = formData.get('file') as File;
       if (file && file.size > 0) {
-        const { saveTaskFile } = await import("@/shared/utils/file-manager");
+        const { saveTaskFile } = await import('@/shared/utils/file-manager');
         const buffer = Buffer.from(await file.arrayBuffer());
 
         // Determine extension
-        let ext = "png"; // Default
+        let ext = 'png'; // Default
         const mimeType = file.type;
-        if (mimeType === "image/jpeg" || mimeType === "image/jpg") ext = "jpg";
-        else if (mimeType === "image/png") ext = "png";
+        if (mimeType === 'image/jpeg' || mimeType === 'image/jpg') ext = 'jpg';
+        else if (mimeType === 'image/png') ext = 'png';
         else {
           // Try to get from filename
-          const parts = file.name.split(".");
-          if (parts.length > 1) ext = parts.pop() || "png";
+          const parts = file.name.split('.');
+          if (parts.length > 1) ext = parts.pop() || 'png';
         }
 
         const filename = `input_image.${ext}`;
@@ -80,53 +82,52 @@ export async function POST(request: Request) {
 
     // check generate type
     if (!aiService.getMediaTypes().includes(mediaType)) {
-      throw new Error("invalid mediaType");
+      throw new Error('invalid mediaType');
     }
 
     // check ai provider
     const aiProvider = aiService.getProvider(provider);
     if (!aiProvider) {
-      throw new Error("invalid provider");
+      throw new Error('invalid provider');
     }
+
+
 
     // todo: get cost credits from settings
     let costCredits = 2;
 
     if (mediaType === AIMediaType.IMAGE) {
       // generate image
-      if (scene === "image-to-image") {
+      if (scene === 'image-to-image') {
         costCredits = 4;
-      } else if (scene === "text-to-image") {
+      } else if (scene === 'text-to-image') {
         costCredits = 2;
       } else {
-        throw new Error("invalid scene");
+        throw new Error('invalid scene');
       }
     } else if (mediaType === AIMediaType.VIDEO) {
       // generate video
-      if (scene === "text-to-video") {
+      if (scene === 'text-to-video') {
         costCredits = 1;
-      } else if (scene === "image-to-video") {
+      } else if (scene === 'image-to-video') {
         costCredits = 1;
-      } else if (scene === "video-to-video") {
+      } else if (scene === 'video-to-video') {
         costCredits = 1;
       } else {
-        throw new Error("invalid scene");
+        throw new Error('invalid scene');
       }
     } else if (mediaType === AIMediaType.MUSIC) {
       // generate music
       costCredits = 10;
-      scene = "text-to-music";
+      scene = 'text-to-music';
     } else {
-      throw new Error("invalid mediaType");
+      throw new Error('invalid mediaType');
     }
 
-    // check credits only for logged-in users
-    let remainingCredits = 0;
-    if (user) {
-      remainingCredits = await getRemainingCredits(user.id);
-      if (remainingCredits < costCredits) {
-        throw new Error("insufficient credits");
-      }
+    // check credits
+    const remainingCredits = await getRemainingCredits(user.id);
+    if (remainingCredits < costCredits) {
+      throw new Error('insufficient credits');
     }
 
     // Validate video settings for free users (only 3 free credits)
@@ -135,39 +136,29 @@ export async function POST(request: Request) {
       const duration = options.duration;
       const ratio = options.ratio;
 
-      // Free users (not logged in or with only 3 credits) can only use 480p
-      if (!user || remainingCredits <= 3) {
-        if (resolution && resolution !== "480p") {
-          throw new Error(
-            "Free users can only use 480p resolution. Please purchase credits to unlock 720p and 1080p.",
-          );
+      // Free users (with only 3 credits) can only use 480p
+      if (remainingCredits <= 3) {
+        if (resolution && resolution !== '480p') {
+          throw new Error('Free users can only use 480p resolution. Please purchase credits to unlock 720p and 1080p.');
         }
       }
 
       // Validate duration (1-12 seconds)
       if (duration !== undefined) {
-        const durationNum =
-          typeof duration === "number"
-            ? duration
-            : parseInt(String(duration), 10);
+        const durationNum = typeof duration === 'number' ? duration : parseInt(String(duration), 10);
         if (isNaN(durationNum) || durationNum < 1 || durationNum > 12) {
-          throw new Error("Duration must be between 1 and 12 seconds.");
+          throw new Error('Duration must be between 1 and 12 seconds.');
         }
       }
 
       // Validate resolution
-      if (resolution && !["480p", "720p", "1080p"].includes(resolution)) {
-        throw new Error("Invalid resolution. Must be 480p, 720p, or 1080p.");
+      if (resolution && !['480p', '720p', '1080p'].includes(resolution)) {
+        throw new Error('Invalid resolution. Must be 480p, 720p, or 1080p.');
       }
 
       // Validate ratio
-      if (
-        ratio &&
-        !["16:9", "9:16", "4:3", "1:1", "3:4", "21:9", "adaptive"].includes(
-          ratio,
-        )
-      ) {
-        throw new Error("Invalid aspect ratio.");
+      if (ratio && !['16:9', '9:16', '4:3', '1:1', '3:4', '21:9', 'adaptive'].includes(ratio)) {
+        throw new Error('Invalid aspect ratio.');
       }
     }
 
@@ -178,10 +169,9 @@ export async function POST(request: Request) {
       prompt,
       callbackUrl,
       options,
-      taskId,
-      user, // Pass user info to provider
-      remainingCredits, // Pass remaining credits to provider
+      taskId
     };
+
 
     // create ai task
     // If user_feeling is provided in options, save it to prompt field for history display
@@ -200,67 +190,24 @@ export async function POST(request: Request) {
       scene,
       options: options ? JSON.stringify(options) : null,
       status: AITaskStatus.PENDING,
-      costCredits: user ? costCredits : 0, // Free for anonymous users
+      costCredits,
       taskId: taskId,
+
     };
     await createAITask(newAITask);
 
+
     // generate content
     const result = await aiProvider.generate({ params });
-    console.log('[AI Generate] Provider result:', JSON.stringify(result, null, 2));
     if (!result?.taskId) {
       throw new Error(
-        `ai generate failed, mediaType: ${mediaType}, provider: ${provider}, model: ${model}`,
+        `ai generate failed, mediaType: ${mediaType}, provider: ${provider}, model: ${model}`
       );
-    }
-
-    // If provider returned immediately with SUCCESS (e.g. video-library), update the task
-    if (result.taskStatus === AITaskStatus.SUCCESS && result.taskResult) {
-      await updateAITaskByTaskId(taskId, {
-        status: AITaskStatus.SUCCESS,
-        taskInfo: result.taskInfo ? JSON.stringify(result.taskInfo) : null,
-        taskResult: JSON.stringify(result.taskResult),
-      });
-      // Return updated task data
-      return respData({
-        ...newAITask,
-        status: AITaskStatus.SUCCESS,
-        taskResult: JSON.stringify(result.taskResult),
-      });
-    }
-
-    // If provider returned FAILED, update task to FAILED and refund credits
-    if (result.taskStatus === AITaskStatus.FAILED) {
-      const task = await findAITaskByTaskId(taskId);
-      if (task && task.creditId) {
-        await updateAITaskByTaskId(taskId, {
-          status: AITaskStatus.FAILED,
-          creditId: task.creditId,
-          taskInfo: result.taskInfo ? JSON.stringify(result.taskInfo) : null,
-          taskResult: result.taskResult ? JSON.stringify(result.taskResult) : null,
-        });
-      }
-      const errorMsg = result.taskInfo?.errorMessage || 'Generation failed';
-      return respErr(errorMsg);
     }
 
     return respData(newAITask);
   } catch (e: any) {
-    console.log("generate failed", e);
-    // Update task to FAILED so credits get refunded
-    if (typeof taskId !== 'undefined') {
-      try {
-        const task = await findAITaskByTaskId(taskId);
-        if (task && task.creditId) {
-          await updateAITaskByTaskId(taskId, {
-            status: AITaskStatus.FAILED,
-            creditId: task.creditId,
-          });
-        }
-      } catch (refundErr) {
-        console.error("Failed to refund credits:", refundErr);
-      }
-    }
+    console.log('generate failed', e);
     return respErr(e.message);
   }
 }

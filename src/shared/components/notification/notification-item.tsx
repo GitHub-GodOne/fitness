@@ -1,6 +1,6 @@
 "use client";
 
-import { MessageCircle, Video, CheckCircle2 } from "lucide-react";
+import { Bell, MessageCircle, Video, CheckCircle2 } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { useRouter } from "@/core/i18n/navigation";
 
@@ -10,12 +10,14 @@ import type { Notification } from "@/shared/models/notification";
 interface NotificationItemProps {
   notification: Notification;
   onMarkAsRead: (id: string) => void;
+  onViewDetail?: (notification: Notification) => void;
   onClose?: () => void;
 }
 
 export function NotificationItem({
   notification,
   onMarkAsRead,
+  onViewDetail,
   onClose,
 }: NotificationItemProps) {
   const t = useTranslations("notification");
@@ -26,9 +28,16 @@ export function NotificationItem({
       onMarkAsRead(notification.id);
     }
 
-    if (notification.link) {
-      router.push(notification.link);
+    // video_complete: close dropdown and navigate to My Prayers
+    if (notification.type === "video_complete") {
       onClose?.();
+      router.push("/settings/history");
+      return;
+    }
+
+    // Other types: show detail dialog
+    if (onViewDetail) {
+      onViewDetail(notification);
     }
   };
 
@@ -40,6 +49,9 @@ export function NotificationItem({
         return <Video className="h-5 w-5 text-green-500" />;
       case "image_complete":
         return <CheckCircle2 className="h-5 w-5 text-purple-500" />;
+      case "system":
+      case "announcement":
+        return <Bell className="h-5 w-5 text-orange-500" />;
       default:
         return <CheckCircle2 className="h-5 w-5 text-gray-500" />;
     }

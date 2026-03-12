@@ -13,6 +13,7 @@
     "openrouter": "OpenRouter",
     "replicate": "Replicate",
     "fal": "Fal",
+    "comfly": "Comfly API",
     "google_analytics": "Google Analytics",
     "clarity": "Clarity",
     "plausible": "Plausible",
@@ -25,7 +26,8 @@
     "crisp": "Crisp",
     "credit": "Credit",
     "appinfo": "App Info",
-    "user_role": "User Role"
+    "user_role": "User Role",
+    "showcases": "Showcases"
   },
   "edit": {
     "title": "Settings",
@@ -41,6 +43,7 @@
       "email": "Email",
       "storage": "Storage",
       "ai": "AI",
+      "comfly": "Comfly API",
       "analytics": "Analytics",
       "ads": "Ads",
       "affiliate": "Affiliate",

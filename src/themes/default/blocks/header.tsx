@@ -4,7 +4,14 @@ import { useEffect, useRef, useState } from "react";
 import { Menu, X } from "lucide-react";
 
 import { Link, usePathname, useRouter } from "@/core/i18n/navigation";
-import { BrandLogo, SignUser, SmartIcon } from "@/shared/blocks/common";
+import {
+  BrandLogo,
+  LocaleSelector,
+  SignUser,
+  SmartIcon,
+  ThemeToggler,
+} from "@/shared/blocks/common";
+import { ThemeSwitcher } from "@/shared/components/theme-switcher";
 import { NotificationBell } from "@/shared/components/notification";
 import {
   Accordion,
@@ -12,6 +19,7 @@ import {
   AccordionItem,
   AccordionTrigger,
 } from "@/shared/components/ui/accordion";
+import { Button } from "@/shared/components/ui/button";
 import {
   NavigationMenu,
   NavigationMenuContent,
@@ -22,6 +30,8 @@ import {
   NavigationMenuTrigger as RawNavigationMenuTrigger,
 } from "@/shared/components/ui/navigation-menu";
 import { useMedia } from "@/shared/hooks/use-media";
+import { useRequireAuth } from "@/shared/hooks/use-require-auth";
+import { useAppContext } from "@/shared/contexts/app";
 import { cn } from "@/shared/lib/utils";
 import { NavItem } from "@/shared/types/blocks/common";
 import { Header as HeaderType } from "@/shared/types/blocks/landing";
@@ -45,6 +55,10 @@ export function Header({ header }: { header: HeaderType }) {
   const isLarge = useMedia("(min-width: 64rem)");
   const router = useRouter();
   const pathname = usePathname();
+  const { user } = useAppContext();
+  const { navigateWithAuth } = useRequireAuth({
+    callbackUrl: "/ai-video-generator",
+  });
 
   useEffect(() => {
     // Listen to scroll event to enable header styles on scroll
@@ -84,70 +98,33 @@ export function Header({ header }: { header: HeaderType }) {
     };
 
     return (
-      <NavigationMenu
-        viewport={false}
-        className="**:data-[slot=navigation-menu-content]:top-10 max-lg:hidden"
-      >
-        <NavigationMenuList className="gap-2">
-          {header.nav?.items?.map((item, idx) => {
-            if (!item.children || item.children.length === 0) {
-              return (
-                <NavigationMenuLink key={idx} asChild>
-                  <Link
-                    href={item.url || ""}
-                    target={item.target || "_self"}
-                    className={`flex flex-row items-center gap-2 px-4 py-1.5 text-sm text-foreground hover:text-primary transition-colors ${
-                      item.is_active || pathname.endsWith(item.url as string)
-                        ? "bg-foreground/10 text-primary"
-                        : ""
-                    }`}
-                  >
-                    {item.icon && <SmartIcon name={item.icon as string} />}
-                    {item.title}
-                  </Link>
-                </NavigationMenuLink>
-              );
-            }
-
-            return (
-              <NavigationMenuItem key={idx}>
-                <NavigationMenuTrigger className="flex flex-row items-center gap-2 text-sm text-foreground hover:text-primary transition-colors">
-                  {item.icon && (
-                    <SmartIcon name={item.icon as string} className="h-4 w-4" />
-                  )}
-                  {item.title}
-                </NavigationMenuTrigger>
-                <NavigationMenuContent className="min-w-2xs origin-top p-0.5">
-                  <div className="border-border bg-background/95 ring-foreground/5 rounded-[calc(var(--radius)-2px)] border p-2 shadow ring-1 backdrop-blur-md">
-                    <ul className="mt-1 space-y-2">
-                      {item.children?.map((subItem: NavItem, index: number) => (
-                        <ListItem
-                          key={index}
-                          href={subItem.url || ""}
-                          target={subItem.target || "_self"}
-                          title={subItem.title || ""}
-                          description={subItem.description || ""}
-                        >
-                          {subItem.icon && (
-                            <SmartIcon name={subItem.icon as string} />
-                          )}
-                        </ListItem>
-                      ))}
-                    </ul>
-                  </div>
-                </NavigationMenuContent>
-              </NavigationMenuItem>
-            );
-          })}
-        </NavigationMenuList>
-      </NavigationMenu>
+      <div className="hidden lg:flex items-center">
+        {header.nav?.items?.map((item, idx) => {
+          const isLast = idx === (header.nav?.items?.length || 0) - 1;
+          return (
+            <div key={idx} className="flex items-center">
+              <Link
+                href={item.url || ""}
+                target={item.target || "_self"}
+                className="text-sm text-foreground no-underline hover:no-underline hover:text-foreground px-2 cursor-pointer"
+              >
+                {item.title}
+              </Link>
+              {!isLast && <span className="text-muted-foreground px-2">|</span>}
+            </div>
+          );
+        })}
+      </div>
     );
   };
 
   // Mobile menu using Accordion, shown on small screens
   const MobileMenu = ({ closeMenu }: { closeMenu: () => void }) => {
     return (
-      <nav role="navigation" className="w-full">
+      <nav
+        role="navigation"
+        className="w-full [--color-border:--alpha(var(--color-foreground)/5%)] [--color-muted:--alpha(var(--color-foreground)/5%)]"
+      >
         <Accordion
           type="single"
           collapsible
@@ -158,11 +135,11 @@ export function Header({ header }: { header: HeaderType }) {
               <AccordionItem
                 key={idx}
                 value={item.title || ""}
-                className="group relative border-b-0 before:pointer-events-none before:absolute before:inset-x-4 before:bottom-0 before:border-b before:border-border"
+                className="group relative border-b-0 before:pointer-events-none before:absolute before:inset-x-4 before:bottom-0 before:border-b"
               >
                 {item.children && item.children.length > 0 ? (
                   <>
-                    <AccordionTrigger className="data-[state=open]:bg-foreground/10 flex items-center justify-between px-4 py-3 text-lg text-foreground **:!font-normal hover:text-primary">
+                    <AccordionTrigger className="data-[state=open]:bg-muted flex items-center justify-between px-4 py-3 text-lg **:!font-normal">
                       {item.title}
                     </AccordionTrigger>
                     <AccordionContent className="pb-5">

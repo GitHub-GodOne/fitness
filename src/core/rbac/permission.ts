@@ -64,6 +64,11 @@ export const PERMISSIONS = {
   // Refunds
   ADMIN_REFUND_VIEW: 'admin.refund.view',
   ADMIN_REFUND_UPDATE: 'admin.refund.update',
+
+  // Notifications
+  NOTIFICATIONS_READ: 'admin.notifications.read',
+  NOTIFICATIONS_WRITE: 'admin.notifications.write',
+  NOTIFICATIONS_DELETE: 'admin.notifications.delete',
 } as const;
 
 /**

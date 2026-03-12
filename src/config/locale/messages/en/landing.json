@@ -106,11 +106,11 @@
           ]
         },
         {
-          "title": "Resources",
+          "title": "Support",
           "children": [
             {
-              "title": "Documents",
-              "url": "/docs",
+              "title": "Contact Support",
+              "url": "mailto:support@your-domain.com",
               "target": "_self"
             },
             {
@@ -119,14 +119,15 @@
               "target": "_self"
             },
             {
-              "title": "Chat",
-              "url": "/chat",
+              "title": "Refund Policy",
+              "url": "/refund",
               "target": "_self"
             }
           ]
         },
         {
-          "title": "Friends",
+          "title": "Contact",
+          "hidden": true,
           "children": [
             {
               "title": "",
@@ -143,19 +144,22 @@
           "title": "X",
           "icon": "RiTwitterXFill",
           "url": "https://x.com/your-app-name",
-          "target": "_blank"
+          "target": "_blank",
+          "hidden": true
         },
         {
           "title": "Github",
           "icon": "Github",
           "url": "https://github.com/your-app-name",
-          "target": "_blank"
+          "target": "_blank",
+          "hidden": true
         },
         {
           "title": "Discord",
           "icon": "RiDiscordFill",
           "url": "https://discord.gg/your-app-name",
-          "target": "_blank"
+          "target": "_blank",
+          "hidden": true
         },
         {
           "title": "Email",
@@ -178,11 +182,30 @@
         {
           "title": "Refund Policy",
           "url": "/refund"
+        },
+        {
+          "title": "Contact Us",
+          "url": "mailto:support@fearnotforiamwithyou.com"
         }
       ]
     },
     "show_theme": true,
+    "show_theme_switcher": true,
     "show_locale": true,
+    "feedback_labels": {
+      "title": "Contact Support",
+      "description": "Describe your issue and we'll get back to you.",
+      "emailLabel": "Email",
+      "emailPlaceholder": "your@email.com",
+      "contentLabel": "Description",
+      "contentPlaceholder": "Please describe your issue...",
+      "submit": "Submit",
+      "cancel": "Cancel",
+      "success": "Thank you! We'll get back to you soon.",
+      "errorRequired": "Please describe your issue.",
+      "errorEmail": "Please enter a valid email address.",
+      "errorSubmit": "Failed to submit. Please try again."
+    },
     "className": "bg-gradient-to-b from-amber-50/15 via-amber-50/10 to-amber-50/5 dark:from-amber-950/10 dark:via-amber-950/8 dark:to-amber-950/5"
   }
 }

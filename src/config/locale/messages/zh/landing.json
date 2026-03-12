@@ -100,11 +100,11 @@
           ]
         },
         {
-          "title": "资源",
+          "title": "支持",
           "children": [
             {
-              "title": "文档",
-              "url": "/docs",
+              "title": "联系支持",
+              "url": "mailto:support@your-domain.com",
               "target": "_self"
             },
             {
@@ -113,14 +113,15 @@
               "target": "_self"
             },
             {
-              "title": "对话",
-              "url": "/chat",
-              "target": "_blank"
+              "title": "退款政策",
+              "url": "/refund",
+              "target": "_self"
             }
           ]
         },
         {
-          "title": "合作伙伴",
+          "title": "联系方式",
+          "hidden": true,
           "children": [
             {
               "title": "",
@@ -137,19 +138,22 @@
           "title": "X",
           "icon": "RiTwitterXFill",
           "url": "https://x.com/your-app-name",
-          "target": "_blank"
+          "target": "_blank",
+          "hidden": true
         },
         {
           "title": "Github",
           "icon": "Github",
           "url": "https://github.com/your-app-name",
-          "target": "_blank"
+          "target": "_blank",
+          "hidden": true
         },
         {
           "title": "Discord",
           "icon": "RiDiscordFill",
           "url": "https://discord.gg/your-app-name",
-          "target": "_blank"
+          "target": "_blank",
+          "hidden": true
         },
         {
           "title": "邮箱",
@@ -176,7 +180,22 @@
       ]
     },
     "show_theme": true,
+    "show_theme_switcher": true,
     "show_locale": true,
+    "feedback_labels": {
+      "title": "联系支持",
+      "description": "请描述您遇到的问题，我们会尽快回复您。",
+      "emailLabel": "邮箱",
+      "emailPlaceholder": "your@email.com",
+      "contentLabel": "问题描述",
+      "contentPlaceholder": "请详细描述您遇到的问题...",
+      "submit": "提交",
+      "cancel": "取消",
+      "success": "感谢您的反馈！我们会尽快回复您。",
+      "errorRequired": "请描述您遇到的问题。",
+      "errorEmail": "请输入有效的邮箱地址。",
+      "errorSubmit": "提交失败，请重试。"
+    },
     "className": "bg-gradient-to-b from-amber-50/15 via-amber-50/10 to-amber-50/5 dark:from-amber-950/10 dark:via-amber-950/8 dark:to-amber-950/5"
   }
 }

@@ -3,7 +3,6 @@
 import { useEffect, useState } from "react";
 import { Check, Palette } from "lucide-react";
 import { useThemeColor } from "@/shared/hooks/use-theme-color";
-import { Button } from "@/shared/components/ui/button";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -22,37 +21,36 @@ export function ThemeSwitcher({ className }: { className?: string }) {
     setMounted(true);
   }, []);
 
-  // Render a placeholder button during SSR to avoid hydration mismatch
+  // Render a placeholder during SSR to avoid hydration mismatch
   if (!mounted) {
     return (
-      <Button
-        variant="outline"
-        size="icon"
-        className={cn("relative", className)}
+      <button
+        className={cn(
+          "relative inline-flex items-center justify-center rounded-md p-2 text-muted-foreground transition-colors",
+          className,
+        )}
         title="Change theme colors"
         disabled
       >
         <Palette className="h-5 w-5" />
         <span className="sr-only">Change theme colors</span>
-      </Button>
+      </button>
     );
   }
 
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
-        <Button
-          variant="outline"
-          size="icon"
+        <button
           className={cn(
-            "relative text-foreground border-border hover:text-primary",
+            "relative inline-flex items-center justify-center rounded-md p-2 text-muted-foreground transition-colors",
             className,
           )}
           title="Change theme colors"
         >
           <Palette className="h-5 w-5" />
           <span className="sr-only">Change theme colors</span>
-        </Button>
+        </button>
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end" className="w-72">
         <DropdownMenuLabel>Theme Colors</DropdownMenuLabel>

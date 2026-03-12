@@ -42,47 +42,22 @@ export function LocaleSelector({
   // Return a placeholder during SSR to avoid hydration mismatch
   if (!mounted) {
     return (
-      <Button
-        variant={type === "icon" ? "ghost" : "outline"}
-        size={type === "icon" ? "icon" : "sm"}
-        className={
-          type === "icon" ? "h-auto w-auto p-0" : "hover:bg-primary/10"
-        }
+      <button
+        className="relative inline-flex items-center justify-center rounded-md p-2 text-muted-foreground transition-colors"
         disabled
       >
-        {type === "icon" ? (
-          <Languages size={18} />
-        ) : (
-          <>
-            <Globe size={16} />
-            {localeNames[currentLocale]}
-          </>
-        )}
-      </Button>
+        <Languages size={18} />
+        <span className="sr-only">Select language</span>
+      </button>
     );
   }
 
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
-        {type === "icon" ? (
-          <Button
-            variant="ghost"
-            size="icon"
-            className="h-auto w-auto p-0 text-foreground hover:text-primary"
-          >
-            <Languages size={18} />
-          </Button>
-        ) : (
-          <Button
-            variant="outline"
-            size="sm"
-            className="hover:bg-primary/10 text-foreground border-border"
-          >
-            <Globe size={16} />
-            {localeNames[currentLocale]}
-          </Button>
-        )}
+        <button className="relative inline-flex items-center justify-center rounded-md p-2 text-muted-foreground hover:text-foreground transition-colors">
+          <Languages size={18} />
+        </button>
       </DropdownMenuTrigger>
       <DropdownMenuContent>
         {Object.keys(localeNames).map((locale) => (
