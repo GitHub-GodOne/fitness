@@ -67,11 +67,11 @@
   "footer": {
     "id": "footer",
     "brand": {
-      "title": "Object2Workout",
-      "description": "Object2Workout 是一个 AI 驱动的健身平台。上传日常物品照片，即刻获得个性化训练视频。",
+      "title": "OfficeReliefAI",
+      "description": "OfficeReliefAI 是一个 AI 驱动的健身平台。上传日常物品照片，即刻获得个性化训练视频。",
       "logo": {
         "src": "/logo-icon.png",
-        "alt": "Object2Workout",
+        "alt": "OfficeReliefAI",
         "width": 100,
         "height": 100
       },

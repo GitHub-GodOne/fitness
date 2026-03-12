@@ -68,16 +68,6 @@ export default async function SettingsPage({
 
   let forms: FormType[] = [];
 
-  settingGroups.forEach((group) => {
-    if (group.tab !== tab) {
-      return;
-    }
-
-    forms.push({
-      title: group.title,
-      description: group.description,
-      fields: settings
-        .filter((setting) => setting.group === group.name)
   if (tab === 'comfly') {
     const comflyGroup = settingGroups.find((group) => group.name === 'comfly');
     const comflySettings = settings.filter((setting) => setting.group === 'comfly');
@@ -278,7 +268,6 @@ export default async function SettingsPage({
       });
     });
   }
-
   return (
     <>
       <Header crumbs={crumbs} />

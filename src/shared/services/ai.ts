@@ -85,6 +85,11 @@ export function getAIManagerWithConfigs(configs: Configs) {
     aiManager.addProvider(
       new VideoLibraryProvider({
         apiKey: comflyApiKey,
+        customStorage: configs.volcano_custom_storage === 'true',
+      })
+    );
+  }
+
   // Register Comfly-API Provider for Jesus video generation
   const nanoBananaApiKey = process.env.NANO_BANANA_API_KEY || configs.NANO_BANANA_API_KEY;
   const wanxApiKey = process.env.WANX_API_KEY || configs.WANX_API_KEY;

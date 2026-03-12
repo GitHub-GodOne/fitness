@@ -73,11 +73,11 @@
   "footer": {
     "id": "footer",
     "brand": {
-      "title": "Object2Workout",
-      "description": "Object2Workout is an AI-powered fitness platform. Upload photos of everyday objects and get personalized workout videos instantly.",
+      "title": "OfficeReliefAI",
+      "description": "OfficeReliefAI is an AI-powered fitness platform. Upload photos of everyday objects and get personalized workout videos instantly.",
       "logo": {
         "src": "/logo-icon.png",
-        "alt": "Object2Workout",
+        "alt": "OfficeReliefAI",
         "width": 1024,
         "height": 1024
       },

@@ -1,4 +1,6 @@
-import { md5 } from '@/shared/lib/hash';
+import path from 'path';
+
+import { getUuid, md5 } from '@/shared/lib/hash';
 import { respData, respErr } from '@/shared/lib/resp';
 import { replaceR2Url } from '@/shared/lib/url';
 import { getUserInfo } from '@/shared/models/user';

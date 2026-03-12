@@ -1,10 +1,10 @@
 {
   "header": {
     "brand": {
-      "title": "Object2Workout",
+      "title": "OfficeReliefAI",
       "logo": {
         "src": "/logo-icon.png",
-        "alt": "Object2Workout"
+        "alt": "OfficeReliefAI"
       },
       "url": "/admin"
     },

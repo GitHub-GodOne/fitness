@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project Overview
 
-Object2Workout — a full-stack AI SaaS fitness app built on the ShipAny Template Two. Users upload objects/images and get AI-generated workout videos. Built with Next.js 16 (App Router), React 19, TypeScript 5, and Tailwind CSS 4.
+OfficeReliefAI — a full-stack AI SaaS fitness app built on the ShipAny Template Two. Users upload objects/images and get AI-generated workout videos. Built with Next.js 16 (App Router), React 19, TypeScript 5, and Tailwind CSS 4.
 
 ## Commands
 
