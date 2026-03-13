@@ -137,7 +137,7 @@ export function SignUser({
                   signOut({
                     fetchOptions: {
                       onSuccess: () => {
-                        router.push("/");
+                        router.refresh();
                       },
                     },
                   })

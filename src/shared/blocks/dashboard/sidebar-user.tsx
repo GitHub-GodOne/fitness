@@ -50,7 +50,7 @@ export function SidebarUser({ user }: { user: SidebarUserType }) {
 
   const handleSignOut = async () => {
     await signOut();
-    router.push(user.signout_callback || '/sign-in');
+    router.refresh();
   };
 
   // If not mounted, render placeholder to avoid hydration mismatch

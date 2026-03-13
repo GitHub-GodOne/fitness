@@ -8,35 +8,49 @@ interface UseRequireAuthOptions {
   callbackUrl?: string;
 }
 
+function normalizeInternalPath(value?: string | null) {
+  const trimmed = value?.trim();
+
+  if (!trimmed) {
+    return "";
+  }
+
+  if (/^[a-z]+:\/\//i.test(trimmed)) {
+    return "";
+  }
+
+  return trimmed.startsWith("/") ? trimmed : `/${trimmed}`;
+}
+
 export function useRequireAuth(options: UseRequireAuthOptions = {}) {
   const { user, setIsShowSignModal } = useAppContext();
   const router = useRouter();
   const { callbackUrl = "/ai-video-generator" } = options;
+  const defaultCallbackUrl =
+    normalizeInternalPath(callbackUrl) || "/ai-video-generator";
 
   const requireAuth = useCallback(
-    (action: () => void) => {
+    (action: () => void, requestedUrl?: string) => {
       if (user) {
-        // User is logged in, execute the action
         action();
       } else {
-        // User is not logged in, show sign modal
-        // Store the intended destination for after login
+        const intendedUrl =
+          normalizeInternalPath(requestedUrl) || defaultCallbackUrl;
         if (typeof window !== "undefined") {
-          sessionStorage.setItem("signInCallbackUrl", callbackUrl);
+          sessionStorage.setItem("signInCallbackUrl", intendedUrl);
         }
         setIsShowSignModal(true);
       }
     },
-    [user, setIsShowSignModal, callbackUrl]
+    [defaultCallbackUrl, setIsShowSignModal, user]
   );
 
   const navigateWithAuth = useCallback(
     (url: string) => {
-      requireAuth(() => {
-        router.push(url);
-      });
+      const normalizedUrl = normalizeInternalPath(url) || defaultCallbackUrl;
+      router.push(normalizedUrl);
     },
-    [requireAuth, router]
+    [defaultCallbackUrl, router]
   );
 
   return { requireAuth, navigateWithAuth, isAuthenticated: !!user };

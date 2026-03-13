@@ -92,7 +92,7 @@ export function SignInForm({
         {isEmailAuthEnabled && (
           <>
             <div className="grid gap-2">
-              <Label htmlFor="email">{t('email_title')}</Label>
+              <Label htmlFor="email" className="text-foreground">{t('email_title')}</Label>
               <Input
                 id="email"
                 type="email"
@@ -113,6 +113,7 @@ export function SignInForm({
               </Link>
             </div> */}
 
+              <Label htmlFor="password" className="text-foreground">{t('password_title')}</Label>
               <Input
                 id="password"
                 type="password"
@@ -158,10 +159,16 @@ export function SignInForm({
       </div>
       {isEmailAuthEnabled && (
         <div className="flex w-full justify-center border-t py-4">
-          <p className="text-center text-xs text-neutral-500">
+          <p className="text-center text-xs text-muted-foreground">
             {t('no_account')}
-            <Link href="/sign-up" className="underline">
-              <span className="cursor-pointer dark:text-white/70">
+            <Link
+              href={{
+                pathname: '/sign-up',
+                query: { callbackUrl },
+              }}
+              className="underline"
+            >
+              <span className="cursor-pointer text-foreground">
                 {t('sign_up_title')}
               </span>
             </Link>

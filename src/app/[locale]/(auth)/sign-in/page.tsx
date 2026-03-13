@@ -3,7 +3,7 @@ import { getTranslations } from 'next-intl/server';
 import { envConfigs } from '@/config';
 import { defaultLocale } from '@/config/locale';
 import { SignIn } from '@/shared/blocks/sign/sign-in';
-import { getConfigs } from '@/shared/models/config';
+import { getAllConfigs } from '@/shared/models/config';
 
 export async function generateMetadata({
   params,
@@ -33,7 +33,7 @@ export default async function SignInPage({
 }) {
   const { callbackUrl } = await searchParams;
 
-  const configs = await getConfigs();
+  const configs = await getAllConfigs();
 
   return <SignIn configs={configs} callbackUrl={callbackUrl || '/'} />;
 }

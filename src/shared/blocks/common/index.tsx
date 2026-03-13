@@ -38,3 +38,4 @@ export * from './comment-reply-input';
 export * from './ai-task-selector';
 export * from './share-button';
 export * from './copy-text-button';
+export * from './guest-page-access-guard';

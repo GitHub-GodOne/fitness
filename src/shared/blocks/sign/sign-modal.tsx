@@ -1,8 +1,10 @@
 'use client';
 
 import { useMemo } from 'react';
+import { useSearchParams } from 'next/navigation';
 import { useTranslations } from 'next-intl';
 
+import { usePathname } from '@/core/i18n/navigation';
 import { Button } from '@/shared/components/ui/button';
 import {
   Dialog,
@@ -28,10 +30,11 @@ import { SignInForm } from './sign-in-form';
 export function SignModal({ callbackUrl }: { callbackUrl?: string }) {
   const t = useTranslations('common.sign');
   const { isShowSignModal, setIsShowSignModal } = useAppContext();
+  const pathname = usePathname();
+  const searchParams = useSearchParams();
 
   const isDesktop = useMediaQuery('(min-width: 768px)');
 
-  // Get callback URL from sessionStorage if not provided (for image upload redirect)
   const effectiveCallbackUrl = useMemo(() => {
     if (callbackUrl) return callbackUrl;
     if (typeof window !== 'undefined') {
@@ -41,15 +44,21 @@ export function SignModal({ callbackUrl }: { callbackUrl?: string }) {
         return stored;
       }
     }
-    return '/ai-video-generator'; // Default to video generator page
-  }, [callbackUrl]);
+
+    const query = searchParams?.toString();
+    if (pathname) {
+      return query ? `${pathname}?${query}` : pathname;
+    }
+
+    return '/';
+  }, [callbackUrl, pathname, searchParams]);
 
   if (isDesktop) {
     return (
       <Dialog open={isShowSignModal} onOpenChange={setIsShowSignModal}>
-        <DialogContent className="sm:max-w-[425px]">
+        <DialogContent className="text-foreground sm:max-w-[425px]">
           <DialogHeader>
-            <DialogTitle>{t('sign_in_title')}</DialogTitle>
+            <DialogTitle className="text-foreground">{t('sign_in_title')}</DialogTitle>
             <DialogDescription>{t('sign_in_description')}</DialogDescription>
           </DialogHeader>
           <SignInForm callbackUrl={effectiveCallbackUrl} />
@@ -60,9 +69,9 @@ export function SignModal({ callbackUrl }: { callbackUrl?: string }) {
 
   return (
     <Drawer open={isShowSignModal} onOpenChange={setIsShowSignModal}>
-      <DrawerContent>
+      <DrawerContent className="text-foreground">
         <DrawerHeader className="text-left">
-          <DrawerTitle>{t('sign_in_title')}</DrawerTitle>
+          <DrawerTitle className="text-foreground">{t('sign_in_title')}</DrawerTitle>
           <DrawerDescription>{t('sign_in_description')}</DrawerDescription>
         </DrawerHeader>
         <SignInForm callbackUrl={effectiveCallbackUrl} className="mt-8 px-4" />

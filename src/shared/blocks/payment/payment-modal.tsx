@@ -1,7 +1,9 @@
 'use client';
 
+import { useSearchParams } from 'next/navigation';
 import { useTranslations } from 'next-intl';
 
+import { usePathname } from '@/core/i18n/navigation';
 import { Button } from '@/shared/components/ui/button';
 import {
   Dialog,
@@ -37,9 +39,17 @@ export function PaymentModal({
   const t = useTranslations('common.payment');
   const { isShowPaymentModal, setIsShowPaymentModal } = useAppContext();
   const { configs } = useAppContext();
+  const pathname = usePathname();
+  const searchParams = useSearchParams();
 
-  // todo: dynamic set callbackURL
-  const callbackURL = '/';
+  const callbackURL = (() => {
+    const query = searchParams?.toString();
+    if (!pathname) {
+      return '/';
+    }
+
+    return query ? `${pathname}?${query}` : pathname;
+  })();
 
   const isDesktop = useMediaQuery('(min-width: 768px)');
 

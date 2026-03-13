@@ -41,6 +41,7 @@ import {
   PricingItem,
   Pricing as PricingType,
 } from "@/shared/types/blocks/pricing";
+import { useRequireAuth } from "@/shared/hooks/use-require-auth";
 
 // Helper function to get all available currencies from a pricing item
 function getCurrenciesFromItem(item: PricingItem | null): PricingCurrency[] {
@@ -104,6 +105,9 @@ export function Pricing({
     setIsShowPaymentModal,
     configs,
   } = useAppContext();
+  const { navigateWithAuth } = useRequireAuth({
+    callbackUrl: "/ai-video-generator",
+  });
 
   const [group, setGroup] = useState(() => {
     // find current pricing item
@@ -224,12 +228,7 @@ export function Pricing({
 
     // For free plans, directly navigate to video generator
     if (isFreePlan) {
-      if (!user) {
-        setIsShowSignModal(true);
-        return;
-      }
-      // Navigate to video generator page
-      router.push("/ai-video-generator");
+      navigateWithAuth("/ai-video-generator");
       return;
     }
 
@@ -361,7 +360,7 @@ export function Pricing({
           <h1 className="sr-only">{section.sr_only_title}</h1>
         )}
         <div className="flex items-center justify-center gap-2 mb-4 sm:mb-6">
-          <h2 className="text-2xl sm:text-3xl font-bold text-pretty lg:text-4xl break-words">
+          <h2 className="text-2xl sm:text-3xl font-bold text-pretty text-foreground lg:text-4xl break-words">
             {section.title}
           </h2>
           <TooltipProvider delayDuration={0}>
@@ -464,8 +463,8 @@ export function Pricing({
                 )}
 
                 <CardHeader>
-                  <CardTitle className="font-medium">
-                    <h3 className="text-sm font-medium">{item.title}</h3>
+                  <CardTitle className="font-medium text-foreground">
+                    <h3 className="text-sm font-medium text-foreground">{item.title}</h3>
                   </CardTitle>
 
                   <div className="my-3 flex items-baseline gap-2">
@@ -516,7 +515,7 @@ export function Pricing({
                     )}
                   </div>
 
-                  <CardDescription className="text-sm">
+                  <CardDescription className="text-sm text-muted-foreground">
                     {item.description}
                   </CardDescription>
                   {item.tip && (
@@ -557,7 +556,7 @@ export function Pricing({
                   <hr className="border-dashed" />
 
                   {item.features_title && (
-                    <p className="text-sm font-medium">{item.features_title}</p>
+                    <p className="text-sm font-medium text-foreground">{item.features_title}</p>
                   )}
                   <ul className="list-outside space-y-3 text-sm">
                     {item.features?.map((item, index) => (

@@ -46,7 +46,7 @@ export function ShowcaseVideoGallery({
 
             <div className="space-y-3 p-5">
               <div className="flex items-center justify-between gap-3">
-                <h2 className="text-xl font-semibold">{video.title}</h2>
+                <h2 className="text-xl font-semibold text-foreground">{video.title}</h2>
                 <span className="text-xs text-muted-foreground">
                   {new Date(video.publishedAt || video.createdAt).toLocaleDateString(
                     locale === 'zh' ? 'zh-CN' : 'en-US'

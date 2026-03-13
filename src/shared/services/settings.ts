@@ -13,6 +13,12 @@ import {
   DEFAULT_COMFLY_VIDEO_PROMPT,
 } from '@/extensions/ai/comfly-api';
 import { themes } from '@/config/theme/themes';
+import {
+  defaultFontPresetValues,
+  monoFontPresets,
+  sansFontPresets,
+  serifFontPresets,
+} from '@/config/style/font-presets';
 import { Tab } from '@/shared/types/blocks/common';
 
 export interface Setting {
@@ -48,6 +54,12 @@ export async function getSettingTabs(tab: string) {
       title: t('edit.tabs.general'),
       url: '/admin/settings/general',
       is_active: tab === 'general',
+    },
+    {
+      name: 'guest_access',
+      title: t('edit.tabs.guest_access'),
+      url: '/admin/settings/guest_access',
+      is_active: tab === 'guest_access',
     },
     {
       name: 'auth',
@@ -141,6 +153,12 @@ export async function getSettingGroups() {
       title: t('groups.showcases'),
       description: 'custom showcases display settings',
       tab: 'general',
+    },
+    {
+      name: 'guest_page_access',
+      title: t('groups.guest_page_access'),
+      description: 'custom guest page popup access rules',
+      tab: 'guest_access',
     },
     {
       name: 'email_auth',
@@ -354,6 +372,45 @@ export async function getSettings() {
       tip: 'Default site theme used when a visitor has not manually selected a theme color.',
     },
     {
+      name: 'site_font_sans',
+      title: 'Default Sans Font',
+      type: 'select',
+      value: defaultFontPresetValues.sans,
+      options: sansFontPresets.map((item) => ({
+        title: item.title,
+        value: item.value,
+      })),
+      group: 'appinfo',
+      tab: 'general',
+      tip: 'Controls the global font-sans preset used across the site.',
+    },
+    {
+      name: 'site_font_serif',
+      title: 'Default Serif Font',
+      type: 'select',
+      value: defaultFontPresetValues.serif,
+      options: serifFontPresets.map((item) => ({
+        title: item.title,
+        value: item.value,
+      })),
+      group: 'appinfo',
+      tab: 'general',
+      tip: 'Controls the global font-serif preset used across the site.',
+    },
+    {
+      name: 'site_font_mono',
+      title: 'Default Mono Font',
+      type: 'select',
+      value: defaultFontPresetValues.mono,
+      options: monoFontPresets.map((item) => ({
+        title: item.title,
+        value: item.value,
+      })),
+      group: 'appinfo',
+      tab: 'general',
+      tip: 'Controls the global font-mono preset used across the site.',
+    },
+    {
       name: 'showcases_display_mode',
       title: 'Showcases Display Mode',
       type: 'select',
@@ -365,6 +422,28 @@ export async function getSettings() {
       tip: 'Tabs keeps the current filtered list. Category Cards shows only category cards first.',
       group: 'showcases',
       tab: 'general',
+    },
+    {
+      name: 'guest_page_popup_enabled',
+      title: 'Enable Guest Login Popup Protection',
+      type: 'switch',
+      value: 'false',
+      group: 'guest_page_access',
+      tab: 'guest_access',
+      tip: 'When enabled, guests who visit a protected page will see the sign-in popup before the page content is shown.',
+    },
+    {
+      name: 'guest_page_popup_paths',
+      title: 'Protected Page Paths',
+      type: 'textarea',
+      value: '/ai-video-generator',
+      placeholder: '/ai-video-generator\n/special-offer\n/resources/private/*',
+      attributes: {
+        rows: 10,
+      },
+      group: 'guest_page_access',
+      tab: 'guest_access',
+      tip: 'Enter one internal path per line. Use /path or /path/* for a whole path group. Do not include the locale prefix.',
     },
     {
       name: 'initial_role_enabled',
