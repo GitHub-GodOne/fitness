@@ -2,8 +2,14 @@ import { ReactNode } from 'react';
 import { getTranslations } from 'next-intl/server';
 
 import { getThemeLayout } from '@/core/theme';
-import { LocaleDetector, TopBanner } from '@/shared/blocks/common';
+import {
+  GuestPageAccessGuard,
+  LocaleDetector,
+  TopBanner,
+} from '@/shared/blocks/common';
 import { CursorTrail } from '@/shared/components/cursor-trail';
+import { getConfigs } from '@/shared/models/config';
+import { parseGuestAccessPaths } from '@/shared/lib/guest-access';
 import {
   Footer as FooterType,
   Header as HeaderType,
@@ -15,7 +21,10 @@ export default async function LandingLayout({
   children: ReactNode;
 }) {
   // load page data
-  const t = await getTranslations('landing');
+  const [t, configs] = await Promise.all([
+    getTranslations('landing'),
+    getConfigs(),
+  ]);
 
   // load layout component
   const Layout = await getThemeLayout('landing');
@@ -23,12 +32,21 @@ export default async function LandingLayout({
   // header and footer to display
   const header: HeaderType = t.raw('header');
   const footer: FooterType = t.raw('footer');
+  const guestPagePopupEnabled = configs.guest_page_popup_enabled === 'true';
+  const guestPagePopupPaths = parseGuestAccessPaths(
+    configs.guest_page_popup_paths
+  );
 
   return (
     <Layout header={header} footer={footer}>
       <CursorTrail />
       <LocaleDetector />
-      {children}
+      <GuestPageAccessGuard
+        enabled={guestPagePopupEnabled}
+        protectedPaths={guestPagePopupPaths}
+      >
+        {children}
+      </GuestPageAccessGuard>
     </Layout>
   );
 }

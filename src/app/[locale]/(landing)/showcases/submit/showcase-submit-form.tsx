@@ -152,7 +152,7 @@ export function ShowcaseSubmitForm({
             <PlayCircle className="size-4" />
             <span>{t('previewLabel')}</span>
           </div>
-          <h3 className="text-xl font-semibold">{selectedTask.title}</h3>
+          <h3 className="text-xl font-semibold text-foreground">{selectedTask.title}</h3>
           {selectedTask.description ? (
             <p className="text-sm text-muted-foreground">{selectedTask.description}</p>
           ) : null}
@@ -168,12 +168,12 @@ export function ShowcaseSubmitForm({
     >
       <div className="space-y-6 rounded-3xl border bg-card p-6">
         <div className="space-y-2">
-          <h2 className="text-2xl font-semibold">{t('panelTitle')}</h2>
+          <h2 className="text-2xl font-semibold text-foreground">{t('panelTitle')}</h2>
           <p className="text-sm text-muted-foreground">{t('panelDescription')}</p>
         </div>
 
         <div className="space-y-2">
-          <Label htmlFor="source_task_id">{t('sourceTaskId')}</Label>
+          <Label htmlFor="source_task_id" className="text-foreground">{t('sourceTaskId')}</Label>
           <Select value={sourceTaskId} onValueChange={setSourceTaskId}>
             <SelectTrigger id="source_task_id" className="w-full bg-background">
               <SelectValue placeholder={t('sourceTaskPlaceholder')} />
@@ -197,7 +197,7 @@ export function ShowcaseSubmitForm({
                   className="flex w-full items-center justify-between gap-4 px-4 py-4 text-left"
                 >
                   <div className="space-y-1">
-                    <div className="text-lg font-semibold">{t('mobilePreviewTitle')}</div>
+                    <div className="text-lg font-semibold text-foreground">{t('mobilePreviewTitle')}</div>
                     <p className="text-sm text-muted-foreground">{t('mobilePreviewDescription')}</p>
                   </div>
                   <ChevronDown
@@ -216,7 +216,7 @@ export function ShowcaseSubmitForm({
         </div>
 
         <div className="space-y-2">
-          <Label htmlFor="category_id">{t('categoryId')}</Label>
+          <Label htmlFor="category_id" className="text-foreground">{t('categoryId')}</Label>
           <Select value={categoryId} onValueChange={setCategoryId}>
             <SelectTrigger id="category_id" className="w-full bg-background">
               <SelectValue placeholder={t('categoryPlaceholder')} />
@@ -232,7 +232,7 @@ export function ShowcaseSubmitForm({
         </div>
 
         <div className="space-y-2">
-          <Label htmlFor="title">{t('title')}</Label>
+          <Label htmlFor="title" className="text-foreground">{t('title')}</Label>
           <Input
             id="title"
             value={title}
@@ -242,7 +242,7 @@ export function ShowcaseSubmitForm({
         </div>
 
         <div className="space-y-2">
-          <Label htmlFor="description">{t('description')}</Label>
+          <Label htmlFor="description" className="text-foreground">{t('description')}</Label>
           <Textarea
             id="description"
             rows={6}
@@ -253,7 +253,7 @@ export function ShowcaseSubmitForm({
         </div>
 
         <div className="space-y-3">
-          <Label>{t('coverImage')}</Label>
+          <Label className="text-foreground">{t('coverImage')}</Label>
           <ImageUploader
             allowMultiple={false}
             maxImages={1}
@@ -275,7 +275,7 @@ export function ShowcaseSubmitForm({
 
       <div className="hidden space-y-4 rounded-3xl border bg-card p-6 xl:block">
         <div className="space-y-2">
-          <h2 className="text-2xl font-semibold">{t('mobilePreviewTitle')}</h2>
+          <h2 className="text-2xl font-semibold text-foreground">{t('mobilePreviewTitle')}</h2>
           <p className="text-sm text-muted-foreground">{t('mobilePreviewDescription')}</p>
         </div>
 

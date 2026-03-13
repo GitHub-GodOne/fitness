@@ -1,10 +1,18 @@
 import "@/config/style/global.css";
 
+import type { CSSProperties } from "react";
 import { getLocale, setRequestLocale } from "next-intl/server";
 import NextTopLoader from "nextjs-toploader";
 
 import { envConfigs } from "@/config";
 import { locales } from "@/config/locale";
+import {
+  defaultFontPresetValues,
+  monoFontPresets,
+  resolveFontPresetStack,
+  sansFontPresets,
+  serifFontPresets,
+} from "@/config/style/font-presets";
 import {
   APPEARANCE_STORAGE_KEY,
   defaultTheme as defaultThemeColor,
@@ -41,6 +49,22 @@ export default async function RootLayout({
       ? configs.default_theme_color
       : defaultThemeColor;
 
+  const configuredFontSans = resolveFontPresetStack(
+    configs.site_font_sans,
+    sansFontPresets,
+    defaultFontPresetValues.sans
+  );
+  const configuredFontSerif = resolveFontPresetStack(
+    configs.site_font_serif,
+    serifFontPresets,
+    defaultFontPresetValues.serif
+  );
+  const configuredFontMono = resolveFontPresetStack(
+    configs.site_font_mono,
+    monoFontPresets,
+    defaultFontPresetValues.mono
+  );
+
   // ads components
   let adsMetaTags = null;
   let adsHeadScripts = null;
@@ -66,6 +90,11 @@ export default async function RootLayout({
     false,
   );
   const themeVarKeys = Object.keys(defaultLightThemeVars);
+  const rootStyle = {
+    "--font-sans": configuredFontSans,
+    "--font-serif": configuredFontSerif,
+    "--font-mono": configuredFontMono,
+  } as CSSProperties;
   const themeColorBootstrap = `
     (() => {
       try {
@@ -148,7 +177,9 @@ export default async function RootLayout({
   return (
     <html
       lang={locale}
-      data-theme-color={defaultThemeColor}
+      style={rootStyle}
+      data-theme-color={configuredDefaultTheme}
+      data-default-theme-color={configuredDefaultTheme}
       suppressHydrationWarning
     >
       <head>

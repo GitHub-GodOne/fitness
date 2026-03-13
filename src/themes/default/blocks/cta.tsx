@@ -66,13 +66,13 @@ export function Cta({
       <div className="container px-4 sm:px-6">
         <div className="text-center">
           <ScrollAnimation>
-            <h2 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-black text-balance px-4 text-foreground">
+            <h2 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-semibold text-balance text-foreground px-4">
               {section.title}
             </h2>
           </ScrollAnimation>
           <ScrollAnimation delay={0.15}>
             <p
-              className="mt-4 sm:mt-6 text-base sm:text-lg md:text-xl px-4 opacity-90 text-foreground"
+              className="mt-3 sm:mt-4 text-sm sm:text-base text-foreground px-4"
               dangerouslySetInnerHTML={{ __html: section.description ?? "" }}
             />
           </ScrollAnimation>

@@ -80,7 +80,7 @@ export async function ShowcasesPageContent({
           </div>
 
           <div className="mx-auto max-w-3xl space-y-3 text-center">
-            <h1 className="text-4xl font-semibold tracking-tight sm:text-5xl">
+            <h1 className="text-4xl font-semibold tracking-tight text-foreground sm:text-5xl">
               {activeCategory
                 ? activeCategory.title
                 : t('defaultTitle')}
@@ -151,7 +151,7 @@ export async function ShowcasesPageContent({
 
                 <div className="space-y-3 p-5">
                   <div className="flex items-center justify-between gap-3">
-                    <h2 className="text-xl font-semibold">{item.title}</h2>
+                    <h2 className="text-xl font-semibold text-foreground">{item.title}</h2>
                     <span className="text-xs text-muted-foreground">{t('cardOpen')}</span>
                   </div>
                   <p className="line-clamp-3 text-sm text-muted-foreground">

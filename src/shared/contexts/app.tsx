@@ -16,6 +16,7 @@ import { User } from '@/shared/models/user';
 
 export interface ContextValue {
   user: User | null;
+  sessionUser: User | null;
   isCheckSign: boolean;
   isShowSignModal: boolean;
   setIsShowSignModal: (show: boolean) => void;
@@ -41,6 +42,7 @@ export const AppContextProvider = ({ children }: { children: ReactNode }) => {
 
   // session
   const { data: session, isPending } = useSession();
+  const sessionUser = (session?.user as User | null) || null;
 
   // is check sign (true during SSR and initial render to avoid hydration mismatch when auth is enabled)
   const [isCheckSign, setIsCheckSign] = useState(!!envConfigs.auth_secret);
@@ -191,6 +193,7 @@ export const AppContextProvider = ({ children }: { children: ReactNode }) => {
     <AppContext.Provider
       value={{
         user,
+        sessionUser,
         isCheckSign,
         isShowSignModal,
         setIsShowSignModal,

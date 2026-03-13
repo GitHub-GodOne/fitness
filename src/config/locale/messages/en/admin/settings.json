@@ -27,7 +27,8 @@
     "credit": "Credit",
     "appinfo": "App Info",
     "user_role": "User Role",
-    "showcases": "Showcases"
+    "showcases": "Showcases",
+    "guest_page_access": "Guest Page Access"
   },
   "edit": {
     "title": "Settings",
@@ -37,6 +38,7 @@
     },
     "tabs": {
       "general": "General",
+      "guest_access": "Guest Access",
       "auth": "Auth",
       "payment": "Payment",
       "credit": "Credit",

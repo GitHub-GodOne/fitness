@@ -143,6 +143,7 @@ type VideoGeneratorTab = "text-to-video" | "image-to-video" | "video-to-video";
 const POLL_INTERVAL = 3000; // 3 seconds - faster polling for better UX
 const GENERATION_TIMEOUT = 600000; // 10 minutes for video
 const MAX_PROMPT_LENGTH = 2000;
+const VIDEO_GENERATOR_DRAFT_STORAGE_KEY = "ai-video-generator-draft";
 
 const textToVideoCredits = 1;
 const imageToVideoCredits = 1;
@@ -338,6 +339,7 @@ export function VideoGenerator({
   const [provider, setProvider] = useState("sp");
   // Default to Volcano Engine's model for image-to-video
   const [model, setModel] = useState("doubao-seedance-1-5-pro-251215");
+  const [userFeeling, setUserFeeling] = useState("");
   const [referenceImageItems, setReferenceImageItems] = useState<
     ImageUploaderValue[]
   >([]);
@@ -372,6 +374,7 @@ export function VideoGenerator({
   const [isPreviewOpen, setIsPreviewOpen] = useState(false);
   const [isVideoLoading, setIsVideoLoading] = useState(true);
   const progressCardRef = useRef<HTMLDivElement>(null);
+  const draftHydratedRef = useRef(false);
   const historyLimit = 10;
   // 选中的视频（按顺序）：Map<taskId, videoUrl>
   const [selectedVideos, setSelectedVideos] = useState<Map<string, string>>(
@@ -536,6 +539,105 @@ export function VideoGenerator({
   useEffect(() => {
     setIsMounted(true);
   }, []);
+
+  useEffect(() => {
+    if (typeof window === "undefined" || draftHydratedRef.current) {
+      return;
+    }
+
+    draftHydratedRef.current = true;
+
+    try {
+      const rawDraft = sessionStorage.getItem(VIDEO_GENERATOR_DRAFT_STORAGE_KEY);
+      if (!rawDraft) {
+        return;
+      }
+
+      const draft = JSON.parse(rawDraft);
+      if (draft.activeTab) {
+        setActiveTab(draft.activeTab);
+      }
+      if (draft.provider) {
+        setProvider(draft.provider);
+      }
+      if (draft.model) {
+        setModel(draft.model);
+      }
+      if (typeof draft.userFeeling === "string") {
+        setUserFeeling(draft.userFeeling);
+      }
+      if (Array.isArray(draft.referenceImageUrls)) {
+        setReferenceImageUrls(draft.referenceImageUrls.filter(Boolean));
+      }
+      if (typeof draft.referenceVideoUrl === "string") {
+        setReferenceVideoUrl(draft.referenceVideoUrl);
+      }
+      if (draft.resolution) {
+        setResolution(draft.resolution);
+      }
+      if (draft.ratio) {
+        setRatio(draft.ratio);
+      }
+      if (typeof draft.duration === "number") {
+        setDuration(draft.duration);
+      }
+      if (typeof draft.generateAudio === "boolean") {
+        setGenerateAudio(draft.generateAudio);
+      }
+      if (draft.voiceGender === "male" || draft.voiceGender === "female") {
+        setVoiceGender(draft.voiceGender);
+      }
+    } catch (error) {
+      console.warn("[VideoGenerator] Failed to restore draft:", error);
+    }
+  }, []);
+
+  useEffect(() => {
+    if (typeof window === "undefined" || !draftHydratedRef.current) {
+      return;
+    }
+
+    const draft = {
+      activeTab,
+      provider,
+      model,
+      userFeeling,
+      referenceImageUrls,
+      referenceVideoUrl,
+      resolution,
+      ratio,
+      duration,
+      generateAudio,
+      voiceGender,
+    };
+
+    const hasMeaningfulDraft =
+      Boolean(userFeeling.trim()) ||
+      referenceImageUrls.length > 0 ||
+      Boolean(referenceVideoUrl.trim());
+
+    if (!hasMeaningfulDraft) {
+      sessionStorage.removeItem(VIDEO_GENERATOR_DRAFT_STORAGE_KEY);
+      return;
+    }
+
+    sessionStorage.setItem(
+      VIDEO_GENERATOR_DRAFT_STORAGE_KEY,
+      JSON.stringify(draft),
+    );
+  }, [
+    activeTab,
+    provider,
+    model,
+    userFeeling,
+    referenceImageUrls,
+    referenceVideoUrl,
+    resolution,
+    ratio,
+    duration,
+    generateAudio,
+    voiceGender,
+  ]);
 
   const fetchHistory = useCallback(async () => {
     if (!user) return;

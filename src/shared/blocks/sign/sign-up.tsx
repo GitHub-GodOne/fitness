@@ -114,9 +114,9 @@ export function SignUp({
   };
 
   return (
-    <Card className="mx-auto w-full md:max-w-md">
+    <Card className="mx-auto w-full text-foreground md:max-w-md">
       <CardHeader>
-        <CardTitle className="text-lg md:text-xl">
+        <CardTitle className="text-lg text-foreground md:text-xl">
           <h1>{t('sign_up_title')}</h1>
         </CardTitle>
         <CardDescription className="text-xs md:text-sm">
@@ -128,7 +128,7 @@ export function SignUp({
           {isEmailAuthEnabled && (
             <>
               <div className="grid gap-2">
-                <Label htmlFor="name">{t('name_title')}</Label>
+                <Label htmlFor="name" className="text-foreground">{t('name_title')}</Label>
                 <Input
                   id="name"
                   type="text"
@@ -142,7 +142,7 @@ export function SignUp({
               </div>
 
               <div className="grid gap-2">
-                <Label htmlFor="email">{t('email_title')}</Label>
+                <Label htmlFor="email" className="text-foreground">{t('email_title')}</Label>
                 <Input
                   id="email"
                   type="email"
@@ -156,7 +156,7 @@ export function SignUp({
               </div>
 
               <div className="grid gap-2">
-                <Label htmlFor="password">{t('password_title')}</Label>
+                <Label htmlFor="password" className="text-foreground">{t('password_title')}</Label>
                 <Input
                   id="password"
                   type="password"
@@ -193,10 +193,16 @@ export function SignUp({
       {isEmailAuthEnabled && (
         <CardFooter>
           <div className="flex w-full justify-center border-t py-4">
-            <p className="text-center text-xs text-neutral-500">
+            <p className="text-center text-xs text-muted-foreground">
               {t('already_have_account')}
-              <Link href="/sign-in" className="underline">
-                <span className="cursor-pointer dark:text-white/70">
+              <Link
+                href={{
+                  pathname: '/sign-in',
+                  query: { callbackUrl },
+                }}
+                className="underline"
+              >
+                <span className="cursor-pointer text-foreground">
                   {t('sign_in_title')}
                 </span>
               </Link>
