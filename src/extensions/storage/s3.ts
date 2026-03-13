@@ -3,6 +3,8 @@ import type {
   StorageDeleteOptions,
   StorageDownloadUploadOptions,
   StorageProvider,
+  StorageSignedUploadOptions,
+  StorageSignedUploadResult,
   StorageUploadOptions,
   StorageUploadResult,
 } from '.';
@@ -150,6 +152,62 @@ export class S3Provider implements StorageProvider {
         filename: options.key.split('/').pop(),
         url: publicUrl,
         provider: this.name,
+      };
+    } catch (error) {
+      return {
+        success: false,
+        error: error instanceof Error ? error.message : 'Unknown error',
+        provider: this.name,
+      };
+    }
+  }
+
+  async createSignedUpload(
+    options: StorageSignedUploadOptions
+  ): Promise<StorageSignedUploadResult> {
+    try {
+      const uploadBucket = options.bucket || this.configs.bucket;
+      if (!uploadBucket) {
+        return {
+          success: false,
+          error: 'Bucket is required',
+          provider: this.name,
+        };
+      }
+
+      const url = `${this.configs.endpoint}/${uploadBucket}/${options.key}`;
+      const { AwsClient } = await import('aws4fetch');
+      const client = new AwsClient({
+        accessKeyId: this.configs.accessKeyId,
+        secretAccessKey: this.configs.secretAccessKey,
+        region: this.configs.region,
+      });
+
+      const signedRequest = await client.sign(url, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': options.contentType || 'application/octet-stream',
+          'Content-Disposition': options.disposition || 'inline',
+        },
+        aws: {
+          signQuery: true,
+          allHeaders: true,
+        },
+      });
+
+      const publicUrl =
+        this.getPublicUrl({ key: options.key, bucket: uploadBucket }) || url;
+
+      return {
+        success: true,
+        provider: this.name,
+        method: 'PUT',
+        url: signedRequest.url,
+        key: options.key,
+        bucket: uploadBucket,
+        filename: options.key.split('/').pop(),
+        publicUrl,
+        headers: Object.fromEntries(signedRequest.headers.entries()),
       };
     } catch (error) {
       return {

@@ -21,6 +21,7 @@ import { useTranslations } from 'next-intl';
 import { toast } from 'sonner';
 
 import { CopyTextButton } from '@/shared/blocks/common';
+import { uploadAdminMediaFilesDirect } from '@/shared/lib/admin-media-upload';
 import { Button } from '@/shared/components/ui/button';
 import {
   Dialog,
@@ -155,24 +156,13 @@ export function MediaAssetLibrary({ locale }: { locale: string }) {
 
     try {
       setUploading(true);
-      const formData = new FormData();
-      Array.from(files).forEach((file) => {
-        formData.append('files', file);
+      const uploadedItems = await uploadAdminMediaFilesDirect({
+        files: Array.from(files),
+        path: currentUploadPath,
       });
-      formData.append('path', currentUploadPath);
-
-      const response = await fetch('/api/admin/media-assets/upload', {
-        method: 'POST',
-        body: formData,
-      });
-      const payload = await response.json();
-
-      if (!response.ok || payload.code !== 0) {
-        throw new Error(payload.message || 'Upload failed');
-      }
 
       toast.success(
-        t('messages.uploaded', { count: payload.data.count })
+        t('messages.uploaded', { count: uploadedItems.length })
       );
       await loadBrowser(currentUploadPath, true);
     } catch (error: any) {

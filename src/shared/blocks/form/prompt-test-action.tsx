@@ -9,6 +9,7 @@ import { ImageUploader } from '@/shared/blocks/common';
 import { Button } from '@/shared/components/ui/button';
 import { Input } from '@/shared/components/ui/input';
 import { Textarea } from '@/shared/components/ui/textarea';
+import { uploadAdminMediaFilesDirect } from '@/shared/lib/admin-media-upload';
 
 type PromptTestActionConfig = {
   provider: 'comfly';
@@ -63,21 +64,12 @@ export function PromptTestAction({
   const audioInputRef = useRef<HTMLInputElement | null>(null);
 
   async function uploadMedia(file: File, mediaType: 'video' | 'audio') {
-    const formData = new FormData();
-    formData.append('files', file);
-    formData.append('path', `media-library/comfly-tests/${mediaType}`);
-
-    const response = await fetch('/api/admin/media-assets/upload', {
-      method: 'POST',
-      body: formData,
+    const uploadedItems = await uploadAdminMediaFilesDirect({
+      files: [file],
+      path: `media-library/comfly-tests/${mediaType}`,
     });
 
-    const payload = await response.json();
-    if (!response.ok || payload.code !== 0) {
-      throw new Error(payload.message || 'Upload failed');
-    }
-
-    const uploadedUrl = payload.data?.items?.[0]?.url;
+    const uploadedUrl = uploadedItems[0]?.url;
     if (!uploadedUrl) {
       throw new Error('Upload failed');
     }

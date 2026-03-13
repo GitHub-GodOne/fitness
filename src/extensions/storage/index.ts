@@ -13,6 +13,27 @@ export interface StorageUploadOptions {
   retryDelayMs?: number;
 }
 
+export interface StorageSignedUploadOptions {
+  key: string;
+  contentType?: string;
+  bucket?: string;
+  disposition?: 'inline' | 'attachment';
+}
+
+export interface StorageSignedUploadResult {
+  success: boolean;
+  provider: string;
+  method?: 'PUT';
+  url?: string;
+  key?: string;
+  bucket?: string;
+  uploadPath?: string;
+  filename?: string;
+  publicUrl?: string;
+  headers?: Record<string, string>;
+  error?: string;
+}
+
 /**
  * Storage download and upload options interface
  */
@@ -99,6 +120,11 @@ export interface StorageProvider {
   // upload file
   uploadFile(options: StorageUploadOptions): Promise<StorageUploadResult>;
 
+  // create a client-direct signed upload request (optional)
+  createSignedUpload?(
+    options: StorageSignedUploadOptions
+  ): Promise<StorageSignedUploadResult>;
+
   // delete file
   deleteFile?: (options: StorageDeleteOptions) => Promise<{
     success: boolean;
@@ -154,6 +180,41 @@ export class StorageManager {
     options: StorageUploadOptions
   ): Promise<StorageUploadResult> {
     return this.ensureDefaultProvider().uploadFile(options);
+  }
+
+  async createSignedUpload(
+    options: StorageSignedUploadOptions
+  ): Promise<StorageSignedUploadResult> {
+    const provider = this.ensureDefaultProvider();
+    if (!provider.createSignedUpload) {
+      return {
+        success: false,
+        error: `Storage provider '${provider.name}' does not support direct uploads`,
+        provider: provider.name,
+      };
+    }
+
+    return provider.createSignedUpload(options);
+  }
+
+  async createSignedUploadWithProvider(
+    options: StorageSignedUploadOptions,
+    providerName: string
+  ): Promise<StorageSignedUploadResult> {
+    const provider = this.getProvider(providerName);
+    if (!provider) {
+      throw new Error(`Storage provider '${providerName}' not found`);
+    }
+
+    if (!provider.createSignedUpload) {
+      return {
+        success: false,
+        error: `Storage provider '${provider.name}' does not support direct uploads`,
+        provider: provider.name,
+      };
+    }
+
+    return provider.createSignedUpload(options);
   }
 
   // upload file using specific provider
@@ -262,10 +323,28 @@ export class StorageManager {
     return provider.exists(options);
   }
 
+  async existsWithProvider(
+    options: { key: string; bucket?: string },
+    providerName: string
+  ): Promise<boolean> {
+    const provider = this.getProvider(providerName);
+    if (!provider || !provider.exists) return false;
+    return provider.exists(options);
+  }
+
   // get public url using default provider (if supported)
   getPublicUrl(options: { key: string; bucket?: string }): string | undefined {
     const provider = this.ensureDefaultProvider();
     if (!provider.getPublicUrl) return undefined;
+    return provider.getPublicUrl(options);
+  }
+
+  getPublicUrlWithProvider(
+    options: { key: string; bucket?: string },
+    providerName: string
+  ): string | undefined {
+    const provider = this.getProvider(providerName);
+    if (!provider || !provider.getPublicUrl) return undefined;
     return provider.getPublicUrl(options);
   }
 
