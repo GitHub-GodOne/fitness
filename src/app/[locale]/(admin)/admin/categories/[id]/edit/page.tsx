@@ -77,12 +77,12 @@ export default async function CategoryEditPage({
 
         const user = await getUserInfo();
         if (!user) {
-          throw new Error('no auth');
+          return { status: 'error', message: 'Please sign in again' } as const;
         }
 
         const { category } = passby;
         if (!user || !category || category.userId !== user.id) {
-          throw new Error('access denied');
+          return { status: 'error', message: 'Access denied' } as const;
         }
 
         const slug = data.get('slug') as string;
@@ -90,7 +90,10 @@ export default async function CategoryEditPage({
         const description = data.get('description') as string;
 
         if (!slug?.trim() || !title?.trim()) {
-          throw new Error('slug and title are required');
+          return {
+            status: 'error',
+            message: 'Slug and title are required',
+          } as const;
         }
 
         const updateCategory: UpdateTaxonomy = {
@@ -106,7 +109,10 @@ export default async function CategoryEditPage({
         const result = await updateTaxonomy(category.id, updateCategory);
 
         if (!result) {
-          throw new Error('update category failed');
+          return {
+            status: 'error',
+            message: 'Failed to update category',
+          } as const;
         }
 
         return {

@@ -1,4 +1,4 @@
-import { setRequestLocale } from 'next-intl/server';
+import { getTranslations, setRequestLocale } from 'next-intl/server';
 
 import { PERMISSIONS, requirePermission } from '@/core/rbac';
 import { Header, Main, MainHeader } from '@/shared/blocks/dashboard';
@@ -21,7 +21,6 @@ export default async function ShowcaseVideosPage({
   searchParams: Promise<{ page?: number; pageSize?: number; status?: string }>;
 }) {
   const { locale } = await params;
-  const isZh = locale === 'zh';
   setRequestLocale(locale);
 
   await requirePermission({
@@ -30,6 +29,8 @@ export default async function ShowcaseVideosPage({
     locale,
   });
 
+  const t = await getTranslations('admin.showcase-videos');
+
   const { page: pageNum, pageSize, status } = await searchParams;
   const page = pageNum || 1;
   const limit = pageSize || 30;
@@ -37,32 +38,32 @@ export default async function ShowcaseVideosPage({
     status && status !== 'all' ? status : undefined;
 
   const crumbs: Crumb[] = [
-    { title: isZh ? '后台' : 'Admin', url: '/admin' },
-    { title: isZh ? '案例视频' : 'Showcase Videos', is_active: true },
+    { title: t('list.crumbs.admin'), url: '/admin' },
+    { title: t('list.crumbs.videos'), is_active: true },
   ];
 
   const tabs: Tab[] = [
     {
       name: 'all',
-      title: isZh ? '全部' : 'All',
+      title: t('list.tabs.all'),
       url: '/admin/showcase-videos',
       is_active: !activeStatus,
     },
     {
       name: ShowcaseVideoStatus.PENDING,
-      title: isZh ? '待审核' : 'Pending',
+      title: t('list.tabs.pending'),
       url: `/admin/showcase-videos?status=${ShowcaseVideoStatus.PENDING}`,
       is_active: activeStatus === ShowcaseVideoStatus.PENDING,
     },
     {
       name: ShowcaseVideoStatus.PUBLISHED,
-      title: isZh ? '已发布' : 'Published',
+      title: t('list.tabs.published'),
       url: `/admin/showcase-videos?status=${ShowcaseVideoStatus.PUBLISHED}`,
       is_active: activeStatus === ShowcaseVideoStatus.PUBLISHED,
     },
     {
       name: ShowcaseVideoStatus.REJECTED,
-      title: isZh ? '已拒绝' : 'Rejected',
+      title: t('list.tabs.rejected'),
       url: `/admin/showcase-videos?status=${ShowcaseVideoStatus.REJECTED}`,
       is_active: activeStatus === ShowcaseVideoStatus.REJECTED,
     },
@@ -86,24 +87,24 @@ export default async function ShowcaseVideosPage({
   const data = videos.map((video: ShowcaseVideo) => ({
     ...video,
     categoryTitle: video.categoryId ? categoryMap.get(video.categoryId) || '-' : '-',
-    featuredLabel: video.featured ? (isZh ? '推荐' : 'Featured') : (isZh ? '普通' : 'Normal'),
+    featuredLabel: video.featured ? t('featuredOptions.featured') : t('featuredOptions.normal'),
   }));
 
   const table: Table = {
     columns: [
-      { name: 'title', title: isZh ? '标题' : 'Title' },
-      { name: 'categoryTitle', title: isZh ? '分类' : 'Category' },
-      { name: 'user', title: isZh ? '用户' : 'User', type: 'user' },
-      { name: 'status', title: isZh ? '状态' : 'Status', type: 'label' },
-      { name: 'featuredLabel', title: isZh ? '推荐位' : 'Featured', type: 'label' },
-      { name: 'createdAt', title: isZh ? '提交时间' : 'Submitted', type: 'time' },
+      { name: 'title', title: t('fields.title') },
+      { name: 'categoryTitle', title: t('fields.category') },
+      { name: 'user', title: t('fields.user'), type: 'user' },
+      { name: 'status', title: t('fields.status'), type: 'label' },
+      { name: 'featuredLabel', title: t('fields.featured'), type: 'label' },
+      { name: 'createdAt', title: t('fields.createdAt'), type: 'time' },
       {
         name: 'action',
         title: '',
         type: 'dropdown',
         callback: (item: ShowcaseVideo) => [
           {
-            title: isZh ? '审核 / 编辑' : 'Review / Edit',
+            title: t('list.buttons.edit'),
             icon: 'RiEditLine',
             url: `/admin/showcase-videos/${item.id}/edit`,
           },
@@ -119,16 +120,18 @@ export default async function ShowcaseVideosPage({
   };
 
   const actions: Button[] = [];
+  actions.push({
+    id: 'add',
+    title: t('list.buttons.add'),
+    icon: 'RiAddLine',
+    url: '/admin/showcase-videos/add',
+  });
 
   return (
     <>
       <Header crumbs={crumbs} />
       <Main>
-        <MainHeader
-          title={isZh ? '案例视频审核' : 'Showcase Video Review'}
-          actions={actions}
-          tabs={tabs}
-        />
+        <MainHeader title={t('list.title')} actions={actions} tabs={tabs} />
         <TableCard table={table} />
       </Main>
     </>

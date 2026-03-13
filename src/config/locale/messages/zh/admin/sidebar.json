@@ -49,6 +49,11 @@
               "title": "文章",
               "icon": "FileText",
               "url": "/admin/posts"
+            },
+            {
+              "title": "翻译管理",
+              "icon": "Languages",
+              "url": "/admin/translations"
             }
           ]
         },

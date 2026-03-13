@@ -3,7 +3,14 @@
 import { isArray } from 'util';
 import { useState } from 'react';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { ChevronDown, ChevronUp, Loader } from 'lucide-react';
+import {
+  CheckCircle2,
+  ChevronDown,
+  ChevronUp,
+  Copy,
+  ExternalLink,
+  Loader,
+} from 'lucide-react';
 import { useForm } from 'react-hook-form';
 import { toast } from 'sonner';
 import { z } from 'zod';
@@ -182,6 +189,241 @@ const generateFormSchema = (fields: FormFieldType[]) => {
 
   return z.object(schemaFields);
 };
+
+function ResultChip({
+  label,
+  value,
+}: {
+  label: string;
+  value: string;
+}) {
+  return (
+    <div className="rounded-full border bg-muted/30 px-3 py-1 text-[11px] font-medium text-muted-foreground">
+      <span className="text-foreground">{label}:</span> {value}
+    </div>
+  );
+}
+
+function ResultSection({
+  title,
+  value,
+}: {
+  title: string;
+  value: unknown;
+}) {
+  if (value === undefined || value === null) {
+    return null;
+  }
+
+  return (
+    <div className="space-y-2">
+      <div className="text-xs font-medium uppercase tracking-[0.12em] text-muted-foreground">
+        {title}
+      </div>
+      <pre className="max-h-[320px] overflow-auto whitespace-pre-wrap break-all rounded-xl border bg-muted/20 p-3 text-xs leading-6">
+        {JSON.stringify(value, null, 2)}
+      </pre>
+    </div>
+  );
+}
+
+function TestResultPanel({
+  title,
+  data,
+  className,
+}: {
+  title: string;
+  data: any;
+  className?: string;
+}) {
+  const type = typeof data?.type === 'string' ? data.type : '';
+  const executed =
+    typeof data?.executed === 'boolean' ? (data.executed ? 'Executed' : 'Preview') : '';
+  const supportsExecution =
+    typeof data?.supportsExecution === 'boolean'
+      ? data.supportsExecution
+        ? 'Yes'
+        : 'No'
+      : '';
+  const mediaUrl =
+    data?.result?.editedImageUrl ||
+    data?.result?.audioUrl ||
+    data?.result?.videoUrl ||
+    data?.result?.finalVideoUrl ||
+    '';
+  const isImageResult =
+    typeof mediaUrl === 'string' &&
+    /\.(png|jpg|jpeg|webp|gif|avif|svg)(\?.*)?$/i.test(mediaUrl);
+  const isAudioResult =
+    typeof mediaUrl === 'string' &&
+    /\.(wav|mp3|m4a|aac|ogg)(\?.*)?$/i.test(mediaUrl);
+  const isVideoResult =
+    typeof mediaUrl === 'string' &&
+    /\.(mp4|mov|webm|avi|mpeg|m4v)(\?.*)?$/i.test(mediaUrl);
+
+  return (
+    <div className={`rounded-2xl border bg-background p-4 sm:p-5 ${className || ''}`}>
+      <div className="flex flex-col gap-3 border-b pb-4 sm:flex-row sm:items-start sm:justify-between">
+        <div className="space-y-1">
+          <div className="text-sm font-semibold">{title} Result</div>
+          <div className="text-xs text-muted-foreground">
+            Test output and resolved request payload.
+          </div>
+        </div>
+        <div className="flex flex-wrap gap-2">
+          {type ? <ResultChip label="Type" value={type} /> : null}
+          {executed ? <ResultChip label="Mode" value={executed} /> : null}
+          {supportsExecution ? (
+            <ResultChip label="Run" value={supportsExecution} />
+          ) : null}
+        </div>
+      </div>
+
+      <div className="mt-4 space-y-4">
+        {isImageResult ? (
+          <div className="rounded-2xl border bg-muted/10 p-4">
+            <div className="mb-3 flex flex-wrap items-center gap-2 text-sm font-medium">
+              <CheckCircle2 className="size-4 text-green-600" />
+              Image Preview
+            </div>
+            <div className="overflow-hidden rounded-2xl border bg-background">
+              <img
+                src={mediaUrl}
+                alt={`${title} output`}
+                className="max-h-[520px] w-full object-contain"
+              />
+            </div>
+            <div className="mt-3 flex flex-wrap gap-2">
+              <Button
+                type="button"
+                size="sm"
+                variant="outline"
+                onClick={() => window.open(mediaUrl, '_blank', 'noopener,noreferrer')}
+              >
+                <ExternalLink className="size-4" />
+                Open File
+              </Button>
+              <Button
+                type="button"
+                size="sm"
+                variant="outline"
+                onClick={async () => {
+                  await navigator.clipboard.writeText(mediaUrl);
+                  toast.success('URL copied');
+                }}
+              >
+                <Copy className="size-4" />
+                Copy URL
+              </Button>
+            </div>
+          </div>
+        ) : null}
+
+        {isAudioResult ? (
+          <div className="rounded-2xl border bg-muted/10 p-4">
+            <div className="mb-3 flex flex-wrap items-center gap-2 text-sm font-medium">
+              <CheckCircle2 className="size-4 text-green-600" />
+              Audio Preview
+            </div>
+            <audio controls className="w-full" src={mediaUrl}>
+              Your browser does not support audio playback.
+            </audio>
+            <div className="mt-3 flex flex-wrap gap-2">
+              <Button
+                type="button"
+                size="sm"
+                variant="outline"
+                onClick={() => window.open(mediaUrl, '_blank', 'noopener,noreferrer')}
+              >
+                <ExternalLink className="size-4" />
+                Open File
+              </Button>
+              <Button
+                type="button"
+                size="sm"
+                variant="outline"
+                onClick={async () => {
+                  await navigator.clipboard.writeText(mediaUrl);
+                  toast.success('URL copied');
+                }}
+              >
+                <Copy className="size-4" />
+                Copy URL
+              </Button>
+            </div>
+          </div>
+        ) : null}
+
+        {isVideoResult ? (
+          <div className="rounded-2xl border bg-muted/10 p-4">
+            <div className="mb-3 flex flex-wrap items-center gap-2 text-sm font-medium">
+              <CheckCircle2 className="size-4 text-green-600" />
+              Video Preview
+            </div>
+            <div className="overflow-hidden rounded-2xl bg-black">
+              <video
+                controls
+                preload="metadata"
+                className="aspect-video w-full bg-black object-contain"
+                src={mediaUrl}
+              />
+            </div>
+            <div className="mt-3 flex flex-wrap gap-2">
+              <Button
+                type="button"
+                size="sm"
+                variant="outline"
+                onClick={() => window.open(mediaUrl, '_blank', 'noopener,noreferrer')}
+              >
+                <ExternalLink className="size-4" />
+                Open File
+              </Button>
+              <Button
+                type="button"
+                size="sm"
+                variant="outline"
+                onClick={async () => {
+                  await navigator.clipboard.writeText(mediaUrl);
+                  toast.success('URL copied');
+                }}
+              >
+                <Copy className="size-4" />
+                Copy URL
+              </Button>
+            </div>
+          </div>
+        ) : null}
+
+        {typeof data?.prompt === 'string' && data.prompt ? (
+          <div className="space-y-2">
+            <div className="text-xs font-medium uppercase tracking-[0.12em] text-muted-foreground">
+              Prompt
+            </div>
+            <div className="rounded-xl border bg-muted/20 p-3 text-sm leading-6">
+              {data.prompt}
+            </div>
+          </div>
+        ) : null}
+
+        <div className="grid gap-4 xl:grid-cols-2">
+          <ResultSection title="Payload" value={data?.payload} />
+          <ResultSection title="Request" value={data?.request} />
+        </div>
+
+        <ResultSection title="Result" value={data?.result} />
+
+        <details className="rounded-xl border bg-muted/10 p-3">
+          <summary className="cursor-pointer list-none text-sm font-medium">
+            Raw JSON
+          </summary>
+          <pre className="mt-3 max-h-[420px] overflow-auto whitespace-pre-wrap break-all rounded-xl border bg-background p-3 text-xs leading-6">
+            {JSON.stringify(data, null, 2)}
+          </pre>
+        </details>
+      </div>
+    </div>
+  );
+}
 
 export function Form({
   title,
@@ -589,14 +831,10 @@ export function Form({
                       {isComflySettingsTab && hasTestPanel ? (
                         <>
                           {testResults[fieldResultKey] ? (
-                            <div className="rounded-2xl border bg-background p-4">
-                              <div className="mb-2 text-sm font-medium">
-                                {testResults[fieldResultKey]?.title} Result
-                              </div>
-                              <pre className="overflow-x-auto rounded-xl border bg-muted/20 p-3 text-xs leading-6">
-                                {JSON.stringify(testResults[fieldResultKey]?.data, null, 2)}
-                              </pre>
-                            </div>
+                            <TestResultPanel
+                              title={testResults[fieldResultKey]!.title}
+                              data={testResults[fieldResultKey]!.data}
+                            />
                           ) : null}
                           {Array.isArray(item.metadata?.testActions)
                             ? item.metadata.testActions.map((action: any, actionIndex: number) => {
@@ -608,17 +846,11 @@ export function Form({
                                 }
 
                                 return (
-                                  <div
+                                  <TestResultPanel
                                     key={`${resultKey}-panel`}
-                                    className="rounded-2xl border bg-background p-4"
-                                  >
-                                    <div className="mb-2 text-sm font-medium">
-                                      {result.title} Result
-                                    </div>
-                                    <pre className="overflow-x-auto rounded-xl border bg-muted/20 p-3 text-xs leading-6">
-                                      {JSON.stringify(result.data, null, 2)}
-                                    </pre>
-                                  </div>
+                                    title={result.title}
+                                    data={result.data}
+                                  />
                                 );
                               })
                             : null}
@@ -641,17 +873,12 @@ export function Form({
                 }
 
                 return (
-                  <div
+                  <TestResultPanel
                     key={`form-test-action-${index}-result`}
-                    className="rounded-2xl border bg-background p-4 xl:col-span-2"
-                  >
-                    <div className="mb-2 text-sm font-medium">
-                      {result.title} Result
-                    </div>
-                    <pre className="overflow-x-auto rounded-xl border bg-muted/20 p-3 text-xs leading-6">
-                      {JSON.stringify(result.data, null, 2)}
-                    </pre>
-                  </div>
+                    title={result.title}
+                    data={result.data}
+                    className="xl:col-span-2"
+                  />
                 );
               })
             : null}

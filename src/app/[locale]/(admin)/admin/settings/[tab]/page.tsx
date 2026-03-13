@@ -49,7 +49,10 @@ export default async function SettingsPage({
     const user = await getUserInfo();
 
     if (!user) {
-      throw new Error('no auth');
+      return {
+        status: 'error',
+        message: 'Please sign in again',
+      };
     }
 
     data.forEach((value, name) => {

@@ -92,7 +92,7 @@ export default async function RoleEditPermissionsPage({
         const { role } = passby;
 
         if (!role) {
-          throw new Error('no auth');
+          return { status: 'error', message: 'Role not found' } as const;
         }
 
         let permissions = data.get('permissions') as unknown as string[];
@@ -100,7 +100,7 @@ export default async function RoleEditPermissionsPage({
           try {
             permissions = JSON.parse(permissions);
           } catch (error) {
-            throw new Error('invalid permissions');
+            return { status: 'error', message: 'Invalid permissions' } as const;
           }
         }
 

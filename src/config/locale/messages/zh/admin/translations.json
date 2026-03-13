@@ -1,0 +1,59 @@
+{
+  "page": {
+    "title": "翻译管理",
+    "crumbs": {
+      "admin": "后台",
+      "translations": "翻译管理"
+    },
+    "description": "在后台修改多语言覆盖值，而不直接改源 JSON 文件。"
+  },
+  "manager": {
+    "filters": {
+      "locale": "语言",
+      "namespace": "命名空间",
+      "search": "搜索 key 或文案",
+      "searchPlaceholder": "搜索 key 或默认/覆盖值",
+      "importMode": "导入模式",
+      "importModes": {
+        "merge": "合并导入的键",
+        "replace": "替换当前命名空间覆盖"
+      }
+    },
+    "summary": {
+      "title": "默认 JSON + 数据库覆盖",
+      "description": "列表来自源 JSON 文件。保存后会写入数据库覆盖值，运行时优先使用覆盖值。重置会删除覆盖值并回退到文件默认值。",
+      "mergeDescription": "只把导入 JSON 中出现的 key 合并到当前命名空间覆盖值里。",
+      "replaceDescription": "先清空当前命名空间的所有覆盖值，再把导入 JSON 作为新的覆盖值写入。"
+    },
+    "columns": {
+      "key": "Key",
+      "defaultValue": "默认值",
+      "overrideValue": "覆盖值"
+    },
+    "actions": {
+      "save": "保存覆盖",
+      "reset": "恢复默认",
+      "saving": "保存中...",
+      "resetting": "恢复中...",
+      "exportCurrent": "导出当前 JSON",
+      "exportOverrides": "导出覆盖 JSON",
+      "importJson": "导入 JSON"
+    },
+    "messages": {
+      "loading": "加载中...",
+      "saved": "翻译覆盖已保存",
+      "reset": "翻译覆盖已移除",
+      "imported": "已导入 {count} 条翻译",
+      "importFailed": "导入翻译 JSON 失败",
+      "importEmpty": "导入的 JSON 中没有可识别的叶子翻译值。",
+      "saveFailed": "保存翻译覆盖失败",
+      "resetFailed": "恢复默认失败",
+      "noRows": "当前命名空间下没有可编辑的翻译值。",
+      "noSearchResults": "当前搜索条件下没有匹配项。"
+    },
+    "badges": {
+      "overridden": "已覆盖",
+      "default": "默认"
+    }
+  }
+}

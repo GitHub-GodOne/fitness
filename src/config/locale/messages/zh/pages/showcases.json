@@ -6,6 +6,15 @@
   "page": {
     "title": "圣经视频展示",
     "description": "观看AI生成的圣经经文视频",
+    "submitCta": "投稿我的视频",
+    "backToCategories": "返回分类列表",
+    "all": "全部",
+    "emptyCategoryVideos": "该分类下还没有已发布的视频。",
+    "defaultTitle": "看看大家创作出的温暖视频",
+    "defaultDescription": "这里收录了用户投稿并通过审核的视频作品。你可以按分类慢慢浏览，看看不同主题下的真实创作。",
+    "activeCategoryFallbackDescription": "浏览这个分类下已经发布的视频作品。",
+    "cardOpen": "进入分类",
+    "cardDescriptionFallback": "点击查看这个分类下已发布的视频案例。",
     "sections": {
       "showcases": {
         "id": "showcases",
@@ -43,6 +52,44 @@
           }
         ]
       }
+    },
+    "submit": {
+      "title": "投稿你的案例视频",
+      "description": "选择一个你已经成功生成的视频，填写标题和分类，提交后由后台审核发布。",
+      "backToShowcases": "返回案例库",
+      "messages": {
+        "loginRequired": "请先登录后再投稿案例视频",
+        "noCategories": "后台还没有创建案例分类，请先在后台添加分类。",
+        "noVideos": "你还没有可投稿的成功视频。请先生成一个视频。",
+        "categoryNotFound": "案例分类不存在",
+        "alreadySubmitted": "该视频已经投稿过了",
+        "success": "投稿已提交，等待后台审核"
+      },
+      "form": {
+        "panelTitle": "投稿信息",
+        "panelDescription": "选择一个成功生成的视频，右侧会实时预览。你可以修改标题、描述和封面。",
+        "sourceTaskId": "选择视频",
+        "sourceTaskPlaceholder": "请选择视频",
+        "mobilePreviewTitle": "视频预览",
+        "mobilePreviewDescription": "确认当前选中的视频内容是否正确。",
+        "previewEmpty": "请选择一个视频后再预览。",
+        "previewLabel": "当前选中视频",
+        "categoryId": "分类",
+        "categoryPlaceholder": "请选择分类",
+        "title": "标题",
+        "titlePlaceholder": "输入投稿标题",
+        "description": "描述",
+        "descriptionPlaceholder": "输入投稿描述",
+        "coverImage": "封面图",
+        "coverImageHint": "不上传时会优先使用视频任务自带的封面。",
+        "submit": "提交审核",
+        "validationError": "请先完整填写投稿信息",
+        "submitError": "投稿失败"
+      }
+    },
+    "gallery": {
+      "descriptionFallback": "点击在当前页面全屏查看这个视频作品。",
+      "closeVideo": "关闭视频"
     }
   }
 }

@@ -71,7 +71,7 @@ export default async function UserEditPage({
         const { user } = passby;
 
         if (!user) {
-          throw new Error('no auth');
+          return { status: 'error', message: 'User not found' } as const;
         }
 
         const name = data.get('name') as string;
@@ -85,7 +85,7 @@ export default async function UserEditPage({
         const result = await updateUser(user.id as string, newUser);
 
         if (!result) {
-          throw new Error('update user failed');
+          return { status: 'error', message: 'Failed to update user' } as const;
         }
 
         return {

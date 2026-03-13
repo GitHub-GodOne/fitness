@@ -25,6 +25,17 @@ const imageExtFromMime = (mimeType: string) => {
     'video/quicktime': 'mov',
     'video/x-msvideo': 'avi',
     'video/mpeg': 'mpeg',
+    'audio/mpeg': 'mp3',
+    'audio/mp3': 'mp3',
+    'audio/wav': 'wav',
+    'audio/x-wav': 'wav',
+    'audio/wave': 'wav',
+    'audio/ogg': 'ogg',
+    'audio/aac': 'aac',
+    'audio/mp4': 'm4a',
+    'audio/x-m4a': 'm4a',
+    'audio/flac': 'flac',
+    'audio/x-flac': 'flac',
   };
   return map[mimeType] || '';
 };
@@ -36,6 +47,10 @@ function getMediaTypeFromFile(file: File) {
 
   if (file.type.startsWith('video/')) {
     return MediaAssetType.VIDEO;
+  }
+
+  if (file.type.startsWith('audio/')) {
+    return MediaAssetType.AUDIO;
   }
 
   return null;
@@ -55,18 +70,17 @@ export async function POST(req: Request) {
 
     const formData = await req.formData();
     const files = formData.getAll('files') as File[];
+    const customPath = String(formData.get('path') || '')
+      .trim()
+      .replace(/^\/+/, '')
+      .replace(/\/+/g, '/')
+      .replace(/\/$/, '');
 
     if (!files || files.length === 0) {
       return respErr('No files provided', 400);
     }
 
     const storageService = await getStorageService();
-
-    const now = new Date();
-    const dateFolder = `${now.getFullYear()}${String(now.getMonth() + 1).padStart(2, '0')}${String(
-      now.getDate()
-    ).padStart(2, '0')}`;
-
     const uploaded = [];
 
     for (const file of files) {
@@ -78,7 +92,10 @@ export async function POST(req: Request) {
       const ext =
         imageExtFromMime(file.type) || path.extname(file.name).replace('.', '') || 'bin';
       const id = getUuid();
-      const key = `media-library/${dateFolder}/${id}.${ext}`;
+      const safeBaseName =
+        path.basename(file.name, path.extname(file.name)).replace(/[^a-zA-Z0-9._-]/g, '_') ||
+        id;
+      const key = `${customPath ? `${customPath}/` : ''}${safeBaseName}.${ext}`;
       const body = Buffer.from(await file.arrayBuffer());
 
       const uploadResult = await storageService.uploadFile({

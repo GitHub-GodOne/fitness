@@ -12,6 +12,8 @@ import {
 // Get initial theme from localStorage (client-side only)
 const getInitialTheme = () => {
   if (typeof window === 'undefined') return defaultTheme;
+  const configuredDefaultTheme =
+    document.documentElement.dataset.defaultThemeColor || defaultTheme;
   const hydratedTheme = document.documentElement.dataset.themeColor;
   if (hydratedTheme && themes.find((t) => t.name === hydratedTheme)) {
     return hydratedTheme;
@@ -19,6 +21,9 @@ const getInitialTheme = () => {
   const savedTheme = localStorage.getItem(THEME_COLOR_STORAGE_KEY);
   if (savedTheme && themes.find((t) => t.name === savedTheme)) {
     return savedTheme;
+  }
+  if (themes.find((t) => t.name === configuredDefaultTheme)) {
+    return configuredDefaultTheme;
   }
   return defaultTheme;
 };

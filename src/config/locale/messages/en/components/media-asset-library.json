@@ -1,0 +1,53 @@
+{
+  "title": "R2 Directory Browser",
+  "description": "Reads the R2 bucket directory structure directly. Supports custom-path uploads, folder browsing, preview, download, and delete.",
+  "actions": {
+    "refresh": "Refresh",
+    "uploadFiles": "Upload Files",
+    "createFolder": "Create Folder",
+    "upOneLevel": "Up One Level",
+    "preview": "Preview",
+    "download": "Download",
+    "open": "Open",
+    "deleteFile": "Delete File",
+    "cancel": "Cancel",
+    "confirmDelete": "Delete",
+    "confirmCreate": "Create"
+  },
+  "fields": {
+    "uploadDirectoryPath": "Upload Directory Path",
+    "uploadDirectoryPlaceholder": "e.g. media-library/sermons",
+    "uploadDirectoryHint": "Defaults to the current directory. This path becomes the object key prefix in R2.",
+    "currentDirectory": "Current Directory",
+    "root": "Root",
+    "folders": "Folders",
+    "files": "Files",
+    "folderName": "Folder Name",
+    "folderNamePlaceholder": "e.g. sermons"
+  },
+  "fileTypes": {
+    "video": "Video",
+    "audio": "Audio",
+    "image": "Image",
+    "file": "File"
+  },
+  "messages": {
+    "loadFailed": "Failed to load asset browser",
+    "uploaded": "Uploaded {count} files",
+    "uploadFailed": "Upload failed",
+    "deleted": "File deleted",
+    "deleteFailed": "Delete failed",
+    "missingFolderName": "Please enter a folder name",
+    "invalidFolderName": "Folder name cannot contain slash",
+    "folderCreated": "Folder created",
+    "createFolderFailed": "Create folder failed",
+    "invalidFileUrl": "Invalid file URL",
+    "downloadFailed": "Download failed",
+    "noFolders": "No folders in this directory.",
+    "noFiles": "No files in this directory yet.",
+    "inlinePreviewUnavailable": "Inline preview is not available for this file. Use open or download.",
+    "deleteDescription": "Delete \"{name}\"? This removes the object from R2 and clears the matching media-library record.",
+    "createFolderDescription": "A new subfolder will be created under the current directory {path}.",
+    "counts": "{folders} folders · {files} files"
+  }
+}

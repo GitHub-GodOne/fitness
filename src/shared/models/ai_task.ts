@@ -19,6 +19,10 @@ export async function createAITask(newAITask: NewAITask) {
     const [taskResult] = await tx.insert(aiTask).values(newAITask).returning();
 
     if (newAITask.costCredits && newAITask.costCredits > 0) {
+      if (!newAITask.userId) {
+        throw new Error('cannot consume credits for anonymous ai task');
+      }
+
       // 2. consume credits
       const consumedCredit = await consumeCredits({
         userId: newAITask.userId,

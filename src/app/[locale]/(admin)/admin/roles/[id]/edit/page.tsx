@@ -72,7 +72,7 @@ export default async function RoleEditPage({
         const { role } = passby;
 
         if (!role) {
-          throw new Error('no auth');
+          return { status: 'error', message: 'Role not found' } as const;
         }
 
         const title = data.get('title') as string;
@@ -86,7 +86,7 @@ export default async function RoleEditPage({
         const result = await updateRole(role.id as string, newRole);
 
         if (!result) {
-          throw new Error('update role failed');
+          return { status: 'error', message: 'Failed to update role' } as const;
         }
 
         return {

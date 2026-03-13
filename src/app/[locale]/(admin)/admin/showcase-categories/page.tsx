@@ -1,4 +1,4 @@
-import { setRequestLocale } from 'next-intl/server';
+import { getTranslations, setRequestLocale } from 'next-intl/server';
 
 import { PERMISSIONS, requirePermission } from '@/core/rbac';
 import { Header, Main, MainHeader } from '@/shared/blocks/dashboard';
@@ -20,7 +20,6 @@ export default async function ShowcaseCategoriesPage({
   searchParams: Promise<{ page?: number; pageSize?: number }>;
 }) {
   const { locale } = await params;
-  const isZh = locale === 'zh';
   setRequestLocale(locale);
 
   await requirePermission({
@@ -29,13 +28,15 @@ export default async function ShowcaseCategoriesPage({
     locale,
   });
 
+  const t = await getTranslations('admin.showcase-categories');
+
   const { page: pageNum, pageSize } = await searchParams;
   const page = pageNum || 1;
   const limit = pageSize || 30;
 
   const crumbs: Crumb[] = [
-    { title: isZh ? '后台' : 'Admin', url: '/admin' },
-    { title: isZh ? '案例分类' : 'Showcase Categories', is_active: true },
+    { title: t('list.crumbs.admin'), url: '/admin' },
+    { title: t('list.crumbs.categories'), is_active: true },
   ];
 
   const total = await getTaxonomiesCount({
@@ -51,14 +52,14 @@ export default async function ShowcaseCategoriesPage({
     columns: [
       {
         name: 'slug',
-        title: 'Slug',
+        title: t('fields.slug'),
         type: 'copy',
-        metadata: { message: isZh ? '已复制' : 'Copied' },
+        metadata: { message: t('fields.copyMessage') },
       },
-      { name: 'title', title: isZh ? '标题' : 'Title' },
-      { name: 'status', title: isZh ? '状态' : 'Status', type: 'label' },
-      { name: 'sort', title: isZh ? '排序' : 'Sort' },
-      { name: 'updatedAt', title: isZh ? '更新时间' : 'Updated', type: 'time' },
+      { name: 'title', title: t('fields.title') },
+      { name: 'status', title: t('fields.status'), type: 'label' },
+      { name: 'sort', title: t('fields.sort') },
+      { name: 'updatedAt', title: t('fields.updatedAt'), type: 'time' },
       {
         name: 'action',
         title: '',
@@ -66,7 +67,7 @@ export default async function ShowcaseCategoriesPage({
         callback: (item: Taxonomy) => [
           {
             id: 'edit',
-            title: isZh ? '编辑' : 'Edit',
+            title: t('list.buttons.edit'),
             icon: 'RiEditLine',
             url: `/admin/showcase-categories/${item.id}/edit`,
           },
@@ -76,7 +77,7 @@ export default async function ShowcaseCategoriesPage({
     actions: [
       {
         id: 'edit',
-        title: isZh ? '编辑' : 'Edit',
+        title: t('list.buttons.edit'),
         icon: 'RiEditLine',
         url: '/admin/showcase-categories/[id]/edit',
       },
@@ -92,7 +93,7 @@ export default async function ShowcaseCategoriesPage({
   const actions: Button[] = [
     {
       id: 'add',
-      title: isZh ? '新增分类' : 'Add Category',
+      title: t('list.buttons.add'),
       icon: 'RiAddLine',
       url: '/admin/showcase-categories/add',
     },
@@ -102,10 +103,7 @@ export default async function ShowcaseCategoriesPage({
     <>
       <Header crumbs={crumbs} />
       <Main>
-        <MainHeader
-          title={isZh ? '案例分类' : 'Showcase Categories'}
-          actions={actions}
-        />
+        <MainHeader title={t('list.title')} actions={actions} />
         <TableCard table={table} />
       </Main>
     </>

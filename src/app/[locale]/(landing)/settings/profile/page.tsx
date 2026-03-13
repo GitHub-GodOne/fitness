@@ -41,12 +41,12 @@ export default async function ProfilePage() {
 
         const { user } = passby;
         if (!user) {
-          throw new Error('no auth');
+          return { status: 'error', message: 'Please sign in again' } as const;
         }
 
         const name = data.get('name') as string;
         if (!name?.trim()) {
-          throw new Error('name is required');
+          return { status: 'error', message: 'Name is required' } as const;
         }
 
         const image = data.get('image');

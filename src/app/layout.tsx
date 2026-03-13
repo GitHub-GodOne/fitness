@@ -34,6 +34,13 @@ export default async function RootLayout({
   // app url
   const appUrl = envConfigs.app_url || "";
 
+  const configs = await getAllConfigs();
+  const configuredDefaultTheme =
+    typeof configs.default_theme_color === "string" &&
+    themes.find((theme) => theme.name === configs.default_theme_color)
+      ? configs.default_theme_color
+      : defaultThemeColor;
+
   // ads components
   let adsMetaTags = null;
   let adsHeadScripts = null;
@@ -54,14 +61,17 @@ export default async function RootLayout({
   let customerServiceHeadScripts = null;
   let customerServiceBodyScripts = null;
 
-  const defaultLightThemeVars = getThemeCssVariables(defaultThemeColor, false);
+  const defaultLightThemeVars = getThemeCssVariables(
+    configuredDefaultTheme,
+    false,
+  );
   const themeVarKeys = Object.keys(defaultLightThemeVars);
   const themeColorBootstrap = `
     (() => {
       try {
         const themeStorageKey = ${JSON.stringify(THEME_COLOR_STORAGE_KEY)};
         const appearanceStorageKey = ${JSON.stringify(APPEARANCE_STORAGE_KEY)};
-        const defaultTheme = ${JSON.stringify(defaultThemeColor)};
+        const defaultTheme = ${JSON.stringify(configuredDefaultTheme)};
         const themes = ${JSON.stringify(themes)};
         const root = document.documentElement;
         const savedTheme = localStorage.getItem(themeStorageKey) || defaultTheme;
@@ -106,8 +116,6 @@ export default async function RootLayout({
   `;
 
   if (isProduction || isDebug) {
-    const configs = await getAllConfigs();
-
     const [adsService, analyticsService, affiliateService, customerService] =
       await Promise.all([
         getAdsService(configs),

@@ -2,7 +2,7 @@
 
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { X } from 'lucide-react';
-import { useLocale } from 'next-intl';
+import { useLocale, useTranslations } from 'next-intl';
 
 import { usePathname, useRouter } from '@/core/i18n/navigation';
 import { envConfigs } from '@/config';
@@ -21,6 +21,7 @@ export function LocaleDetector() {
   }
 
   const currentLocale = useLocale();
+  const t = useTranslations('components.locale-detector');
   const router = useRouter();
   const pathname = usePathname();
   const [showBanner, setShowBanner] = useState(false);
@@ -239,9 +240,7 @@ export function LocaleDetector() {
           <div className="flex items-center justify-between gap-4">
             <div className="flex flex-1 items-center gap-3">
               <span className="text-sm">
-                {browserLocale === 'zh'
-                  ? `检测到浏览器语言是: ${targetLocaleName}，是否切换？`
-                  : `We detected your browser language is ${targetLocaleName}. Switch to it?`}
+                {t('message', { locale: targetLocaleName })}
               </span>
             </div>
             <div className="flex flex-shrink-0 items-center gap-2">
@@ -251,12 +250,12 @@ export function LocaleDetector() {
                 size="sm"
                 className="bg-background text-xs"
               >
-                {browserLocale === 'zh' ? '切换到中文' : 'Switch'}
+                {t('switch')}
               </Button>
               <button
                 onClick={handleDismiss}
                 className="bg-primary/10 flex-shrink-0 rounded p-1 transition-colors"
-                aria-label="Close"
+                aria-label={t('close')}
               >
                 <X className="h-4 w-4" />
               </button>

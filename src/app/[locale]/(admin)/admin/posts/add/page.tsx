@@ -111,7 +111,7 @@ export default async function PostAddPage({
 
         const user = await getUserInfo();
         if (!user) {
-          throw new Error('no auth');
+          return { status: 'error', message: 'Please sign in again' } as const;
         }
 
         const slug = data.get('slug') as string;
@@ -124,7 +124,10 @@ export default async function PostAddPage({
         const authorImage = data.get('authorImage') as string;
 
         if (!slug?.trim() || !title?.trim()) {
-          throw new Error('slug and title are required');
+          return {
+            status: 'error',
+            message: 'Slug and title are required',
+          } as const;
         }
 
         const newPost: NewPost = {
@@ -147,7 +150,7 @@ export default async function PostAddPage({
         const result = await addPost(newPost);
 
         if (!result) {
-          throw new Error('add post failed');
+          return { status: 'error', message: 'Failed to add post' } as const;
         }
 
         return {

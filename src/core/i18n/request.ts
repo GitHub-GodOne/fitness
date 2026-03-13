@@ -5,6 +5,8 @@ import {
   localeMessagesPaths,
   localeMessagesRootPath,
 } from '@/config/locale';
+import { applyMessageOverride } from '@/shared/lib/i18n-messages';
+import { getI18nMessageOverrides } from '@/shared/models/i18n-message';
 
 import { routing } from './config';
 
@@ -66,6 +68,15 @@ export default getRequestConfig(async ({ requestLocale }) => {
 
       current[keys[keys.length - 1]] = localMessages;
     });
+
+    try {
+      const overrides = await getI18nMessageOverrides(locale);
+      overrides.forEach((item) => {
+        applyMessageOverride(messages, item.namespace, item.key, item.value);
+      });
+    } catch (error) {
+      console.error('[i18n] failed to load message overrides:', error);
+    }
 
     return {
       locale,

@@ -1,0 +1,75 @@
+{
+  "fields": {
+    "title": "Title",
+    "category": "Category",
+    "user": "User",
+    "status": "Status",
+    "featured": "Featured",
+    "createdAt": "Submitted",
+    "description": "Description",
+    "videoUrl": "Video URL",
+    "coverUrl": "Cover Image",
+    "sort": "Sort",
+    "reviewNote": "Review Note",
+    "featuredSwitch": "Featured"
+  },
+  "statuses": {
+    "draft": "Draft",
+    "pending": "Pending",
+    "published": "Published",
+    "rejected": "Rejected",
+    "archived": "Archived"
+  },
+  "featuredOptions": {
+    "featured": "Featured",
+    "normal": "Normal"
+  },
+  "list": {
+    "title": "Showcase Video Review",
+    "crumbs": {
+      "admin": "Admin",
+      "videos": "Showcase Videos"
+    },
+    "buttons": {
+      "add": "Add Video Review",
+      "edit": "Review / Edit"
+    },
+    "tabs": {
+      "all": "All",
+      "pending": "Pending",
+      "published": "Published",
+      "rejected": "Rejected"
+    }
+  },
+  "add": {
+    "title": "Add Showcase Video",
+    "crumbs": {
+      "admin": "Admin",
+      "videos": "Showcase Videos",
+      "add": "Add"
+    },
+    "buttons": {
+      "submit": "Create Showcase Video",
+      "chooseVideo": "Choose Video from Library"
+    },
+    "messages": {
+      "success": "Showcase video created"
+    }
+  },
+  "edit": {
+    "title": "Review Showcase Video",
+    "crumbs": {
+      "admin": "Admin",
+      "videos": "Showcase Videos",
+      "edit": "Edit"
+    },
+    "buttons": {
+      "submit": "Save Review",
+      "chooseVideo": "Choose Video from Library"
+    },
+    "messages": {
+      "notFound": "Showcase video not found",
+      "success": "Showcase video updated"
+    }
+  }
+}

@@ -33,17 +33,11 @@ export default async function ShowcaseSubmitPage({
   params: Promise<{ locale: string }>;
 }) {
   const { locale } = await params;
-  const isZh = locale === 'zh';
+  const t = await getTranslations({ locale, namespace: 'pages.showcases.page.submit' });
   const user = await getUserInfo();
 
   if (!user) {
-    return (
-      <Empty
-        message={
-          isZh ? '请先登录后再投稿案例视频' : 'Please sign in before submitting a showcase video'
-        }
-      />
-    );
+    return <Empty message={t('messages.loginRequired')} />;
   }
 
   const categories = await getTaxonomies({
@@ -79,30 +73,12 @@ export default async function ShowcaseSubmitPage({
     .filter((item) => Boolean(item.videoUrl));
 
   if (categories.length === 0) {
-    return (
-      <Empty
-        message={
-          isZh
-            ? '后台还没有创建案例分类，请先在后台添加分类。'
-            : 'No showcase categories are available yet. Create categories in admin first.'
-        }
-      />
-    );
+    return <Empty message={t('messages.noCategories')} />;
   }
 
   if (selectableTasks.length === 0) {
-    return (
-      <Empty
-        message={
-          isZh
-            ? '你还没有可投稿的成功视频。请先生成一个视频。'
-            : 'You do not have any successful videos available for submission yet.'
-        }
-      />
-    );
+    return <Empty message={t('messages.noVideos')} />;
   }
-
-  await getTranslations('pages.showcases');
 
   const handleSubmit = async (
     data: FormData,
@@ -110,9 +86,17 @@ export default async function ShowcaseSubmitPage({
   ): Promise<SubmitResult> => {
     'use server';
 
+    const submitT = await getTranslations({
+      locale: passby.locale,
+      namespace: 'pages.showcases.page.submit',
+    });
+
     const user = await getUserInfo();
     if (!user || user.id !== passby.userId) {
-      throw new Error('no auth');
+      return {
+        status: 'error',
+        message: submitT('messages.loginRequired'),
+      };
     }
 
     const sourceTaskId = String(data.get('source_task_id') || '');
@@ -122,14 +106,18 @@ export default async function ShowcaseSubmitPage({
     const coverUrlInput = String(data.get('cover_url') || '').trim();
 
     if (!sourceTaskId || !categoryId || !title) {
-      throw new Error('missing required fields');
+      return {
+        status: 'error',
+        message: submitT('form.validationError'),
+      };
     }
 
     const category = await findTaxonomy({ id: categoryId, status: TaxonomyStatus.PUBLISHED });
     if (!category || category.type !== TaxonomyType.SHOWCASE_CATEGORY) {
-      throw new Error(
-        passby.locale === 'zh' ? '案例分类不存在' : 'Showcase category not found'
-      );
+      return {
+        status: 'error',
+        message: submitT('messages.categoryNotFound'),
+      };
     }
 
     const duplicate = await findShowcaseVideoBySourceTaskId({
@@ -138,11 +126,10 @@ export default async function ShowcaseSubmitPage({
     });
 
     if (duplicate) {
-      throw new Error(
-        passby.locale === 'zh'
-          ? '该视频已经投稿过了'
-          : 'This video has already been submitted'
-      );
+      return {
+        status: 'error',
+        message: submitT('messages.alreadySubmitted'),
+      };
     }
 
     const task = await findAITaskById(sourceTaskId);
@@ -153,7 +140,10 @@ export default async function ShowcaseSubmitPage({
       task.mediaType !== AIMediaType.VIDEO ||
       task.status !== AITaskStatus.SUCCESS
     ) {
-      throw new Error('selected task not found');
+      return {
+        status: 'error',
+        message: submitT('messages.noVideos'),
+      };
     }
 
     const videoUrl = extractVideoUrlFromAITask({
@@ -162,7 +152,10 @@ export default async function ShowcaseSubmitPage({
     });
 
     if (!videoUrl) {
-      throw new Error('video url not found');
+      return {
+        status: 'error',
+        message: submitT('form.submitError'),
+      };
     }
 
     const coverUrl =
@@ -192,10 +185,7 @@ export default async function ShowcaseSubmitPage({
 
     return {
       status: 'success',
-      message:
-        passby.locale === 'zh'
-          ? '投稿已提交，等待后台审核'
-          : 'Submission sent successfully and is awaiting review',
+      message: submitT('messages.success'),
       redirect_url: '/showcases',
     };
   };
@@ -207,19 +197,15 @@ export default async function ShowcaseSubmitPage({
           <Link
             href="/showcases"
             className="inline-flex h-10 w-10 items-center justify-center rounded-full border text-muted-foreground transition hover:border-primary/40 hover:text-foreground"
-            aria-label={isZh ? '返回案例库' : 'Back to showcases'}
-            title={isZh ? '返回案例库' : 'Back to showcases'}
+            aria-label={t('backToShowcases')}
+            title={t('backToShowcases')}
           >
             <ArrowLeft className="size-4" />
           </Link>
           <h1 className="text-3xl font-semibold tracking-tight">
-            {isZh ? '投稿你的案例视频' : 'Submit Your Showcase Video'}
+            {t('title')}
           </h1>
-          <p className="text-muted-foreground">
-            {isZh
-              ? '选择一个你已经成功生成的视频，填写标题和分类，提交后由后台审核发布。'
-              : 'Pick one of your successfully generated videos, add a title and category, and send it for admin review.'}
-          </p>
+          <p className="text-muted-foreground">{t('description')}</p>
         </div>
 
         <ShowcaseSubmitForm
@@ -236,7 +222,7 @@ export default async function ShowcaseSubmitPage({
             id: category.id,
             title: category.title,
           }))}
-          onSubmit={handleSubmit}
+          submitAction={handleSubmit}
         />
       </div>
     </div>

@@ -27,6 +27,34 @@ export interface StorageDeleteOptions {
   url?: string;
 }
 
+export interface StorageListOptions {
+  prefix?: string;
+  bucket?: string;
+  limit?: number;
+}
+
+export interface StorageDirectoryEntry {
+  name: string;
+  prefix: string;
+}
+
+export interface StorageFileEntry {
+  key: string;
+  name: string;
+  url?: string;
+  size: number;
+  lastModified?: string;
+}
+
+export interface StorageListResult {
+  success: boolean;
+  provider: string;
+  prefix: string;
+  directories: StorageDirectoryEntry[];
+  files: StorageFileEntry[];
+  error?: string;
+}
+
 /**
  * Storage upload result interface
  */
@@ -74,6 +102,9 @@ export interface StorageProvider {
     error?: string;
     provider: string;
   }>;
+
+  // list files by directory prefix
+  listFiles?: (options: StorageListOptions) => Promise<StorageListResult>;
 
   // download and upload
   downloadAndUpload(
@@ -180,6 +211,45 @@ export class StorageManager {
     }
 
     return provider.deleteFile(options);
+  }
+
+  async listFiles(options: StorageListOptions): Promise<StorageListResult> {
+    const provider = this.ensureDefaultProvider();
+    if (!provider.listFiles) {
+      return {
+        success: false,
+        error: `Storage provider '${provider.name}' does not support list`,
+        provider: provider.name,
+        prefix: options.prefix || '',
+        directories: [],
+        files: [],
+      };
+    }
+
+    return provider.listFiles(options);
+  }
+
+  async listFilesWithProvider(
+    options: StorageListOptions,
+    providerName: string
+  ): Promise<StorageListResult> {
+    const provider = this.getProvider(providerName);
+    if (!provider) {
+      throw new Error(`Storage provider '${providerName}' not found`);
+    }
+
+    if (!provider.listFiles) {
+      return {
+        success: false,
+        error: `Storage provider '${provider.name}' does not support list`,
+        provider: provider.name,
+        prefix: options.prefix || '',
+        directories: [],
+        files: [],
+      };
+    }
+
+    return provider.listFiles(options);
   }
 
   // check if object exists using default provider (if supported)

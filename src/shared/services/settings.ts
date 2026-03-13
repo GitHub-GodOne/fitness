@@ -12,6 +12,7 @@ import {
   DEFAULT_COMFLY_TTS_VOICE,
   DEFAULT_COMFLY_VIDEO_PROMPT,
 } from '@/extensions/ai/comfly-api';
+import { themes } from '@/config/theme/themes';
 import { Tab } from '@/shared/types/blocks/common';
 
 export interface Setting {
@@ -338,6 +339,19 @@ export async function getSettings() {
       type: 'upload_image',
       group: 'appinfo',
       tab: 'general',
+    },
+    {
+      name: 'default_theme_color',
+      title: 'Default Theme Color',
+      type: 'select',
+      value: 'olive-gold',
+      options: themes.map((theme) => ({
+        title: theme.label,
+        value: theme.name,
+      })),
+      group: 'appinfo',
+      tab: 'general',
+      tip: 'Default site theme used when a visitor has not manually selected a theme color.',
     },
     {
       name: 'showcases_display_mode',

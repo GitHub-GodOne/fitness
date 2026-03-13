@@ -1,4 +1,4 @@
-import { setRequestLocale } from 'next-intl/server';
+import { getTranslations, setRequestLocale } from 'next-intl/server';
 
 import { PERMISSIONS, requirePermission } from '@/core/rbac';
 import { Empty } from '@/shared/blocks/common';
@@ -21,7 +21,6 @@ export default async function ShowcaseVideoEditPage({
   params: Promise<{ locale: string; id: string }>;
 }) {
   const { locale, id } = await params;
-  const isZh = locale === 'zh';
   setRequestLocale(locale);
 
   await requirePermission({
@@ -30,9 +29,11 @@ export default async function ShowcaseVideoEditPage({
     locale,
   });
 
+  const t = await getTranslations('admin.showcase-videos');
+
   const video = await findShowcaseVideoById(id);
   if (!video) {
-    return <Empty message={isZh ? '案例视频不存在' : 'Showcase video not found'} />;
+    return <Empty message={t('edit.messages.notFound')} />;
   }
 
   const categories = await getTaxonomies({
@@ -41,9 +42,9 @@ export default async function ShowcaseVideoEditPage({
   });
 
   const crumbs: Crumb[] = [
-    { title: isZh ? '后台' : 'Admin', url: '/admin' },
-    { title: isZh ? '案例视频' : 'Showcase Videos', url: '/admin/showcase-videos' },
-    { title: isZh ? '编辑' : 'Edit', is_active: true },
+    { title: t('edit.crumbs.admin'), url: '/admin' },
+    { title: t('edit.crumbs.videos'), url: '/admin/showcase-videos' },
+    { title: t('edit.crumbs.edit'), is_active: true },
   ];
 
   const form: Form = {
@@ -51,7 +52,7 @@ export default async function ShowcaseVideoEditPage({
       {
         name: 'categoryId',
         type: 'select',
-        title: isZh ? '分类' : 'Category',
+        title: t('fields.category'),
         validation: { required: true },
         options: categories.map((category) => ({
           title: category.title,
@@ -61,68 +62,79 @@ export default async function ShowcaseVideoEditPage({
       {
         name: 'title',
         type: 'text',
-        title: isZh ? '标题' : 'Title',
+        title: t('fields.title'),
         validation: { required: true },
       },
       {
         name: 'description',
         type: 'textarea',
-        title: isZh ? '描述' : 'Description',
+        title: t('fields.description'),
         attributes: { rows: 6 },
       },
       {
         name: 'videoUrl',
         type: 'url',
-        title: isZh ? '视频地址' : 'Video URL',
+        title: t('fields.videoUrl'),
         validation: { required: true },
+        metadata: {
+          mediaLibraryPicker: {
+            mediaType: 'video',
+            buttonText: t('edit.buttons.chooseVideo'),
+          },
+        },
       },
       {
         name: 'coverUrl',
         type: 'upload_image',
-        title: isZh ? '封面图' : 'Cover Image',
+        title: t('fields.coverUrl'),
         metadata: { max: 1 },
       },
       {
         name: 'status',
         type: 'select',
-        title: isZh ? '状态' : 'Status',
+        title: t('fields.status'),
         validation: { required: true },
         options: [
-          { title: isZh ? '草稿' : 'Draft', value: ShowcaseVideoStatus.DRAFT },
-          { title: isZh ? '待审核' : 'Pending', value: ShowcaseVideoStatus.PENDING },
-          { title: isZh ? '已发布' : 'Published', value: ShowcaseVideoStatus.PUBLISHED },
-          { title: isZh ? '已拒绝' : 'Rejected', value: ShowcaseVideoStatus.REJECTED },
-          { title: isZh ? '已归档' : 'Archived', value: ShowcaseVideoStatus.ARCHIVED },
+          { title: t('statuses.draft'), value: ShowcaseVideoStatus.DRAFT },
+          { title: t('statuses.pending'), value: ShowcaseVideoStatus.PENDING },
+          { title: t('statuses.published'), value: ShowcaseVideoStatus.PUBLISHED },
+          { title: t('statuses.rejected'), value: ShowcaseVideoStatus.REJECTED },
+          { title: t('statuses.archived'), value: ShowcaseVideoStatus.ARCHIVED },
         ],
       },
       {
         name: 'featured',
         type: 'switch',
-        title: isZh ? '推荐展示' : 'Featured',
+        title: t('fields.featuredSwitch'),
       },
       {
         name: 'sort',
         type: 'number',
-        title: isZh ? '排序' : 'Sort',
+        title: t('fields.sort'),
       },
       {
         name: 'reviewNote',
         type: 'textarea',
-        title: isZh ? '审核备注' : 'Review Note',
+        title: t('fields.reviewNote'),
         attributes: { rows: 4 },
       },
     ],
     data: video,
     submit: {
       button: {
-        title: isZh ? '保存审核结果' : 'Save Review',
+        title: t('edit.buttons.submit'),
       },
       handler: async (data) => {
         'use server';
 
+        const actionT = await getTranslations({
+          locale,
+          namespace: 'admin.showcase-videos',
+        });
+
         const user = await getUserInfo();
         if (!user) {
-          throw new Error('no auth');
+          return { status: 'error', message: 'Please sign in again' } as const;
         }
 
         const categoryId = String(data.get('categoryId') || '').trim();
@@ -136,7 +148,10 @@ export default async function ShowcaseVideoEditPage({
         const reviewNote = String(data.get('reviewNote') || '').trim();
 
         if (!categoryId || !title || !videoUrl) {
-          throw new Error('missing required fields');
+          return {
+            status: 'error',
+            message: 'Category, title and video URL are required',
+          } as const;
         }
 
         const publishedAt =
@@ -159,12 +174,15 @@ export default async function ShowcaseVideoEditPage({
 
         const result = await updateShowcaseVideo(video.id, updateData);
         if (!result) {
-          throw new Error('update showcase video failed');
+          return {
+            status: 'error',
+            message: 'Failed to update showcase video',
+          } as const;
         }
 
         return {
           status: 'success',
-          message: isZh ? '案例视频已更新' : 'Showcase video updated',
+          message: actionT('edit.messages.success'),
           redirect_url: '/admin/showcase-videos',
         };
       },
@@ -175,7 +193,7 @@ export default async function ShowcaseVideoEditPage({
     <>
       <Header crumbs={crumbs} />
       <Main>
-        <MainHeader title={isZh ? '审核案例视频' : 'Review Showcase Video'} />
+        <MainHeader title={t('edit.title')} />
         <FormCard form={form} className="md:max-w-2xl" />
       </Main>
     </>

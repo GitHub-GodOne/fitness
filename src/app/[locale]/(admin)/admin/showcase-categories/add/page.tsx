@@ -1,4 +1,4 @@
-import { setRequestLocale } from 'next-intl/server';
+import { getTranslations, setRequestLocale } from 'next-intl/server';
 
 import { PERMISSIONS, requirePermission } from '@/core/rbac';
 import { Header, Main, MainHeader } from '@/shared/blocks/dashboard';
@@ -20,7 +20,6 @@ export default async function ShowcaseCategoryAddPage({
   params: Promise<{ locale: string }>;
 }) {
   const { locale } = await params;
-  const isZh = locale === 'zh';
   setRequestLocale(locale);
 
   await requirePermission({
@@ -29,10 +28,12 @@ export default async function ShowcaseCategoryAddPage({
     locale,
   });
 
+  const t = await getTranslations('admin.showcase-categories');
+
   const crumbs: Crumb[] = [
-    { title: isZh ? '后台' : 'Admin', url: '/admin' },
-    { title: isZh ? '案例分类' : 'Showcase Categories', url: '/admin/showcase-categories' },
-    { title: isZh ? '新增' : 'Add', is_active: true },
+    { title: t('add.crumbs.admin'), url: '/admin' },
+    { title: t('add.crumbs.categories'), url: '/admin/showcase-categories' },
+    { title: t('add.crumbs.add'), is_active: true },
   ];
 
   const form: Form = {
@@ -40,58 +41,72 @@ export default async function ShowcaseCategoryAddPage({
       {
         name: 'slug',
         type: 'text',
-        title: 'Slug',
-        tip: isZh ? '唯一标识，建议用英文短横线格式' : 'Unique slug, prefer kebab-case',
+        title: t('fields.slug'),
+        tip: t('fields.slugTip'),
         validation: { required: true },
       },
       {
         name: 'title',
         type: 'text',
-        title: isZh ? '标题' : 'Title',
+        title: t('fields.title'),
         validation: { required: true },
       },
       {
         name: 'description',
         type: 'textarea',
-        title: isZh ? '描述' : 'Description',
+        title: t('fields.description'),
         attributes: { rows: 5 },
       },
       {
         name: 'image',
         type: 'upload_image',
-        title: isZh ? '分类图片' : 'Category Image',
-        metadata: { max: 1 },
+        title: t('fields.image'),
+        metadata: {
+          max: 1,
+          allowDirectUrl: true,
+          directUrlLabel: t('fields.imageUrlLabel'),
+          directUrlPlaceholder: t('fields.imageUrlPlaceholder'),
+          mediaLibraryPicker: {
+            mediaType: 'image',
+            buttonText: t('fields.chooseImage'),
+          },
+        },
       },
       {
         name: 'sort',
         type: 'number',
-        title: isZh ? '排序' : 'Sort',
+        title: t('fields.sort'),
         value: 0,
       },
       {
         name: 'status',
         type: 'select',
-        title: isZh ? '状态' : 'Status',
+        title: t('fields.status'),
         value: TaxonomyStatus.PUBLISHED,
         options: [
-          { title: isZh ? '已发布' : 'Published', value: TaxonomyStatus.PUBLISHED },
-          { title: isZh ? '草稿' : 'Draft', value: TaxonomyStatus.DRAFT },
-          { title: isZh ? '待审核' : 'Pending', value: TaxonomyStatus.PENDING },
-          { title: isZh ? '已归档' : 'Archived', value: TaxonomyStatus.ARCHIVED },
+          { title: t('statuses.published'), value: TaxonomyStatus.PUBLISHED },
+          { title: t('statuses.draft'), value: TaxonomyStatus.DRAFT },
+          { title: t('statuses.pending'), value: TaxonomyStatus.PENDING },
+          { title: t('statuses.archived'), value: TaxonomyStatus.ARCHIVED },
         ],
       },
     ],
     data: {},
     submit: {
       button: {
-        title: isZh ? '创建分类' : 'Create Category',
+        title: t('add.buttons.submit'),
       },
       handler: async (data) => {
         'use server';
 
+        const actionT = await getTranslations({
+          locale,
+          namespace: 'admin.showcase-categories',
+        });
+
         const user = await getUserInfo();
         if (!user) {
-          throw new Error('no auth');
+          return { status: 'error', message: 'Please sign in again' } as const;
         }
 
         const slug = String(data.get('slug') || '').trim().toLowerCase();
@@ -102,7 +117,17 @@ export default async function ShowcaseCategoryAddPage({
         const status = String(data.get('status') || TaxonomyStatus.PUBLISHED);
 
         if (!slug || !title) {
-          throw new Error('slug and title are required');
+          return {
+            status: 'error',
+            message: 'Slug and title are required',
+          } as const;
+        }
+
+        if (!/^[a-z0-9]+(?:[/-][a-z0-9]+)*$/.test(slug)) {
+          return {
+            status: 'error',
+            message: actionT('add.messages.invalidSlug'),
+          } as const;
         }
 
         const newCategory: NewTaxonomy = {
@@ -121,12 +146,15 @@ export default async function ShowcaseCategoryAddPage({
 
         const result = await addTaxonomy(newCategory);
         if (!result) {
-          throw new Error('add showcase category failed');
+          return {
+            status: 'error',
+            message: 'Failed to add showcase category',
+          } as const;
         }
 
         return {
           status: 'success',
-          message: isZh ? '案例分类已创建' : 'Showcase category created',
+          message: actionT('add.messages.success'),
           redirect_url: '/admin/showcase-categories',
         };
       },
@@ -137,7 +165,7 @@ export default async function ShowcaseCategoryAddPage({
     <>
       <Header crumbs={crumbs} />
       <Main>
-        <MainHeader title={isZh ? '新增案例分类' : 'Add Showcase Category'} />
+        <MainHeader title={t('add.title')} />
         <FormCard form={form} className="md:max-w-xl" />
       </Main>
     </>

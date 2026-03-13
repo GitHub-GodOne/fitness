@@ -21,14 +21,14 @@ export async function POST(req: Request) {
       return respErr('task not found');
     }
 
-    // Check permission: logged-in users can only see their own tasks
-    // Anonymous users can see tasks with userId='anonymous'
+    // Check permission: logged-in users can only see their own tasks.
+    // Anonymous users can only see tasks that were created without a userId.
     if (user) {
       if (task.userId !== user.id) {
         return respErr('no permission');
       }
     } else {
-      if (task.userId !== 'anonymous') {
+      if (task.userId !== null) {
         return respErr('no permission');
       }
     }

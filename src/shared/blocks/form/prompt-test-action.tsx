@@ -1,7 +1,7 @@
 'use client';
 
-import { useState } from 'react';
-import { FolderOpen, Loader, PlayCircle } from 'lucide-react';
+import { useRef, useState } from 'react';
+import { AudioLines, FolderOpen, Loader, PlayCircle, Upload } from 'lucide-react';
 import { toast } from 'sonner';
 
 import { MediaAssetPickerDialog } from '@/shared/blocks/admin/media-asset-picker-dialog';
@@ -57,7 +57,33 @@ export function PromptTestAction({
   const [videoUrl, setVideoUrl] = useState('');
   const [audioUrl, setAudioUrl] = useState('');
   const [title, setTitle] = useState('');
-  const [libraryType, setLibraryType] = useState<'image' | 'video' | null>(null);
+  const [libraryType, setLibraryType] = useState<'image' | 'video' | 'audio' | null>(null);
+  const [uploadingMedia, setUploadingMedia] = useState<'video' | 'audio' | null>(null);
+  const videoInputRef = useRef<HTMLInputElement | null>(null);
+  const audioInputRef = useRef<HTMLInputElement | null>(null);
+
+  async function uploadMedia(file: File, mediaType: 'video' | 'audio') {
+    const formData = new FormData();
+    formData.append('files', file);
+    formData.append('path', `media-library/comfly-tests/${mediaType}`);
+
+    const response = await fetch('/api/admin/media-assets/upload', {
+      method: 'POST',
+      body: formData,
+    });
+
+    const payload = await response.json();
+    if (!response.ok || payload.code !== 0) {
+      throw new Error(payload.message || 'Upload failed');
+    }
+
+    const uploadedUrl = payload.data?.items?.[0]?.url;
+    if (!uploadedUrl) {
+      throw new Error('Upload failed');
+    }
+
+    return uploadedUrl as string;
+  }
 
   async function handleTest() {
     try {
@@ -209,6 +235,30 @@ export function PromptTestAction({
             mediaType="video"
             onSelect={(asset) => setVideoUrl(asset.url)}
           />
+          <input
+            ref={videoInputRef}
+            type="file"
+            accept="video/*"
+            className="hidden"
+            onChange={async (event) => {
+              const file = event.target.files?.[0];
+              if (!file) {
+                return;
+              }
+
+              try {
+                setUploadingMedia('video');
+                const uploadedUrl = await uploadMedia(file, 'video');
+                setVideoUrl(uploadedUrl);
+                toast.success('Video uploaded');
+              } catch (error: any) {
+                toast.error(error?.message || 'Upload failed');
+              } finally {
+                setUploadingMedia(null);
+                event.target.value = '';
+              }
+            }}
+          />
           <div className="space-y-2">
             <div className="text-xs text-muted-foreground">
               {config.videoLabel || 'Test video URL'}
@@ -219,29 +269,114 @@ export function PromptTestAction({
               placeholder="https://example.com/test-video.mp4"
             />
           </div>
-          <Button
-            type="button"
-            size="sm"
-            variant="outline"
-            onClick={() => setLibraryType('video')}
-            className="h-auto w-full whitespace-normal rounded-full px-4 py-2 sm:w-auto"
-          >
-            <FolderOpen className="size-4" />
-            Choose Video from Library
-          </Button>
+          <div className="flex flex-col gap-2 sm:flex-row sm:flex-wrap">
+            <Button
+              type="button"
+              size="sm"
+              variant="outline"
+              onClick={() => videoInputRef.current?.click()}
+              disabled={uploadingMedia === 'video'}
+              className="h-auto w-full whitespace-normal rounded-full px-4 py-2 sm:w-auto"
+            >
+              {uploadingMedia === 'video' ? (
+                <Loader className="size-4 animate-spin" />
+              ) : (
+                <Upload className="size-4" />
+              )}
+              Upload Video
+            </Button>
+            <Button
+              type="button"
+              size="sm"
+              variant="outline"
+              onClick={() => setLibraryType('video')}
+              className="h-auto w-full whitespace-normal rounded-full px-4 py-2 sm:w-auto"
+            >
+              <FolderOpen className="size-4" />
+              Choose Video from Library
+            </Button>
+          </div>
         </div>
       ) : null}
 
       {config.requiresAudio ? (
-        <div className="space-y-2">
-          <div className="text-xs text-muted-foreground">
-            {config.audioLabel || 'Test audio URL'}
-          </div>
-          <Input
-            value={audioUrl}
-            onChange={(event) => setAudioUrl(event.target.value)}
-            placeholder="https://example.com/test-audio.wav"
+        <div className="space-y-3">
+          <MediaAssetPickerDialog
+            open={libraryType === 'audio'}
+            onOpenChange={(open) => setLibraryType(open ? 'audio' : null)}
+            mediaType="audio"
+            onSelect={(asset) => setAudioUrl(asset.url)}
           />
+          <input
+            ref={audioInputRef}
+            type="file"
+            accept="audio/*"
+            className="hidden"
+            onChange={async (event) => {
+              const file = event.target.files?.[0];
+              if (!file) {
+                return;
+              }
+
+              try {
+                setUploadingMedia('audio');
+                const uploadedUrl = await uploadMedia(file, 'audio');
+                setAudioUrl(uploadedUrl);
+                toast.success('Audio uploaded');
+              } catch (error: any) {
+                toast.error(error?.message || 'Upload failed');
+              } finally {
+                setUploadingMedia(null);
+                event.target.value = '';
+              }
+            }}
+          />
+          <div className="space-y-2">
+            <div className="text-xs text-muted-foreground">
+              {config.audioLabel || 'Test audio URL'}
+            </div>
+            <Input
+              value={audioUrl}
+              onChange={(event) => setAudioUrl(event.target.value)}
+              placeholder="https://example.com/test-audio.wav"
+            />
+          </div>
+          {audioUrl ? (
+            <div className="rounded-xl border bg-background/70 p-3">
+              <div className="mb-2 flex items-center gap-2 text-xs text-muted-foreground">
+                <AudioLines className="size-4" />
+                Audio Preview
+              </div>
+              <audio controls className="w-full" src={audioUrl} preload="metadata" />
+            </div>
+          ) : null}
+          <div className="flex flex-col gap-2 sm:flex-row sm:flex-wrap">
+            <Button
+              type="button"
+              size="sm"
+              variant="outline"
+              onClick={() => audioInputRef.current?.click()}
+              disabled={uploadingMedia === 'audio'}
+              className="h-auto w-full whitespace-normal rounded-full px-4 py-2 sm:w-auto"
+            >
+              {uploadingMedia === 'audio' ? (
+                <Loader className="size-4 animate-spin" />
+              ) : (
+                <Upload className="size-4" />
+              )}
+              Upload Audio
+            </Button>
+            <Button
+              type="button"
+              size="sm"
+              variant="outline"
+              onClick={() => setLibraryType('audio')}
+              className="h-auto w-full whitespace-normal rounded-full px-4 py-2 sm:w-auto"
+            >
+              <FolderOpen className="size-4" />
+              Choose Audio from Library
+            </Button>
+          </div>
         </div>
       ) : null}
 

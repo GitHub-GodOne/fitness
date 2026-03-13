@@ -123,13 +123,13 @@ export default async function PostEditPage({
 
         const user = await getUserInfo();
         if (!user) {
-          throw new Error('no auth');
+          return { status: 'error', message: 'Please sign in again' } as const;
         }
 
         const { post } = passby;
 
         if (!user || !post) {
-          throw new Error('no auth');
+          return { status: 'error', message: 'Post not found' } as const;
         }
 
         const slug = data.get('slug') as string;
@@ -142,7 +142,10 @@ export default async function PostEditPage({
         const image = data.get('image') as string;
 
         if (!slug?.trim() || !title?.trim()) {
-          throw new Error('slug and title are required');
+          return {
+            status: 'error',
+            message: 'Slug and title are required',
+          } as const;
         }
 
         const newPost: UpdatePost = {
@@ -163,7 +166,7 @@ export default async function PostEditPage({
         const result = await updatePost(post.id, newPost);
 
         if (!result) {
-          throw new Error('update post failed');
+          return { status: 'error', message: 'Failed to update post' } as const;
         }
 
         return {

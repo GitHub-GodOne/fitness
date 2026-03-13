@@ -88,7 +88,7 @@ export default async function UserGrantCreditsPage({
         const { user } = passby;
 
         if (!user) {
-          throw new Error('no auth');
+          return { status: 'error', message: 'User not found' } as const;
         }
 
         const credits = parseInt(data.get('credits') as string) || 0;
@@ -96,7 +96,10 @@ export default async function UserGrantCreditsPage({
         const description = data.get('description') as string;
 
         if (credits <= 0) {
-          throw new Error('credits amount must be greater than 0');
+          return {
+            status: 'error',
+            message: 'Credits amount must be greater than 0',
+          } as const;
         }
 
         await grantCreditsForUser({

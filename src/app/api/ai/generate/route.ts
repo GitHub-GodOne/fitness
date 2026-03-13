@@ -182,7 +182,7 @@ export async function POST(request: Request) {
 
     const newAITask: NewAITask = {
       id: getUuid(),
-      userId: user?.id || 'anonymous', // Use 'anonymous' for non-logged-in users
+      userId: user?.id ?? null,
       mediaType,
       provider,
       model,
