@@ -7,9 +7,11 @@ import type {
   StorageListOptions,
   StorageListResult,
   StorageProvider,
+  StorageSignedUploadOptions,
+  StorageSignedUploadResult,
   StorageUploadOptions,
   StorageUploadResult,
-} from '.';
+} from ".";
 
 /**
  * R2 storage provider configs
@@ -31,7 +33,7 @@ export interface R2Configs extends StorageConfigs {
  * @website https://www.cloudflare.com/products/r2/
  */
 export class R2Provider implements StorageProvider {
-  readonly name = 'r2';
+  readonly name = "r2";
   configs: R2Configs;
 
   constructor(configs: R2Configs) {
@@ -39,11 +41,11 @@ export class R2Provider implements StorageProvider {
   }
 
   private getUploadPath() {
-    let uploadPath = this.configs.uploadPath || 'uploads';
-    if (uploadPath.startsWith('/')) {
+    let uploadPath = this.configs.uploadPath || "uploads";
+    if (uploadPath.startsWith("/")) {
       uploadPath = uploadPath.slice(1);
     }
-    if (uploadPath.endsWith('/')) {
+    if (uploadPath.endsWith("/")) {
       uploadPath = uploadPath.slice(0, -1);
     }
     return uploadPath;
@@ -56,13 +58,7 @@ export class R2Provider implements StorageProvider {
     );
   }
 
-  private buildObjectUrl({
-    key,
-    bucket,
-  }: {
-    key: string;
-    bucket?: string;
-  }) {
+  private buildObjectUrl({ key, bucket }: { key: string; bucket?: string }) {
     const uploadBucket = bucket || this.configs.bucket;
     const uploadPath = this.getUploadPath();
     return `${this.getEndpoint()}/${uploadBucket}/${uploadPath}/${key}`;
@@ -70,16 +66,16 @@ export class R2Provider implements StorageProvider {
 
   private escapeXml(value: string) {
     return value
-      .replace(/&amp;/g, '&')
-      .replace(/&lt;/g, '<')
-      .replace(/&gt;/g, '>')
+      .replace(/&amp;/g, "&")
+      .replace(/&lt;/g, "<")
+      .replace(/&gt;/g, ">")
       .replace(/&quot;/g, '"')
       .replace(/&#39;/g, "'");
   }
 
   private getRelativePrefix(prefix: string) {
     const uploadPath = this.getUploadPath();
-    const normalizedUploadPath = uploadPath ? `${uploadPath}/` : '';
+    const normalizedUploadPath = uploadPath ? `${uploadPath}/` : "";
 
     if (normalizedUploadPath && prefix.startsWith(normalizedUploadPath)) {
       return prefix.slice(normalizedUploadPath.length);
@@ -89,12 +85,12 @@ export class R2Provider implements StorageProvider {
   }
 
   private normalizeListPrefix(prefix?: string) {
-    const trimmed = (prefix || '').trim().replace(/^\/+/, '');
+    const trimmed = (prefix || "").trim().replace(/^\/+/, "");
     if (!trimmed) {
-      return '';
+      return "";
     }
 
-    return trimmed.endsWith('/') ? trimmed : `${trimmed}/`;
+    return trimmed.endsWith("/") ? trimmed : `${trimmed}/`;
   }
 
   private buildObjectUrlFromPublicUrl({
@@ -106,7 +102,7 @@ export class R2Provider implements StorageProvider {
   }) {
     const uploadBucket = bucket || this.configs.bucket;
     const parsed = new URL(url);
-    const path = parsed.pathname.replace(/^\/+/, '');
+    const path = parsed.pathname.replace(/^\/+/, "");
     return `${this.getEndpoint()}/${uploadBucket}/${path}`;
   }
 
@@ -126,17 +122,17 @@ export class R2Provider implements StorageProvider {
       const uploadPath = this.getUploadPath();
       const url = `${this.getEndpoint()}/${uploadBucket}/${uploadPath}/${options.key}`;
 
-      const { AwsClient } = await import('aws4fetch');
+      const { AwsClient } = await import("aws4fetch");
       const client = new AwsClient({
         accessKeyId: this.configs.accessKeyId,
         secretAccessKey: this.configs.secretAccessKey,
-        region: this.configs.region || 'auto',
+        region: this.configs.region || "auto",
       });
 
       const response = await client.fetch(
         new Request(url, {
-          method: 'HEAD',
-        })
+          method: "HEAD",
+        }),
       );
 
       return response.ok;
@@ -146,14 +142,14 @@ export class R2Provider implements StorageProvider {
   };
 
   async uploadFile(
-    options: StorageUploadOptions
+    options: StorageUploadOptions,
   ): Promise<StorageUploadResult> {
     try {
       const uploadBucket = options.bucket || this.configs.bucket;
       if (!uploadBucket) {
         return {
           success: false,
-          error: 'Bucket is required',
+          error: "Bucket is required",
           provider: this.name,
         };
       }
@@ -169,22 +165,22 @@ export class R2Provider implements StorageProvider {
       // Use custom endpoint if provided, otherwise use default
       const url = `${this.getEndpoint()}/${uploadBucket}/${uploadPath}/${options.key}`;
 
-      const { AwsClient } = await import('aws4fetch');
+      const { AwsClient } = await import("aws4fetch");
 
       // R2 uses "auto" as region for S3 API compatibility
       const client = new AwsClient({
         accessKeyId: this.configs.accessKeyId,
         secretAccessKey: this.configs.secretAccessKey,
-        region: this.configs.region || 'auto',
+        region: this.configs.region || "auto",
       });
 
       const headers: Record<string, string> = {
-        'Content-Type': options.contentType || 'application/octet-stream',
-        'Content-Disposition': options.disposition || 'inline',
-        'Content-Length': bodyArray.length.toString(),
+        "Content-Type": options.contentType || "application/octet-stream",
+        "Content-Disposition": options.disposition || "inline",
+        "Content-Length": bodyArray.length.toString(),
       };
 
-      console.log('[R2 Provider] Uploading file:', {
+      console.log("[R2 Provider] Uploading file:", {
         key: options.key,
         size: bodyArray.length,
         sizeInMB: (bodyArray.length / 1024 / 1024).toFixed(2),
@@ -192,7 +188,7 @@ export class R2Provider implements StorageProvider {
       });
 
       const request = new Request(url, {
-        method: 'PUT',
+        method: "PUT",
         headers,
         body: bodyArray as any,
       });
@@ -204,15 +200,17 @@ export class R2Provider implements StorageProvider {
       for (let attempt = 1; attempt <= MAX_RETRIES; attempt++) {
         try {
           if (attempt > 1) {
-            console.log(`[R2 Provider] Retry attempt ${attempt}/${MAX_RETRIES} for ${options.key}...`);
+            console.log(
+              `[R2 Provider] Retry attempt ${attempt}/${MAX_RETRIES} for ${options.key}...`,
+            );
             // Add a small delay between retries
-            await new Promise(resolve => setTimeout(resolve, 1000 * attempt));
+            await new Promise((resolve) => setTimeout(resolve, 1000 * attempt));
           }
 
           // Re-create request for each attempt to avoid "body used" issues if possible
           // Note: bodyArray is Uint8Array matching R2 expectations so it should be replayable
           const request = new Request(url, {
-            method: 'PUT',
+            method: "PUT",
             headers,
             body: bodyArray as any,
           });
@@ -222,25 +220,39 @@ export class R2Provider implements StorageProvider {
           if (response.ok) {
             break; // Success, exit loop
           } else {
-            const errorText = await response.text().catch(() => 'Unable to read error response');
-            lastError = new Error(`Upload failed: ${response.statusText} (${response.status}) - ${errorText}`);
-            console.error(`[R2 Provider] Attempt ${attempt} failed:`, lastError.message);
+            const errorText = await response
+              .text()
+              .catch(() => "Unable to read error response");
+            lastError = new Error(
+              `Upload failed: ${response.statusText} (${response.status}) - ${errorText}`,
+            );
+            console.error(
+              `[R2 Provider] Attempt ${attempt} failed:`,
+              lastError.message,
+            );
           }
         } catch (fetchError) {
           lastError = fetchError;
-          console.error(`[R2 Provider] Attempt ${attempt} fetch error:`, fetchError);
+          console.error(
+            `[R2 Provider] Attempt ${attempt} fetch error:`,
+            fetchError,
+          );
         }
       }
 
       if (!response || !response.ok) {
         return {
           success: false,
-          error: lastError ? (lastError instanceof Error ? lastError.message : String(lastError)) : 'Upload failed after retries',
+          error: lastError
+            ? lastError instanceof Error
+              ? lastError.message
+              : String(lastError)
+            : "Upload failed after retries",
           provider: this.name,
         };
       }
 
-      console.log('[R2 Provider] Upload successful:', options.key);
+      console.log("[R2 Provider] Upload successful:", options.key);
 
       const publicUrl =
         this.getPublicUrl({ key: options.key, bucket: uploadBucket }) || url;
@@ -251,19 +263,75 @@ export class R2Provider implements StorageProvider {
         bucket: uploadBucket,
         uploadPath: uploadPath,
         key: options.key,
-        filename: options.key.split('/').pop(),
+        filename: options.key.split("/").pop(),
         url: publicUrl,
         provider: this.name,
       };
     } catch (error) {
       return {
         success: false,
-        error: error instanceof Error ? error.message : 'Unknown error',
+        error: error instanceof Error ? error.message : "Unknown error",
         provider: this.name,
       };
     }
   }
+  async createSignedUpload(
+    options: StorageSignedUploadOptions,
+  ): Promise<StorageSignedUploadResult> {
+    try {
+      const uploadBucket = options.bucket || this.configs.bucket;
+      if (!uploadBucket) {
+        return {
+          success: false,
+          error: "Bucket is required",
+          provider: this.name,
+        };
+      }
 
+      const uploadPath = this.getUploadPath();
+      const url = `${this.getEndpoint()}/${uploadBucket}/${uploadPath}/${options.key}`;
+      const { AwsClient } = await import("aws4fetch");
+      const client = new AwsClient({
+        accessKeyId: this.configs.accessKeyId,
+        secretAccessKey: this.configs.secretAccessKey,
+        region: this.configs.region || "auto",
+      });
+
+      const signedRequest = await client.sign(url, {
+        method: "PUT",
+        headers: {
+          "Content-Type": options.contentType || "application/octet-stream",
+          "Content-Disposition": options.disposition || "inline",
+        },
+        aws: {
+          signQuery: true,
+          allHeaders: true,
+        },
+      });
+
+      const publicUrl =
+        this.getPublicUrl({ key: options.key, bucket: uploadBucket }) || url;
+
+      return {
+        success: true,
+        provider: this.name,
+        method: "PUT",
+        url: signedRequest.url,
+        key: options.key,
+        bucket: uploadBucket,
+        uploadPath,
+        filename: options.key.split("/").pop(),
+        publicUrl,
+        headers: Object.fromEntries(signedRequest.headers.entries()),
+      };
+    } catch (error) {
+      return {
+        success: false,
+        error: error instanceof Error ? error.message : "Unknown error",
+        provider: this.name,
+      };
+    }
+  }
   async deleteFile(options: StorageDeleteOptions): Promise<{
     success: boolean;
     error?: string;
@@ -274,16 +342,16 @@ export class R2Provider implements StorageProvider {
       if (!uploadBucket) {
         return {
           success: false,
-          error: 'Bucket is required',
+          error: "Bucket is required",
           provider: this.name,
         };
       }
 
-      const { AwsClient } = await import('aws4fetch');
+      const { AwsClient } = await import("aws4fetch");
       const client = new AwsClient({
         accessKeyId: this.configs.accessKeyId,
         secretAccessKey: this.configs.secretAccessKey,
-        region: this.configs.region || 'auto',
+        region: this.configs.region || "auto",
       });
 
       const candidateUrls = [
@@ -301,27 +369,27 @@ export class R2Provider implements StorageProvider {
       ].filter(Boolean) as string[];
 
       let deleted = false;
-      let lastError = '';
+      let lastError = "";
 
       for (const candidateUrl of candidateUrls) {
         const deleteResponse = await client.fetch(
           new Request(candidateUrl, {
-            method: 'DELETE',
-          })
+            method: "DELETE",
+          }),
         );
 
         if (!deleteResponse.ok) {
           const errorText = await deleteResponse
             .text()
-            .catch(() => 'Unable to read error response');
+            .catch(() => "Unable to read error response");
           lastError = `Delete failed: ${deleteResponse.statusText} (${deleteResponse.status}) - ${errorText}`;
           continue;
         }
 
         const verifyResponse = await client.fetch(
           new Request(candidateUrl, {
-            method: 'HEAD',
-          })
+            method: "HEAD",
+          }),
         );
 
         if (!verifyResponse.ok) {
@@ -335,7 +403,7 @@ export class R2Provider implements StorageProvider {
       if (!deleted) {
         return {
           success: false,
-          error: lastError || 'Delete verification failed',
+          error: lastError || "Delete verification failed",
           provider: this.name,
         };
       }
@@ -347,7 +415,7 @@ export class R2Provider implements StorageProvider {
     } catch (error) {
       return {
         success: false,
-        error: error instanceof Error ? error.message : 'Unknown error',
+        error: error instanceof Error ? error.message : "Unknown error",
         provider: this.name,
       };
     }
@@ -359,40 +427,44 @@ export class R2Provider implements StorageProvider {
       if (!uploadBucket) {
         return {
           success: false,
-          error: 'Bucket is required',
+          error: "Bucket is required",
           provider: this.name,
-          prefix: options.prefix || '',
+          prefix: options.prefix || "",
           directories: [],
           files: [],
         };
       }
 
-      const { AwsClient } = await import('aws4fetch');
+      const { AwsClient } = await import("aws4fetch");
       const client = new AwsClient({
         accessKeyId: this.configs.accessKeyId,
         secretAccessKey: this.configs.secretAccessKey,
-        region: this.configs.region || 'auto',
+        region: this.configs.region || "auto",
       });
 
       const currentPrefix = this.normalizeListPrefix(options.prefix);
       const uploadPath = this.getUploadPath();
-      const fullPrefix = currentPrefix ? `${uploadPath}/${currentPrefix}` : `${uploadPath}/`;
+      const fullPrefix = currentPrefix
+        ? `${uploadPath}/${currentPrefix}`
+        : `${uploadPath}/`;
       const maxKeys = String(options.limit || 200);
 
       const url = new URL(`${this.getEndpoint()}/${uploadBucket}`);
-      url.searchParams.set('list-type', '2');
-      url.searchParams.set('delimiter', '/');
-      url.searchParams.set('prefix', fullPrefix);
-      url.searchParams.set('max-keys', maxKeys);
+      url.searchParams.set("list-type", "2");
+      url.searchParams.set("delimiter", "/");
+      url.searchParams.set("prefix", fullPrefix);
+      url.searchParams.set("max-keys", maxKeys);
 
       const response = await client.fetch(
         new Request(url.toString(), {
-          method: 'GET',
-        })
+          method: "GET",
+        }),
       );
 
       if (!response.ok) {
-        const errorText = await response.text().catch(() => 'Unable to read error response');
+        const errorText = await response
+          .text()
+          .catch(() => "Unable to read error response");
         return {
           success: false,
           error: `List failed: ${response.statusText} (${response.status}) - ${errorText}`,
@@ -407,11 +479,16 @@ export class R2Provider implements StorageProvider {
       const directories: StorageDirectoryEntry[] = [];
       const files: StorageFileEntry[] = [];
 
-      const commonPrefixMatches = xml.matchAll(/<CommonPrefixes>\s*<Prefix>([\s\S]*?)<\/Prefix>\s*<\/CommonPrefixes>/g);
+      const commonPrefixMatches = xml.matchAll(
+        /<CommonPrefixes>\s*<Prefix>([\s\S]*?)<\/Prefix>\s*<\/CommonPrefixes>/g,
+      );
       for (const match of commonPrefixMatches) {
-        const fullDirPrefix = this.escapeXml(match[1] || '');
-        const relativePrefix = this.getRelativePrefix(fullDirPrefix).replace(/\/$/, '');
-        const name = relativePrefix.split('/').filter(Boolean).pop();
+        const fullDirPrefix = this.escapeXml(match[1] || "");
+        const relativePrefix = this.getRelativePrefix(fullDirPrefix).replace(
+          /\/$/,
+          "",
+        );
+        const name = relativePrefix.split("/").filter(Boolean).pop();
         if (!name) {
           continue;
         }
@@ -424,14 +501,14 @@ export class R2Provider implements StorageProvider {
 
       const contentMatches = xml.matchAll(/<Contents>([\s\S]*?)<\/Contents>/g);
       for (const match of contentMatches) {
-        const block = match[1] || '';
+        const block = match[1] || "";
         const keyMatch = block.match(/<Key>([\s\S]*?)<\/Key>/);
         if (!keyMatch) {
           continue;
         }
 
         const fullKey = this.escapeXml(keyMatch[1]);
-        if (fullKey === fullPrefix || fullKey.endsWith('/')) {
+        if (fullKey === fullPrefix || fullKey.endsWith("/")) {
           continue;
         }
 
@@ -440,13 +517,15 @@ export class R2Provider implements StorageProvider {
           continue;
         }
 
-        const name = relativeKey.split('/').pop() || relativeKey;
-        if (name === '.keep') {
+        const name = relativeKey.split("/").pop() || relativeKey;
+        if (name === ".keep") {
           continue;
         }
-        const size = Number((block.match(/<Size>([\s\S]*?)<\/Size>/)?.[1] || '0').trim());
+        const size = Number(
+          (block.match(/<Size>([\s\S]*?)<\/Size>/)?.[1] || "0").trim(),
+        );
         const lastModified = this.escapeXml(
-          block.match(/<LastModified>([\s\S]*?)<\/LastModified>/)?.[1] || ''
+          block.match(/<LastModified>([\s\S]*?)<\/LastModified>/)?.[1] || "",
         );
 
         files.push({
@@ -461,16 +540,16 @@ export class R2Provider implements StorageProvider {
       return {
         success: true,
         provider: this.name,
-        prefix: currentPrefix.replace(/\/$/, ''),
+        prefix: currentPrefix.replace(/\/$/, ""),
         directories,
         files,
       };
     } catch (error) {
       return {
         success: false,
-        error: error instanceof Error ? error.message : 'Unknown error',
+        error: error instanceof Error ? error.message : "Unknown error",
         provider: this.name,
-        prefix: options.prefix || '',
+        prefix: options.prefix || "",
         directories: [],
         files: [],
       };
@@ -478,7 +557,7 @@ export class R2Provider implements StorageProvider {
   }
 
   async downloadAndUpload(
-    options: StorageDownloadUploadOptions
+    options: StorageDownloadUploadOptions,
   ): Promise<StorageUploadResult> {
     try {
       const response = await fetch(options.url);
@@ -493,7 +572,7 @@ export class R2Provider implements StorageProvider {
       if (!response.body) {
         return {
           success: false,
-          error: 'No body in response',
+          error: "No body in response",
           provider: this.name,
         };
       }
@@ -511,7 +590,7 @@ export class R2Provider implements StorageProvider {
     } catch (error) {
       return {
         success: false,
-        error: error instanceof Error ? error.message : 'Unknown error',
+        error: error instanceof Error ? error.message : "Unknown error",
         provider: this.name,
       };
     }
