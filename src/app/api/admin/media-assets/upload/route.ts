@@ -106,20 +106,43 @@ export async function POST(req: Request) {
       });
 
       if (!uploadResult.success || !uploadResult.url) {
-        return respErr(uploadResult.error || 'upload failed', 500);
+        const message = uploadResult.error || 'upload failed';
+        const status = /timed out/i.test(message) ? 504 : 500;
+        return respErr(message, status);
       }
 
-      const asset = await addMediaAsset({
-        id,
-        userId: user.id,
-        provider: uploadResult.provider,
-        mediaType,
-        name: file.name,
-        key,
-        url: replaceR2Url(uploadResult.url),
-        contentType: file.type || 'application/octet-stream',
-        size: file.size,
-      });
+      let asset;
+      try {
+        asset = await addMediaAsset({
+          id,
+          userId: user.id,
+          provider: uploadResult.provider,
+          mediaType,
+          name: file.name,
+          key,
+          url: replaceR2Url(uploadResult.url),
+          contentType: file.type || 'application/octet-stream',
+          size: file.size,
+        });
+      } catch (error) {
+        try {
+          await storageService.deleteFileWithProvider(
+            {
+              key,
+              url: uploadResult.url,
+            },
+            uploadResult.provider
+          );
+        } catch (cleanupError) {
+          console.error('[Admin Media Assets Upload] Failed to rollback uploaded object:', {
+            key,
+            provider: uploadResult.provider,
+            cleanupError,
+          });
+        }
+
+        throw error;
+      }
 
       uploaded.push(asset);
     }

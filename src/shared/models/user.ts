@@ -76,10 +76,61 @@ export async function getUserByUserIds(userIds: string[]) {
   return result;
 }
 
+async function ensureUserRecord(signUser: Awaited<ReturnType<typeof getSignUser>>) {
+  if (!signUser?.id) {
+    return null;
+  }
+
+  const existingUser = await findUserById(signUser.id);
+  if (existingUser) {
+    return existingUser;
+  }
+
+  if (!signUser.email || !signUser.name) {
+    console.warn('[Auth] Session user is missing required fields for recovery', {
+      userId: signUser.id,
+      hasEmail: Boolean(signUser.email),
+      hasName: Boolean(signUser.name),
+    });
+    return null;
+  }
+
+  console.warn('[Auth] Recreating missing user row from active session', {
+    userId: signUser.id,
+    email: signUser.email,
+  });
+
+  const [restoredUser] = await db()
+    .insert(user)
+    .values({
+      id: signUser.id,
+      name: signUser.name,
+      email: signUser.email,
+      emailVerified: Boolean(signUser.emailVerified),
+      image: signUser.image ?? null,
+    })
+    .onConflictDoUpdate({
+      target: user.id,
+      set: {
+        name: signUser.name,
+        email: signUser.email,
+        emailVerified: Boolean(signUser.emailVerified),
+        image: signUser.image ?? null,
+      },
+    })
+    .returning();
+
+  return restoredUser ?? (await findUserById(signUser.id));
+}
+
 export async function getUserInfo() {
   const signUser = await getSignUser();
+  if (!signUser) {
+    return null;
+  }
 
-  return signUser;
+  const persistedUser = await ensureUserRecord(signUser);
+  return persistedUser ?? signUser;
 }
 
 export async function getUserCredits(userId: string) {

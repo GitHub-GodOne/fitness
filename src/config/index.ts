@@ -55,7 +55,8 @@ export const envConfigs: ConfigMap = {
     process.env.NEXT_PUBLIC_CDN_DOMAIN ??
     "https://public.fearnotforiamwithyou.com",
   // R2 bucket name for URL replacement
-  r2_bucket_name: process.env.R2_BUCKET_NAME ?? "fearnot",
+  r2_bucket_name:
+    process.env.R2_BUCKET_NAME ?? process.env.r2_bucket_name ?? "fearnot",
   // Refund email address for refund requests
   refund_email: process.env.REFUND_EMAIL ?? "",
 };

@@ -8,6 +8,9 @@ export interface StorageUploadOptions {
   bucket?: string;
   onProgress?: (progress: number) => void;
   disposition?: 'inline' | 'attachment';
+  timeoutMs?: number;
+  maxRetries?: number;
+  retryDelayMs?: number;
 }
 
 /**

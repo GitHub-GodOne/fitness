@@ -17,23 +17,37 @@ export function replaceR2Url(originalUrl: string | undefined | null): string {
         return '';
     }
 
-    // Get bucket name from config
+    const cdnDomain = envConfigs.cdn_domain.replace(/\/$/, '');
+    if (!cdnDomain || originalUrl.startsWith(`${cdnDomain}/`)) {
+        return originalUrl;
+    }
+
+    try {
+        const parsed = new URL(originalUrl);
+        const pathSegments = parsed.pathname.split('/').filter(Boolean);
+
+        // Standard R2 object URL: /{bucket}/{uploadPath}/{key}
+        if (
+            parsed.hostname.endsWith('.r2.cloudflarestorage.com') &&
+            pathSegments.length >= 2
+        ) {
+            return `${cdnDomain}/${pathSegments.slice(1).join('/')}`;
+        }
+    } catch {
+        // Fall back to legacy string matching below.
+    }
+
+    // Legacy fallback: replace by configured bucket name if the URL is not parseable
     const bucketName = envConfigs.r2_bucket_name;
     const bucketPath = `/${bucketName}/`;
-
-    // Look for '/{bucket_name}/' in the URL
     const bucketIndex = originalUrl.indexOf(bucketPath);
-
-    // If bucket path is found, extract path after it and use CDN domain
     if (bucketIndex !== -1) {
         const pathAfterBucket = originalUrl.substring(
             bucketIndex + bucketPath.length
         );
-        const cdnDomain = envConfigs.cdn_domain.replace(/\/$/, ''); // Remove trailing slash
         return `${cdnDomain}/${pathAfterBucket}`;
     }
 
-    // Return original URL if bucket path not found
     return originalUrl;
 }
 

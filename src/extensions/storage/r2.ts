@@ -10,6 +10,7 @@ import type {
   StorageUploadOptions,
   StorageUploadResult,
 } from '.';
+import { isCloudflareWorker } from '@/shared/lib/env';
 
 /**
  * R2 storage provider configs
@@ -119,6 +120,101 @@ export class R2Provider implements StorageProvider {
       : url;
   };
 
+  private normalizeUploadError(error: unknown, timeoutMs: number) {
+    const errorCode =
+      (error as { code?: string; cause?: { code?: string } })?.cause?.code ||
+      (error as { code?: string })?.code;
+
+    if (
+      errorCode === 'UND_ERR_HEADERS_TIMEOUT' ||
+      errorCode === 'R2_UPLOAD_TIMEOUT' ||
+      errorCode === 'ETIMEDOUT'
+    ) {
+      const timeoutSeconds = Math.ceil(timeoutMs / 1000);
+      return new Error(
+        `Upload timed out after ${timeoutSeconds}s while waiting for R2 response`
+      );
+    }
+
+    if (error instanceof Error) {
+      return error;
+    }
+
+    return new Error(String(error));
+  }
+
+  private async fetchSignedRequest({
+    client,
+    request,
+    timeoutMs,
+  }: {
+    client: { sign: (input: Request) => Promise<Request> };
+    request: Request;
+    timeoutMs: number;
+  }) {
+    const signedRequest = await client.sign(request);
+
+    if (isCloudflareWorker) {
+      return fetch(signedRequest);
+    }
+
+    const targetUrl = new URL(signedRequest.url);
+    const transport =
+      targetUrl.protocol === 'http:'
+        ? (require('node:http') as typeof import('node:http'))
+        : (require('node:https') as typeof import('node:https'));
+    const body = Buffer.from(await signedRequest.arrayBuffer());
+    const headers = Object.fromEntries(signedRequest.headers.entries());
+
+    return await new Promise<Response>((resolve, reject) => {
+      const req = transport.request(
+        targetUrl,
+        {
+          method: signedRequest.method,
+          headers,
+        },
+        (res) => {
+          const chunks: Buffer[] = [];
+
+          res.on('data', (chunk) => {
+            chunks.push(Buffer.isBuffer(chunk) ? chunk : Buffer.from(chunk));
+          });
+
+          res.on('end', () => {
+            const responseBody = Buffer.concat(chunks);
+            const responseHeaders: [string, string][] = Object.entries(
+              res.headers
+            ).flatMap(([key, value]) => {
+              if (Array.isArray(value)) {
+                return value.map((item): [string, string] => [key, item]);
+              }
+              return value ? [[key, value]] : [];
+            });
+
+            resolve(
+              new Response(responseBody, {
+                status: res.statusCode || 500,
+                statusText: res.statusMessage || '',
+                headers: new Headers(responseHeaders),
+              })
+            );
+          });
+        }
+      );
+
+      req.on('error', reject);
+      req.setTimeout(timeoutMs, () => {
+        const timeoutError = new Error('R2 upload request timed out') as Error & {
+          code?: string;
+        };
+        timeoutError.code = 'R2_UPLOAD_TIMEOUT';
+        req.destroy(timeoutError);
+      });
+      req.write(body);
+      req.end();
+    });
+  }
+
   exists = async (options: { key: string; bucket?: string }) => {
     try {
       const uploadBucket = options.bucket || this.configs.bucket;
@@ -191,22 +287,22 @@ export class R2Provider implements StorageProvider {
         contentType: options.contentType,
       });
 
-      const request = new Request(url, {
-        method: 'PUT',
-        headers,
-        body: bodyArray as any,
-      });
-
       let response;
       let lastError;
-      const MAX_RETRIES = 3;
+      const sizeInMb = bodyArray.length / 1024 / 1024;
+      const requestTimeoutMs = Math.min(
+        options.timeoutMs ?? Math.max(120_000, Math.ceil(sizeInMb * 4_000)),
+        10 * 60 * 1000
+      );
+      const maxRetries = options.maxRetries ?? 2;
+      const retryDelayMs = options.retryDelayMs ?? 1_000;
 
-      for (let attempt = 1; attempt <= MAX_RETRIES; attempt++) {
+      for (let attempt = 1; attempt <= maxRetries; attempt++) {
         try {
           if (attempt > 1) {
-            console.log(`[R2 Provider] Retry attempt ${attempt}/${MAX_RETRIES} for ${options.key}...`);
+            console.log(`[R2 Provider] Retry attempt ${attempt}/${maxRetries} for ${options.key}...`);
             // Add a small delay between retries
-            await new Promise(resolve => setTimeout(resolve, 1000 * attempt));
+            await new Promise(resolve => setTimeout(resolve, retryDelayMs * attempt));
           }
 
           // Re-create request for each attempt to avoid "body used" issues if possible
@@ -217,7 +313,11 @@ export class R2Provider implements StorageProvider {
             body: bodyArray as any,
           });
 
-          response = await client.fetch(request);
+          response = await this.fetchSignedRequest({
+            client,
+            request,
+            timeoutMs: requestTimeoutMs,
+          });
 
           if (response.ok) {
             break; // Success, exit loop
@@ -227,8 +327,8 @@ export class R2Provider implements StorageProvider {
             console.error(`[R2 Provider] Attempt ${attempt} failed:`, lastError.message);
           }
         } catch (fetchError) {
-          lastError = fetchError;
-          console.error(`[R2 Provider] Attempt ${attempt} fetch error:`, fetchError);
+          lastError = this.normalizeUploadError(fetchError, requestTimeoutMs);
+          console.error(`[R2 Provider] Attempt ${attempt} fetch error:`, lastError);
         }
       }
 
