@@ -437,20 +437,22 @@ export function MediaAssetLibrary({ locale }: { locale: string }) {
                       key={directory.prefix}
                       type="button"
                       onClick={() => loadBrowser(directory.prefix, true)}
-                      className="flex items-center justify-between rounded-3xl border bg-background px-5 py-4 text-left transition hover:border-primary/40 hover:shadow-sm"
+                      className="flex min-w-0 items-center justify-between gap-3 rounded-3xl border bg-background px-5 py-4 text-left transition hover:border-primary/40 hover:shadow-sm"
                     >
-                      <div className="flex items-center gap-3">
-                        <div className="rounded-2xl bg-primary/10 p-3 text-primary">
+                      <div className="flex min-w-0 flex-1 items-center gap-3">
+                        <div className="shrink-0 rounded-2xl bg-primary/10 p-3 text-primary">
                           <Folder className="size-5" />
                         </div>
-                        <div>
-                          <div className="font-medium">{directory.name}</div>
-                          <div className="text-xs text-muted-foreground break-all">
+                        <div className="min-w-0 flex-1">
+                          <div className="truncate font-medium">
+                            {directory.name}
+                          </div>
+                          <div className="truncate text-xs text-muted-foreground sm:break-all">
                             {directory.prefix}
                           </div>
                         </div>
                       </div>
-                      <ChevronRight className="size-4 text-muted-foreground" />
+                      <ChevronRight className="size-4 shrink-0 text-muted-foreground" />
                     </button>
                   ))}
                 </div>
