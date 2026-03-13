@@ -3,9 +3,13 @@
 import { useMemo, useState, useTransition } from 'react';
 import { useTranslations } from 'next-intl';
 import { usePathname, useRouter, useSearchParams } from 'next/navigation';
-import { Loader2, RotateCcw, Save } from 'lucide-react';
+import { Download, Loader2, RotateCcw, Save, Upload } from 'lucide-react';
 import { toast } from 'sonner';
 
+import {
+  buildMessageObject,
+  flattenMessageLeaves,
+} from '@/shared/lib/i18n-messages';
 import { Button } from '@/shared/components/ui/button';
 import { Input } from '@/shared/components/ui/input';
 import { Label } from '@/shared/components/ui/label';
@@ -45,10 +49,12 @@ export function TranslationManager({
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
+  const [importMode, setImportMode] = useState<'merge' | 'replace'>('merge');
   const [isPending, startTransition] = useTransition();
   const [search, setSearch] = useState('');
   const [savingKey, setSavingKey] = useState<string | null>(null);
   const [resettingKey, setResettingKey] = useState<string | null>(null);
+  const [importing, setImporting] = useState(false);
   const [drafts, setDrafts] = useState<Record<string, string>>(() =>
     Object.fromEntries(
       initialRows.map((row) => [row.key, row.overrideValue ?? row.defaultValue])
@@ -73,6 +79,122 @@ export function TranslationManager({
       );
     });
   }, [initialRows, overrides, search]);
+
+  const fileInputId = 'translation-json-import';
+
+  function downloadObject(filename: string, data: Record<string, any>) {
+    const blob = new Blob([JSON.stringify(data, null, 2)], {
+      type: 'application/json',
+    });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = filename;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    setTimeout(() => URL.revokeObjectURL(url), 200);
+  }
+
+  function handleExportMerged() {
+    const payload = buildMessageObject(
+      initialRows.map((row) => ({
+        key: row.key,
+        value: drafts[row.key] ?? overrides[row.key] ?? row.defaultValue,
+      }))
+    );
+    downloadObject(`${targetLocale}-${namespacePath.replace(/\//g, '_')}.json`, payload);
+  }
+
+  function handleExportOverrides() {
+    const payload = buildMessageObject(
+      initialRows
+        .filter((row) => overrides[row.key] !== undefined)
+        .map((row) => ({
+          key: row.key,
+          value: overrides[row.key] as string,
+        }))
+    );
+    downloadObject(
+      `${targetLocale}-${namespacePath.replace(/\//g, '_')}.overrides.json`,
+      payload
+    );
+  }
+
+  async function handleImportFile(file: File | null) {
+    if (!file) {
+      return;
+    }
+
+    try {
+      setImporting(true);
+      const text = await file.text();
+      const parsed = JSON.parse(text);
+      const entries = flattenMessageLeaves(parsed);
+
+      if (entries.length === 0) {
+        throw new Error(t('messages.importEmpty'));
+      }
+
+      const response = await fetch('/api/admin/translations/batch', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          locale: targetLocale,
+          namespace: namespaceRoot,
+          mode: importMode,
+          entries,
+        }),
+      });
+      const payload = await response.json();
+
+      if (!response.ok || payload.code !== 0) {
+        throw new Error(payload.message || t('messages.importFailed'));
+      }
+
+      const importedValueMap = new Map(entries.map((entry) => [entry.key, entry.value]));
+
+      if (importMode === 'replace') {
+        setOverrides(
+          Object.fromEntries(entries.map((entry) => [entry.key, entry.value]))
+        );
+        setDrafts(
+          Object.fromEntries(
+            initialRows.map((row) => [
+              row.key,
+              importedValueMap.get(row.key) ?? row.defaultValue,
+            ])
+          )
+        );
+      } else {
+        setOverrides((current) => ({
+          ...current,
+          ...Object.fromEntries(entries.map((entry) => [entry.key, entry.value])),
+        }));
+        setDrafts((current) => ({
+          ...current,
+          ...Object.fromEntries(entries.map((entry) => [entry.key, entry.value])),
+        }));
+      }
+
+      toast.success(
+        t('messages.imported', {
+          count: payload.data?.count ?? entries.length,
+        })
+      );
+      router.refresh();
+    } catch (error: any) {
+      toast.error(error?.message || t('messages.importFailed'));
+    } finally {
+      setImporting(false);
+      const input = document.getElementById(fileInputId) as HTMLInputElement | null;
+      if (input) {
+        input.value = '';
+      }
+    }
+  }
 
   function updateQuery(next: { locale?: string; path?: string }) {
     const params = new URLSearchParams(searchParams.toString());
@@ -217,6 +339,63 @@ export function TranslationManager({
             {adminLocale !== targetLocale
               ? `${adminLocale} UI / ${targetLocale} content`
               : targetLocale}
+          </div>
+        </div>
+
+        <div className="mt-4 flex flex-col gap-3 xl:flex-row xl:items-end xl:justify-between">
+          <div className="grid gap-3 sm:grid-cols-[220px_minmax(0,1fr)]">
+            <div className="space-y-2">
+              <Label>{t('filters.importMode')}</Label>
+              <Select
+                value={importMode}
+                onValueChange={(value: 'merge' | 'replace') => setImportMode(value)}
+              >
+                <SelectTrigger>
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="merge">{t('filters.importModes.merge')}</SelectItem>
+                  <SelectItem value="replace">{t('filters.importModes.replace')}</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+            <p className="text-sm text-muted-foreground xl:pb-2">
+              {importMode === 'replace'
+                ? t('summary.replaceDescription')
+                : t('summary.mergeDescription')}
+            </p>
+          </div>
+
+          <div className="flex flex-col gap-3 sm:flex-row">
+            <Button type="button" variant="outline" onClick={handleExportMerged}>
+              <Download className="size-4" />
+              {t('actions.exportCurrent')}
+            </Button>
+            <Button type="button" variant="outline" onClick={handleExportOverrides}>
+              <Download className="size-4" />
+              {t('actions.exportOverrides')}
+            </Button>
+            <input
+              id={fileInputId}
+              type="file"
+              accept="application/json,.json"
+              className="hidden"
+              onChange={(event) => handleImportFile(event.target.files?.[0] || null)}
+            />
+            <Button
+              type="button"
+              onClick={() =>
+                (document.getElementById(fileInputId) as HTMLInputElement | null)?.click()
+              }
+              disabled={importing}
+            >
+              {importing ? (
+                <Loader2 className="size-4 animate-spin" />
+              ) : (
+                <Upload className="size-4" />
+              )}
+              {t('actions.importJson')}
+            </Button>
           </div>
         </div>
       </section>

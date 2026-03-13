@@ -24,7 +24,9 @@ export async function GET(req: NextRequest) {
     const limit = parseInt(searchParams.get('limit') || '30', 10);
 
     const normalizedType =
-      mediaType === MediaAssetType.IMAGE || mediaType === MediaAssetType.VIDEO
+      mediaType === MediaAssetType.IMAGE ||
+      mediaType === MediaAssetType.VIDEO ||
+      mediaType === MediaAssetType.AUDIO
         ? mediaType
         : undefined;
 

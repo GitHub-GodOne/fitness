@@ -27,6 +27,7 @@
   },
   "fileTypes": {
     "video": "Video",
+    "audio": "Audio",
     "image": "Image",
     "file": "File"
   },

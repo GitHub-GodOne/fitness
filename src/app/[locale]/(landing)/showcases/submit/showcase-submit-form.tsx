@@ -53,13 +53,13 @@ export function ShowcaseSubmitForm({
   userId,
   selectableTasks,
   categories,
-  onSubmit,
+  submitAction,
 }: {
   locale: string;
   userId: string;
   selectableTasks: SelectableTask[];
   categories: CategoryOption[];
-  onSubmit: (data: FormData, passby: { userId: string; locale: string }) => Promise<SubmitResult>;
+  submitAction: (data: FormData, passby: { userId: string; locale: string }) => Promise<SubmitResult>;
 }) {
   const t = useTranslations('pages.showcases.page.submit.form');
   const router = useRouter();
@@ -103,7 +103,7 @@ export function ShowcaseSubmitForm({
 
     try {
       setLoading(true);
-      const res = await onSubmit(formData, { userId, locale });
+      const res = await submitAction(formData, { userId, locale });
 
       if (!res) {
         throw new Error('No response received from server');

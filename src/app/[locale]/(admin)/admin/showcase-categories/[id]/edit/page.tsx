@@ -67,7 +67,16 @@ export default async function ShowcaseCategoryEditPage({
         name: 'image',
         type: 'upload_image',
         title: t('fields.image'),
-        metadata: { max: 1 },
+        metadata: {
+          max: 1,
+          allowDirectUrl: true,
+          directUrlLabel: t('fields.imageUrlLabel'),
+          directUrlPlaceholder: t('fields.imageUrlPlaceholder'),
+          mediaLibraryPicker: {
+            mediaType: 'image',
+            buttonText: t('fields.chooseImage'),
+          },
+        },
       },
       {
         name: 'sort',
@@ -94,9 +103,14 @@ export default async function ShowcaseCategoryEditPage({
       handler: async (data) => {
         'use server';
 
+        const actionT = await getTranslations({
+          locale,
+          namespace: 'admin.showcase-categories',
+        });
+
         const user = await getUserInfo();
         if (!user) {
-          throw new Error('no auth');
+          return { status: 'error', message: 'Please sign in again' } as const;
         }
 
         const slug = String(data.get('slug') || '').trim().toLowerCase();
@@ -107,7 +121,17 @@ export default async function ShowcaseCategoryEditPage({
         const status = String(data.get('status') || TaxonomyStatus.PUBLISHED);
 
         if (!slug || !title) {
-          throw new Error('slug and title are required');
+          return {
+            status: 'error',
+            message: 'Slug and title are required',
+          } as const;
+        }
+
+        if (!/^[a-z0-9]+(?:[/-][a-z0-9]+)*$/.test(slug)) {
+          return {
+            status: 'error',
+            message: actionT('edit.messages.invalidSlug'),
+          } as const;
         }
 
         const updateCategory: UpdateTaxonomy = {
@@ -123,12 +147,15 @@ export default async function ShowcaseCategoryEditPage({
 
         const result = await updateTaxonomy(category.id, updateCategory);
         if (!result) {
-          throw new Error('update showcase category failed');
+          return {
+            status: 'error',
+            message: 'Failed to update showcase category',
+          } as const;
         }
 
         return {
           status: 'success',
-          message: t('edit.messages.success'),
+          message: actionT('edit.messages.success'),
           redirect_url: '/admin/showcase-categories',
         };
       },

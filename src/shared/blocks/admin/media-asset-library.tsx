@@ -2,6 +2,7 @@
 
 import { useEffect, useMemo, useRef, useState } from 'react';
 import {
+  AudioLines,
   ChevronRight,
   Copy,
   Download,
@@ -84,6 +85,10 @@ function getFileType(file: BrowserFile) {
 
   if (/\.(mp4|mov|webm|avi|mpeg|m4v)\b/.test(target)) {
     return 'video';
+  }
+
+  if (/\.(mp3|wav|ogg|aac|m4a|flac)\b/.test(target)) {
+    return 'audio';
   }
 
   return 'other';
@@ -316,7 +321,7 @@ export function MediaAssetLibrary({ locale }: { locale: string }) {
               <input
                 ref={inputRef}
                 type="file"
-                accept="image/*,video/*"
+                accept="image/*,video/*,audio/*"
                 multiple
                 className="hidden"
                 onChange={(event) => handleUpload(event.target.files)}
@@ -480,6 +485,14 @@ export function MediaAssetLibrary({ locale }: { locale: string }) {
                                 className="aspect-[4/3] w-full object-cover"
                               />
                             </button>
+                          ) : fileType === 'audio' && file.url ? (
+                            <div className="rounded-2xl bg-background p-4">
+                              <div className="mb-3 flex items-center gap-2 text-sm text-muted-foreground">
+                                <AudioLines className="size-4" />
+                                <span>{t('fileTypes.audio')}</span>
+                              </div>
+                              <audio controls preload="metadata" src={file.url} className="w-full" />
+                            </div>
                           ) : (
                             <div className="flex aspect-[4/3] items-center justify-center rounded-2xl bg-background text-muted-foreground">
                               <FileImage className="size-10" />
@@ -493,6 +506,8 @@ export function MediaAssetLibrary({ locale }: { locale: string }) {
                               <div className="rounded-xl bg-primary/10 p-2 text-primary">
                                 {fileType === 'video' ? (
                                   <Film className="size-4" />
+                                ) : fileType === 'audio' ? (
+                                  <AudioLines className="size-4" />
                                 ) : (
                                   <FileImage className="size-4" />
                                 )}
@@ -509,6 +524,8 @@ export function MediaAssetLibrary({ locale }: { locale: string }) {
                               <span className="rounded-full border px-2 py-1">
                                 {fileType === 'video'
                                   ? t('fileTypes.video')
+                                  : fileType === 'audio'
+                                    ? t('fileTypes.audio')
                                   : fileType === 'image'
                                     ? t('fileTypes.image')
                                     : t('fileTypes.file')}

@@ -36,12 +36,12 @@ export default async function CreateApiKeyPage() {
 
         const { user } = passby;
         if (!user) {
-          throw new Error('no auth');
+          return { status: 'error', message: 'Please sign in again' } as const;
         }
 
         const title = data.get('title') as string;
         if (!title?.trim()) {
-          throw new Error('title is required');
+          return { status: 'error', message: 'Title is required' } as const;
         }
 
         const key = `sk-${getNonceStr(32)}`;

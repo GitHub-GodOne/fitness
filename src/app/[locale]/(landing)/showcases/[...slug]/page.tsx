@@ -2,7 +2,11 @@ import { setRequestLocale } from 'next-intl/server';
 
 import { envConfigs } from '@/config';
 import { defaultLocale } from '@/config/locale';
-import { getTaxonomies, TaxonomyStatus, TaxonomyType } from '@/shared/models/taxonomy';
+import {
+  getTaxonomies,
+  TaxonomyStatus,
+  TaxonomyType,
+} from '@/shared/models/taxonomy';
 
 import { ShowcasesPageContent } from '../showcases-page-content';
 
@@ -11,24 +15,25 @@ export const revalidate = 3600;
 export async function generateMetadata({
   params,
 }: {
-  params: Promise<{ locale: string; slug: string }>;
+  params: Promise<{ locale: string; slug: string[] }>;
 }) {
   const { locale, slug } = await params;
   setRequestLocale(locale);
 
+  const categorySlug = Array.isArray(slug) ? slug.join('/') : slug;
   const categories = await getTaxonomies({
     type: TaxonomyType.SHOWCASE_CATEGORY,
     status: TaxonomyStatus.PUBLISHED,
     limit: 100,
   });
 
-  const category = categories.find((item) => item.slug === slug);
+  const category = categories.find((item) => item.slug === categorySlug);
   const title = category?.title || 'Showcases';
   const description =
     category?.description || 'Browse the published videos in this category.';
   const canonical = `${envConfigs.app_url}${
     locale === defaultLocale ? '' : `/${locale}`
-  }/showcases/${slug}`;
+  }/showcases/${categorySlug}`;
 
   return {
     title,
@@ -49,10 +54,12 @@ export async function generateMetadata({
 export default async function ShowcaseCategoryPage({
   params,
 }: {
-  params: Promise<{ locale: string; slug: string }>;
+  params: Promise<{ locale: string; slug: string[] }>;
 }) {
   const { locale, slug } = await params;
   setRequestLocale(locale);
 
-  return <ShowcasesPageContent locale={locale} categorySlug={slug} />;
+  const categorySlug = Array.isArray(slug) ? slug.join('/') : slug;
+
+  return <ShowcasesPageContent locale={locale} categorySlug={categorySlug} />;
 }

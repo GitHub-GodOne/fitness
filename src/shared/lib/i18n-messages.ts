@@ -90,3 +90,15 @@ export function applyMessageOverride(
   setDeepMessageValue(messages, fullPath, value);
   return messages;
 }
+
+export function buildMessageObject(
+  entries: Array<{ key: string; value: string }>
+) {
+  const result: Record<string, any> = {};
+
+  entries.forEach((entry) => {
+    setDeepMessageValue(result, entry.key, entry.value);
+  });
+
+  return result;
+}

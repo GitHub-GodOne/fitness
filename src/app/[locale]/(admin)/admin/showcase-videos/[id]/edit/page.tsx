@@ -127,9 +127,14 @@ export default async function ShowcaseVideoEditPage({
       handler: async (data) => {
         'use server';
 
+        const actionT = await getTranslations({
+          locale,
+          namespace: 'admin.showcase-videos',
+        });
+
         const user = await getUserInfo();
         if (!user) {
-          throw new Error('no auth');
+          return { status: 'error', message: 'Please sign in again' } as const;
         }
 
         const categoryId = String(data.get('categoryId') || '').trim();
@@ -143,7 +148,10 @@ export default async function ShowcaseVideoEditPage({
         const reviewNote = String(data.get('reviewNote') || '').trim();
 
         if (!categoryId || !title || !videoUrl) {
-          throw new Error('missing required fields');
+          return {
+            status: 'error',
+            message: 'Category, title and video URL are required',
+          } as const;
         }
 
         const publishedAt =
@@ -166,12 +174,15 @@ export default async function ShowcaseVideoEditPage({
 
         const result = await updateShowcaseVideo(video.id, updateData);
         if (!result) {
-          throw new Error('update showcase video failed');
+          return {
+            status: 'error',
+            message: 'Failed to update showcase video',
+          } as const;
         }
 
         return {
           status: 'success',
-          message: t('edit.messages.success'),
+          message: actionT('edit.messages.success'),
           redirect_url: '/admin/showcase-videos',
         };
       },

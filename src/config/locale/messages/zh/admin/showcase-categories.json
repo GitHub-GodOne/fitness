@@ -4,11 +4,14 @@
     "title": "标题",
     "description": "描述",
     "image": "分类图片",
+    "imageUrlLabel": "或粘贴图片 URL",
+    "imageUrlPlaceholder": "https://example.com/category-cover.jpg",
+    "chooseImage": "从资源库选择图片",
     "sort": "排序",
     "status": "状态",
     "updatedAt": "更新时间",
     "copyMessage": "已复制",
-    "slugTip": "唯一标识，建议用英文短横线格式"
+    "slugTip": "唯一标识，建议用英文短横线格式。支持多级路径，比如 test/aaa，但不允许空格。"
   },
   "statuses": {
     "published": "已发布",
@@ -38,7 +41,8 @@
       "submit": "创建分类"
     },
     "messages": {
-      "success": "案例分类已创建"
+      "success": "案例分类已创建",
+      "invalidSlug": "Slug 只能包含小写字母、数字、短横线和斜杠，不能包含空格。"
     }
   },
   "edit": {
@@ -53,7 +57,8 @@
     },
     "messages": {
       "notFound": "案例分类不存在",
-      "success": "案例分类已更新"
+      "success": "案例分类已更新",
+      "invalidSlug": "Slug 只能包含小写字母、数字、短横线和斜杠，不能包含空格。"
     }
   }
 }

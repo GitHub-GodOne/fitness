@@ -1,6 +1,5 @@
 import { getTranslations } from 'next-intl/server';
 import { notFound } from 'next/navigation';
-import Image from 'next/image';
 import { ArrowLeft } from 'lucide-react';
 
 import { Link } from '@/core/i18n/navigation';
@@ -135,11 +134,11 @@ export async function ShowcasesPageContent({
               >
                 <div className="relative aspect-[16/10] bg-muted">
                   {item.image ? (
-                    <Image
+                    <img
                       src={item.image}
                       alt={item.title}
-                      fill
-                      className="object-cover transition duration-300 group-hover:scale-[1.02]"
+                      loading="lazy"
+                      className="h-full w-full object-cover transition duration-300 group-hover:scale-[1.02]"
                     />
                   ) : (
                     <div className="flex h-full w-full items-center justify-center bg-gradient-to-br from-primary/10 via-secondary/10 to-accent/10">

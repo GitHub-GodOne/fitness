@@ -70,20 +70,20 @@ export default async function DeleteApiKeyPage({
         const { user, apikey } = passby;
 
         if (!apikey) {
-          throw new Error('apikey not found');
+          return { status: 'error', message: 'API key not found' } as const;
         }
 
         if (!user) {
-          throw new Error('no auth');
+          return { status: 'error', message: 'Please sign in again' } as const;
         }
 
         if (apikey.userId !== user.id) {
-          throw new Error('no permission');
+          return { status: 'error', message: 'No permission' } as const;
         }
 
         const title = data.get('title') as string;
         if (!title?.trim()) {
-          throw new Error('title is required');
+          return { status: 'error', message: 'Title is required' } as const;
         }
 
         const updatedApikey: UpdateApikey = {

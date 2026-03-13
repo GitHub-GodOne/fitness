@@ -39,6 +39,62 @@ export async function saveI18nMessageOverride(
   return result;
 }
 
+export async function saveI18nMessageOverridesBatch({
+  locale,
+  namespace,
+  entries,
+  updatedBy,
+}: {
+  locale: string;
+  namespace: string;
+  entries: Array<{ key: string; value: string }>;
+  updatedBy?: string | null;
+}) {
+  if (entries.length === 0) {
+    return [];
+  }
+
+  const result = await db().transaction(async (tx) => {
+    const saved: I18nMessage[] = [];
+
+    for (const entry of entries) {
+      const [row] = await tx
+        .insert(i18nMessage)
+        .values({
+          id: getUuid(),
+          locale,
+          namespace,
+          key: entry.key,
+          value: entry.value,
+          updatedBy: updatedBy ?? null,
+        })
+        .onConflictDoUpdate({
+          target: [
+            i18nMessage.locale,
+            i18nMessage.namespace,
+            i18nMessage.key,
+          ],
+          set: {
+            value: entry.value,
+            updatedBy: updatedBy ?? null,
+            updatedAt: new Date(),
+          },
+        })
+        .returning();
+
+      if (row) {
+        saved.push(row);
+      }
+    }
+
+    return saved;
+  });
+
+  revalidateTag(CACHE_TAG_I18N_MESSAGES, 'max');
+
+  return result;
+}
+
 export async function deleteI18nMessageOverride({
   locale,
   namespace,
@@ -55,6 +111,28 @@ export async function deleteI18nMessageOverride({
         eq(i18nMessage.locale, locale),
         eq(i18nMessage.namespace, namespace),
         eq(i18nMessage.key, key)
+      )
+    )
+    .returning();
+
+  revalidateTag(CACHE_TAG_I18N_MESSAGES, 'max');
+
+  return result;
+}
+
+export async function deleteI18nMessageOverridesByNamespace({
+  locale,
+  namespace,
+}: {
+  locale: string;
+  namespace: string;
+}) {
+  const result = await db()
+    .delete(i18nMessage)
+    .where(
+      and(
+        eq(i18nMessage.locale, locale),
+        eq(i18nMessage.namespace, namespace)
       )
     )
     .returning();

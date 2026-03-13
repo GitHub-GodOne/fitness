@@ -86,9 +86,17 @@ export default async function ShowcaseSubmitPage({
   ): Promise<SubmitResult> => {
     'use server';
 
+    const submitT = await getTranslations({
+      locale: passby.locale,
+      namespace: 'pages.showcases.page.submit',
+    });
+
     const user = await getUserInfo();
     if (!user || user.id !== passby.userId) {
-      throw new Error('no auth');
+      return {
+        status: 'error',
+        message: submitT('messages.loginRequired'),
+      };
     }
 
     const sourceTaskId = String(data.get('source_task_id') || '');
@@ -98,16 +106,18 @@ export default async function ShowcaseSubmitPage({
     const coverUrlInput = String(data.get('cover_url') || '').trim();
 
     if (!sourceTaskId || !categoryId || !title) {
-      throw new Error('missing required fields');
+      return {
+        status: 'error',
+        message: submitT('form.validationError'),
+      };
     }
 
     const category = await findTaxonomy({ id: categoryId, status: TaxonomyStatus.PUBLISHED });
     if (!category || category.type !== TaxonomyType.SHOWCASE_CATEGORY) {
-      const submitT = await getTranslations({
-        locale: passby.locale,
-        namespace: 'pages.showcases.page.submit',
-      });
-      throw new Error(submitT('messages.categoryNotFound'));
+      return {
+        status: 'error',
+        message: submitT('messages.categoryNotFound'),
+      };
     }
 
     const duplicate = await findShowcaseVideoBySourceTaskId({
@@ -116,11 +126,10 @@ export default async function ShowcaseSubmitPage({
     });
 
     if (duplicate) {
-      const submitT = await getTranslations({
-        locale: passby.locale,
-        namespace: 'pages.showcases.page.submit',
-      });
-      throw new Error(submitT('messages.alreadySubmitted'));
+      return {
+        status: 'error',
+        message: submitT('messages.alreadySubmitted'),
+      };
     }
 
     const task = await findAITaskById(sourceTaskId);
@@ -131,7 +140,10 @@ export default async function ShowcaseSubmitPage({
       task.mediaType !== AIMediaType.VIDEO ||
       task.status !== AITaskStatus.SUCCESS
     ) {
-      throw new Error('selected task not found');
+      return {
+        status: 'error',
+        message: submitT('messages.noVideos'),
+      };
     }
 
     const videoUrl = extractVideoUrlFromAITask({
@@ -140,7 +152,10 @@ export default async function ShowcaseSubmitPage({
     });
 
     if (!videoUrl) {
-      throw new Error('video url not found');
+      return {
+        status: 'error',
+        message: submitT('form.submitError'),
+      };
     }
 
     const coverUrl =
@@ -170,12 +185,7 @@ export default async function ShowcaseSubmitPage({
 
     return {
       status: 'success',
-      message: (
-        await getTranslations({
-          locale: passby.locale,
-          namespace: 'pages.showcases.page.submit',
-        })
-      )('messages.success'),
+      message: submitT('messages.success'),
       redirect_url: '/showcases',
     };
   };
@@ -212,7 +222,7 @@ export default async function ShowcaseSubmitPage({
             id: category.id,
             title: category.title,
           }))}
-          onSubmit={handleSubmit}
+          submitAction={handleSubmit}
         />
       </div>
     </div>

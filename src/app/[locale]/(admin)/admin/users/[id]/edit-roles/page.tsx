@@ -89,7 +89,7 @@ export default async function UserEditRolesPage({
         const { user } = passby;
 
         if (!user) {
-          throw new Error('no auth');
+          return { status: 'error', message: 'User not found' } as const;
         }
 
         let roles = data.get('roles') as unknown as string[];
@@ -97,7 +97,7 @@ export default async function UserEditRolesPage({
           try {
             roles = JSON.parse(roles);
           } catch (error) {
-            throw new Error('invalid roles');
+            return { status: 'error', message: 'Invalid roles' } as const;
           }
         }
 

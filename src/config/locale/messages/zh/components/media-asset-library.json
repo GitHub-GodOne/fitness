@@ -27,6 +27,7 @@
   },
   "fileTypes": {
     "video": "视频",
+    "audio": "音频",
     "image": "图片",
     "file": "文件"
   },

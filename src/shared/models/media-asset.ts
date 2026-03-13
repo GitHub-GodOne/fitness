@@ -10,6 +10,7 @@ export type NewMediaAsset = typeof mediaAsset.$inferInsert;
 export enum MediaAssetType {
   IMAGE = 'image',
   VIDEO = 'video',
+  AUDIO = 'audio',
 }
 
 export async function addMediaAsset(data: NewMediaAsset) {

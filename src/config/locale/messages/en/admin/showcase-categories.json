@@ -4,11 +4,14 @@
     "title": "Title",
     "description": "Description",
     "image": "Category Image",
+    "imageUrlLabel": "Or paste image URL",
+    "imageUrlPlaceholder": "https://example.com/category-cover.jpg",
+    "chooseImage": "Choose Image from Library",
     "sort": "Sort",
     "status": "Status",
     "updatedAt": "Updated",
     "copyMessage": "Copied",
-    "slugTip": "Unique slug, prefer kebab-case"
+    "slugTip": "Unique slug, prefer kebab-case. Nested paths like test/aaa are supported, but spaces are not."
   },
   "statuses": {
     "published": "Published",
@@ -38,7 +41,8 @@
       "submit": "Create Category"
     },
     "messages": {
-      "success": "Showcase category created"
+      "success": "Showcase category created",
+      "invalidSlug": "Slug can only contain lowercase letters, numbers, hyphens and slashes. Spaces are not allowed."
     }
   },
   "edit": {
@@ -53,7 +57,8 @@
     },
     "messages": {
       "notFound": "Showcase category not found",
-      "success": "Showcase category updated"
+      "success": "Showcase category updated",
+      "invalidSlug": "Slug can only contain lowercase letters, numbers, hyphens and slashes. Spaces are not allowed."
     }
   }
 }

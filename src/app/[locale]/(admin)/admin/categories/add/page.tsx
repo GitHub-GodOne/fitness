@@ -71,7 +71,7 @@ export default async function CategoryAddPage({
 
         const user = await getUserInfo();
         if (!user) {
-          throw new Error('no auth');
+          return { status: 'error', message: 'Please sign in again' } as const;
         }
 
         const slug = data.get('slug') as string;
@@ -79,7 +79,10 @@ export default async function CategoryAddPage({
         const description = data.get('description') as string;
 
         if (!slug?.trim() || !title?.trim()) {
-          throw new Error('slug and title are required');
+          return {
+            status: 'error',
+            message: 'Slug and title are required',
+          } as const;
         }
 
         const newCategory: NewTaxonomy = {
@@ -98,7 +101,7 @@ export default async function CategoryAddPage({
         const result = await addTaxonomy(newCategory);
 
         if (!result) {
-          throw new Error('add category failed');
+          return { status: 'error', message: 'Failed to add category' } as const;
         }
 
         return {

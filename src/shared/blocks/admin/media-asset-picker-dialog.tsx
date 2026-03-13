@@ -2,6 +2,7 @@
 
 import { useEffect, useMemo, useState } from 'react';
 import {
+  AudioLines,
   Check,
   ChevronRight,
   ExternalLink,
@@ -49,10 +50,10 @@ export type MediaAssetPickerItem = {
   key: string;
   name: string;
   url: string;
-  mediaType: 'image' | 'video';
+  mediaType: 'image' | 'video' | 'audio';
 };
 
-function detectMediaType(file: PickerFile): 'image' | 'video' | null {
+function detectMediaType(file: PickerFile): 'image' | 'video' | 'audio' | null {
   const target = `${file.name} ${file.url || ''}`.toLowerCase();
 
   if (/\.(png|jpg|jpeg|webp|gif|avif|svg)\b/.test(target)) {
@@ -61,6 +62,10 @@ function detectMediaType(file: PickerFile): 'image' | 'video' | null {
 
   if (/\.(mp4|mov|webm|avi|mpeg|m4v)\b/.test(target)) {
     return 'video';
+  }
+
+  if (/\.(mp3|wav|ogg|aac|m4a|flac)\b/.test(target)) {
+    return 'audio';
   }
 
   return null;
@@ -74,7 +79,7 @@ export function MediaAssetPickerDialog({
 }: {
   open: boolean;
   onOpenChange: (open: boolean) => void;
-  mediaType?: 'image' | 'video';
+  mediaType?: 'image' | 'video' | 'audio';
   onSelect: (asset: MediaAssetPickerItem) => void;
 }) {
   const [loading, setLoading] = useState(false);
@@ -117,7 +122,10 @@ export function MediaAssetPickerDialog({
           file,
           type: detectMediaType(file),
         }))
-        .filter((item): item is { file: PickerFile; type: 'image' | 'video' } => Boolean(item.type));
+        .filter(
+          (item): item is { file: PickerFile; type: 'image' | 'video' | 'audio' } =>
+            Boolean(item.type)
+        );
     }
 
     return files
@@ -126,7 +134,8 @@ export function MediaAssetPickerDialog({
         type: detectMediaType(file),
       }))
       .filter(
-        (item): item is { file: PickerFile; type: 'image' | 'video' } => item.type === mediaType
+        (item): item is { file: PickerFile; type: 'image' | 'video' | 'audio' } =>
+          item.type === mediaType
       );
   }, [browser?.files, mediaType]);
 
@@ -215,10 +224,18 @@ export function MediaAssetPickerDialog({
                 <div className="flex items-center gap-2 text-sm font-medium">
                   {mediaType === 'video' ? (
                     <Video className="size-4" />
+                  ) : mediaType === 'audio' ? (
+                    <AudioLines className="size-4" />
                   ) : (
                     <ImageIcon className="size-4" />
                   )}
-                  {mediaType === 'video' ? 'Video Files' : mediaType === 'image' ? 'Image Files' : 'Files'}
+                  {mediaType === 'video'
+                    ? 'Video Files'
+                    : mediaType === 'audio'
+                      ? 'Audio Files'
+                      : mediaType === 'image'
+                        ? 'Image Files'
+                        : 'Files'}
                 </div>
 
                 {filteredFiles.length === 0 ? (
@@ -237,6 +254,14 @@ export function MediaAssetPickerDialog({
                                 alt={file.name}
                                 className="aspect-[4/3] w-full object-cover"
                               />
+                            </div>
+                          ) : type === 'audio' && file.url ? (
+                            <div className="rounded-xl bg-background p-4">
+                              <div className="mb-3 flex items-center gap-2 text-sm font-medium text-muted-foreground">
+                                <AudioLines className="size-4" />
+                                Audio
+                              </div>
+                              <audio controls className="w-full" src={file.url} preload="metadata" />
                             </div>
                           ) : (
                             <div className="overflow-hidden rounded-xl bg-black">
