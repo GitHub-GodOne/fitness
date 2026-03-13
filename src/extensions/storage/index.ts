@@ -42,7 +42,7 @@ export interface StorageDownloadUploadOptions {
   key: string;
   bucket?: string;
   contentType?: string;
-  disposition?: 'inline' | 'attachment';
+  disposition?: "inline" | "attachment";
 }
 
 export interface StorageDeleteOptions {
@@ -119,6 +119,10 @@ export interface StorageProvider {
 
   // upload file
   uploadFile(options: StorageUploadOptions): Promise<StorageUploadResult>;
+  // create a client-direct signed upload request (optional)
+  createSignedUpload?(
+    options: StorageSignedUploadOptions,
+  ): Promise<StorageSignedUploadResult>;
 
   // create a client-direct signed upload request (optional)
   createSignedUpload?(
@@ -137,7 +141,7 @@ export interface StorageProvider {
 
   // download and upload
   downloadAndUpload(
-    options: StorageDownloadUploadOptions
+    options: StorageDownloadUploadOptions,
   ): Promise<StorageUploadResult>;
 }
 
@@ -156,7 +160,7 @@ export class StorageManager {
     }
 
     if (!this.defaultProvider) {
-      throw new Error('No storage provider configured');
+      throw new Error("No storage provider configured");
     }
 
     return this.defaultProvider;
@@ -177,13 +181,12 @@ export class StorageManager {
 
   // upload file using default provider
   async uploadFile(
-    options: StorageUploadOptions
+    options: StorageUploadOptions,
   ): Promise<StorageUploadResult> {
     return this.ensureDefaultProvider().uploadFile(options);
   }
-
   async createSignedUpload(
-    options: StorageSignedUploadOptions
+    options: StorageSignedUploadOptions,
   ): Promise<StorageSignedUploadResult> {
     const provider = this.ensureDefaultProvider();
     if (!provider.createSignedUpload) {
@@ -199,7 +202,7 @@ export class StorageManager {
 
   async createSignedUploadWithProvider(
     options: StorageSignedUploadOptions,
-    providerName: string
+    providerName: string,
   ): Promise<StorageSignedUploadResult> {
     const provider = this.getProvider(providerName);
     if (!provider) {
@@ -220,7 +223,7 @@ export class StorageManager {
   // upload file using specific provider
   async uploadFileWithProvider(
     options: StorageUploadOptions,
-    providerName: string
+    providerName: string,
   ): Promise<StorageUploadResult> {
     const provider = this.getProvider(providerName);
     if (!provider) {
@@ -231,7 +234,7 @@ export class StorageManager {
 
   // download and upload using default provider
   async downloadAndUpload(
-    options: StorageDownloadUploadOptions
+    options: StorageDownloadUploadOptions,
   ): Promise<StorageUploadResult> {
     return this.ensureDefaultProvider().downloadAndUpload(options);
   }
@@ -255,7 +258,7 @@ export class StorageManager {
 
   async deleteFileWithProvider(
     options: StorageDeleteOptions,
-    providerName: string
+    providerName: string,
   ): Promise<{
     success: boolean;
     error?: string;
@@ -284,7 +287,7 @@ export class StorageManager {
         success: false,
         error: `Storage provider '${provider.name}' does not support list`,
         provider: provider.name,
-        prefix: options.prefix || '',
+        prefix: options.prefix || "",
         directories: [],
         files: [],
       };
@@ -295,7 +298,7 @@ export class StorageManager {
 
   async listFilesWithProvider(
     options: StorageListOptions,
-    providerName: string
+    providerName: string,
   ): Promise<StorageListResult> {
     const provider = this.getProvider(providerName);
     if (!provider) {
@@ -307,7 +310,7 @@ export class StorageManager {
         success: false,
         error: `Storage provider '${provider.name}' does not support list`,
         provider: provider.name,
-        prefix: options.prefix || '',
+        prefix: options.prefix || "",
         directories: [],
         files: [],
       };
@@ -322,10 +325,9 @@ export class StorageManager {
     if (!provider.exists) return false;
     return provider.exists(options);
   }
-
   async existsWithProvider(
     options: { key: string; bucket?: string },
-    providerName: string
+    providerName: string,
   ): Promise<boolean> {
     const provider = this.getProvider(providerName);
     if (!provider || !provider.exists) return false;
@@ -338,10 +340,9 @@ export class StorageManager {
     if (!provider.getPublicUrl) return undefined;
     return provider.getPublicUrl(options);
   }
-
   getPublicUrlWithProvider(
     options: { key: string; bucket?: string },
-    providerName: string
+    providerName: string,
   ): string | undefined {
     const provider = this.getProvider(providerName);
     if (!provider || !provider.getPublicUrl) return undefined;
@@ -351,7 +352,7 @@ export class StorageManager {
   // download and upload using specific provider
   async downloadAndUploadWithProvider(
     options: StorageDownloadUploadOptions,
-    providerName: string
+    providerName: string,
   ): Promise<StorageUploadResult> {
     const provider = this.getProvider(providerName);
     if (!provider) {
@@ -370,5 +371,5 @@ export class StorageManager {
 export const storageManager = new StorageManager();
 
 // Export all providers
-export * from './s3';
-export * from './r2';
+export * from "./s3";
+export * from "./r2";

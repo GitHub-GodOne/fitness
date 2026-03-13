@@ -7,7 +7,7 @@ import type {
   StorageSignedUploadResult,
   StorageUploadOptions,
   StorageUploadResult,
-} from '.';
+} from ".";
 
 /**
  * S3 storage provider configs
@@ -27,7 +27,7 @@ export interface S3Configs extends StorageConfigs {
  * @website https://aws.amazon.com/s3/
  */
 export class S3Provider implements StorageProvider {
-  readonly name = 's3';
+  readonly name = "s3";
   configs: S3Configs;
 
   constructor(configs: S3Configs) {
@@ -42,13 +42,7 @@ export class S3Provider implements StorageProvider {
       : url;
   };
 
-  private buildObjectUrl({
-    key,
-    bucket,
-  }: {
-    key: string;
-    bucket?: string;
-  }) {
+  private buildObjectUrl({ key, bucket }: { key: string; bucket?: string }) {
     const uploadBucket = bucket || this.configs.bucket;
     return `${this.configs.endpoint}/${uploadBucket}/${key}`;
   }
@@ -62,7 +56,7 @@ export class S3Provider implements StorageProvider {
   }) {
     const uploadBucket = bucket || this.configs.bucket;
     const parsed = new URL(url);
-    const path = parsed.pathname.replace(/^\/+/, '');
+    const path = parsed.pathname.replace(/^\/+/, "");
     return `${this.configs.endpoint}/${uploadBucket}/${path}`;
   }
 
@@ -72,7 +66,7 @@ export class S3Provider implements StorageProvider {
       if (!uploadBucket) return false;
 
       const url = `${this.configs.endpoint}/${uploadBucket}/${options.key}`;
-      const { AwsClient } = await import('aws4fetch');
+      const { AwsClient } = await import("aws4fetch");
       const client = new AwsClient({
         accessKeyId: this.configs.accessKeyId,
         secretAccessKey: this.configs.secretAccessKey,
@@ -81,8 +75,8 @@ export class S3Provider implements StorageProvider {
 
       const response = await client.fetch(
         new Request(url, {
-          method: 'HEAD',
-        })
+          method: "HEAD",
+        }),
       );
 
       return response.ok;
@@ -92,14 +86,14 @@ export class S3Provider implements StorageProvider {
   };
 
   async uploadFile(
-    options: StorageUploadOptions
+    options: StorageUploadOptions,
   ): Promise<StorageUploadResult> {
     try {
       const uploadBucket = options.bucket || this.configs.bucket;
       if (!uploadBucket) {
         return {
           success: false,
-          error: 'Bucket is required',
+          error: "Bucket is required",
           provider: this.name,
         };
       }
@@ -111,7 +105,7 @@ export class S3Provider implements StorageProvider {
 
       const url = `${this.configs.endpoint}/${uploadBucket}/${options.key}`;
 
-      const { AwsClient } = await import('aws4fetch');
+      const { AwsClient } = await import("aws4fetch");
 
       const client = new AwsClient({
         accessKeyId: this.configs.accessKeyId,
@@ -120,13 +114,13 @@ export class S3Provider implements StorageProvider {
       });
 
       const headers: Record<string, string> = {
-        'Content-Type': options.contentType || 'application/octet-stream',
-        'Content-Disposition': options.disposition || 'inline',
-        'Content-Length': bodyArray.length.toString(),
+        "Content-Type": options.contentType || "application/octet-stream",
+        "Content-Disposition": options.disposition || "inline",
+        "Content-Length": bodyArray.length.toString(),
       };
 
       const request = new Request(url, {
-        method: 'PUT',
+        method: "PUT",
         headers,
         body: bodyArray as any,
       });
@@ -149,19 +143,18 @@ export class S3Provider implements StorageProvider {
         location: url,
         bucket: uploadBucket,
         key: options.key,
-        filename: options.key.split('/').pop(),
+        filename: options.key.split("/").pop(),
         url: publicUrl,
         provider: this.name,
       };
     } catch (error) {
       return {
         success: false,
-        error: error instanceof Error ? error.message : 'Unknown error',
+        error: error instanceof Error ? error.message : "Unknown error",
         provider: this.name,
       };
     }
   }
-
   async createSignedUpload(
     options: StorageSignedUploadOptions
   ): Promise<StorageSignedUploadResult> {
@@ -228,12 +221,12 @@ export class S3Provider implements StorageProvider {
       if (!uploadBucket) {
         return {
           success: false,
-          error: 'Bucket is required',
+          error: "Bucket is required",
           provider: this.name,
         };
       }
 
-      const { AwsClient } = await import('aws4fetch');
+      const { AwsClient } = await import("aws4fetch");
       const client = new AwsClient({
         accessKeyId: this.configs.accessKeyId,
         secretAccessKey: this.configs.secretAccessKey,
@@ -254,27 +247,27 @@ export class S3Provider implements StorageProvider {
       ].filter(Boolean) as string[];
 
       let deleted = false;
-      let lastError = '';
+      let lastError = "";
 
       for (const candidateUrl of candidateUrls) {
         const deleteResponse = await client.fetch(
           new Request(candidateUrl, {
-            method: 'DELETE',
-          })
+            method: "DELETE",
+          }),
         );
 
         if (!deleteResponse.ok) {
           const errorText = await deleteResponse
             .text()
-            .catch(() => 'Unable to read error response');
+            .catch(() => "Unable to read error response");
           lastError = `Delete failed: ${deleteResponse.statusText} (${deleteResponse.status}) - ${errorText}`;
           continue;
         }
 
         const verifyResponse = await client.fetch(
           new Request(candidateUrl, {
-            method: 'HEAD',
-          })
+            method: "HEAD",
+          }),
         );
 
         if (!verifyResponse.ok) {
@@ -288,7 +281,7 @@ export class S3Provider implements StorageProvider {
       if (!deleted) {
         return {
           success: false,
-          error: lastError || 'Delete verification failed',
+          error: lastError || "Delete verification failed",
           provider: this.name,
         };
       }
@@ -300,14 +293,14 @@ export class S3Provider implements StorageProvider {
     } catch (error) {
       return {
         success: false,
-        error: error instanceof Error ? error.message : 'Unknown error',
+        error: error instanceof Error ? error.message : "Unknown error",
         provider: this.name,
       };
     }
   }
 
   async downloadAndUpload(
-    options: StorageDownloadUploadOptions
+    options: StorageDownloadUploadOptions,
   ): Promise<StorageUploadResult> {
     try {
       const response = await fetch(options.url);
@@ -322,7 +315,7 @@ export class S3Provider implements StorageProvider {
       if (!response.body) {
         return {
           success: false,
-          error: 'No body in response',
+          error: "No body in response",
           provider: this.name,
         };
       }
@@ -340,7 +333,7 @@ export class S3Provider implements StorageProvider {
     } catch (error) {
       return {
         success: false,
-        error: error instanceof Error ? error.message : 'Unknown error',
+        error: error instanceof Error ? error.message : "Unknown error",
         provider: this.name,
       };
     }

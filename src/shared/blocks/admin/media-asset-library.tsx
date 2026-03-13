@@ -1,6 +1,6 @@
-'use client';
+"use client";
 
-import { useEffect, useMemo, useRef, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from "react";
 import {
   AudioLines,
   ChevronRight,
@@ -16,9 +16,9 @@ import {
   RefreshCw,
   Trash2,
   Upload,
-} from 'lucide-react';
-import { useTranslations } from 'next-intl';
-import { toast } from 'sonner';
+} from "lucide-react";
+import { useTranslations } from "next-intl";
+import { toast } from "sonner";
 
 import { CopyTextButton } from '@/shared/blocks/common';
 import { uploadAdminMediaFilesDirect } from '@/shared/lib/admin-media-upload';
@@ -30,8 +30,8 @@ import {
   DialogFooter,
   DialogHeader,
   DialogTitle,
-} from '@/shared/components/ui/dialog';
-import { Input } from '@/shared/components/ui/input';
+} from "@/shared/components/ui/dialog";
+import { Input } from "@/shared/components/ui/input";
 
 type BrowserDirectory = {
   name: string;
@@ -55,16 +55,16 @@ type BrowserPayload = {
 };
 
 function formatFileSize(size: number) {
-  if (!size) return '0 B';
+  if (!size) return "0 B";
   if (size < 1024) return `${size} B`;
   if (size < 1024 * 1024) return `${(size / 1024).toFixed(1)} KB`;
   if (size < 1024 * 1024 * 1024) return `${(size / 1024 / 1024).toFixed(1)} MB`;
   return `${(size / 1024 / 1024 / 1024).toFixed(1)} GB`;
 }
 
-function formatDate(value?: string, locale = 'en') {
+function formatDate(value?: string, locale = "en") {
   if (!value) {
-    return '';
+    return "";
   }
 
   const date = new Date(value);
@@ -72,50 +72,58 @@ function formatDate(value?: string, locale = 'en') {
     return value;
   }
 
-  return date.toLocaleString(locale === 'zh' ? 'zh-CN' : 'en-US');
+  return date.toLocaleString(locale === "zh" ? "zh-CN" : "en-US");
 }
 
 function getFileType(file: BrowserFile) {
   const normalizedName = file.name.toLowerCase();
-  const normalizedUrl = (file.url || '').toLowerCase();
+  const normalizedUrl = (file.url || "").toLowerCase();
   const target = `${normalizedName} ${normalizedUrl}`;
 
   if (/\.(png|jpg|jpeg|webp|gif|avif|svg)\b/.test(target)) {
-    return 'image';
+    return "image";
   }
 
   if (/\.(mp4|mov|webm|avi|mpeg|m4v)\b/.test(target)) {
-    return 'video';
+    return "video";
   }
 
   if (/\.(mp3|wav|ogg|aac|m4a|flac)\b/.test(target)) {
-    return 'audio';
+    return "audio";
   }
 
-  return 'other';
+  return "other";
 }
 
 export function MediaAssetLibrary({ locale }: { locale: string }) {
-  const t = useTranslations('components.media-asset-library');
+  const t = useTranslations("components.media-asset-library");
   const inputRef = useRef<HTMLInputElement | null>(null);
   const [loading, setLoading] = useState(true);
   const [uploading, setUploading] = useState(false);
   const [refreshing, setRefreshing] = useState(false);
   const [browser, setBrowser] = useState<BrowserPayload | null>(null);
-  const [currentPrefix, setCurrentPrefix] = useState('');
-  const [pathDraft, setPathDraft] = useState('');
+  const [currentPrefix, setCurrentPrefix] = useState("");
+  const [pathDraft, setPathDraft] = useState("");
   const [previewFile, setPreviewFile] = useState<BrowserFile | null>(null);
-  const [pendingDeleteFile, setPendingDeleteFile] = useState<BrowserFile | null>(null);
+  const [pendingDeleteFile, setPendingDeleteFile] =
+    useState<BrowserFile | null>(null);
   const [deletingKey, setDeletingKey] = useState<string | null>(null);
   const [createFolderOpen, setCreateFolderOpen] = useState(false);
-  const [folderName, setFolderName] = useState('');
+  const [folderName, setFolderName] = useState("");
   const [creatingFolder, setCreatingFolder] = useState(false);
 
   const currentUploadPath = useMemo(() => {
-    return pathDraft.trim().replace(/^\/+/, '').replace(/\/+/g, '/').replace(/\/$/, '');
+    return pathDraft
+      .trim()
+      .replace(/^\/+/, "")
+      .replace(/\/+/g, "/")
+      .replace(/\/$/, "");
   }, [pathDraft]);
 
-  async function loadBrowser(prefix = currentPrefix, showRefreshSpinner = false) {
+  async function loadBrowser(
+    prefix = currentPrefix,
+    showRefreshSpinner = false,
+  ) {
     try {
       if (showRefreshSpinner) {
         setRefreshing(true);
@@ -123,21 +131,21 @@ export function MediaAssetLibrary({ locale }: { locale: string }) {
         setLoading(true);
       }
 
-      const query = prefix ? `?prefix=${encodeURIComponent(prefix)}` : '';
+      const query = prefix ? `?prefix=${encodeURIComponent(prefix)}` : "";
       const response = await fetch(`/api/admin/media-assets/browser${query}`, {
-        cache: 'no-store',
+        cache: "no-store",
       });
       const payload = await response.json();
 
       if (!response.ok || payload.code !== 0) {
-        throw new Error(payload.message || 'Failed to load asset browser');
+        throw new Error(payload.message || "Failed to load asset browser");
       }
 
       setBrowser(payload.data);
-      setCurrentPrefix(payload.data.prefix || '');
-      setPathDraft(payload.data.prefix || '');
+      setCurrentPrefix(payload.data.prefix || "");
+      setPathDraft(payload.data.prefix || "");
     } catch (error: any) {
-      toast.error(error?.message || t('messages.loadFailed'));
+      toast.error(error?.message || t("messages.loadFailed"));
     } finally {
       setLoading(false);
       setRefreshing(false);
@@ -145,7 +153,7 @@ export function MediaAssetLibrary({ locale }: { locale: string }) {
   }
 
   useEffect(() => {
-    loadBrowser('');
+    loadBrowser("");
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
@@ -166,11 +174,11 @@ export function MediaAssetLibrary({ locale }: { locale: string }) {
       );
       await loadBrowser(currentUploadPath, true);
     } catch (error: any) {
-      toast.error(error?.message || t('messages.uploadFailed'));
+      toast.error(error?.message || t("messages.uploadFailed"));
     } finally {
       setUploading(false);
       if (inputRef.current) {
-        inputRef.current.value = '';
+        inputRef.current.value = "";
       }
     }
   }
@@ -178,10 +186,10 @@ export function MediaAssetLibrary({ locale }: { locale: string }) {
   async function handleDelete(file: BrowserFile) {
     try {
       setDeletingKey(file.key);
-      const response = await fetch('/api/admin/media-assets/object', {
-        method: 'DELETE',
+      const response = await fetch("/api/admin/media-assets/object", {
+        method: "DELETE",
         headers: {
-          'Content-Type': 'application/json',
+          "Content-Type": "application/json",
         },
         body: JSON.stringify({
           key: file.key,
@@ -191,37 +199,40 @@ export function MediaAssetLibrary({ locale }: { locale: string }) {
       const payload = await response.json();
 
       if (!response.ok || payload.code !== 0) {
-        throw new Error(payload.message || 'Delete failed');
+        throw new Error(payload.message || "Delete failed");
       }
 
-      toast.success(t('messages.deleted'));
+      toast.success(t("messages.deleted"));
       setPendingDeleteFile(null);
       await loadBrowser(currentPrefix, true);
     } catch (error: any) {
-      toast.error(error?.message || t('messages.deleteFailed'));
+      toast.error(error?.message || t("messages.deleteFailed"));
     } finally {
       setDeletingKey(null);
     }
   }
 
   async function handleCreateFolder() {
-    const trimmedName = folderName.trim().replace(/^\/+/, '').replace(/\/+$/, '');
+    const trimmedName = folderName
+      .trim()
+      .replace(/^\/+/, "")
+      .replace(/\/+$/, "");
     if (!trimmedName) {
-      toast.error(t('messages.missingFolderName'));
+      toast.error(t("messages.missingFolderName"));
       return;
     }
 
-    if (trimmedName.includes('/')) {
-      toast.error(t('messages.invalidFolderName'));
+    if (trimmedName.includes("/")) {
+      toast.error(t("messages.invalidFolderName"));
       return;
     }
 
     try {
       setCreatingFolder(true);
-      const response = await fetch('/api/admin/media-assets/folder', {
-        method: 'POST',
+      const response = await fetch("/api/admin/media-assets/folder", {
+        method: "POST",
         headers: {
-          'Content-Type': 'application/json',
+          "Content-Type": "application/json",
         },
         body: JSON.stringify({
           prefix: currentPrefix,
@@ -231,15 +242,15 @@ export function MediaAssetLibrary({ locale }: { locale: string }) {
       const payload = await response.json();
 
       if (!response.ok || payload.code !== 0) {
-        throw new Error(payload.message || 'Create folder failed');
+        throw new Error(payload.message || "Create folder failed");
       }
 
-      toast.success(t('messages.folderCreated'));
+      toast.success(t("messages.folderCreated"));
       setCreateFolderOpen(false);
-      setFolderName('');
+      setFolderName("");
       await loadBrowser(currentPrefix, true);
     } catch (error: any) {
-      toast.error(error?.message || t('messages.createFolderFailed'));
+      toast.error(error?.message || t("messages.createFolderFailed"));
     } finally {
       setCreatingFolder(false);
     }
@@ -247,19 +258,19 @@ export function MediaAssetLibrary({ locale }: { locale: string }) {
 
   async function handleDownload(file: BrowserFile) {
     if (!file.url) {
-      toast.error(t('messages.invalidFileUrl'));
+      toast.error(t("messages.invalidFileUrl"));
       return;
     }
 
     try {
       const response = await fetch(file.url);
       if (!response.ok) {
-        throw new Error('Download failed');
+        throw new Error("Download failed");
       }
 
       const blob = await response.blob();
       const blobUrl = URL.createObjectURL(blob);
-      const link = document.createElement('a');
+      const link = document.createElement("a");
       link.href = blobUrl;
       link.download = file.name;
       document.body.appendChild(link);
@@ -267,20 +278,20 @@ export function MediaAssetLibrary({ locale }: { locale: string }) {
       document.body.removeChild(link);
       setTimeout(() => URL.revokeObjectURL(blobUrl), 200);
     } catch (error: any) {
-      toast.error(error?.message || t('messages.downloadFailed'));
+      toast.error(error?.message || t("messages.downloadFailed"));
     }
   }
 
   const fileCountText = browser
-    ? t('messages.counts', {
+    ? t("messages.counts", {
         folders: browser.directories.length,
         files: browser.files.length,
       })
-    : '';
+    : "";
 
-  const parentPrefix = currentPrefix.includes('/')
-    ? currentPrefix.split('/').slice(0, -1).join('/')
-    : '';
+  const parentPrefix = currentPrefix.includes("/")
+    ? currentPrefix.split("/").slice(0, -1).join("/")
+    : "";
 
   return (
     <div className="space-y-8">
@@ -288,10 +299,10 @@ export function MediaAssetLibrary({ locale }: { locale: string }) {
         <div className="flex flex-col gap-4">
           <div className="flex flex-col gap-4 xl:flex-row xl:items-end xl:justify-between">
             <div className="space-y-2">
-              <h2 className="text-2xl font-semibold">
-                {t('title')}
-              </h2>
-              <p className="text-sm text-muted-foreground">{t('description')}</p>
+              <h2 className="text-2xl font-semibold">{t("title")}</h2>
+              <p className="text-sm text-muted-foreground">
+                {t("description")}
+              </p>
             </div>
 
             <div className="flex flex-col gap-3 sm:flex-row">
@@ -306,7 +317,7 @@ export function MediaAssetLibrary({ locale }: { locale: string }) {
                 ) : (
                   <RefreshCw className="size-4" />
                 )}
-                {t('actions.refresh')}
+                {t("actions.refresh")}
               </Button>
               <input
                 ref={inputRef}
@@ -326,26 +337,30 @@ export function MediaAssetLibrary({ locale }: { locale: string }) {
                 ) : (
                   <Upload className="size-4" />
                 )}
-                {t('actions.uploadFiles')}
+                {t("actions.uploadFiles")}
               </Button>
             </div>
           </div>
 
           <div className="grid gap-4 xl:grid-cols-[minmax(0,1fr)_auto] xl:items-end">
             <div className="space-y-2">
-              <div className="text-sm font-medium">{t('fields.uploadDirectoryPath')}</div>
+              <div className="text-sm font-medium">
+                {t("fields.uploadDirectoryPath")}
+              </div>
               <Input
                 value={pathDraft}
                 onChange={(event) => setPathDraft(event.target.value)}
-                placeholder={t('fields.uploadDirectoryPlaceholder')}
+                placeholder={t("fields.uploadDirectoryPlaceholder")}
               />
-              <p className="text-xs text-muted-foreground">{t('fields.uploadDirectoryHint')}</p>
+              <p className="text-xs text-muted-foreground">
+                {t("fields.uploadDirectoryHint")}
+              </p>
             </div>
 
             <div className="rounded-2xl border bg-muted/20 px-4 py-3 text-sm text-muted-foreground">
-              <div>{t('fields.currentDirectory')}</div>
+              <div>{t("fields.currentDirectory")}</div>
               <div className="mt-1 break-all font-medium text-foreground">
-                {browser?.prefix || '/'}
+                {browser?.prefix || "/"}
               </div>
             </div>
           </div>
@@ -359,13 +374,16 @@ export function MediaAssetLibrary({ locale }: { locale: string }) {
               <button
                 type="button"
                 className="inline-flex items-center gap-1 rounded-full border px-3 py-1 transition hover:border-primary/40 hover:text-foreground"
-                onClick={() => loadBrowser('', true)}
+                onClick={() => loadBrowser("", true)}
               >
                 <Home className="size-4" />
-                {t('fields.root')}
+                {t("fields.root")}
               </button>
               {browser?.breadcrumbs.map((crumb) => (
-                <div key={crumb.prefix} className="inline-flex items-center gap-2">
+                <div
+                  key={crumb.prefix}
+                  className="inline-flex items-center gap-2"
+                >
                   <ChevronRight className="size-4 opacity-60" />
                   <button
                     type="button"
@@ -382,14 +400,22 @@ export function MediaAssetLibrary({ locale }: { locale: string }) {
           </div>
 
           <div className="flex flex-col gap-3 sm:flex-row">
-            <Button type="button" variant="outline" onClick={() => setCreateFolderOpen(true)}>
+            <Button
+              type="button"
+              variant="outline"
+              onClick={() => setCreateFolderOpen(true)}
+            >
               <FolderPlus className="size-4" />
-              {t('actions.createFolder')}
+              {t("actions.createFolder")}
             </Button>
             {currentPrefix ? (
-              <Button type="button" variant="outline" onClick={() => loadBrowser(parentPrefix, true)}>
+              <Button
+                type="button"
+                variant="outline"
+                onClick={() => loadBrowser(parentPrefix, true)}
+              >
                 <Folder className="size-4" />
-                {t('actions.upOneLevel')}
+                {t("actions.upOneLevel")}
               </Button>
             ) : null}
           </div>
@@ -404,7 +430,7 @@ export function MediaAssetLibrary({ locale }: { locale: string }) {
             <div className="space-y-4">
               <div className="flex items-center gap-2">
                 <Folder className="size-5" />
-                <h3 className="text-lg font-semibold">{t('fields.folders')}</h3>
+                <h3 className="text-lg font-semibold">{t("fields.folders")}</h3>
               </div>
 
               {browser?.directories.length ? (
@@ -414,26 +440,28 @@ export function MediaAssetLibrary({ locale }: { locale: string }) {
                       key={directory.prefix}
                       type="button"
                       onClick={() => loadBrowser(directory.prefix, true)}
-                      className="flex items-center justify-between rounded-3xl border bg-background px-5 py-4 text-left transition hover:border-primary/40 hover:shadow-sm"
+                      className="flex min-w-0 items-center justify-between gap-3 rounded-3xl border bg-background px-5 py-4 text-left transition hover:border-primary/40 hover:shadow-sm"
                     >
-                      <div className="flex items-center gap-3">
-                        <div className="rounded-2xl bg-primary/10 p-3 text-primary">
+                      <div className="flex min-w-0 flex-1 items-center gap-3">
+                        <div className="shrink-0 rounded-2xl bg-primary/10 p-3 text-primary">
                           <Folder className="size-5" />
                         </div>
-                        <div>
-                          <div className="font-medium">{directory.name}</div>
-                          <div className="text-xs text-muted-foreground break-all">
+                        <div className="min-w-0 flex-1">
+                          <div className="truncate font-medium">
+                            {directory.name}
+                          </div>
+                          <div className="truncate text-xs text-muted-foreground sm:break-all">
                             {directory.prefix}
                           </div>
                         </div>
                       </div>
-                      <ChevronRight className="size-4 text-muted-foreground" />
+                      <ChevronRight className="size-4 shrink-0 text-muted-foreground" />
                     </button>
                   ))}
                 </div>
               ) : (
                 <div className="rounded-3xl border border-dashed p-8 text-center text-sm text-muted-foreground">
-                  {t('messages.noFolders')}
+                  {t("messages.noFolders")}
                 </div>
               )}
             </div>
@@ -441,7 +469,7 @@ export function MediaAssetLibrary({ locale }: { locale: string }) {
             <div className="space-y-4">
               <div className="flex items-center gap-2">
                 <Copy className="size-5" />
-                <h3 className="text-lg font-semibold">{t('fields.files')}</h3>
+                <h3 className="text-lg font-semibold">{t("fields.files")}</h3>
               </div>
 
               {browser?.files.length ? (
@@ -449,9 +477,12 @@ export function MediaAssetLibrary({ locale }: { locale: string }) {
                   {browser.files.map((file) => {
                     const fileType = getFileType(file);
                     return (
-                      <article key={file.key} className="overflow-hidden rounded-3xl border bg-background">
+                      <article
+                        key={file.key}
+                        className="overflow-hidden rounded-3xl border bg-background"
+                      >
                         <div className="bg-muted/30 p-3">
-                          {fileType === 'image' && file.url ? (
+                          {fileType === "image" && file.url ? (
                             <button
                               type="button"
                               onClick={() => setPreviewFile(file)}
@@ -463,7 +494,7 @@ export function MediaAssetLibrary({ locale }: { locale: string }) {
                                 className="aspect-[4/3] w-full object-cover"
                               />
                             </button>
-                          ) : fileType === 'video' && file.url ? (
+                          ) : fileType === "video" && file.url ? (
                             <button
                               type="button"
                               onClick={() => setPreviewFile(file)}
@@ -475,13 +506,18 @@ export function MediaAssetLibrary({ locale }: { locale: string }) {
                                 className="aspect-[4/3] w-full object-cover"
                               />
                             </button>
-                          ) : fileType === 'audio' && file.url ? (
+                          ) : fileType === "audio" && file.url ? (
                             <div className="rounded-2xl bg-background p-4">
                               <div className="mb-3 flex items-center gap-2 text-sm text-muted-foreground">
                                 <AudioLines className="size-4" />
-                                <span>{t('fileTypes.audio')}</span>
+                                <span>{t("fileTypes.audio")}</span>
                               </div>
-                              <audio controls preload="metadata" src={file.url} className="w-full" />
+                              <audio
+                                controls
+                                preload="metadata"
+                                src={file.url}
+                                className="w-full"
+                              />
                             </div>
                           ) : (
                             <div className="flex aspect-[4/3] items-center justify-center rounded-2xl bg-background text-muted-foreground">
@@ -494,16 +530,18 @@ export function MediaAssetLibrary({ locale }: { locale: string }) {
                           <div className="space-y-1">
                             <div className="flex items-start gap-3">
                               <div className="rounded-xl bg-primary/10 p-2 text-primary">
-                                {fileType === 'video' ? (
+                                {fileType === "video" ? (
                                   <Film className="size-4" />
-                                ) : fileType === 'audio' ? (
+                                ) : fileType === "audio" ? (
                                   <AudioLines className="size-4" />
                                 ) : (
                                   <FileImage className="size-4" />
                                 )}
                               </div>
                               <div className="min-w-0 flex-1">
-                                <h3 className="line-clamp-2 text-lg font-semibold">{file.name}</h3>
+                                <h3 className="line-clamp-2 text-lg font-semibold">
+                                  {file.name}
+                                </h3>
                                 <div className="mt-1 break-all text-xs text-muted-foreground">
                                   {file.key}
                                 </div>
@@ -512,22 +550,28 @@ export function MediaAssetLibrary({ locale }: { locale: string }) {
 
                             <div className="flex flex-wrap items-center gap-2 text-xs text-muted-foreground">
                               <span className="rounded-full border px-2 py-1">
-                                {fileType === 'video'
-                                  ? t('fileTypes.video')
-                                  : fileType === 'audio'
-                                    ? t('fileTypes.audio')
-                                  : fileType === 'image'
-                                    ? t('fileTypes.image')
-                                    : t('fileTypes.file')}
+                                {fileType === "video"
+                                  ? t("fileTypes.video")
+                                  : fileType === "audio"
+                                    ? t("fileTypes.audio")
+                                    : fileType === "image"
+                                      ? t("fileTypes.image")
+                                      : t("fileTypes.file")}
                               </span>
                               <span>{formatFileSize(file.size)}</span>
-                              {file.lastModified ? <span>{formatDate(file.lastModified, locale)}</span> : null}
+                              {file.lastModified ? (
+                                <span>
+                                  {formatDate(file.lastModified, locale)}
+                                </span>
+                              ) : null}
                             </div>
                           </div>
 
                           {file.url ? (
                             <div className="rounded-2xl bg-muted/30 p-3 text-xs text-muted-foreground">
-                              <div className="line-clamp-2 break-all">{file.url}</div>
+                              <div className="line-clamp-2 break-all">
+                                {file.url}
+                              </div>
                             </div>
                           ) : null}
 
@@ -539,7 +583,7 @@ export function MediaAssetLibrary({ locale }: { locale: string }) {
                               disabled={!file.url}
                               className="w-full"
                             >
-                              {t('actions.preview')}
+                              {t("actions.preview")}
                             </Button>
                             <Button
                               type="button"
@@ -549,19 +593,27 @@ export function MediaAssetLibrary({ locale }: { locale: string }) {
                               className="w-full"
                             >
                               <Download className="size-4" />
-                              {t('actions.download')}
+                              {t("actions.download")}
                             </Button>
                             <CopyTextButton
-                              text={file.url || ''}
+                              text={file.url || ""}
                               showText={true}
                               size="sm"
                               variant="outline"
                               className="w-full justify-center"
                             />
-                            <Button asChild variant="outline" className="w-full">
-                              <a href={file.url || '#'} target="_blank" rel="noreferrer">
+                            <Button
+                              asChild
+                              variant="outline"
+                              className="w-full"
+                            >
+                              <a
+                                href={file.url || "#"}
+                                target="_blank"
+                                rel="noreferrer"
+                              >
                                 <ExternalLink className="size-4" />
-                                {t('actions.open')}
+                                {t("actions.open")}
                               </a>
                             </Button>
                             <Button
@@ -576,7 +628,7 @@ export function MediaAssetLibrary({ locale }: { locale: string }) {
                               ) : (
                                 <Trash2 className="size-4" />
                               )}
-                              {t('actions.deleteFile')}
+                              {t("actions.deleteFile")}
                             </Button>
                           </div>
                         </div>
@@ -586,7 +638,7 @@ export function MediaAssetLibrary({ locale }: { locale: string }) {
                 </div>
               ) : (
                 <div className="rounded-3xl border border-dashed p-10 text-center text-muted-foreground">
-                  {t('messages.noFiles')}
+                  {t("messages.noFiles")}
                 </div>
               )}
             </div>
@@ -594,7 +646,10 @@ export function MediaAssetLibrary({ locale }: { locale: string }) {
         )}
       </section>
 
-      <Dialog open={Boolean(previewFile)} onOpenChange={(open) => !open && setPreviewFile(null)}>
+      <Dialog
+        open={Boolean(previewFile)}
+        onOpenChange={(open) => !open && setPreviewFile(null)}
+      >
         <DialogContent className="w-[96vw] max-w-5xl">
           <DialogHeader>
             <DialogTitle>{previewFile?.name}</DialogTitle>
@@ -602,7 +657,7 @@ export function MediaAssetLibrary({ locale }: { locale: string }) {
           </DialogHeader>
 
           {previewFile?.url ? (
-            getFileType(previewFile) === 'video' ? (
+            getFileType(previewFile) === "video" ? (
               <div className="overflow-hidden rounded-2xl bg-black">
                 <video
                   src={previewFile.url}
@@ -611,7 +666,7 @@ export function MediaAssetLibrary({ locale }: { locale: string }) {
                   className="max-h-[75vh] w-full bg-black object-contain"
                 />
               </div>
-            ) : getFileType(previewFile) === 'image' ? (
+            ) : getFileType(previewFile) === "image" ? (
               <div className="overflow-hidden rounded-2xl bg-muted/30 p-3">
                 <img
                   src={previewFile.url}
@@ -621,7 +676,7 @@ export function MediaAssetLibrary({ locale }: { locale: string }) {
               </div>
             ) : (
               <div className="rounded-2xl border border-dashed p-8 text-center text-muted-foreground">
-                {t('messages.inlinePreviewUnavailable')}
+                {t("messages.inlinePreviewUnavailable")}
               </div>
             )
           ) : null}
@@ -638,11 +693,13 @@ export function MediaAssetLibrary({ locale }: { locale: string }) {
       >
         <DialogContent className="sm:max-w-md">
           <DialogHeader>
-            <DialogTitle>{t('actions.deleteFile')}</DialogTitle>
+            <DialogTitle>{t("actions.deleteFile")}</DialogTitle>
             <DialogDescription>
               {pendingDeleteFile
-                ? t('messages.deleteDescription', { name: pendingDeleteFile.name })
-                : ''}
+                ? t("messages.deleteDescription", {
+                    name: pendingDeleteFile.name,
+                  })
+                : ""}
             </DialogDescription>
           </DialogHeader>
 
@@ -653,20 +710,22 @@ export function MediaAssetLibrary({ locale }: { locale: string }) {
               onClick={() => setPendingDeleteFile(null)}
               disabled={Boolean(deletingKey)}
             >
-              {t('actions.cancel')}
+              {t("actions.cancel")}
             </Button>
             <Button
               type="button"
               variant="destructive"
               disabled={!pendingDeleteFile || Boolean(deletingKey)}
-              onClick={() => pendingDeleteFile && handleDelete(pendingDeleteFile)}
+              onClick={() =>
+                pendingDeleteFile && handleDelete(pendingDeleteFile)
+              }
             >
               {deletingKey ? (
                 <Loader2 className="size-4 animate-spin" />
               ) : (
                 <Trash2 className="size-4" />
               )}
-              {t('actions.confirmDelete')}
+              {t("actions.confirmDelete")}
             </Button>
           </DialogFooter>
         </DialogContent>
@@ -678,23 +737,27 @@ export function MediaAssetLibrary({ locale }: { locale: string }) {
           if (!creatingFolder) {
             setCreateFolderOpen(open);
             if (!open) {
-              setFolderName('');
+              setFolderName("");
             }
           }
         }}
       >
         <DialogContent className="sm:max-w-md">
           <DialogHeader>
-            <DialogTitle>{t('actions.createFolder')}</DialogTitle>
-            <DialogDescription>{t('messages.createFolderDescription', { path: currentPrefix || '/' })}</DialogDescription>
+            <DialogTitle>{t("actions.createFolder")}</DialogTitle>
+            <DialogDescription>
+              {t("messages.createFolderDescription", {
+                path: currentPrefix || "/",
+              })}
+            </DialogDescription>
           </DialogHeader>
 
           <div className="space-y-2">
-            <div className="text-sm font-medium">{t('fields.folderName')}</div>
+            <div className="text-sm font-medium">{t("fields.folderName")}</div>
             <Input
               value={folderName}
               onChange={(event) => setFolderName(event.target.value)}
-              placeholder={t('fields.folderNamePlaceholder')}
+              placeholder={t("fields.folderNamePlaceholder")}
             />
           </div>
 
@@ -704,11 +767,11 @@ export function MediaAssetLibrary({ locale }: { locale: string }) {
               variant="outline"
               onClick={() => {
                 setCreateFolderOpen(false);
-                setFolderName('');
+                setFolderName("");
               }}
               disabled={creatingFolder}
             >
-              {t('actions.cancel')}
+              {t("actions.cancel")}
             </Button>
             <Button
               type="button"
@@ -720,7 +783,7 @@ export function MediaAssetLibrary({ locale }: { locale: string }) {
               ) : (
                 <FolderPlus className="size-4" />
               )}
-              {t('actions.confirmCreate')}
+              {t("actions.confirmCreate")}
             </Button>
           </DialogFooter>
         </DialogContent>

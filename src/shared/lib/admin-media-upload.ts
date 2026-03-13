@@ -1,13 +1,13 @@
 type UploadInstruction = {
   provider: string;
-  method: 'PUT';
+  method: "PUT";
   uploadUrl: string;
   headers: Record<string, string>;
   key: string;
   name: string;
   size: number;
   contentType: string;
-  mediaType: 'image' | 'video' | 'audio';
+  mediaType: "image" | "video" | "audio";
   publicUrl?: string;
 };
 
@@ -17,7 +17,7 @@ type UploadCompleteItem = {
   name: string;
   size: number;
   contentType: string;
-  mediaType: 'image' | 'video' | 'audio';
+  mediaType: "image" | "video" | "audio";
   publicUrl?: string;
 };
 
@@ -34,28 +34,31 @@ type UploadedAsset = {
 };
 
 function filterUploadHeaders(headers: Record<string, string>) {
-  const blocked = new Set(['host', 'content-length']);
+  const blocked = new Set(["host", "content-length"]);
 
   return Object.fromEntries(
-    Object.entries(headers).filter(([key]) => !blocked.has(key.toLowerCase()))
+    Object.entries(headers).filter(([key]) => !blocked.has(key.toLowerCase())),
   );
 }
 
-async function legacyUpload(files: File[], uploadPath: string): Promise<UploadedAsset[]> {
+async function legacyUpload(
+  files: File[],
+  uploadPath: string,
+): Promise<UploadedAsset[]> {
   const formData = new FormData();
   files.forEach((file) => {
-    formData.append('files', file);
+    formData.append("files", file);
   });
-  formData.append('path', uploadPath);
+  formData.append("path", uploadPath);
 
-  const response = await fetch('/api/admin/media-assets/upload', {
-    method: 'POST',
+  const response = await fetch("/api/admin/media-assets/upload", {
+    method: "POST",
     body: formData,
   });
   const payload = await response.json();
 
   if (!response.ok || payload.code !== 0) {
-    throw new Error(payload.message || 'Upload failed');
+    throw new Error(payload.message || "Upload failed");
   }
 
   return payload.data?.items || [];
@@ -72,10 +75,10 @@ export async function uploadAdminMediaFilesDirect({
     return [];
   }
 
-  const response = await fetch('/api/admin/media-assets/presign', {
-    method: 'POST',
+  const response = await fetch("/api/admin/media-assets/presign", {
+    method: "POST",
     headers: {
-      'Content-Type': 'application/json',
+      "Content-Type": "application/json",
     },
     body: JSON.stringify({
       path,
@@ -91,18 +94,20 @@ export async function uploadAdminMediaFilesDirect({
 
   if (
     response.status === 501 ||
-    payload?.message?.includes('does not support direct uploads')
+    payload?.message?.includes("does not support direct uploads")
   ) {
     return legacyUpload(files, path);
   }
 
   if (!response.ok || payload?.code !== 0) {
-    throw new Error(payload?.message || 'Failed to prepare upload');
+    throw new Error(payload?.message || "Failed to prepare upload");
   }
 
   const instructions = (payload.data?.items || []) as UploadInstruction[];
   if (instructions.length !== files.length) {
-    throw new Error('Upload preparation returned an unexpected number of files');
+    throw new Error(
+      "Upload preparation returned an unexpected number of files",
+    );
   }
 
   const completedItems: UploadCompleteItem[] = [];
@@ -116,9 +121,10 @@ export async function uploadAdminMediaFilesDirect({
     });
 
     if (!uploadResponse.ok) {
-      const errorText = await uploadResponse.text().catch(() => '');
+      const errorText = await uploadResponse.text().catch(() => "");
       throw new Error(
-        errorText || `Direct upload failed with status ${uploadResponse.status}`
+        errorText ||
+          `Direct upload failed with status ${uploadResponse.status}`,
       );
     }
 
@@ -133,10 +139,10 @@ export async function uploadAdminMediaFilesDirect({
     });
   }
 
-  const completeResponse = await fetch('/api/admin/media-assets/complete', {
-    method: 'POST',
+  const completeResponse = await fetch("/api/admin/media-assets/complete", {
+    method: "POST",
     headers: {
-      'Content-Type': 'application/json',
+      "Content-Type": "application/json",
     },
     body: JSON.stringify({
       items: completedItems,
@@ -145,7 +151,7 @@ export async function uploadAdminMediaFilesDirect({
   const completePayload = await completeResponse.json();
 
   if (!completeResponse.ok || completePayload.code !== 0) {
-    throw new Error(completePayload.message || 'Failed to finalize upload');
+    throw new Error(completePayload.message || "Failed to finalize upload");
   }
 
   return completePayload.data?.items || [];

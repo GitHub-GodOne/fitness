@@ -34,14 +34,16 @@ export async function POST(req: Request) {
 
     const isAdmin = await hasPermission(user.id, PERMISSIONS.ADMIN_ACCESS);
     if (!isAdmin) {
-      return respErr('no permission', 403);
+      return respErr("no permission", 403);
     }
 
     const body = await req.json();
-    const items = Array.isArray(body.items) ? (body.items as CompleteUploadItem[]) : [];
+    const items = Array.isArray(body.items)
+      ? (body.items as CompleteUploadItem[])
+      : [];
 
     if (items.length === 0) {
-      return respErr('No uploaded items provided', 400);
+      return respErr("No uploaded items provided", 400);
     }
 
     const storageService = await getStorageService();
