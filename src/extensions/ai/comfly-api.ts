@@ -1045,14 +1045,9 @@ export class ComflyAPIProvider implements AIProvider {
     this.imageEditBaseUrl =
       configs.imageEditBaseUrl || "https://ai.comfly.chat";
     this.videoGenBaseUrl = configs.videoGenBaseUrl || "https://ai.comfly.chat";
-    this.ttsBaseUrl =
-      configs.ttsBaseUrl ||
-      "http://127.0.0.1:9988" ||
-      "https://clonevoice.nailai.net";
+    this.ttsBaseUrl = configs.ttsBaseUrl || "https://clonevoice.nailai.net";
     this.videoProcessBaseUrl =
-      configs.videoProcessBaseUrl ||
-      "http://127.0.0.1:9988" ||
-      "https://clonevoice.nailai.net";
+      configs.videoProcessBaseUrl || "https://clonevoice.nailai.net";
   }
 
   private getImageEditPrompt() {
@@ -1210,7 +1205,9 @@ export class ComflyAPIProvider implements AIProvider {
   }
 
   private getMergeSubtitleY() {
-    return String(this.configs.mergeSubtitleY || DEFAULT_COMFLY_MERGE_SUBTITLE_Y);
+    return String(
+      this.configs.mergeSubtitleY || DEFAULT_COMFLY_MERGE_SUBTITLE_Y,
+    );
   }
 
   private getMergeTitleFontsize() {
@@ -1479,6 +1476,7 @@ export class ComflyAPIProvider implements AIProvider {
     longTokenDurS,
     subtitleFontsize,
     subtitleMarginv,
+    subtitleY,
     titleFontsize,
     titleX,
     titleY,
@@ -1495,6 +1493,7 @@ export class ComflyAPIProvider implements AIProvider {
     longTokenDurS?: string;
     subtitleFontsize?: string;
     subtitleMarginv?: string;
+    subtitleY?: string;
     titleFontsize?: string;
     titleX?: string;
     titleY?: string;
