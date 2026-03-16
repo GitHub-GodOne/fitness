@@ -1937,6 +1937,7 @@ export function VideoGenerator({
                           <video
                             src={video.url}
                             controls
+                            loop
                             className="h-auto w-full"
                             preload="metadata"
                           />
@@ -2068,6 +2069,7 @@ export function VideoGenerator({
                   src={previewVideoUrl}
                   controls
                   autoPlay
+                  loop
                   className="w-full h-auto rounded-lg"
                   style={{ maxHeight: "70vh" }}
                   onLoadedData={() => setIsVideoLoading(false)}

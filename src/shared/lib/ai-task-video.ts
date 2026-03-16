@@ -12,6 +12,18 @@ function parseJson(value: string | null | undefined) {
   }
 }
 
+function parseNestedJsonString(value: unknown) {
+  if (typeof value !== 'string' || !value.trim()) {
+    return null;
+  }
+
+  try {
+    return JSON.parse(value);
+  } catch {
+    return null;
+  }
+}
+
 function normalizeImageUrl(value: unknown) {
   if (typeof value !== 'string' || !value.trim()) {
     return null;
@@ -204,4 +216,44 @@ export function extractShowcaseDescriptionFromAITask(params: {
   }
 
   return params.prompt?.trim() || '';
+}
+
+export function extractVerseReferenceFromAITask(params: {
+  options?: string | null;
+  taskResult?: string | null;
+}) {
+  const result = parseJson(params.taskResult);
+  if (typeof result?.verse_reference === 'string' && result.verse_reference.trim()) {
+    return result.verse_reference.trim();
+  }
+
+  const options = parseJson(params.options);
+  const finalPrompt =
+    typeof options?.final_prompt === 'string' ? options.final_prompt : null;
+  const analysis = parseNestedJsonString(finalPrompt);
+
+  if (
+    typeof analysis?.verse_reference === 'string' &&
+    analysis.verse_reference.trim()
+  ) {
+    return analysis.verse_reference.trim();
+  }
+
+  return '';
+}
+
+export function extractFinalPromptFromAITask(params: {
+  options?: string | null;
+  taskResult?: string | null;
+}) {
+  const result = parseJson(params.taskResult);
+  if (typeof result?.narration === 'string' && result.narration.trim()) {
+    return result.narration.trim();
+  }
+
+  const options = parseJson(params.options);
+  const finalPrompt =
+    typeof options?.final_prompt === 'string' ? options.final_prompt : '';
+
+  return finalPrompt.trim();
 }

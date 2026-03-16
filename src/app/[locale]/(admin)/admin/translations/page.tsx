@@ -77,6 +77,7 @@ export default async function TranslationsPage({
       <Main>
         <MainHeader title={t('title')} description={t('description')} />
         <TranslationManager
+          key={`${activeTargetLocale}:${activePath}`}
           adminLocale={locale}
           targetLocale={activeTargetLocale}
           namespacePath={activePath}

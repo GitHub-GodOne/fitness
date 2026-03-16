@@ -38,6 +38,12 @@ type PromptTestActionConfig = {
   voiceVolumeLabel?: string;
   maxWordsLabel?: string;
   longTokenDurLabel?: string;
+  subtitleFontsizeLabel?: string;
+  subtitleMarginvLabel?: string;
+  subtitleYLabel?: string;
+  titleFontsizeLabel?: string;
+  titleXLabel?: string;
+  titleYLabel?: string;
 };
 
 export function PromptTestAction({
@@ -103,6 +109,18 @@ export function PromptTestAction({
       const longTokenDurS = String(
         values.comfly_merge_long_token_dur_s || "0.8",
       );
+      const subtitleFontsize = String(
+        values.comfly_merge_subtitle_fontsize || "100",
+      );
+      const subtitleMarginv = String(
+        values.comfly_merge_subtitle_marginv || "100",
+      );
+      const subtitleY = String(values.comfly_merge_subtitle_y || "0");
+      const titleFontsize = String(
+        values.comfly_merge_title_fontsize || "80",
+      );
+      const titleX = String(values.comfly_merge_title_x || "540");
+      const titleY = String(values.comfly_merge_title_y || "300");
       const overrides = {
         comfly_image_edit_prompt: String(values.comfly_image_edit_prompt || ""),
         comfly_default_video_prompt: String(
@@ -118,6 +136,12 @@ export function PromptTestAction({
         comfly_merge_voice_volume: voiceVolume,
         comfly_merge_max_words_per_line: maxWordsPerLine,
         comfly_merge_long_token_dur_s: longTokenDurS,
+        comfly_merge_subtitle_fontsize: subtitleFontsize,
+        comfly_merge_subtitle_marginv: subtitleMarginv,
+        comfly_merge_subtitle_y: subtitleY,
+        comfly_merge_title_fontsize: titleFontsize,
+        comfly_merge_title_x: titleX,
+        comfly_merge_title_y: titleY,
       };
 
       const response = await fetch("/api/admin/ai/comfly/test-prompt", {
@@ -139,6 +163,12 @@ export function PromptTestAction({
           voiceVolume,
           maxWordsPerLine,
           longTokenDurS,
+          subtitleFontsize,
+          subtitleMarginv,
+          subtitleY,
+          titleFontsize,
+          titleX,
+          titleY,
           execute: config.execute === true,
           overrides,
         }),
@@ -422,7 +452,7 @@ export function PromptTestAction({
             </div>
           </div>
           <div className="rounded-xl border bg-background/70 p-3 text-xs text-muted-foreground">
-            {`${config.bgmVolumeLabel || "BGM volume"}, ${config.voiceVolumeLabel || "Voice volume"}, ${config.maxWordsLabel || "Max words per line"}, and ${config.longTokenDurLabel || "Long token duration (s)"} use the values from the settings form on the right.`}
+            {`${config.bgmVolumeLabel || "BGM volume"}, ${config.voiceVolumeLabel || "Voice volume"}, ${config.maxWordsLabel || "Max words per line"}, ${config.longTokenDurLabel || "Long token duration (s)"}, ${config.subtitleFontsizeLabel || "Subtitle font size"}, ${config.subtitleMarginvLabel || "Subtitle bottom margin"}, ${config.subtitleYLabel || "Subtitle Y"}, ${config.titleFontsizeLabel || "Title font size"}, ${config.titleXLabel || "Title X"}, and ${config.titleYLabel || "Title Y"} use the values from the settings form on the right.`}
           </div>
         </div>
       ) : null}

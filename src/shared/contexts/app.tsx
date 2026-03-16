@@ -10,8 +10,12 @@ import {
 } from 'react';
 
 import { getAuthClient, useSession } from '@/core/auth/client';
-import { useRouter } from '@/core/i18n/navigation';
+import { usePathname, useRouter } from '@/core/i18n/navigation';
 import { envConfigs } from '@/config';
+import {
+  I18N_OVERRIDES_PENDING_KEY,
+  I18N_OVERRIDES_UPDATED_EVENT,
+} from '@/shared/lib/i18n-refresh';
 import { User } from '@/shared/models/user';
 
 export interface ContextValue {
@@ -33,6 +37,7 @@ export const useAppContext = () => useContext(AppContext);
 
 export const AppContextProvider = ({ children }: { children: ReactNode }) => {
   const router = useRouter();
+  const pathname = usePathname();
   const [configs, setConfigs] = useState<Record<string, string>>({});
 
   // sign user
@@ -178,6 +183,39 @@ export const AppContextProvider = ({ children }: { children: ReactNode }) => {
   useEffect(() => {
     setIsCheckSign(isPending);
   }, [isPending]);
+
+  useEffect(() => {
+    if (typeof window === 'undefined') {
+      return;
+    }
+
+    const handleOverridesUpdated = () => {
+      router.refresh();
+    };
+
+    window.addEventListener(I18N_OVERRIDES_UPDATED_EVENT, handleOverridesUpdated);
+
+    return () => {
+      window.removeEventListener(
+        I18N_OVERRIDES_UPDATED_EVENT,
+        handleOverridesUpdated
+      );
+    };
+  }, [router]);
+
+  useEffect(() => {
+    if (typeof window === 'undefined') {
+      return;
+    }
+
+    const pendingVersion = sessionStorage.getItem(I18N_OVERRIDES_PENDING_KEY);
+    if (!pendingVersion) {
+      return;
+    }
+
+    sessionStorage.removeItem(I18N_OVERRIDES_PENDING_KEY);
+    router.refresh();
+  }, [pathname, router]);
 
   return (
     <AppContext.Provider

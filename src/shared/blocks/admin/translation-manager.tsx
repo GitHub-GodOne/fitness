@@ -1,6 +1,6 @@
 'use client';
 
-import { useMemo, useState, useTransition } from 'react';
+import { useMemo, useRef, useState, useTransition } from 'react';
 import { useTranslations } from 'next-intl';
 import { usePathname, useRouter, useSearchParams } from 'next/navigation';
 import { Download, Loader2, RotateCcw, Save, Upload } from 'lucide-react';
@@ -10,6 +10,7 @@ import {
   buildMessageObject,
   flattenMessageLeaves,
 } from '@/shared/lib/i18n-messages';
+import { notifyI18nOverridesUpdated } from '@/shared/lib/i18n-refresh';
 import { Button } from '@/shared/components/ui/button';
 import { Input } from '@/shared/components/ui/input';
 import { Label } from '@/shared/components/ui/label';
@@ -20,13 +21,20 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/shared/components/ui/select';
-import { Textarea } from '@/shared/components/ui/textarea';
 
 type TranslationRow = {
   key: string;
   defaultValue: string;
   overrideValue?: string;
 };
+
+const translationTextareaClassName =
+  'min-h-[140px] w-full resize-y rounded-md border border-input bg-background px-3 py-2 text-sm leading-6 text-foreground shadow-xs outline-none transition-[color,box-shadow] focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-[3px]';
+
+const translationTextareaStyle = {
+  fontFamily:
+    '-apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", "Noto Sans CJK SC", Arial, sans-serif',
+} satisfies React.CSSProperties;
 
 export function TranslationManager({
   adminLocale,
@@ -55,9 +63,10 @@ export function TranslationManager({
   const [savingKey, setSavingKey] = useState<string | null>(null);
   const [resettingKey, setResettingKey] = useState<string | null>(null);
   const [importing, setImporting] = useState(false);
+  const draftInputRefs = useRef<Record<string, HTMLTextAreaElement | null>>({});
   const [drafts, setDrafts] = useState<Record<string, string>>(() =>
     Object.fromEntries(
-      initialRows.map((row) => [row.key, row.overrideValue ?? row.defaultValue])
+      initialRows.map((row) => [row.key, row.overrideValue ?? ''])
     )
   );
   const [overrides, setOverrides] = useState<Record<string, string | undefined>>(() =>
@@ -82,6 +91,10 @@ export function TranslationManager({
 
   const fileInputId = 'translation-json-import';
 
+  function getDraftValue(row: TranslationRow) {
+    return draftInputRefs.current[row.key]?.value ?? drafts[row.key] ?? '';
+  }
+
   function downloadObject(filename: string, data: Record<string, any>) {
     const blob = new Blob([JSON.stringify(data, null, 2)], {
       type: 'application/json',
@@ -100,7 +113,7 @@ export function TranslationManager({
     const payload = buildMessageObject(
       initialRows.map((row) => ({
         key: row.key,
-        value: drafts[row.key] ?? overrides[row.key] ?? row.defaultValue,
+        value: getDraftValue(row) || row.defaultValue,
       }))
     );
     downloadObject(`${targetLocale}-${namespacePath.replace(/\//g, '_')}.json`, payload);
@@ -164,7 +177,7 @@ export function TranslationManager({
           Object.fromEntries(
             initialRows.map((row) => [
               row.key,
-              importedValueMap.get(row.key) ?? row.defaultValue,
+              importedValueMap.get(row.key) ?? '',
             ])
           )
         );
@@ -184,6 +197,7 @@ export function TranslationManager({
           count: payload.data?.count ?? entries.length,
         })
       );
+      notifyI18nOverridesUpdated();
       router.refresh();
     } catch (error: any) {
       toast.error(error?.message || t('messages.importFailed'));
@@ -210,6 +224,7 @@ export function TranslationManager({
     try {
       setSavingKey(row.key);
       const value = drafts[row.key] ?? row.defaultValue;
+      const nextValue = getDraftValue(row);
       const response = await fetch('/api/admin/translations', {
         method: 'POST',
         headers: {
@@ -219,7 +234,7 @@ export function TranslationManager({
           locale: targetLocale,
           namespace: namespaceRoot,
           key: row.key,
-          value,
+          value: nextValue,
         }),
       });
       const payload = await response.json();
@@ -230,9 +245,14 @@ export function TranslationManager({
 
       setOverrides((current) => ({
         ...current,
-        [row.key]: value,
+        [row.key]: nextValue,
+      }));
+      setDrafts((current) => ({
+        ...current,
+        [row.key]: nextValue,
       }));
       toast.success(t('messages.saved'));
+      notifyI18nOverridesUpdated();
       router.refresh();
     } catch (error: any) {
       toast.error(error?.message || t('messages.saveFailed'));
@@ -267,9 +287,10 @@ export function TranslationManager({
       }));
       setDrafts((current) => ({
         ...current,
-        [row.key]: row.defaultValue,
+        [row.key]: '',
       }));
       toast.success(t('messages.reset'));
+      notifyI18nOverridesUpdated();
       router.refresh();
     } catch (error: any) {
       toast.error(error?.message || t('messages.resetFailed'));
@@ -288,7 +309,7 @@ export function TranslationManager({
               value={targetLocale}
               onValueChange={(value) => updateQuery({ locale: value })}
             >
-              <SelectTrigger>
+              <SelectTrigger className="text-foreground">
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
@@ -307,7 +328,7 @@ export function TranslationManager({
               value={namespacePath}
               onValueChange={(value) => updateQuery({ path: value })}
             >
-              <SelectTrigger>
+              <SelectTrigger className="text-foreground">
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
@@ -326,6 +347,7 @@ export function TranslationManager({
               value={search}
               onChange={(event) => setSearch(event.target.value)}
               placeholder={t('filters.searchPlaceholder')}
+              className="text-foreground"
             />
           </div>
         </div>
@@ -343,14 +365,14 @@ export function TranslationManager({
         </div>
 
         <div className="mt-4 flex flex-col gap-3 xl:flex-row xl:items-end xl:justify-between">
-          <div className="grid gap-3 sm:grid-cols-[220px_minmax(0,1fr)]">
+          <div className="flex flex-col gap-3">
             <div className="space-y-2">
               <Label>{t('filters.importMode')}</Label>
               <Select
                 value={importMode}
                 onValueChange={(value: 'merge' | 'replace') => setImportMode(value)}
               >
-                <SelectTrigger>
+                <SelectTrigger className="text-foreground">
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
@@ -359,7 +381,7 @@ export function TranslationManager({
                 </SelectContent>
               </Select>
             </div>
-            <p className="text-sm text-muted-foreground xl:pb-2">
+            <p className="text-sm text-muted-foreground">
               {importMode === 'replace'
                 ? t('summary.replaceDescription')
                 : t('summary.mergeDescription')}
@@ -461,24 +483,33 @@ export function TranslationManager({
                 <div className="mt-6 grid gap-6 xl:grid-cols-2">
                   <div className="space-y-2">
                     <div className="text-sm font-medium">{t('columns.defaultValue')}</div>
-                    <Textarea
+                    <textarea
                       readOnly
                       value={row.defaultValue}
-                      className="min-h-[140px] resize-y bg-muted/20"
+                      lang={targetLocale}
+                      dir="auto"
+                      spellCheck={false}
+                      className={`${translationTextareaClassName} bg-muted/20`}
+                      style={translationTextareaStyle}
                     />
                   </div>
 
                   <div className="space-y-2">
                     <div className="text-sm font-medium">{t('columns.overrideValue')}</div>
-                    <Textarea
-                      value={drafts[row.key] ?? row.defaultValue}
-                      onChange={(event) =>
-                        setDrafts((current) => ({
-                          ...current,
-                          [row.key]: event.target.value,
-                        }))
-                      }
-                      className="min-h-[140px] resize-y"
+                    <textarea
+                      key={`${targetLocale}:${namespacePath}:${row.key}:${overrides[row.key] ?? ''}`}
+                      ref={(element) => {
+                        draftInputRefs.current[row.key] = element;
+                      }}
+                      defaultValue={drafts[row.key] ?? ''}
+                      placeholder={row.defaultValue}
+                      lang={targetLocale}
+                      dir="auto"
+                      spellCheck={false}
+                      autoCorrect="off"
+                      autoCapitalize="off"
+                      className={translationTextareaClassName}
+                      style={translationTextareaStyle}
                     />
                   </div>
                 </div>
