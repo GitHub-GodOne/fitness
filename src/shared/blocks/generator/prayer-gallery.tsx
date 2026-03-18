@@ -21,7 +21,11 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/shared/components/ui/dialog";
-import { extractVideoUrlFromAITask } from "@/shared/lib/ai-task-video";
+import {
+  extractFinalPromptFromAITask,
+  extractVerseReferenceFromAITask,
+  extractVideoUrlFromAITask,
+} from "@/shared/lib/ai-task-video";
 
 interface HistoryTask {
   id: string;
@@ -47,26 +51,6 @@ interface PrayerGalleryProps {
   className?: string;
 }
 
-function extractVerseReference(task: HistoryTask): string {
-  try {
-    if (task.options) {
-      const options = JSON.parse(task.options);
-      const finalPrompt = options.final_prompt || "";
-      if (finalPrompt) {
-        try {
-          const analysis = JSON.parse(finalPrompt);
-          return analysis.verse_reference || "";
-        } catch (e) {
-          // Ignore parse error
-        }
-      }
-    }
-  } catch (e) {
-    // Ignore parse errors
-  }
-  return "";
-}
-
 export function PrayerGallery({
   tasks,
   loading,
@@ -81,6 +65,7 @@ export function PrayerGallery({
   const [selectedVideo, setSelectedVideo] = useState<{
     url: string;
     prompt: string | null;
+    finalPrompt: string;
   } | null>(null);
   const [downloadingId, setDownloadingId] = useState<string | null>(null);
 
@@ -206,7 +191,14 @@ export function PrayerGallery({
                     taskInfo: task.taskInfo,
                     taskResult: task.taskResult,
                   });
-                  const verseReference = extractVerseReference(task);
+                  const verseReference = extractVerseReferenceFromAITask({
+                    options: task.options,
+                    taskResult: task.taskResult,
+                  });
+                  const finalPrompt = extractFinalPromptFromAITask({
+                    options: task.options,
+                    taskResult: task.taskResult,
+                  });
                   const statusDisplay = getStatusDisplay(task.status);
                   const isProcessing =
                     task.status === AITaskStatus.PROCESSING ||
@@ -226,6 +218,7 @@ export function PrayerGallery({
                           setSelectedVideo({
                             url: videoUrl,
                             prompt: task.prompt,
+                            finalPrompt,
                           })
                         }
                       >
@@ -264,6 +257,7 @@ export function PrayerGallery({
                                 setSelectedVideo({
                                   url: videoUrl!,
                                   prompt: task.prompt,
+                                  finalPrompt,
                                 })
                               }
                             >
@@ -292,6 +286,18 @@ export function PrayerGallery({
                           {new Date(task.createdAt).toLocaleDateString()}
                         </p>
 
+                        {/* Final Prompt */}
+                        {finalPrompt && (
+                          <div className="rounded-lg border bg-muted/20 p-2.5">
+                            <div className="mb-1 text-[11px] font-medium uppercase tracking-wide text-muted-foreground">
+                              {t("history.final_prompt")}
+                            </div>
+                            <p className="line-clamp-3 text-xs text-foreground/90">
+                              {finalPrompt}
+                            </p>
+                          </div>
+                        )}
+
                         {/* Actions */}
                         {task.status === AITaskStatus.SUCCESS && videoUrl && (
                           <div className="flex gap-2 pt-2">
@@ -303,6 +309,7 @@ export function PrayerGallery({
                                 setSelectedVideo({
                                   url: videoUrl,
                                   prompt: task.prompt,
+                                  finalPrompt,
                                 })
                               }
                             >
@@ -384,9 +391,16 @@ export function PrayerGallery({
       >
         <DialogContent className="max-w-none w-screen h-screen p-0 bg-black/95 border-none">
           <DialogHeader className="px-6 pt-6 absolute top-0 left-0 right-0 z-10">
-            <DialogTitle className="line-clamp-1 text-white">
-              {selectedVideo?.prompt || t("generated_videos")}
-            </DialogTitle>
+            <div className="min-w-0">
+              <DialogTitle className="line-clamp-1 text-white">
+                {selectedVideo?.prompt || t("generated_videos")}
+              </DialogTitle>
+              {selectedVideo?.finalPrompt ? (
+                <p className="mt-2 line-clamp-2 max-w-3xl text-sm text-white/75">
+                  {selectedVideo.finalPrompt}
+                </p>
+              ) : null}
+            </div>
           </DialogHeader>
           <div className="w-full h-full flex items-center justify-center p-4">
             {selectedVideo && (
@@ -394,6 +408,7 @@ export function PrayerGallery({
                 src={selectedVideo.url}
                 controls
                 autoPlay
+                loop
                 className="w-full h-full max-h-[90vh] rounded-lg object-contain"
               />
             )}

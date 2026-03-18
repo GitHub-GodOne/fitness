@@ -289,7 +289,7 @@ export function Header({ header }: { header: HeaderType }) {
                       </Link>
                     ))}
 
-                  <NotificationBell />
+                  {user ? <NotificationBell /> : null}
                   {header.show_sign ? (
                     <SignUser userNav={header.user_nav} />
                   ) : null}

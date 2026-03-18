@@ -51,6 +51,7 @@ interface TaskResultData {
   image_urls?: string[];
   original_image_urls?: string[];
   audio_url?: string;
+  edited_image_url?: string;
 }
 
 type TabType = "video" | "images-with-text" | "images-original";
@@ -160,6 +161,7 @@ function VideoPreview({
       <video
         src={videoUrl}
         controls
+        loop
         className="w-full h-auto rounded-lg border"
         style={{ maxHeight: "50vh" }}
       />
@@ -223,7 +225,7 @@ export function DownloadDialog({
   }, [taskInfo, taskResult]);
 
   const hasVideo = Boolean(resultData.video_url);
-  const hasImagesWithText = Boolean(resultData.image_urls?.length);
+  const hasImagesWithText = Boolean(resultData.edited_image_url);
   const hasOriginalImages = Boolean(allOriginalImages.length);
 
   const defaultTab = useMemo<TabType>(() => {
@@ -374,8 +376,8 @@ export function DownloadDialog({
             className="text-xs sm:text-sm py-2 px-2 sm:px-3"
           >
             <ImageIcon className="h-3.5 w-3.5 sm:h-4 sm:w-4 mr-1 sm:mr-2" />
-            <span className="hidden sm:inline">{t("with_text")}</span>
-            <span className="sm:hidden">{t("with_text")}</span>
+            <span className="hidden sm:inline">{t("edited_image")}</span>
+            <span className="sm:hidden">{t("edited_image")}</span>
           </TabsTrigger>
           <TabsTrigger
             value="images-original"
@@ -440,24 +442,29 @@ export function DownloadDialog({
         </TabsContent>
 
         <TabsContent value="images-with-text" className="mt-0">
-          {hasImagesWithText && resultData.image_urls ? (
-            <ImagePreview
-              images={resultData.image_urls}
-              taskId={taskId}
-              onDownload={handleDownloadImage}
-              selectedImages={selectedImagesWithText}
-              onToggleSelection={(index) => {
-                setSelectedImagesWithText((prev) => {
-                  const newSet = new Set(prev);
-                  if (newSet.has(index)) {
-                    newSet.delete(index);
-                  } else {
-                    newSet.add(index);
-                  }
-                  return newSet;
-                });
-              }}
-            />
+          {hasImagesWithText && resultData.edited_image_url ? (
+            <div className="space-y-4">
+              <img
+                src={resultData.edited_image_url}
+                alt="Edited Image"
+                className="w-full h-auto rounded-lg border"
+                style={{ maxHeight: "70vh", objectFit: "contain" }}
+              />
+              <div className="flex gap-2">
+                <Button
+                  className="flex-1"
+                  onClick={() => handleDownloadImage(resultData.edited_image_url!, 0)}
+                >
+                  <Download className="h-4 w-4 mr-2" />
+                  {t("download")}
+                </Button>
+                <ShareButton
+                  url={toAbsoluteUrl(resultData.edited_image_url, { usePublicDomain: true })}
+                  variant="outline"
+                  className="flex-1"
+                />
+              </div>
+            </div>
           ) : (
             <div className="text-center py-8 text-muted-foreground">
               {t("no_watermarked_images")}

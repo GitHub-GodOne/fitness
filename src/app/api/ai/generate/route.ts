@@ -2,18 +2,14 @@ import { envConfigs } from '@/config';
 import { AIMediaType, AITaskStatus } from '@/extensions/ai';
 import { getUuid } from '@/shared/lib/hash';
 import { respData, respErr } from '@/shared/lib/resp';
-import { createAITask, NewAITask } from '@/shared/models/ai_task';
+import { createAITask, NewAITask, updateAITaskById } from '@/shared/models/ai_task';
 import { getRemainingCredits } from '@/shared/models/credit';
 import { getUserInfo } from '@/shared/models/user';
 import { getAIService } from '@/shared/services/ai';
 
 export async function POST(request: Request) {
   try {
-    // get current user
     const user = await getUserInfo();
-    if (!user) {
-      throw new Error('no auth, please sign in');
-    }
 
     let provider, mediaType, model, prompt, options, scene;
     const taskId = getUuid(); // Generate taskId early
@@ -124,9 +120,11 @@ export async function POST(request: Request) {
       throw new Error('invalid mediaType');
     }
 
-    // check credits
-    const remainingCredits = await getRemainingCredits(user.id);
-    if (remainingCredits < costCredits) {
+    const remainingCredits = user ? await getRemainingCredits(user.id) : 0;
+    const effectiveCostCredits = user ? costCredits : 0;
+
+    // check credits for signed-in users only
+    if (user && remainingCredits < costCredits) {
       throw new Error('insufficient credits');
     }
 
@@ -169,7 +167,9 @@ export async function POST(request: Request) {
       prompt,
       callbackUrl,
       options,
-      taskId
+      taskId,
+      user,
+      remainingCredits,
     };
 
 
@@ -190,11 +190,11 @@ export async function POST(request: Request) {
       scene,
       options: options ? JSON.stringify(options) : null,
       status: AITaskStatus.PENDING,
-      costCredits,
+      costCredits: effectiveCostCredits,
       taskId: taskId,
 
     };
-    await createAITask(newAITask);
+    const createdTask = await createAITask(newAITask);
 
 
     // generate content
@@ -205,7 +205,20 @@ export async function POST(request: Request) {
       );
     }
 
-    return respData(newAITask);
+    const nextStatus = result.taskStatus || AITaskStatus.PENDING;
+    const persistedTask =
+      nextStatus !== AITaskStatus.PENDING ||
+      result.taskInfo ||
+      result.taskResult
+        ? await updateAITaskById(createdTask.id, {
+            status: nextStatus,
+            taskInfo: result.taskInfo ? JSON.stringify(result.taskInfo) : null,
+            taskResult: result.taskResult ? JSON.stringify(result.taskResult) : null,
+            creditId: createdTask.creditId,
+          })
+        : createdTask;
+
+    return respData(persistedTask);
   } catch (e: any) {
     console.log('generate failed', e);
     return respErr(e.message);

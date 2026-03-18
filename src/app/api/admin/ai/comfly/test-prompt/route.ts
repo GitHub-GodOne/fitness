@@ -52,6 +52,18 @@ export async function POST(req: NextRequest) {
     const longTokenDurS = body.longTokenDurS
       ? String(body.longTokenDurS)
       : undefined;
+    const subtitleFontsize = body.subtitleFontsize
+      ? String(body.subtitleFontsize)
+      : undefined;
+    const subtitleMarginv = body.subtitleMarginv
+      ? String(body.subtitleMarginv)
+      : undefined;
+    const subtitleY = body.subtitleY ? String(body.subtitleY) : undefined;
+    const titleFontsize = body.titleFontsize
+      ? String(body.titleFontsize)
+      : undefined;
+    const titleX = body.titleX ? String(body.titleX) : undefined;
+    const titleY = body.titleY ? String(body.titleY) : undefined;
     const execute = body.execute === true;
     const overrides = body.overrides || {};
 
@@ -120,6 +132,42 @@ export async function POST(req: NextRequest) {
             ),
           }
         : {}),
+      ...(overrides.comfly_merge_subtitle_fontsize
+        ? {
+            comfly_merge_subtitle_fontsize: String(
+              overrides.comfly_merge_subtitle_fontsize
+            ),
+          }
+        : {}),
+      ...(overrides.comfly_merge_subtitle_marginv
+        ? {
+            comfly_merge_subtitle_marginv: String(
+              overrides.comfly_merge_subtitle_marginv
+            ),
+          }
+        : {}),
+      ...(overrides.comfly_merge_subtitle_y
+        ? {
+            comfly_merge_subtitle_y: String(overrides.comfly_merge_subtitle_y),
+          }
+        : {}),
+      ...(overrides.comfly_merge_title_fontsize
+        ? {
+            comfly_merge_title_fontsize: String(
+              overrides.comfly_merge_title_fontsize
+            ),
+          }
+        : {}),
+      ...(overrides.comfly_merge_title_x
+        ? {
+            comfly_merge_title_x: String(overrides.comfly_merge_title_x),
+          }
+        : {}),
+      ...(overrides.comfly_merge_title_y
+        ? {
+            comfly_merge_title_y: String(overrides.comfly_merge_title_y),
+          }
+        : {}),
     };
     const provider = getComflyProviderWithConfigs(configs);
 
@@ -145,6 +193,12 @@ export async function POST(req: NextRequest) {
           voiceVolume,
           maxWordsPerLine,
           longTokenDurS,
+          subtitleFontsize,
+          subtitleMarginv,
+          subtitleY,
+          titleFontsize,
+          titleX,
+          titleY,
         })
       : provider.previewPromptTest({
           type: promptType,
@@ -162,6 +216,12 @@ export async function POST(req: NextRequest) {
           voiceVolume,
           maxWordsPerLine,
           longTokenDurS,
+          subtitleFontsize,
+          subtitleMarginv,
+          subtitleY,
+          titleFontsize,
+          titleX,
+          titleY,
         });
 
     return respData(data);

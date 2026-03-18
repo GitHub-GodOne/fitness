@@ -33,6 +33,12 @@ export interface ComflyAPIConfigs extends AIConfigs {
   mergeVoiceVolume?: string | number;
   mergeMaxWordsPerLine?: string | number;
   mergeLongTokenDurS?: string | number;
+  mergeSubtitleFontsize?: string | number;
+  mergeSubtitleMarginv?: string | number;
+  mergeSubtitleY?: string | number;
+  mergeTitleFontsize?: string | number;
+  mergeTitleX?: string | number;
+  mergeTitleY?: string | number;
   customStorage?: boolean;
   r2_bucket_name?: string;
   // Fallback models
@@ -92,6 +98,12 @@ export const DEFAULT_COMFLY_MERGE_BGM_VOLUME = "3";
 export const DEFAULT_COMFLY_MERGE_VOICE_VOLUME = "1.0";
 export const DEFAULT_COMFLY_MERGE_MAX_WORDS_PER_LINE = "20";
 export const DEFAULT_COMFLY_MERGE_LONG_TOKEN_DUR_S = "0.8";
+export const DEFAULT_COMFLY_MERGE_SUBTITLE_FONTSIZE = "100";
+export const DEFAULT_COMFLY_MERGE_SUBTITLE_MARGINV = "100";
+export const DEFAULT_COMFLY_MERGE_SUBTITLE_Y = "0";
+export const DEFAULT_COMFLY_MERGE_TITLE_FONTSIZE = "80";
+export const DEFAULT_COMFLY_MERGE_TITLE_X = "540";
+export const DEFAULT_COMFLY_MERGE_TITLE_Y = "300";
 
 export enum ComflyPromptType {
   IMAGE_EDIT = "image_edit",
@@ -146,6 +158,12 @@ export interface ComflyTestRequestOptions {
   voiceVolume?: string;
   maxWordsPerLine?: string;
   longTokenDurS?: string;
+  subtitleFontsize?: string;
+  subtitleMarginv?: string;
+  subtitleY?: string;
+  titleFontsize?: string;
+  titleX?: string;
+  titleY?: string;
 }
 
 const DEFAULT_COMFLY_SCRIPT_SCHEMA = {
@@ -409,6 +427,12 @@ export function buildComflyVideoMergePayload({
   voiceVolume = "1.0",
   maxWordsPerLine = "20",
   longTokenDurS = "0.8",
+  subtitleFontsize = DEFAULT_COMFLY_MERGE_SUBTITLE_FONTSIZE,
+  subtitleMarginv = DEFAULT_COMFLY_MERGE_SUBTITLE_MARGINV,
+  subtitleY = DEFAULT_COMFLY_MERGE_SUBTITLE_Y,
+  titleFontsize = DEFAULT_COMFLY_MERGE_TITLE_FONTSIZE,
+  titleX = DEFAULT_COMFLY_MERGE_TITLE_X,
+  titleY = DEFAULT_COMFLY_MERGE_TITLE_Y,
   title = "",
   titleStart = "0",
   titleEnd = "1000",
@@ -422,6 +446,12 @@ export function buildComflyVideoMergePayload({
   voiceVolume?: string;
   maxWordsPerLine?: string;
   longTokenDurS?: string;
+  subtitleFontsize?: string;
+  subtitleMarginv?: string;
+  subtitleY?: string;
+  titleFontsize?: string;
+  titleX?: string;
+  titleY?: string;
   title?: string;
   titleStart?: string;
   titleEnd?: string;
@@ -436,6 +466,12 @@ export function buildComflyVideoMergePayload({
     voice_volume: voiceVolume,
     max_words_per_line: maxWordsPerLine,
     long_token_dur_s: longTokenDurS,
+    subtitle_fontsize: subtitleFontsize,
+    subtitle_marginv: subtitleMarginv,
+    subtitle_y: subtitleY,
+    title_fontsize: titleFontsize,
+    title_x: titleX,
+    title_y: titleY,
     title,
     title_start: titleStart,
     title_end: titleEnd,
@@ -455,6 +491,12 @@ export function buildComflyVideoMergeRequest({
   voiceVolume = DEFAULT_COMFLY_MERGE_VOICE_VOLUME,
   maxWordsPerLine = DEFAULT_COMFLY_MERGE_MAX_WORDS_PER_LINE,
   longTokenDurS = DEFAULT_COMFLY_MERGE_LONG_TOKEN_DUR_S,
+  subtitleFontsize = DEFAULT_COMFLY_MERGE_SUBTITLE_FONTSIZE,
+  subtitleMarginv = DEFAULT_COMFLY_MERGE_SUBTITLE_MARGINV,
+  subtitleY = DEFAULT_COMFLY_MERGE_SUBTITLE_Y,
+  titleFontsize = DEFAULT_COMFLY_MERGE_TITLE_FONTSIZE,
+  titleX = DEFAULT_COMFLY_MERGE_TITLE_X,
+  titleY = DEFAULT_COMFLY_MERGE_TITLE_Y,
   titleStart = "0",
   titleEnd = "1000",
 }: {
@@ -469,6 +511,12 @@ export function buildComflyVideoMergeRequest({
   voiceVolume?: string;
   maxWordsPerLine?: string;
   longTokenDurS?: string;
+  subtitleFontsize?: string;
+  subtitleMarginv?: string;
+  subtitleY?: string;
+  titleFontsize?: string;
+  titleX?: string;
+  titleY?: string;
   titleStart?: string;
   titleEnd?: string;
 }) {
@@ -483,6 +531,12 @@ export function buildComflyVideoMergeRequest({
     voiceVolume,
     maxWordsPerLine,
     longTokenDurS,
+    subtitleFontsize,
+    subtitleMarginv,
+    subtitleY,
+    titleFontsize,
+    titleX,
+    titleY,
     titleStart,
     titleEnd,
   });
@@ -521,6 +575,12 @@ export function previewComflyPromptTest({
   voiceVolume,
   maxWordsPerLine,
   longTokenDurS,
+  subtitleFontsize,
+  subtitleMarginv,
+  subtitleY,
+  titleFontsize,
+  titleX,
+  titleY,
 }: {
   configs?: Partial<ComflyAPIConfigs>;
   type: ComflyPromptType;
@@ -538,6 +598,12 @@ export function previewComflyPromptTest({
   voiceVolume?: string;
   maxWordsPerLine?: string;
   longTokenDurS?: string;
+  subtitleFontsize?: string;
+  subtitleMarginv?: string;
+  subtitleY?: string;
+  titleFontsize?: string;
+  titleX?: string;
+  titleY?: string;
 }): ComflyPromptPreviewResult {
   const prompts = resolveComflyPrompts(configs);
   const imageEditBaseUrl =
@@ -689,6 +755,33 @@ export function previewComflyPromptTest({
               configs?.mergeLongTokenDurS ||
                 DEFAULT_COMFLY_MERGE_LONG_TOKEN_DUR_S,
             ),
+          subtitleFontsize:
+            subtitleFontsize ||
+            String(
+              configs?.mergeSubtitleFontsize ||
+                DEFAULT_COMFLY_MERGE_SUBTITLE_FONTSIZE,
+            ),
+          subtitleMarginv:
+            subtitleMarginv ||
+            String(
+              configs?.mergeSubtitleMarginv ||
+                DEFAULT_COMFLY_MERGE_SUBTITLE_MARGINV,
+            ),
+          subtitleY:
+            subtitleY ||
+            String(configs?.mergeSubtitleY || DEFAULT_COMFLY_MERGE_SUBTITLE_Y),
+          titleFontsize:
+            titleFontsize ||
+            String(
+              configs?.mergeTitleFontsize ||
+                DEFAULT_COMFLY_MERGE_TITLE_FONTSIZE,
+            ),
+          titleX:
+            titleX ||
+            String(configs?.mergeTitleX || DEFAULT_COMFLY_MERGE_TITLE_X),
+          titleY:
+            titleY ||
+            String(configs?.mergeTitleY || DEFAULT_COMFLY_MERGE_TITLE_Y),
         }),
         request:
           videoUrl?.trim() && audioUrl?.trim()
@@ -727,6 +820,40 @@ export function previewComflyPromptTest({
                     String(
                       configs?.mergeLongTokenDurS ||
                         DEFAULT_COMFLY_MERGE_LONG_TOKEN_DUR_S,
+                    ),
+                  subtitleFontsize:
+                    subtitleFontsize ||
+                    String(
+                      configs?.mergeSubtitleFontsize ||
+                        DEFAULT_COMFLY_MERGE_SUBTITLE_FONTSIZE,
+                    ),
+                  subtitleMarginv:
+                    subtitleMarginv ||
+                    String(
+                      configs?.mergeSubtitleMarginv ||
+                        DEFAULT_COMFLY_MERGE_SUBTITLE_MARGINV,
+                    ),
+                  subtitleY:
+                    subtitleY ||
+                    String(
+                      configs?.mergeSubtitleY ||
+                        DEFAULT_COMFLY_MERGE_SUBTITLE_Y,
+                    ),
+                  titleFontsize:
+                    titleFontsize ||
+                    String(
+                      configs?.mergeTitleFontsize ||
+                        DEFAULT_COMFLY_MERGE_TITLE_FONTSIZE,
+                    ),
+                  titleX:
+                    titleX ||
+                    String(
+                      configs?.mergeTitleX || DEFAULT_COMFLY_MERGE_TITLE_X,
+                    ),
+                  titleY:
+                    titleY ||
+                    String(
+                      configs?.mergeTitleY || DEFAULT_COMFLY_MERGE_TITLE_Y,
                     ),
                 }).url,
                 method: "POST",
@@ -984,8 +1111,7 @@ export class ComflyAPIProvider implements AIProvider {
 
       return {
         buffer: Buffer.from(await response.arrayBuffer()),
-        contentType:
-          contentTypeHeader || this.getImageContentType(extension),
+        contentType: contentTypeHeader || this.getImageContentType(extension),
         extension,
       };
     }
@@ -1064,6 +1190,40 @@ export class ComflyAPIProvider implements AIProvider {
     );
   }
 
+  private getMergeSubtitleFontsize() {
+    return String(
+      this.configs.mergeSubtitleFontsize ||
+        DEFAULT_COMFLY_MERGE_SUBTITLE_FONTSIZE,
+    );
+  }
+
+  private getMergeSubtitleMarginv() {
+    return String(
+      this.configs.mergeSubtitleMarginv ||
+        DEFAULT_COMFLY_MERGE_SUBTITLE_MARGINV,
+    );
+  }
+
+  private getMergeSubtitleY() {
+    return String(
+      this.configs.mergeSubtitleY || DEFAULT_COMFLY_MERGE_SUBTITLE_Y,
+    );
+  }
+
+  private getMergeTitleFontsize() {
+    return String(
+      this.configs.mergeTitleFontsize || DEFAULT_COMFLY_MERGE_TITLE_FONTSIZE,
+    );
+  }
+
+  private getMergeTitleX() {
+    return String(this.configs.mergeTitleX || DEFAULT_COMFLY_MERGE_TITLE_X);
+  }
+
+  private getMergeTitleY() {
+    return String(this.configs.mergeTitleY || DEFAULT_COMFLY_MERGE_TITLE_Y);
+  }
+
   getResolvedPrompts(): ResolvedComflyPrompts {
     return resolveComflyPrompts(this.configs);
   }
@@ -1084,6 +1244,12 @@ export class ComflyAPIProvider implements AIProvider {
     voiceVolume,
     maxWordsPerLine,
     longTokenDurS,
+    subtitleFontsize,
+    subtitleMarginv,
+    subtitleY,
+    titleFontsize,
+    titleX,
+    titleY,
   }: {
     type: ComflyPromptType;
     input?: string;
@@ -1100,6 +1266,12 @@ export class ComflyAPIProvider implements AIProvider {
     voiceVolume?: string;
     maxWordsPerLine?: string;
     longTokenDurS?: string;
+    subtitleFontsize?: string;
+    subtitleMarginv?: string;
+    subtitleY?: string;
+    titleFontsize?: string;
+    titleX?: string;
+    titleY?: string;
   }): ComflyPromptPreviewResult {
     return previewComflyPromptTest({
       configs: this.configs,
@@ -1118,6 +1290,12 @@ export class ComflyAPIProvider implements AIProvider {
       voiceVolume,
       maxWordsPerLine,
       longTokenDurS,
+      subtitleFontsize,
+      subtitleMarginv,
+      subtitleY,
+      titleFontsize,
+      titleX,
+      titleY,
     });
   }
 
@@ -1137,6 +1315,12 @@ export class ComflyAPIProvider implements AIProvider {
     voiceVolume,
     maxWordsPerLine,
     longTokenDurS,
+    subtitleFontsize,
+    subtitleMarginv,
+    subtitleY,
+    titleFontsize,
+    titleX,
+    titleY,
   }: {
     type: ComflyPromptType;
     input?: string;
@@ -1153,6 +1337,12 @@ export class ComflyAPIProvider implements AIProvider {
     voiceVolume?: string;
     maxWordsPerLine?: string;
     longTokenDurS?: string;
+    subtitleFontsize?: string;
+    subtitleMarginv?: string;
+    subtitleY?: string;
+    titleFontsize?: string;
+    titleX?: string;
+    titleY?: string;
   }): Promise<ComflyPromptTestResult> {
     const preview = this.previewPromptTest({
       type,
@@ -1170,6 +1360,12 @@ export class ComflyAPIProvider implements AIProvider {
       voiceVolume: voiceVolume || this.getMergeVoiceVolume(),
       maxWordsPerLine: maxWordsPerLine || this.getMergeMaxWordsPerLine(),
       longTokenDurS: longTokenDurS || this.getMergeLongTokenDurS(),
+      subtitleFontsize: subtitleFontsize || this.getMergeSubtitleFontsize(),
+      subtitleMarginv: subtitleMarginv || this.getMergeSubtitleMarginv(),
+      subtitleY: subtitleY || this.getMergeSubtitleY(),
+      titleFontsize: titleFontsize || this.getMergeTitleFontsize(),
+      titleX: titleX || this.getMergeTitleX(),
+      titleY: titleY || this.getMergeTitleY(),
     });
 
     if (type === ComflyPromptType.SCRIPT) {
@@ -1225,6 +1421,12 @@ export class ComflyAPIProvider implements AIProvider {
         voiceVolume: voiceVolume || this.getMergeVoiceVolume(),
         maxWordsPerLine: maxWordsPerLine || this.getMergeMaxWordsPerLine(),
         longTokenDurS: longTokenDurS || this.getMergeLongTokenDurS(),
+        subtitleFontsize: subtitleFontsize || this.getMergeSubtitleFontsize(),
+        subtitleMarginv: subtitleMarginv || this.getMergeSubtitleMarginv(),
+        subtitleY: subtitleY || this.getMergeSubtitleY(),
+        titleFontsize: titleFontsize || this.getMergeTitleFontsize(),
+        titleX: titleX || this.getMergeTitleX(),
+        titleY: titleY || this.getMergeTitleY(),
       });
       return {
         ...preview,
@@ -1272,6 +1474,12 @@ export class ComflyAPIProvider implements AIProvider {
     voiceVolume,
     maxWordsPerLine,
     longTokenDurS,
+    subtitleFontsize,
+    subtitleMarginv,
+    subtitleY,
+    titleFontsize,
+    titleX,
+    titleY,
   }: {
     videoUrl: string;
     audioUrl: string;
@@ -1283,6 +1491,12 @@ export class ComflyAPIProvider implements AIProvider {
     voiceVolume?: string;
     maxWordsPerLine?: string;
     longTokenDurS?: string;
+    subtitleFontsize?: string;
+    subtitleMarginv?: string;
+    subtitleY?: string;
+    titleFontsize?: string;
+    titleX?: string;
+    titleY?: string;
   }) {
     return this.mergeVideoWithAudioAsyncWithRetry(
       videoUrl,
@@ -1296,6 +1510,11 @@ export class ComflyAPIProvider implements AIProvider {
         voiceVolume: voiceVolume || this.getMergeVoiceVolume(),
         maxWordsPerLine: maxWordsPerLine || this.getMergeMaxWordsPerLine(),
         longTokenDurS: longTokenDurS || this.getMergeLongTokenDurS(),
+        subtitleFontsize: subtitleFontsize || this.getMergeSubtitleFontsize(),
+        subtitleMarginv: subtitleMarginv || this.getMergeSubtitleMarginv(),
+        titleFontsize: titleFontsize || this.getMergeTitleFontsize(),
+        titleX: titleX || this.getMergeTitleX(),
+        titleY: titleY || this.getMergeTitleY(),
       },
     );
   }
@@ -2532,6 +2751,30 @@ fearnotforiamwithyou.com`.trim(),
       "long_token_dur_s",
       options?.longTokenDurS?.toString() || this.getMergeLongTokenDurS(),
     );
+    formData.append(
+      "subtitle_fontsize",
+      options?.subtitleFontsize?.toString() || this.getMergeSubtitleFontsize(),
+    );
+    formData.append(
+      "subtitle_marginv",
+      options?.subtitleMarginv?.toString() || this.getMergeSubtitleMarginv(),
+    );
+    formData.append(
+      "subtitle_y",
+      options?.subtitleY?.toString() || this.getMergeSubtitleY(),
+    );
+    formData.append(
+      "title_fontsize",
+      options?.titleFontsize?.toString() || this.getMergeTitleFontsize(),
+    );
+    formData.append(
+      "title_x",
+      options?.titleX?.toString() || this.getMergeTitleX(),
+    );
+    formData.append(
+      "title_y",
+      options?.titleY?.toString() || this.getMergeTitleY(),
+    );
     formData.append("title", options?.title || "");
     formData.append("title_start", options?.titleStart?.toString() || "0");
     formData.append("title_end", options?.titleEnd?.toString() || "1000");
@@ -2587,6 +2830,16 @@ fearnotforiamwithyou.com`.trim(),
         options?.maxWordsPerLine?.toString() || this.getMergeMaxWordsPerLine(),
       longTokenDurS:
         options?.longTokenDurS?.toString() || this.getMergeLongTokenDurS(),
+      subtitleFontsize:
+        options?.subtitleFontsize?.toString() ||
+        this.getMergeSubtitleFontsize(),
+      subtitleMarginv:
+        options?.subtitleMarginv?.toString() || this.getMergeSubtitleMarginv(),
+      subtitleY: options?.subtitleY?.toString() || this.getMergeSubtitleY(),
+      titleFontsize:
+        options?.titleFontsize?.toString() || this.getMergeTitleFontsize(),
+      titleX: options?.titleX?.toString() || this.getMergeTitleX(),
+      titleY: options?.titleY?.toString() || this.getMergeTitleY(),
       titleStart: options?.titleStart?.toString() || "0",
       titleEnd: options?.titleEnd?.toString() || "1000",
     });
@@ -2702,6 +2955,17 @@ fearnotforiamwithyou.com`.trim(),
             this.getMergeMaxWordsPerLine(),
           longTokenDurS:
             options?.longTokenDurS?.toString() || this.getMergeLongTokenDurS(),
+          subtitleFontsize:
+            options?.subtitleFontsize?.toString() ||
+            this.getMergeSubtitleFontsize(),
+          subtitleMarginv:
+            options?.subtitleMarginv?.toString() ||
+            this.getMergeSubtitleMarginv(),
+          subtitleY: options?.subtitleY?.toString() || this.getMergeSubtitleY(),
+          titleFontsize:
+            options?.titleFontsize?.toString() || this.getMergeTitleFontsize(),
+          titleX: options?.titleX?.toString() || this.getMergeTitleX(),
+          titleY: options?.titleY?.toString() || this.getMergeTitleY(),
           titleStart: options?.titleStart?.toString() || "0",
           titleEnd: options?.titleEnd?.toString() || "1000",
         });
@@ -2786,7 +3050,8 @@ fearnotforiamwithyou.com`.trim(),
     let uploadedInputImageUrl = inputImageSource || "";
     if (inputImageSource) {
       try {
-        const inputImageAsset = await this.loadInputImageAsset(inputImageSource);
+        const inputImageAsset =
+          await this.loadInputImageAsset(inputImageSource);
         const inputImageKey = this.getR2Key(
           taskId,
           `input_image.${inputImageAsset.extension}`,

@@ -124,6 +124,12 @@ export default async function SettingsPage({
         'comfly_merge_voice_volume',
         'comfly_merge_max_words_per_line',
         'comfly_merge_long_token_dur_s',
+        'comfly_merge_subtitle_fontsize',
+        'comfly_merge_subtitle_marginv',
+        'comfly_merge_subtitle_y',
+        'comfly_merge_title_fontsize',
+        'comfly_merge_title_x',
+        'comfly_merge_title_y',
       ]);
 
       const ttsSettings = comflySettings
@@ -221,6 +227,12 @@ export default async function SettingsPage({
                 voiceVolumeLabel: 'Voice volume',
                 maxWordsLabel: 'Max words per line',
                 longTokenDurLabel: 'Long token duration (s)',
+                subtitleFontsizeLabel: 'Subtitle font size',
+                subtitleMarginvLabel: 'Subtitle bottom margin',
+                subtitleYLabel: 'Subtitle Y',
+                titleFontsizeLabel: 'Title font size',
+                titleXLabel: 'Title X',
+                titleYLabel: 'Title Y',
               },
             ],
           },

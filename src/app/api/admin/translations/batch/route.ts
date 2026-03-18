@@ -1,4 +1,5 @@
 import { NextRequest } from 'next/server';
+import { revalidatePath } from 'next/cache';
 
 import { PERMISSIONS } from '@/core/rbac';
 import { respData, respErr } from '@/shared/lib/resp';
@@ -8,6 +9,13 @@ import {
 } from '@/shared/models/i18n-message';
 import { getUserInfo } from '@/shared/models/user';
 import { hasPermission } from '@/shared/services/rbac';
+
+function revalidateTranslationPaths(locale: string) {
+  const localeRoot = locale === 'en' ? '/' : `/${locale}`;
+  revalidatePath(localeRoot, 'layout');
+  revalidatePath(`/admin/translations`, 'page');
+  revalidatePath(`/${locale}/admin/translations`, 'page');
+}
 
 export async function POST(req: NextRequest) {
   try {
@@ -56,6 +64,7 @@ export async function POST(req: NextRequest) {
       entries,
       updatedBy: user.id,
     });
+    revalidateTranslationPaths(locale);
 
     return respData({
       count: result.length,

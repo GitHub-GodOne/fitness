@@ -73,6 +73,10 @@ export function NotificationBell({ className }: NotificationBellProps) {
     }
   };
 
+  if (!user) {
+    return null;
+  }
+
   return (
     <>
       <DropdownMenu open={isOpen} onOpenChange={setIsOpen}>

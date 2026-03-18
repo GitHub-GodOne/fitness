@@ -10,8 +10,12 @@ import {
 } from 'react';
 
 import { getAuthClient, useSession } from '@/core/auth/client';
-import { useRouter, usePathname } from '@/core/i18n/navigation';
+import { usePathname, useRouter } from '@/core/i18n/navigation';
 import { envConfigs } from '@/config';
+import {
+  I18N_OVERRIDES_PENDING_KEY,
+  I18N_OVERRIDES_UPDATED_EVENT,
+} from '@/shared/lib/i18n-refresh';
 import { User } from '@/shared/models/user';
 
 export interface ContextValue {
@@ -181,13 +185,40 @@ export const AppContextProvider = ({ children }: { children: ReactNode }) => {
     setIsCheckSign(isPending);
   }, [isPending]);
 
-  const needsPassword = !!user && user.hasPassword === false;
+  useEffect(() => {
+    if (typeof window === 'undefined') {
+      return;
+    }
+
+    const handleOverridesUpdated = () => {
+      router.refresh();
+    };
+
+    window.addEventListener(I18N_OVERRIDES_UPDATED_EVENT, handleOverridesUpdated);
+
+    return () => {
+      window.removeEventListener(
+        I18N_OVERRIDES_UPDATED_EVENT,
+        handleOverridesUpdated
+      );
+    };
+  }, [router]);
 
   useEffect(() => {
-    if (needsPassword && pathname !== '/settings/set-password') {
-      router.push('/settings/set-password');
+    if (typeof window === 'undefined') {
+      return;
     }
-  }, [needsPassword, pathname]);
+
+    const pendingVersion = sessionStorage.getItem(I18N_OVERRIDES_PENDING_KEY);
+    if (!pendingVersion) {
+      return;
+    }
+
+    sessionStorage.removeItem(I18N_OVERRIDES_PENDING_KEY);
+    router.refresh();
+  }, [pathname, router]);
+
+  const needsPassword = Boolean(user && user.hasPassword === false);
 
   return (
     <AppContext.Provider

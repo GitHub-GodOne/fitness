@@ -125,6 +125,22 @@ export function getAIManagerWithConfigs(configs: Configs) {
         mergeLongTokenDurS:
           process.env.COMFLY_MERGE_LONG_TOKEN_DUR_S ||
           configs.comfly_merge_long_token_dur_s,
+        mergeSubtitleFontsize:
+          process.env.COMFLY_MERGE_SUBTITLE_FONTSIZE ||
+          configs.comfly_merge_subtitle_fontsize,
+        mergeSubtitleMarginv:
+          process.env.COMFLY_MERGE_SUBTITLE_MARGINV ||
+          configs.comfly_merge_subtitle_marginv,
+        mergeSubtitleY:
+          process.env.COMFLY_MERGE_SUBTITLE_Y ||
+          configs.comfly_merge_subtitle_y,
+        mergeTitleFontsize:
+          process.env.COMFLY_MERGE_TITLE_FONTSIZE ||
+          configs.comfly_merge_title_fontsize,
+        mergeTitleX:
+          process.env.COMFLY_MERGE_TITLE_X || configs.comfly_merge_title_x,
+        mergeTitleY:
+          process.env.COMFLY_MERGE_TITLE_Y || configs.comfly_merge_title_y,
         customStorage: configs.volcano_custom_storage === 'true',
       })
     );
@@ -168,6 +184,21 @@ export function getComflyProviderWithConfigs(configs: Configs) {
     mergeLongTokenDurS:
       process.env.COMFLY_MERGE_LONG_TOKEN_DUR_S ||
       configs.comfly_merge_long_token_dur_s,
+    mergeSubtitleFontsize:
+      process.env.COMFLY_MERGE_SUBTITLE_FONTSIZE ||
+      configs.comfly_merge_subtitle_fontsize,
+    mergeSubtitleMarginv:
+      process.env.COMFLY_MERGE_SUBTITLE_MARGINV ||
+      configs.comfly_merge_subtitle_marginv,
+    mergeSubtitleY:
+      process.env.COMFLY_MERGE_SUBTITLE_Y || configs.comfly_merge_subtitle_y,
+    mergeTitleFontsize:
+      process.env.COMFLY_MERGE_TITLE_FONTSIZE ||
+      configs.comfly_merge_title_fontsize,
+    mergeTitleX:
+      process.env.COMFLY_MERGE_TITLE_X || configs.comfly_merge_title_x,
+    mergeTitleY:
+      process.env.COMFLY_MERGE_TITLE_Y || configs.comfly_merge_title_y,
     customStorage: configs.volcano_custom_storage === 'true',
   };
 

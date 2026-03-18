@@ -99,7 +99,7 @@ export default function HistoryPage() {
         onPageChange={setHistoryPage}
         onRefresh={fetchHistory}
         showTitle={true}
-        showFinalPrompt={false}
+        showFinalPrompt={true}
       />
     </div>
   );

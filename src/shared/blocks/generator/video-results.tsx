@@ -2,11 +2,11 @@
 
 import { useCallback, useEffect, useState } from "react";
 import { Download, Loader2, ArrowLeft, RefreshCw, Play, Calendar } from "lucide-react";
-import { useTranslations } from "next-intl";
+import { useLocale, useTranslations } from "next-intl";
 import { useSearchParams } from "next/navigation";
 import { toast } from "sonner";
 
-import { Link } from "@/core/i18n/navigation";
+import { Link, useRouter } from "@/core/i18n/navigation";
 import { AIMediaType, AITaskStatus } from "@/extensions/ai/types";
 import { Button } from "@/shared/components/ui/button";
 import { Card, CardContent } from "@/shared/components/ui/card";
@@ -89,6 +89,21 @@ function extractVideoUrls(result: any): string[] {
   return [];
 }
 
+function getLocalizedText(
+  item: Record<string, any> | null | undefined,
+  baseKey: string,
+  locale: string,
+): string {
+  if (!item) return "";
+
+  const localizedKey = `${baseKey}Zh`;
+  if (locale === "zh") {
+    return item[localizedKey] || item[baseKey] || "";
+  }
+
+  return item[baseKey] || item[localizedKey] || "";
+}
+
 function getBodyPartsFromTask(task: HistoryTask): string[] {
   const opts = parseTaskResult(task.options);
   return opts?.selected_body_parts || [];
@@ -104,6 +119,8 @@ function formatDate(dateStr: string): string {
 
 export function VideoResults() {
   const t = useTranslations("ai.video.generator");
+  const locale = useLocale();
+  const router = useRouter();
   const searchParams = useSearchParams();
   const taskId = searchParams.get("taskId");
   const { user } = useAppContext();
@@ -236,16 +253,19 @@ export function VideoResults() {
               const currentVideoIndex = selectedVideoIndex[group.id] || 0;
               const currentVideo = group.videos?.[currentVideoIndex];
               const hasMultipleVideos = group.videos && group.videos.length > 1;
+              const title = getLocalizedText(group, "title", locale);
+              const description = getLocalizedText(group, "description", locale);
+              const instructions = getLocalizedText(group, "instructions", locale);
 
               return (
                 <Card key={group.id} className="overflow-hidden">
                   <CardContent className="p-2 sm:pt-6 sm:px-6">
                     {/* Video Title and Description */}
                     <div className="mb-3">
-                      <h3 className="font-semibold text-lg">{group.titleZh || group.title}</h3>
-                      {(group.descriptionZh || group.description) && (
+                      <h3 className="font-semibold text-lg">{title}</h3>
+                      {description && (
                         <p className="text-sm text-muted-foreground mt-1">
-                          {group.descriptionZh || group.description}
+                          {description}
                         </p>
                       )}
                       {group.difficulty && (
@@ -265,7 +285,7 @@ export function VideoResults() {
                             variant={currentVideoIndex === index ? "default" : "outline"}
                             onClick={() => setSelectedVideoIndex(prev => ({ ...prev, [group.id]: index }))}
                           >
-                            {video.viewAngleZh || video.viewAngle || `View ${index + 1}`}
+                            {getLocalizedText(video, "viewAngle", locale) || `View ${index + 1}`}
                           </Button>
                         ))}
                       </div>
@@ -284,10 +304,10 @@ export function VideoResults() {
                     )}
 
                     {/* Instructions */}
-                    {(group.instructionsZh || group.instructions) && (
+                    {instructions && (
                       <div className="mt-3 p-3 bg-muted rounded-lg">
                         <p className="text-sm whitespace-pre-wrap">
-                          {group.instructionsZh || group.instructions}
+                          {instructions}
                         </p>
                       </div>
                     )}
@@ -352,7 +372,7 @@ export function VideoResults() {
                   key={task.id}
                   onClick={() => {
                     if (isSuccess) {
-                      window.location.href = `/ai-video-generator/results?taskId=${task.id}`;
+                      router.push(`/ai-video-generator/results?taskId=${task.id}`);
                     }
                   }}
                   className={isSuccess ? 'cursor-pointer' : 'cursor-default'}

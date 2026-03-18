@@ -1,14 +1,20 @@
 import { envConfigs } from '@/config';
 import { defaultTheme } from '@/config/theme';
+import { getConfigs } from '@/shared/models/config';
 
 /**
  * get active theme
  */
-export function getActiveTheme(): string {
-  const theme = envConfigs.theme as string;
+export async function getActiveTheme(): Promise<string> {
+  const configs = await getConfigs();
 
+  if (configs.theme) {
+    return configs.theme as string;
+  }
+
+  const theme = envConfigs.theme;
   if (theme) {
-    return theme;
+    return theme as string;
   }
 
   return defaultTheme;
@@ -18,7 +24,7 @@ export function getActiveTheme(): string {
  * load theme page with retry mechanism
  */
 export async function getThemePage(pageName: string, theme?: string) {
-  const loadTheme = theme || getActiveTheme();
+  const loadTheme = theme || await getActiveTheme();
   const maxRetries = 3;
 
   // Helper function to attempt import with retries
@@ -73,7 +79,7 @@ export async function getThemePage(pageName: string, theme?: string) {
  * load theme layout with retry mechanism
  */
 export async function getThemeLayout(layoutName: string, theme?: string) {
-  const loadTheme = theme || getActiveTheme();
+  const loadTheme = theme || await getActiveTheme();
   const maxRetries = 3;
 
   // Helper function to attempt import with retries
@@ -137,7 +143,7 @@ function kebabToPascalCase(str: string): string {
  * load theme block with retry mechanism
  */
 export async function getThemeBlock(blockName: string, theme?: string) {
-  const loadTheme = theme || getActiveTheme();
+  const loadTheme = theme || await getActiveTheme();
   const pascalCaseName = kebabToPascalCase(blockName);
   const maxRetries = 3;
 

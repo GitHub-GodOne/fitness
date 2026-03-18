@@ -712,7 +712,9 @@ export async function findVideosByObjectAndBodyParts(
     eq(fitnessVideoGroup.status, 'active'),
   ];
   if (options?.difficulty) {
-    conditions.push(eq(fitnessVideoGroup.difficulty, options.difficulty));
+    conditions.push(
+      sql`(${fitnessVideoGroup.difficulty} = ${options.difficulty} OR ${fitnessVideoGroup.difficulty} = 'universal')`
+    );
   }
   if (options?.gender) {
     conditions.push(
@@ -818,7 +820,9 @@ export async function getVideosByBodyPart(
   const buildVideoGroupConditions = () => {
     const conds = [eq(fitnessVideoGroup.status, 'active')];
     if (options?.difficulty) {
-      conds.push(eq(fitnessVideoGroup.difficulty, options.difficulty));
+      conds.push(
+        sql`(${fitnessVideoGroup.difficulty} = ${options.difficulty} OR ${fitnessVideoGroup.difficulty} = 'universal')`
+      );
     }
     if (options?.gender) {
       conds.push(

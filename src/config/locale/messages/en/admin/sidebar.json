@@ -93,6 +93,11 @@
           "icon": "Video",
           "children": [
             {
+              "title": "Body/Object Mappings",
+              "url": "/admin/video-library",
+              "icon": "Link2"
+            },
+            {
               "title": "Videos",
               "url": "/admin/videos",
               "icon": "Video"
@@ -147,9 +152,20 @@
           ]
         },
         {
-          "title": "Media Assets",
-          "url": "/admin/media-assets",
-          "icon": "Folder"
+          "title": "File Management",
+          "icon": "Folder",
+          "children": [
+            {
+              "title": "Media Assets",
+              "url": "/admin/media-assets",
+              "icon": "Image"
+            },
+            {
+              "title": "Public Files",
+              "url": "/admin/public-files",
+              "icon": "FileText"
+            }
+          ]
         }
       ]
     }

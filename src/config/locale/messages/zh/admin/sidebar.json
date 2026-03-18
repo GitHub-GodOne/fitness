@@ -93,6 +93,11 @@
           "icon": "Video",
           "children": [
             {
+              "title": "身体/物品/部位映射",
+              "url": "/admin/video-library",
+              "icon": "Link2"
+            },
+            {
               "title": "视频",
               "url": "/admin/videos",
               "icon": "Video"
@@ -147,9 +152,20 @@
           ]
         },
         {
-          "title": "资源库",
-          "url": "/admin/media-assets",
-          "icon": "Folder"
+          "title": "文件管理",
+          "icon": "Folder",
+          "children": [
+            {
+              "title": "资源库",
+              "url": "/admin/media-assets",
+              "icon": "Image"
+            },
+            {
+              "title": "公共文件",
+              "url": "/admin/public-files",
+              "icon": "FileText"
+            }
+          ]
         }
       ]
     }

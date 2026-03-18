@@ -13,9 +13,12 @@ import {
   Loader2,
   Upload,
   X,
+  FolderOpen,
+  ExternalLink,
 } from "lucide-react";
 import { toast } from "sonner";
 
+import { MediaAssetPickerDialog } from "@/shared/blocks/admin/media-asset-picker-dialog";
 import { Button } from "@/shared/components/ui/button";
 import { Input } from "@/shared/components/ui/input";
 import { Label } from "@/shared/components/ui/label";
@@ -57,6 +60,7 @@ import {
   TabsList,
   TabsTrigger,
 } from "@/shared/components/ui/tabs";
+import { uploadAdminMediaFilesDirect } from "@/shared/lib/admin-media-upload";
 
 interface FitnessObject {
   id: string;
@@ -131,6 +135,168 @@ interface VideoMapping {
   bodyPart?: BodyPart;
 }
 
+function MediaUrlField({
+  mediaType,
+  value,
+  onChange,
+  uploadPath,
+  placeholder,
+  libraryButtonText,
+}: {
+  mediaType: "image" | "video";
+  value: string;
+  onChange: (value: string) => void;
+  uploadPath: string;
+  placeholder: string;
+  libraryButtonText: string;
+}) {
+  const [mode, setMode] = useState<"upload" | "url" | "library">(
+    value ? "url" : "upload",
+  );
+  const [pickerOpen, setPickerOpen] = useState(false);
+  const [uploading, setUploading] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement>(null);
+
+  return (
+    <div className="space-y-3">
+      <MediaAssetPickerDialog
+        open={pickerOpen}
+        onOpenChange={setPickerOpen}
+        mediaType={mediaType}
+        onSelect={(asset) => {
+          onChange(asset.url);
+          setMode("library");
+        }}
+      />
+
+      <Tabs value={mode} onValueChange={(next) => setMode(next as typeof mode)}>
+        <TabsList className="grid w-full grid-cols-3">
+          <TabsTrigger value="upload">Upload</TabsTrigger>
+          <TabsTrigger value="url">URL</TabsTrigger>
+          <TabsTrigger value="library">Library</TabsTrigger>
+        </TabsList>
+
+        <TabsContent value="upload" className="space-y-3">
+          <input
+            ref={fileInputRef}
+            type="file"
+            accept={mediaType === "image" ? "image/*" : "video/*"}
+            className="hidden"
+            onChange={async (event) => {
+              const file = event.target.files?.[0];
+              if (!file) {
+                return;
+              }
+
+              try {
+                setUploading(true);
+                const [uploaded] = await uploadAdminMediaFilesDirect({
+                  files: [file],
+                  path: uploadPath,
+                });
+
+                if (!uploaded?.url) {
+                  throw new Error("Upload failed");
+                }
+
+                onChange(uploaded.url);
+                toast.success(
+                  mediaType === "image"
+                    ? "Image uploaded successfully"
+                    : "Video uploaded successfully",
+                );
+              } catch (error: any) {
+                toast.error(error?.message || "Upload failed");
+              } finally {
+                setUploading(false);
+                event.target.value = "";
+              }
+            }}
+          />
+          <Button
+            type="button"
+            variant="outline"
+            className="w-full"
+            onClick={() => fileInputRef.current?.click()}
+            disabled={uploading}
+          >
+            {uploading ? (
+              <>
+                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                Uploading...
+              </>
+            ) : (
+              <>
+                <Upload className="mr-2 h-4 w-4" />
+                Upload {mediaType === "image" ? "Image" : "Video"}
+              </>
+            )}
+          </Button>
+        </TabsContent>
+
+        <TabsContent value="url" className="space-y-3">
+          <Input
+            value={value}
+            onChange={(event) => onChange(event.target.value)}
+            placeholder={placeholder}
+          />
+        </TabsContent>
+
+        <TabsContent value="library" className="space-y-3">
+          <Button
+            type="button"
+            variant="outline"
+            className="w-full"
+            onClick={() => setPickerOpen(true)}
+          >
+            <FolderOpen className="mr-2 h-4 w-4" />
+            {libraryButtonText}
+          </Button>
+        </TabsContent>
+      </Tabs>
+
+      {value ? (
+        <div className="space-y-2 rounded-lg border bg-muted/10 p-3">
+          {mediaType === "image" ? (
+            <div className="relative h-24 w-32 overflow-hidden rounded-lg border bg-background">
+              <img
+                src={value}
+                alt="Preview"
+                className="h-full w-full object-cover"
+              />
+            </div>
+          ) : (
+            <div className="overflow-hidden rounded-lg border bg-black">
+              <video
+                src={value}
+                controls
+                preload="metadata"
+                className="max-h-56 w-full"
+              />
+            </div>
+          )}
+
+          <div className="flex flex-wrap gap-2">
+            <Button
+              type="button"
+              size="sm"
+              variant="outline"
+              onClick={() => window.open(value, "_blank", "noopener,noreferrer")}
+            >
+              <ExternalLink className="h-4 w-4" />
+              Open
+            </Button>
+            <Button type="button" size="sm" variant="outline" onClick={() => onChange("")}>
+              <X className="h-4 w-4" />
+              Clear
+            </Button>
+          </div>
+        </div>
+      ) : null}
+    </div>
+  );
+}
+
 export default function VideoLibraryPage() {
   const t = useTranslations("admin");
   const [activeTab, setActiveTab] = useState("videos");
@@ -194,11 +360,6 @@ export default function VideoLibraryPage() {
     sort: number;
   }>>([]);
 
-  // Video upload state
-  const [videoUploading, setVideoUploading] = useState(false);
-  const [thumbnailUploading, setThumbnailUploading] = useState(false);
-  const videoInputRef = useRef<HTMLInputElement>(null);
-  const thumbnailInputRef = useRef<HTMLInputElement>(null);
   const [mappings, setMappings] = useState<VideoMapping[]>([]);
   const [mappingDialogOpen, setMappingDialogOpen] = useState(false);
   const [selectedVideoGroupForMapping, setSelectedVideoGroupForMapping] =
@@ -473,101 +634,6 @@ export default function VideoLibraryPage() {
     const updated = [...groupVideos];
     updated[index] = { ...updated[index], [field]: value };
     setGroupVideos(updated);
-  };
-
-  // Upload handlers
-  const uploadFile = async (
-    file: File,
-    type: "video" | "image",
-  ): Promise<string | null> => {
-    const formData = new FormData();
-    formData.append("files", file);
-
-    try {
-      const response = await fetch("/api/admin/video-library/upload", {
-        method: "POST",
-        body: formData,
-      });
-
-      if (!response.ok) {
-        throw new Error(`Upload failed with status ${response.status}`);
-      }
-
-      const result = await response.json();
-      if (result.code !== 0 || !result.data?.urls?.length) {
-        throw new Error(result.message || "Upload failed");
-      }
-
-      return result.data.urls[0] as string;
-    } catch (error: any) {
-      console.error("Upload failed:", error);
-      toast.error(error?.message || "Upload failed");
-      return null;
-    }
-  };
-
-  const handleVideoUpload = async (
-    event: React.ChangeEvent<HTMLInputElement>,
-    videoIndex?: number,
-  ) => {
-    const file = event.target.files?.[0];
-    if (!file) return;
-
-    // Validate file type
-    if (!file.type.startsWith("video/")) {
-      toast.error("Please select a video file");
-      return;
-    }
-
-    // Validate file size (100MB max)
-    if (file.size > 100 * 1024 * 1024) {
-      toast.error("Video file must be less than 100MB");
-      return;
-    }
-
-    setVideoUploading(true);
-    const url = await uploadFile(file, "video");
-    if (url) {
-      if (videoIndex !== undefined) {
-        // Update specific video in group
-        handleUpdateGroupVideo(videoIndex, "videoUrl", url);
-      }
-      toast.success("Video uploaded successfully");
-    }
-    setVideoUploading(false);
-    if (videoInputRef.current) {
-      videoInputRef.current.value = "";
-    }
-  };
-
-  const handleThumbnailUpload = async (
-    event: React.ChangeEvent<HTMLInputElement>,
-  ) => {
-    const file = event.target.files?.[0];
-    if (!file) return;
-
-    // Validate file type
-    if (!file.type.startsWith("image/")) {
-      toast.error("Please select an image file");
-      return;
-    }
-
-    // Validate file size (10MB max)
-    if (file.size > 10 * 1024 * 1024) {
-      toast.error("Image file must be less than 10MB");
-      return;
-    }
-
-    setThumbnailUploading(true);
-    const url = await uploadFile(file, "image");
-    if (url) {
-      setVideoGroupForm({ ...videoGroupForm, thumbnailUrl: url });
-      toast.success("Thumbnail uploaded successfully");
-    }
-    setThumbnailUploading(false);
-    if (thumbnailInputRef.current) {
-      thumbnailInputRef.current.value = "";
-    }
   };
 
   // Mappings CRUD
@@ -1487,72 +1553,16 @@ export default function VideoLibraryPage() {
               </div>
               <div>
                 <Label>Thumbnail</Label>
-                <input
-                  type="file"
-                  accept="image/*"
-                  ref={thumbnailInputRef}
-                  onChange={handleThumbnailUpload}
-                  className="hidden"
+                <MediaUrlField
+                  mediaType="image"
+                  value={videoGroupForm.thumbnailUrl}
+                  onChange={(thumbnailUrl) =>
+                    setVideoGroupForm({ ...videoGroupForm, thumbnailUrl })
+                  }
+                  uploadPath="video-library/thumbnails"
+                  placeholder="https://example.com/thumbnail.jpg"
+                  libraryButtonText="Choose Image from Library"
                 />
-                {videoGroupForm.thumbnailUrl ? (
-                  <div className="space-y-2">
-                    <div className="relative w-32 h-24 rounded-lg overflow-hidden border">
-                      <img
-                        src={videoGroupForm.thumbnailUrl}
-                        alt="Thumbnail"
-                        className="w-full h-full object-cover"
-                      />
-                    </div>
-                    <div className="flex items-center gap-2">
-                      <Button
-                        type="button"
-                        variant="outline"
-                        size="sm"
-                        onClick={() => thumbnailInputRef.current?.click()}
-                        disabled={thumbnailUploading}
-                      >
-                        {thumbnailUploading ? (
-                          <Loader2 className="h-4 w-4 animate-spin" />
-                        ) : (
-                          <>
-                            <Upload className="h-4 w-4 mr-2" />
-                            Change
-                          </>
-                        )}
-                      </Button>
-                      <Button
-                        type="button"
-                        variant="outline"
-                        size="sm"
-                        onClick={() =>
-                          setVideoGroupForm({ ...videoGroupForm, thumbnailUrl: "" })
-                        }
-                      >
-                        <X className="h-4 w-4 text-red-500" />
-                      </Button>
-                    </div>
-                  </div>
-                ) : (
-                  <Button
-                    type="button"
-                    variant="outline"
-                    className="w-full"
-                    onClick={() => thumbnailInputRef.current?.click()}
-                    disabled={thumbnailUploading}
-                  >
-                    {thumbnailUploading ? (
-                      <>
-                        <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-                        Uploading...
-                      </>
-                    ) : (
-                      <>
-                        <Upload className="h-4 w-4 mr-2" />
-                        Upload Thumbnail
-                      </>
-                    )}
-                  </Button>
-                )}
               </div>
               <div className="grid grid-cols-3 gap-4">
                 <div>
@@ -1567,6 +1577,7 @@ export default function VideoLibraryPage() {
                       <SelectValue />
                     </SelectTrigger>
                     <SelectContent>
+                      <SelectItem value="universal">Universal</SelectItem>
                       <SelectItem value="beginner">Beginner</SelectItem>
                       <SelectItem value="intermediate">Intermediate</SelectItem>
                       <SelectItem value="advanced">Advanced</SelectItem>
@@ -1752,36 +1763,16 @@ export default function VideoLibraryPage() {
                       </div>
                       <div>
                         <Label>Video URL</Label>
-                        <div className="flex gap-2">
-                          <Input
-                            value={video.videoUrl}
-                            onChange={(e) =>
-                              handleUpdateGroupVideo(index, "videoUrl", e.target.value)
-                            }
-                            placeholder="Video URL or upload below"
-                          />
-                          <input
-                            type="file"
-                            accept="video/*"
-                            ref={videoInputRef}
-                            onChange={(e) => handleVideoUpload(e, index)}
-                            className="hidden"
-                            id={`video-upload-${index}`}
-                          />
-                          <Button
-                            type="button"
-                            variant="outline"
-                            size="sm"
-                            onClick={() => document.getElementById(`video-upload-${index}`)?.click()}
-                            disabled={videoUploading}
-                          >
-                            {videoUploading ? (
-                              <Loader2 className="h-4 w-4 animate-spin" />
-                            ) : (
-                              <Upload className="h-4 w-4" />
-                            )}
-                          </Button>
-                        </div>
+                        <MediaUrlField
+                          mediaType="video"
+                          value={video.videoUrl}
+                          onChange={(videoUrl) =>
+                            handleUpdateGroupVideo(index, "videoUrl", videoUrl)
+                          }
+                          uploadPath="video-library/videos"
+                          placeholder="https://example.com/video.mp4"
+                          libraryButtonText="Choose Video from Library"
+                        />
                       </div>
                       <div className="grid grid-cols-2 gap-3">
                         <div>
