@@ -164,12 +164,12 @@ export function ShowcaseSubmitForm({
   return (
     <form
       onSubmit={handleSubmit}
-      className="grid gap-8 xl:grid-cols-[minmax(0,1.2fr)_minmax(360px,0.9fr)]"
+      className="grid gap-6 sm:gap-8 xl:grid-cols-[minmax(0,1.2fr)_minmax(360px,0.9fr)]"
     >
-      <div className="space-y-6 rounded-3xl border bg-card p-6">
-        <div className="space-y-2">
-          <h2 className="text-2xl font-semibold text-foreground">{t('panelTitle')}</h2>
-          <p className="text-sm text-muted-foreground">{t('panelDescription')}</p>
+      <div className="space-y-4 sm:space-y-6 rounded-2xl sm:rounded-3xl border bg-card p-4 sm:p-6">
+        <div className="space-y-1.5 sm:space-y-2">
+          <h2 className="text-xl sm:text-2xl font-semibold text-foreground">{t('panelTitle')}</h2>
+          <p className="text-xs sm:text-sm text-muted-foreground">{t('panelDescription')}</p>
         </div>
 
         <div className="space-y-2">
