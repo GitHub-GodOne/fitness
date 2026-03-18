@@ -31,9 +31,9 @@ export function ShowcaseVideoGallery({
             key={video.id}
             type="button"
             onClick={() => setActiveVideo(video)}
-            className="group overflow-hidden rounded-3xl border bg-card text-left transition hover:border-primary/40 hover:shadow-sm"
+            className="group flex h-full flex-col overflow-hidden rounded-3xl border bg-card text-left transition hover:border-primary/40 hover:shadow-sm"
           >
-            <div className="relative aspect-[16/10] bg-muted">
+            <div className="relative aspect-[16/10] shrink-0 overflow-hidden bg-muted">
               <video
                 src={video.videoUrl}
                 poster={video.coverUrl || undefined}
@@ -44,16 +44,18 @@ export function ShowcaseVideoGallery({
               />
             </div>
 
-            <div className="space-y-3 p-5">
+            <div className="flex flex-1 flex-col space-y-3 p-5">
               <div className="flex items-center justify-between gap-3">
-                <h2 className="text-xl font-semibold text-foreground">{video.title}</h2>
-                <span className="text-xs text-muted-foreground">
+                <h2 className="line-clamp-2 min-h-[3.5rem] text-xl font-semibold text-foreground">
+                  {video.title}
+                </h2>
+                <span className="shrink-0 text-xs text-muted-foreground">
                   {new Date(video.publishedAt || video.createdAt).toLocaleDateString(
                     locale === 'zh' ? 'zh-CN' : 'en-US'
                   )}
                 </span>
               </div>
-              <p className="line-clamp-3 text-sm text-muted-foreground">
+              <p className="line-clamp-3 min-h-[3.75rem] text-sm text-muted-foreground">
                 {video.description || t('descriptionFallback')}
               </p>
             </div>

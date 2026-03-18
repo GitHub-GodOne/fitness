@@ -408,7 +408,9 @@ export function VideoGenerator({
     draftHydratedRef.current = true;
 
     try {
-      const rawDraft = sessionStorage.getItem(VIDEO_GENERATOR_DRAFT_STORAGE_KEY);
+      const rawDraft = sessionStorage.getItem(
+        VIDEO_GENERATOR_DRAFT_STORAGE_KEY,
+      );
       if (!rawDraft) {
         return;
       }
@@ -1523,20 +1525,8 @@ export function VideoGenerator({
         <div className="mx-auto max-w-6xl">
           <div className="grid grid-cols-1 gap-8 lg:grid-cols-[minmax(0,1fr)_minmax(0,1fr)]">
             <Card>
-              <CardHeader>
-                {srOnlyTitle && <h2 className="sr-only">{srOnlyTitle}</h2>}
-                <div className="space-y-2 hidden">
-                  <CardTitle className="flex items-center justify-between text-xl font-semibold">
-                    <span className="flex items-center gap-2">
-                      {t("title")}
-                    </span>
-                  </CardTitle>
-                  <p className="text-sm text-muted-foreground">
-                    {t("subtitle")}
-                  </p>
-                </div>
-              </CardHeader>
               <CardContent className="space-y-4 px-4 pb-6 sm:space-y-6 sm:px-6 sm:pb-8">
+                {srOnlyTitle && <h2 className="sr-only">{srOnlyTitle}</h2>}
                 <div className="hidden">
                   <div className="space-y-2">
                     <Label>{t("form.provider")}</Label>
@@ -1594,10 +1584,10 @@ export function VideoGenerator({
                 )}
 
                 {/* Share your heart */}
-                <div className="space-y-3">
+                <div className="space-y-2">
                   <Label
                     htmlFor="user-feeling"
-                    className="flex items-center gap-2 text-base font-semibold"
+                    className="flex items-center gap-2 text-sm font-semibold sm:text-base"
                   >
                     <span>{t("form.step1_label")}</span>
                     <span className="text-red-500 font-semibold">*</span>

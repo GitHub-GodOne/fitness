@@ -73,19 +73,19 @@ export async function ShowcasesPageContent({
 
             <Link
               href="/showcases/submit"
-              className="inline-flex h-11 items-center justify-center rounded-full bg-primary px-5 text-sm font-medium text-primary-foreground"
+              className="inline-flex h-10 items-center justify-center rounded-full bg-primary px-4 text-xs font-medium text-primary-foreground sm:h-11 sm:px-5 sm:text-sm"
             >
               {t('submitCta')}
             </Link>
           </div>
 
           <div className="mx-auto max-w-3xl space-y-3 text-center">
-            <h1 className="text-4xl font-semibold tracking-tight text-foreground sm:text-5xl">
+            <h1 className="text-2xl font-semibold tracking-tight text-foreground sm:text-5xl">
               {activeCategory
                 ? activeCategory.title
                 : t('defaultTitle')}
             </h1>
-            <p className="text-muted-foreground text-lg">
+            <p className="text-sm text-muted-foreground sm:text-lg">
               {activeCategory
                 ? activeCategory.description || t('activeCategoryFallbackDescription')
                 : t('defaultDescription')}
