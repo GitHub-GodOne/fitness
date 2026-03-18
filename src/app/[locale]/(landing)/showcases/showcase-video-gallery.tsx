@@ -92,23 +92,7 @@ export function ShowcaseVideoGallery({
                 className="absolute inset-0 h-full w-full bg-black object-contain"
               />
 
-              <div className="pointer-events-none absolute inset-x-0 top-0 z-10 bg-gradient-to-b from-black/75 via-black/35 to-transparent px-4 py-4 text-white sm:px-6">
-                <div className="max-w-3xl">
-                  <div className="pr-14 text-lg font-semibold sm:pr-16">
-                    {activeVideo.title}
-                  </div>
-                  {activeVideo.description ? (
-                    <p className="mt-1 text-sm text-white/70">
-                      {activeVideo.description}
-                    </p>
-                  ) : null}
-                  <div className="mt-2 text-xs text-white/60">
-                    {new Date(
-                      activeVideo.publishedAt || activeVideo.createdAt
-                    ).toLocaleDateString(locale === 'zh' ? 'zh-CN' : 'en-US')}
-                  </div>
-                </div>
-              </div>
+              {/* Keep the playback surface clean; only show native controls. */}
             </div>
           ) : null}
         </DialogContent>

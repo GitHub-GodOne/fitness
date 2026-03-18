@@ -425,18 +425,7 @@ export function PrayerGallery({
         onOpenChange={() => setSelectedVideo(null)}
       >
         <DialogContent className="!left-0 !top-0 !inset-0 !h-screen !w-screen !max-w-none !translate-x-0 !translate-y-0 rounded-none border-none bg-black/95 p-0">
-          <DialogHeader className="px-6 pt-6 absolute top-0 left-0 right-0 z-10">
-            <div className="min-w-0">
-              <DialogTitle className="line-clamp-1 text-white">
-                {selectedVideo?.prompt || t("generated_videos")}
-              </DialogTitle>
-              {selectedVideo?.finalPrompt ? (
-                <p className="mt-2 line-clamp-2 max-w-3xl text-sm text-white/75">
-                  {selectedVideo.finalPrompt}
-                </p>
-              ) : null}
-            </div>
-          </DialogHeader>
+          {/* Keep the playback surface clean; only show native controls. */}
           <Button
             type="button"
             size="icon"
