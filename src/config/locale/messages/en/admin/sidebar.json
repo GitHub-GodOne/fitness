@@ -147,9 +147,20 @@
           ]
         },
         {
-          "title": "Media Assets",
-          "url": "/admin/media-assets",
-          "icon": "Folder"
+          "title": "File Management",
+          "icon": "Folder",
+          "children": [
+            {
+              "title": "Media Assets",
+              "url": "/admin/media-assets",
+              "icon": "Image"
+            },
+            {
+              "title": "Public Files",
+              "url": "/admin/public-files",
+              "icon": "FileText"
+            }
+          ]
         }
       ]
     }
