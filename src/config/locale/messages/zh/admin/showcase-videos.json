@@ -43,6 +43,10 @@
   },
   "add": {
     "title": "新增案例视频",
+    "fields": {
+      "coverUrlDirectLabel": "或直接粘贴封面图地址",
+      "coverUrlDirectPlaceholder": "https://example.com/cover.jpg"
+    },
     "crumbs": {
       "admin": "后台",
       "videos": "案例视频",
@@ -50,7 +54,9 @@
     },
     "buttons": {
       "submit": "创建案例视频",
-      "chooseVideo": "从资源库选择视频"
+      "chooseVideo": "从资源库选择视频",
+      "uploadVideo": "上传视频",
+      "chooseCover": "从资源库选择封面"
     },
     "messages": {
       "success": "案例视频已创建"
@@ -58,6 +64,10 @@
   },
   "edit": {
     "title": "审核案例视频",
+    "fields": {
+      "coverUrlDirectLabel": "或直接粘贴封面图地址",
+      "coverUrlDirectPlaceholder": "https://example.com/cover.jpg"
+    },
     "crumbs": {
       "admin": "后台",
       "videos": "案例视频",
@@ -65,7 +75,9 @@
     },
     "buttons": {
       "submit": "保存审核结果",
-      "chooseVideo": "从资源库选择视频"
+      "chooseVideo": "从资源库选择视频",
+      "uploadVideo": "上传视频",
+      "chooseCover": "从资源库选择封面"
     },
     "messages": {
       "notFound": "案例视频不存在",

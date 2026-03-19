@@ -75,13 +75,27 @@ export default async function ShowcaseVideoAddPage({
             mediaType: 'video',
             buttonText: t('add.buttons.chooseVideo'),
           },
+          mediaUpload: {
+            mediaType: 'video',
+            path: 'media-library/showcase-videos/video',
+            buttonText: t('add.buttons.uploadVideo'),
+          },
         },
       },
       {
         name: 'coverUrl',
         type: 'upload_image',
         title: t('fields.coverUrl'),
-        metadata: { max: 1 },
+        metadata: {
+          max: 1,
+          allowDirectUrl: true,
+          directUrlLabel: t('add.fields.coverUrlDirectLabel'),
+          directUrlPlaceholder: t('add.fields.coverUrlDirectPlaceholder'),
+          mediaLibraryPicker: {
+            mediaType: 'image',
+            buttonText: t('add.buttons.chooseCover'),
+          },
+        },
       },
       {
         name: 'status',

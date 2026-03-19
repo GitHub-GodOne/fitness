@@ -81,13 +81,27 @@ export default async function ShowcaseVideoEditPage({
             mediaType: 'video',
             buttonText: t('edit.buttons.chooseVideo'),
           },
+          mediaUpload: {
+            mediaType: 'video',
+            path: 'media-library/showcase-videos/video',
+            buttonText: t('edit.buttons.uploadVideo'),
+          },
         },
       },
       {
         name: 'coverUrl',
         type: 'upload_image',
         title: t('fields.coverUrl'),
-        metadata: { max: 1 },
+        metadata: {
+          max: 1,
+          allowDirectUrl: true,
+          directUrlLabel: t('edit.fields.coverUrlDirectLabel'),
+          directUrlPlaceholder: t('edit.fields.coverUrlDirectPlaceholder'),
+          mediaLibraryPicker: {
+            mediaType: 'image',
+            buttonText: t('edit.buttons.chooseCover'),
+          },
+        },
       },
       {
         name: 'status',
