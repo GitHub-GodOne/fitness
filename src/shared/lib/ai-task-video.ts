@@ -161,6 +161,8 @@ export function extractVideoCoverFromAITask(taskResult?: string | null) {
     result?.poster ||
     result?.cover_url ||
     result?.coverUrl ||
+    result?.input_image_url ||
+    result?.inputImageUrl ||
     null;
 
   return cover ? replaceR2Url(cover) : null;
