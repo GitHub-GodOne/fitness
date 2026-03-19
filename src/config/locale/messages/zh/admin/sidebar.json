@@ -51,6 +51,11 @@
               "url": "/admin/posts"
             },
             {
+              "title": "页面",
+              "icon": "FileStack",
+              "url": "/admin/pages"
+            },
+            {
               "title": "翻译管理",
               "icon": "Languages",
               "url": "/admin/translations"

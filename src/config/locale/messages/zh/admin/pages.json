@@ -1,0 +1,62 @@
+{
+  "fields": {
+    "slug": "路由",
+    "title": "标题",
+    "description": "描述",
+    "content": "内容",
+    "locale": "语言",
+    "source_file": "源文件",
+    "override_status": "覆盖状态",
+    "updated_at": "最近覆盖时间",
+    "url": "页面地址"
+  },
+  "list": {
+    "title": "页面",
+    "description": "为 content/pages 下的文件编辑运行时覆盖内容，同时保留 MDX 文件作为默认来源。",
+    "empty": "content/pages 下没有找到静态页面文件。",
+    "crumbs": {
+      "admin": "管理后台",
+      "pages": "页面"
+    },
+    "buttons": {
+      "edit": "编辑覆盖",
+      "view": "查看页面"
+    },
+    "status": {
+      "default": "MDX 默认值",
+      "overridden": "已启用覆盖"
+    }
+  },
+  "edit": {
+    "title": "编辑页面覆盖",
+    "description": "表单会从当前页面内容开始。和 MDX 文件一致的值不会落库，而是自动回退到文件默认值。",
+    "crumbs": {
+      "admin": "管理后台",
+      "pages": "页面",
+      "edit": "编辑覆盖"
+    },
+    "cards": {
+      "source_title": "来源",
+      "source_description": "这些值来自仓库中的 MDX 文件。",
+      "override_title": "覆盖",
+      "override_description": "只有和 MDX 文件不同的值才会保存到数据库。",
+      "current_status": "当前状态",
+      "default_status": "MDX 默认值",
+      "overridden_status": "已启用覆盖",
+      "route": "路由",
+      "file": "文件"
+    },
+    "buttons": {
+      "submit": "保存覆盖",
+      "reset": "重置覆盖",
+      "back": "返回页面列表",
+      "preview": "预览页面"
+    },
+    "messages": {
+      "saved": "页面覆盖已保存",
+      "reset": "页面覆盖已重置",
+      "signin": "请重新登录",
+      "not_found": "未找到静态页面"
+    }
+  }
+}

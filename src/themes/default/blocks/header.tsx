@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import { Menu, X } from "lucide-react";
+import { Menu, Sparkles, X } from "lucide-react";
 
 import { Link, usePathname, useRouter } from "@/core/i18n/navigation";
 import {
@@ -178,20 +178,6 @@ export function Header({ header }: { header: HeaderType }) {
               </AccordionItem>
             );
           })}
-          {/* Create Video buttons at the end of mobile menu */}
-          {header.buttons &&
-            header.buttons.map((button, idx) => (
-              <button
-                key={`btn-${idx}`}
-                onClick={() => {
-                  closeMenu();
-                  navigateWithAuth(button.url || "");
-                }}
-                className="flex items-center justify-between px-4 py-3 text-lg border-b border-border/10 w-full text-left cursor-pointer hover:bg-muted/50"
-              >
-                {button.title}
-              </button>
-            ))}
         </Accordion>
       </nav>
     );
@@ -297,6 +283,19 @@ export function Header({ header }: { header: HeaderType }) {
                 {/* Mobile: Show notification bell + Sign In */}
                 <div className="flex lg:hidden items-center gap-2 overflow-visible">
                   {header.show_notification && user ? <NotificationBell /> : null}
+                  {header.buttons?.map((button, idx) => (
+                    <Button
+                      key={`mobile-cta-${idx}`}
+                      type="button"
+                      size="icon-sm"
+                      className="h-8 w-8 rounded-full bg-primary text-primary-foreground shadow-sm hover:bg-primary/90"
+                      aria-label={button.title}
+                      title={button.title}
+                      onClick={() => navigateWithAuth(button.url || "")}
+                    >
+                      <Sparkles className="size-4" />
+                    </Button>
+                  ))}
                   {header.show_sign ? (
                     <div className="flex-shrink-0">
                       <SignUser userNav={header.user_nav} />

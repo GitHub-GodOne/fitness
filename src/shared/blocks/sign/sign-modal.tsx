@@ -1,11 +1,11 @@
 'use client';
 
 import { useMemo } from 'react';
+import { X } from 'lucide-react';
 import { useSearchParams } from 'next/navigation';
 import { useTranslations } from 'next-intl';
 
 import { usePathname } from '@/core/i18n/navigation';
-import { Button } from '@/shared/components/ui/button';
 import {
   Dialog,
   DialogContent,
@@ -13,15 +13,6 @@ import {
   DialogHeader,
   DialogTitle,
 } from '@/shared/components/ui/dialog';
-import {
-  Drawer,
-  DrawerClose,
-  DrawerContent,
-  DrawerDescription,
-  DrawerFooter,
-  DrawerHeader,
-  DrawerTitle,
-} from '@/shared/components/ui/drawer';
 import { useAppContext } from '@/shared/contexts/app';
 import { useMediaQuery } from '@/shared/hooks/use-media-query';
 
@@ -68,19 +59,30 @@ export function SignModal({ callbackUrl }: { callbackUrl?: string }) {
   }
 
   return (
-    <Drawer open={isShowSignModal} onOpenChange={setIsShowSignModal}>
-      <DrawerContent className="text-foreground">
-        <DrawerHeader className="text-left">
-          <DrawerTitle className="text-foreground">{t('sign_in_title')}</DrawerTitle>
-          <DrawerDescription>{t('sign_in_description')}</DrawerDescription>
-        </DrawerHeader>
-        <SignInForm callbackUrl={effectiveCallbackUrl} className="mt-8 px-4" />
-        <DrawerFooter className="pt-4">
-          <DrawerClose asChild>
-            <Button variant="outline">{t('cancel_title')}</Button>
-          </DrawerClose>
-        </DrawerFooter>
-      </DrawerContent>
-    </Drawer>
+    <Dialog open={isShowSignModal} onOpenChange={setIsShowSignModal}>
+      <DialogContent
+        showCloseButton={false}
+        className="text-foreground inset-x-0 top-0 left-0 flex h-[100dvh] w-screen max-w-none translate-x-0 translate-y-0 flex-col overflow-hidden gap-0 rounded-none border-0 p-0"
+      >
+        <DialogHeader className="relative shrink-0 border-b px-4 py-3 pr-12 text-left">
+          <DialogTitle className="text-foreground">{t('sign_in_title')}</DialogTitle>
+          <DialogDescription>{t('sign_in_description')}</DialogDescription>
+          <button
+            type="button"
+            onClick={() => setIsShowSignModal(false)}
+            className="absolute right-3 top-3 inline-flex h-8 w-8 items-center justify-center rounded-full text-muted-foreground transition hover:bg-muted hover:text-foreground"
+            aria-label={t('cancel_title')}
+          >
+            <X className="size-4" />
+          </button>
+        </DialogHeader>
+        <div className="min-h-0 flex-1 overflow-y-auto overscroll-none px-4 pb-[max(1.5rem,env(safe-area-inset-bottom))] pt-2 [touch-action:pan-y]">
+          <SignInForm
+            callbackUrl={effectiveCallbackUrl}
+            className="mx-auto mt-0 pb-4"
+          />
+        </div>
+      </DialogContent>
+    </Dialog>
   );
 }

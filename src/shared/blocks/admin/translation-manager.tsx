@@ -1,6 +1,6 @@
 'use client';
 
-import { useMemo, useRef, useState, useTransition } from 'react';
+import { useEffect, useMemo, useRef, useState, useTransition } from 'react';
 import { useTranslations } from 'next-intl';
 import { usePathname, useRouter, useSearchParams } from 'next/navigation';
 import { Download, Loader2, RotateCcw, Save, Upload } from 'lucide-react';
@@ -28,6 +28,16 @@ type TranslationRow = {
   overrideValue?: string;
 };
 
+type TranslationSearchMatch = {
+  locale: string;
+  path: string;
+  namespace: string;
+  key: string;
+  defaultValue: string;
+  overrideValue?: string;
+  effectiveValue: string;
+};
+
 const translationTextareaClassName =
   'min-h-[140px] w-full resize-y rounded-md border border-input bg-background px-3 py-2 text-sm leading-6 text-foreground shadow-xs outline-none transition-[color,box-shadow] focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-[3px]';
 
@@ -43,6 +53,9 @@ export function TranslationManager({
   namespaceRoot,
   availableLocales,
   availablePaths,
+  initialSearch,
+  initialGlobalSearch,
+  globalSearchMatches,
   initialRows,
 }: {
   adminLocale: string;
@@ -51,6 +64,9 @@ export function TranslationManager({
   namespaceRoot: string;
   availableLocales: string[];
   availablePaths: string[];
+  initialSearch: string;
+  initialGlobalSearch: string;
+  globalSearchMatches: TranslationSearchMatch[];
   initialRows: TranslationRow[];
 }) {
   const t = useTranslations('admin.translations.manager');
@@ -59,7 +75,8 @@ export function TranslationManager({
   const searchParams = useSearchParams();
   const [importMode, setImportMode] = useState<'merge' | 'replace'>('merge');
   const [isPending, startTransition] = useTransition();
-  const [search, setSearch] = useState('');
+  const [search, setSearch] = useState(initialSearch);
+  const [globalSearch, setGlobalSearch] = useState(initialGlobalSearch);
   const [savingKey, setSavingKey] = useState<string | null>(null);
   const [resettingKey, setResettingKey] = useState<string | null>(null);
   const [importing, setImporting] = useState(false);
@@ -72,6 +89,14 @@ export function TranslationManager({
   const [overrides, setOverrides] = useState<Record<string, string | undefined>>(() =>
     Object.fromEntries(initialRows.map((row) => [row.key, row.overrideValue]))
   );
+
+  useEffect(() => {
+    setSearch(initialSearch);
+  }, [initialSearch]);
+
+  useEffect(() => {
+    setGlobalSearch(initialGlobalSearch);
+  }, [initialGlobalSearch]);
 
   const filteredRows = useMemo(() => {
     const query = search.trim().toLowerCase();
@@ -210,13 +235,64 @@ export function TranslationManager({
     }
   }
 
-  function updateQuery(next: { locale?: string; path?: string }) {
+  function updateQuery(next: {
+    locale?: string;
+    path?: string;
+    search?: string | null;
+    globalSearch?: string | null;
+  }) {
     const params = new URLSearchParams(searchParams.toString());
-    params.set('targetLocale', next.locale ?? targetLocale);
-    params.set('path', next.path ?? namespacePath);
+
+    if (next.locale ?? targetLocale) {
+      params.set('targetLocale', next.locale ?? targetLocale);
+    }
+
+    if (next.path ?? namespacePath) {
+      params.set('path', next.path ?? namespacePath);
+    }
+
+    if (next.search !== undefined) {
+      const value = next.search?.trim();
+      if (value) {
+        params.set('search', value);
+      } else {
+        params.delete('search');
+      }
+    }
+
+    if (next.globalSearch !== undefined) {
+      const value = next.globalSearch?.trim();
+      if (value) {
+        params.set('globalSearch', value);
+      } else {
+        params.delete('globalSearch');
+      }
+    }
 
     startTransition(() => {
       router.replace(`${pathname}?${params.toString()}`);
+    });
+  }
+
+  function handleGlobalSearchSubmit(event: React.FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+    updateQuery({
+      globalSearch,
+    });
+  }
+
+  function clearGlobalSearch() {
+    setGlobalSearch('');
+    updateQuery({
+      globalSearch: null,
+    });
+  }
+
+  function jumpToMatch(match: TranslationSearchMatch) {
+    updateQuery({
+      locale: match.locale,
+      path: match.path,
+      search: match.key,
     });
   }
 
@@ -362,6 +438,86 @@ export function TranslationManager({
               ? `${adminLocale} UI / ${targetLocale} content`
               : targetLocale}
           </div>
+        </div>
+
+        <div className="mt-4 rounded-2xl border bg-muted/10 p-4">
+          <form
+            className="flex flex-col gap-3 lg:flex-row lg:items-end"
+            onSubmit={handleGlobalSearchSubmit}
+          >
+            <div className="flex-1 space-y-2">
+              <Label htmlFor="translation-global-search">
+                {t('filters.globalSearch')}
+              </Label>
+              <Input
+                id="translation-global-search"
+                value={globalSearch}
+                onChange={(event) => setGlobalSearch(event.target.value)}
+                placeholder={t('filters.globalSearchPlaceholder')}
+                className="text-foreground"
+              />
+            </div>
+            <div className="flex gap-2">
+              <Button type="submit" disabled={isPending}>
+                {t('actions.searchAll')}
+              </Button>
+              <Button
+                type="button"
+                variant="outline"
+                onClick={clearGlobalSearch}
+                disabled={!initialGlobalSearch && !globalSearch}
+              >
+                {t('actions.clearSearch')}
+              </Button>
+            </div>
+          </form>
+
+          {initialGlobalSearch ? (
+            <div className="mt-4 space-y-3">
+              <div className="text-sm font-medium">
+                {t('summary.globalSearchResults', {
+                  count: globalSearchMatches.length,
+                  query: initialGlobalSearch,
+                })}
+              </div>
+
+              {globalSearchMatches.length === 0 ? (
+                <div className="rounded-2xl border border-dashed p-4 text-sm text-muted-foreground">
+                  {t('messages.noGlobalSearchResults')}
+                </div>
+              ) : (
+                <div className="grid gap-3">
+                  {globalSearchMatches.map((match) => (
+                    <button
+                      key={`${match.locale}:${match.path}:${match.key}`}
+                      type="button"
+                      onClick={() => jumpToMatch(match)}
+                      className="rounded-2xl border bg-background p-4 text-left transition hover:border-primary/40"
+                    >
+                      <div className="flex flex-col gap-2 lg:flex-row lg:items-center lg:justify-between">
+                        <div className="space-y-1">
+                          <div className="text-xs uppercase tracking-wide text-muted-foreground">
+                            {match.locale} / {match.path}
+                          </div>
+                          <div className="break-all text-sm font-semibold text-foreground">
+                            {match.key}
+                          </div>
+                        </div>
+                        <span className="inline-flex rounded-full border px-3 py-1 text-xs text-muted-foreground">
+                          {match.overrideValue !== undefined
+                            ? t('badges.overridden')
+                            : t('badges.default')}
+                        </span>
+                      </div>
+                      <p className="mt-3 line-clamp-2 text-sm text-muted-foreground">
+                        {match.effectiveValue || match.defaultValue || ' '}
+                      </p>
+                    </button>
+                  ))}
+                </div>
+              )}
+            </div>
+          ) : null}
         </div>
 
         <div className="mt-4 flex flex-col gap-3 xl:flex-row xl:items-end xl:justify-between">

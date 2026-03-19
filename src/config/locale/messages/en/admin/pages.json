@@ -1,0 +1,62 @@
+{
+  "fields": {
+    "slug": "Slug",
+    "title": "Title",
+    "description": "Description",
+    "content": "Content",
+    "locale": "Locale",
+    "source_file": "Source File",
+    "override_status": "Override Status",
+    "updated_at": "Last Override Update",
+    "url": "Page URL"
+  },
+  "list": {
+    "title": "Pages",
+    "description": "Edit runtime overrides for files under content/pages while keeping the MDX files as the default source of truth.",
+    "empty": "No static pages found in content/pages.",
+    "crumbs": {
+      "admin": "Admin",
+      "pages": "Pages"
+    },
+    "buttons": {
+      "edit": "Edit Override",
+      "view": "View Page"
+    },
+    "status": {
+      "default": "MDX default",
+      "overridden": "Override active"
+    }
+  },
+  "edit": {
+    "title": "Edit Page Override",
+    "description": "The form starts from the current page content. Matching the MDX file value will automatically fall back to the file instead of storing a duplicate override.",
+    "crumbs": {
+      "admin": "Admin",
+      "pages": "Pages",
+      "edit": "Edit Override"
+    },
+    "cards": {
+      "source_title": "Source",
+      "source_description": "These values come from the checked-in MDX file.",
+      "override_title": "Override",
+      "override_description": "Only values different from the MDX file will be saved to the database.",
+      "current_status": "Current Status",
+      "default_status": "MDX default",
+      "overridden_status": "Override active",
+      "route": "Route",
+      "file": "File"
+    },
+    "buttons": {
+      "submit": "Save Override",
+      "reset": "Reset Override",
+      "back": "Back to Pages",
+      "preview": "Preview Page"
+    },
+    "messages": {
+      "saved": "Page override saved",
+      "reset": "Page override reset",
+      "signin": "Please sign in again",
+      "not_found": "Static page not found"
+    }
+  }
+}
