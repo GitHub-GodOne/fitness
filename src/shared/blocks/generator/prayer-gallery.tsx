@@ -16,6 +16,7 @@ import { toast } from "sonner";
 import { AITaskStatus } from "@/extensions/ai/types";
 import { Button } from "@/shared/components/ui/button";
 import { Card, CardContent, CardHeader } from "@/shared/components/ui/card";
+import { Skeleton } from "@/shared/components/ui/skeleton";
 import { ShareButton } from "@/shared/blocks/common/share-button";
 import {
   Dialog,
@@ -248,12 +249,15 @@ export function PrayerGallery({
                       >
                         {videoUrl && task.status === AITaskStatus.SUCCESS ? (
                           coverUrl ? (
-                            <img
-                              src={coverUrl}
-                              alt={task.prompt || finalPrompt || "Prayer video"}
-                              loading="lazy"
-                              className="h-full w-full object-cover"
-                            />
+                            <>
+                              <Skeleton className="absolute inset-0 rounded-none" />
+                              <img
+                                src={coverUrl}
+                                alt={task.prompt || finalPrompt || "Prayer video"}
+                                loading="lazy"
+                                className="relative z-10 h-full w-full object-cover"
+                              />
+                            </>
                           ) : (
                             <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-primary/10 to-primary/20">
                               <span className="text-4xl">🙏</span>

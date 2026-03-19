@@ -1,13 +1,13 @@
 import { ReactNode } from 'react';
 import { getTranslations } from 'next-intl/server';
 
-import { getThemeLayout } from '@/core/theme';
+import { getThemeLayout, resolveActiveTheme } from '@/core/theme';
 import {
   GuestPageAccessGuard,
   LocaleDetector,
   TopBanner,
 } from '@/shared/blocks/common';
-import { getConfigs } from '@/shared/models/config';
+import { getAllConfigs } from '@/shared/models/config';
 import { parseGuestAccessPaths } from '@/shared/lib/guest-access';
 import {
   Footer as FooterType,
@@ -22,11 +22,13 @@ export default async function LandingLayout({
   // load page data
   const [t, configs] = await Promise.all([
     getTranslations('landing'),
-    getConfigs(),
+    getAllConfigs(),
   ]);
 
+  const activeTheme = resolveActiveTheme(configs);
+
   // load layout component
-  const Layout = await getThemeLayout('landing');
+  const Layout = await getThemeLayout('landing', activeTheme);
 
   // header and footer to display
   const header: HeaderType = t.raw('header');

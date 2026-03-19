@@ -37,6 +37,7 @@ import {
 } from "@/shared/components/ui/card";
 import { Label } from "@/shared/components/ui/label";
 import { Progress } from "@/shared/components/ui/progress";
+import { Skeleton } from "@/shared/components/ui/skeleton";
 import {
   Select,
   SelectContent,
@@ -1972,11 +1973,12 @@ export function VideoGenerator({
                     {generatedVideos.map((video) => (
                       <div key={video.id} className="space-y-3">
                         <div className="relative overflow-hidden rounded-lg border">
+                          <Skeleton className="absolute inset-0 rounded-none" />
                           <video
                             src={video.url}
                             controls
                             loop
-                            className="h-auto w-full"
+                            className="relative z-10 h-auto w-full"
                             preload="none"
                             poster={video.poster || referenceImageUrls[0] || undefined}
                           />

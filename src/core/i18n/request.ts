@@ -1,3 +1,4 @@
+import { unstable_cache } from 'next/cache';
 import { getRequestConfig } from 'next-intl/server';
 
 import {
@@ -6,7 +7,10 @@ import {
   localeMessagesRootPath,
 } from '@/config/locale';
 import { applyMessageOverride } from '@/shared/lib/i18n-messages';
-import { getI18nMessageOverrides } from '@/shared/models/i18n-message';
+import {
+  CACHE_TAG_I18N_MESSAGES,
+  getI18nMessageOverrides,
+} from '@/shared/models/i18n-message';
 
 import { routing } from './config';
 
@@ -34,23 +38,12 @@ export async function loadMessages(
   }
 }
 
-export default getRequestConfig(async ({ requestLocale }) => {
-  let locale = await requestLocale;
-  if (!locale || !routing.locales.includes(locale as string)) {
-    locale = routing.defaultLocale;
-  }
-
-  if (['zh-CN'].includes(locale)) {
-    locale = 'zh';
-  }
-
-  try {
-    // load all local messages
+const getMergedLocaleMessages = unstable_cache(
+  async (locale: string) => {
     const allMessages = await Promise.all(
       localeMessagesPaths.map((path) => loadMessages(path, locale))
     );
 
-    // merge all local messages
     const messages: any = {};
 
     localeMessagesPaths.forEach((path, index) => {
@@ -77,6 +70,28 @@ export default getRequestConfig(async ({ requestLocale }) => {
     } catch (error) {
       console.error('[i18n] failed to load message overrides:', error);
     }
+
+    return messages;
+  },
+  ['merged-locale-messages'],
+  {
+    revalidate: 3600,
+    tags: [CACHE_TAG_I18N_MESSAGES],
+  }
+);
+
+export default getRequestConfig(async ({ requestLocale }) => {
+  let locale = await requestLocale;
+  if (!locale || !routing.locales.includes(locale as string)) {
+    locale = routing.defaultLocale;
+  }
+
+  if (['zh-CN'].includes(locale)) {
+    locale = 'zh';
+  }
+
+  try {
+    const messages = await getMergedLocaleMessages(locale);
 
     return {
       locale,

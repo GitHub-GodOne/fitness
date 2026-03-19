@@ -3,6 +3,7 @@ import { notFound } from 'next/navigation';
 import { ArrowLeft } from 'lucide-react';
 
 import { Link } from '@/core/i18n/navigation';
+import { Skeleton } from '@/shared/components/ui/skeleton';
 import { getConfigs } from '@/shared/models/config';
 import {
   getShowcaseVideos,
@@ -138,11 +139,14 @@ export async function ShowcasesPageContent({
               >
                 <div className="relative aspect-[16/10] bg-muted">
                   {item.image ? (
+                    <Skeleton className="absolute inset-0 rounded-none" />
+                  ) : null}
+                  {item.image ? (
                     <img
                       src={item.image}
                       alt={item.title}
                       loading="lazy"
-                      className="h-full w-full object-cover transition duration-300 group-hover:scale-[1.02]"
+                      className="relative z-10 h-full w-full object-cover transition duration-300 group-hover:scale-[1.02]"
                     />
                   ) : (
                     <div className="flex h-full w-full items-center justify-center bg-gradient-to-br from-primary/10 via-secondary/10 to-accent/10">

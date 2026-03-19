@@ -11,6 +11,7 @@ import {
   DialogDescription,
   DialogTitle,
 } from '@/shared/components/ui/dialog';
+import { Skeleton } from '@/shared/components/ui/skeleton';
 import type { ShowcaseVideo } from '@/shared/models/showcase-video';
 
 export function ShowcaseVideoGallery({
@@ -35,12 +36,15 @@ export function ShowcaseVideoGallery({
           >
             <div className="relative aspect-[16/10] shrink-0 overflow-hidden bg-muted">
               {video.coverUrl ? (
-                <img
-                  src={video.coverUrl}
-                  alt={video.title}
-                  loading="lazy"
-                  className="h-full w-full object-cover transition duration-300 group-hover:scale-[1.02]"
-                />
+                <>
+                  <Skeleton className="absolute inset-0 rounded-none" />
+                  <img
+                    src={video.coverUrl}
+                    alt={video.title}
+                    loading="lazy"
+                    className="relative z-10 h-full w-full object-cover transition duration-300 group-hover:scale-[1.02]"
+                  />
+                </>
               ) : (
                 <div className="flex h-full w-full items-center justify-center bg-gradient-to-br from-primary/10 via-secondary/10 to-accent/10">
                   <span className="text-3xl font-semibold text-foreground/70">
