@@ -8,6 +8,12 @@ const intlMiddleware = createIntlMiddleware(routing);
 
 export async function proxy(request: NextRequest) {
   const { pathname } = request.nextUrl;
+  const isRscRequest =
+    request.nextUrl.searchParams.has('_rsc') ||
+    request.headers.has('rsc') ||
+    request.headers.has('next-router-state-tree') ||
+    request.headers.has('next-router-prefetch') ||
+    request.headers.has('next-router-segment-prefetch');
 
   // Handle internationalization first
   const intlResponse = intlMiddleware(request);
@@ -57,7 +63,8 @@ export async function proxy(request: NextRequest) {
     !pathWithoutLocale.startsWith('/settings') &&
     !pathWithoutLocale.startsWith('/activity') &&
     !pathWithoutLocale.startsWith('/sign-') &&
-    !pathWithoutLocale.startsWith('/auth')
+    !pathWithoutLocale.startsWith('/auth') &&
+    !isRscRequest
   ) {
     intlResponse.headers.delete('Set-Cookie');
 
@@ -67,6 +74,13 @@ export async function proxy(request: NextRequest) {
     intlResponse.headers.set('Cache-Control', cacheControl);
     intlResponse.headers.set('CDN-Cache-Control', cacheControl);
     intlResponse.headers.set('Cloudflare-CDN-Cache-Control', cacheControl);
+  } else if (isRscRequest) {
+    intlResponse.headers.set('Cache-Control', 'private, no-store, max-age=0');
+    intlResponse.headers.set('CDN-Cache-Control', 'private, no-store, max-age=0');
+    intlResponse.headers.set(
+      'Cloudflare-CDN-Cache-Control',
+      'private, no-store, max-age=0',
+    );
   }
 
   // For all other routes (including /, /sign-in, /sign-up, /sign-out), just return the intl response

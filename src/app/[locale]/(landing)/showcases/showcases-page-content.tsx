@@ -11,6 +11,7 @@ import {
 } from '@/shared/models/showcase-video';
 import { getTaxonomies, TaxonomyStatus, TaxonomyType } from '@/shared/models/taxonomy';
 
+import { ShowcasesBackLink } from './showcases-back-link';
 import { ShowcaseVideoGallery } from './showcase-video-gallery';
 
 export async function ShowcasesPageContent({
@@ -60,14 +61,14 @@ export async function ShowcasesPageContent({
         <section className="space-y-4">
           <div className="flex items-center justify-between gap-4">
             {showcaseDisplayMode === 'cards' && activeCategory ? (
-              <Link
+              <ShowcasesBackLink
                 href="/showcases"
                 className="inline-flex h-10 w-10 items-center justify-center rounded-full border text-muted-foreground transition hover:border-primary/40 hover:text-foreground"
-                aria-label={t('backToCategories')}
+                ariaLabel={t('backToCategories')}
                 title={t('backToCategories')}
               >
                 <ArrowLeft className="size-4" />
-              </Link>
+              </ShowcasesBackLink>
             ) : (
               <div />
             )}
