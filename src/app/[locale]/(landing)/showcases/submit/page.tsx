@@ -191,8 +191,8 @@ export default async function ShowcaseSubmitPage({
   };
 
   return (
-    <div className="container px-4 sm:px-6 pb-16 pt-20 sm:pt-24 lg:pt-28">
-      <div className="mx-auto max-w-6xl space-y-6 sm:space-y-8">
+    <div className="container overflow-x-hidden px-4 pb-16 pt-20 sm:px-6 sm:pt-24 lg:pt-28">
+      <div className="mx-auto min-w-0 max-w-6xl space-y-6 sm:space-y-8">
         <div className="space-y-2 sm:space-y-3">
           <Link
             href="/showcases"

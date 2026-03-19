@@ -503,7 +503,7 @@ export function ImageUploader({
   return (
     <div
       className={cn(
-        "relative focus:outline-none",
+        "relative min-w-0 max-w-full focus:outline-none",
         isDragActive &&
           "ring-primary/70 ring-offset-background ring-2 ring-offset-2",
         className,

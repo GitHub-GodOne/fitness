@@ -37,9 +37,15 @@ export default async function LandingLayout({
   const guestPagePopupPaths = parseGuestAccessPaths(
     configs.guest_page_popup_paths
   );
+  const mobileHeaderNavMode =
+    configs.mobile_header_nav_mode === 'tabs' ? 'tabs' : 'accordion';
 
   return (
-    <Layout header={header} footer={footer}>
+    <Layout
+      header={header}
+      footer={footer}
+      mobileHeaderNavMode={mobileHeaderNavMode}
+    >
       <LocaleDetector />
       <GuestPageAccessGuard
         enabled={guestPagePopupEnabled}

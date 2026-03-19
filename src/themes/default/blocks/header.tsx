@@ -49,7 +49,13 @@ function NavigationMenuTrigger(
   return <RawNavigationMenuTrigger {...props} />;
 }
 
-export function Header({ header }: { header: HeaderType }) {
+export function Header({
+  header,
+  mobileNavMode = "accordion",
+}: {
+  header: HeaderType;
+  mobileNavMode?: "accordion" | "tabs";
+}) {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isScrolled, setIsScrolled] = useState(false);
   const isLarge = useMedia("(min-width: 64rem)");
@@ -68,6 +74,28 @@ export function Header({ header }: { header: HeaderType }) {
     window.addEventListener("scroll", handleScroll);
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
+
+  const showMobileTabs =
+    mobileNavMode === "tabs" && (header.nav?.items?.length || 0) > 0;
+
+  useEffect(() => {
+    if (showMobileTabs && isMobileMenuOpen) {
+      setIsMobileMenuOpen(false);
+    }
+  }, [showMobileTabs, isMobileMenuOpen]);
+
+  const isNavItemActive = (url?: string) => {
+    if (!url) return false;
+    if (!url.startsWith("/")) return false;
+
+    const normalizedPath = pathname === "/" ? "/" : pathname.replace(/\/$/, "");
+    const normalizedUrl = url === "/" ? "/" : url.replace(/\/$/, "");
+
+    return (
+      normalizedPath === normalizedUrl ||
+      normalizedPath.startsWith(`${normalizedUrl}/`)
+    );
+  };
 
   // Navigation menu for large screens
   const NavMenu = () => {
@@ -229,9 +257,13 @@ export function Header({ header }: { header: HeaderType }) {
       >
         <div
           className={cn(
-            "absolute inset-x-0 top-0 z-50 h-18 bg-background border-b border-border ring-1 ring-transparent transition-all duration-300",
+            "absolute inset-x-0 top-0 z-50 bg-background border-b border-border ring-1 ring-transparent transition-all duration-300",
             "has-data-[state=open]:ring-foreground/5 has-data-[state=open]:bg-card has-data-[state=open]:h-[calc(var(--navigation-menu-viewport-height)+3.4rem)] has-data-[state=open]:shadow-lg has-data-[state=open]:shadow-black/10",
-            "max-lg:in-data-[state=active]:bg-background max-lg:h-14 max-lg:overflow-hidden max-lg:in-data-[state=active]:h-screen",
+            "h-18",
+            showMobileTabs
+              ? "max-lg:h-24 max-lg:in-data-[state=active]:h-24"
+              : "max-lg:h-14 max-lg:overflow-hidden max-lg:in-data-[state=active]:h-screen",
+            "max-lg:in-data-[state=active]:bg-background",
           )}
         >
           <div className="container px-4 sm:px-6 md:px-8">
@@ -304,21 +336,54 @@ export function Header({ header }: { header: HeaderType }) {
                 </div>
 
                 {/* Mobile menu button */}
-                <button
-                  onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-                  aria-label={
-                    isMobileMenuOpen == true ? "Close Menu" : "Open Menu"
-                  }
-                  className="relative z-20 -m-2.5 block cursor-pointer p-2.5 lg:hidden"
-                >
-                  <Menu className="m-auto size-5 duration-200 in-data-[state=active]:scale-0 in-data-[state=active]:rotate-180 in-data-[state=active]:opacity-0" />
-                  <X className="absolute inset-0 m-auto size-5 scale-0 -rotate-180 opacity-0 duration-200 in-data-[state=active]:scale-100 in-data-[state=active]:rotate-0 in-data-[state=active]:opacity-100" />
-                </button>
+                {!showMobileTabs ? (
+                  <button
+                    onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+                    aria-label={
+                      isMobileMenuOpen == true ? "Close Menu" : "Open Menu"
+                    }
+                    className="relative z-20 -m-2.5 block cursor-pointer p-2.5 lg:hidden"
+                  >
+                    <Menu className="m-auto size-5 duration-200 in-data-[state=active]:scale-0 in-data-[state=active]:rotate-180 in-data-[state=active]:opacity-0" />
+                    <X className="absolute inset-0 m-auto size-5 scale-0 -rotate-180 opacity-0 duration-200 in-data-[state=active]:scale-100 in-data-[state=active]:rotate-0 in-data-[state=active]:opacity-100" />
+                  </button>
+                ) : null}
               </div>
             </div>
 
+            {showMobileTabs ? (
+              <div className="lg:hidden border-t border-border/70">
+                <div className="scrollbar-hide -mx-4 overflow-x-auto px-4 sm:-mx-6 sm:px-6 md:-mx-8 md:px-8">
+                  <nav
+                    aria-label="Mobile navigation tabs"
+                    className="flex h-10 min-w-max items-center gap-4"
+                  >
+                    {header.nav?.items?.map((item, idx) => {
+                      const isActive = isNavItemActive(item.url);
+
+                      return (
+                        <Link
+                          key={`${item.title}-${idx}`}
+                          href={item.url || ""}
+                          target={item.target || "_self"}
+                          className={cn(
+                            "inline-flex h-8 shrink-0 items-center whitespace-nowrap px-0.5 text-sm transition-colors",
+                            isActive
+                              ? "font-medium text-foreground"
+                              : "text-muted-foreground",
+                          )}
+                        >
+                          {item.title}
+                        </Link>
+                      );
+                    })}
+                  </nav>
+                </div>
+              </div>
+            ) : null}
+
             {/* Mobile menu */}
-            {!isLarge && isMobileMenuOpen && (
+            {!isLarge && !showMobileTabs && isMobileMenuOpen && (
               <MobileMenu closeMenu={() => setIsMobileMenuOpen(false)} />
             )}
           </div>

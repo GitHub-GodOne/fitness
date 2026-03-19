@@ -430,6 +430,19 @@ export async function getSettings() {
       tab: 'general',
     },
     {
+      name: 'mobile_header_nav_mode',
+      title: 'Mobile Header Navigation',
+      type: 'select',
+      value: 'accordion',
+      options: [
+        { title: 'Accordion Menu', value: 'accordion' },
+        { title: 'Sticky Tabs', value: 'tabs' },
+      ],
+      tip: 'Accordion keeps the hamburger menu. Sticky Tabs shows top-level navigation as a horizontal bar fixed under the mobile header.',
+      group: 'appinfo',
+      tab: 'general',
+    },
+    {
       name: 'guest_page_popup_enabled',
       title: 'Enable Guest Login Popup Protection',
       type: 'switch',
