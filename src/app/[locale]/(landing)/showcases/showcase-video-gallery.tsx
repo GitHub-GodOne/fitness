@@ -34,14 +34,22 @@ export function ShowcaseVideoGallery({
             className="group flex h-full flex-col overflow-hidden rounded-3xl border bg-card text-left transition hover:border-primary/40 hover:shadow-sm"
           >
             <div className="relative aspect-[16/10] shrink-0 overflow-hidden bg-muted">
-              <video
-                src={video.videoUrl}
-                poster={video.coverUrl || undefined}
-                preload="metadata"
-                muted
-                playsInline
-                className="h-full w-full object-cover transition duration-300 group-hover:scale-[1.02]"
-              />
+              {video.coverUrl ? (
+                <img
+                  src={video.coverUrl}
+                  alt={video.title}
+                  loading="lazy"
+                  className="h-full w-full object-cover transition duration-300 group-hover:scale-[1.02]"
+                />
+              ) : (
+                <div className="flex h-full w-full items-center justify-center bg-gradient-to-br from-primary/10 via-secondary/10 to-accent/10">
+                  <span className="text-3xl font-semibold text-foreground/70">
+                    {video.title.slice(0, 1)}
+                  </span>
+                </div>
+              )}
+
+              <div className="pointer-events-none absolute inset-0 bg-black/0 transition group-hover:bg-black/10" />
             </div>
 
             <div className="flex flex-1 flex-col space-y-3 p-5">

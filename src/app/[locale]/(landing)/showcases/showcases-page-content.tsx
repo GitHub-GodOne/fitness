@@ -71,12 +71,16 @@ export async function ShowcasesPageContent({
               <div />
             )}
 
-            <Link
-              href="/showcases/submit"
-              className="inline-flex h-10 items-center justify-center rounded-full bg-primary px-4 text-xs font-medium text-primary-foreground sm:h-11 sm:px-5 sm:text-sm"
-            >
-              {t('submitCta')}
-            </Link>
+            {activeCategory ? (
+              <Link
+                href="/showcases/submit"
+                className="inline-flex h-9 items-center justify-center rounded-full bg-primary px-3.5 text-[11px] font-medium text-primary-foreground sm:h-11 sm:px-5 sm:text-sm"
+              >
+                {t('submitCta')}
+              </Link>
+            ) : (
+              <div />
+            )}
           </div>
 
           <div className="mx-auto max-w-3xl space-y-3 text-center">

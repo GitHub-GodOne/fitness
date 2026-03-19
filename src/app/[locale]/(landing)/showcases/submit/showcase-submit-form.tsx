@@ -136,23 +136,23 @@ export function ShowcaseSubmitForm({
 
     return (
       <>
-        <div className="overflow-hidden rounded-3xl border bg-black">
+        <div className="overflow-hidden rounded-2xl border bg-black sm:rounded-3xl">
           <video
             key={selectedTask.id}
             controls
             preload="metadata"
             poster={coverUrl || selectedTask.coverUrl || undefined}
             src={selectedTask.videoUrl}
-            className="aspect-[9/16] w-full object-cover"
+            className="aspect-[9/16] max-h-[58svh] w-full object-contain sm:max-h-none"
           />
         </div>
 
-        <div className="space-y-3">
-          <div className="flex items-center gap-2 text-sm text-muted-foreground">
+        <div className="space-y-2.5 sm:space-y-3">
+          <div className="flex items-center gap-2 text-xs text-muted-foreground sm:text-sm">
             <PlayCircle className="size-4" />
             <span>{t('previewLabel')}</span>
           </div>
-          <h3 className="text-xl font-semibold text-foreground">{selectedTask.title}</h3>
+          <h3 className="text-lg font-semibold text-foreground sm:text-xl">{selectedTask.title}</h3>
           {selectedTask.description ? (
             <p className="text-sm text-muted-foreground">{selectedTask.description}</p>
           ) : null}
@@ -164,9 +164,9 @@ export function ShowcaseSubmitForm({
   return (
     <form
       onSubmit={handleSubmit}
-      className="grid gap-6 sm:gap-8 xl:grid-cols-[minmax(0,1.2fr)_minmax(360px,0.9fr)]"
+      className="grid gap-5 sm:gap-6 lg:grid-cols-[minmax(0,1.08fr)_minmax(280px,0.92fr)] xl:grid-cols-[minmax(0,1.18fr)_minmax(340px,0.9fr)]"
     >
-      <div className="space-y-4 sm:space-y-6 rounded-2xl sm:rounded-3xl border bg-card p-4 sm:p-6">
+      <div className="space-y-4 sm:space-y-5 rounded-2xl sm:rounded-3xl border bg-card p-4 sm:p-5 lg:p-6">
         <div className="space-y-1.5 sm:space-y-2">
           <h2 className="text-xl sm:text-2xl font-semibold text-foreground">{t('panelTitle')}</h2>
           <p className="text-xs sm:text-sm text-muted-foreground">{t('panelDescription')}</p>
@@ -188,17 +188,17 @@ export function ShowcaseSubmitForm({
           </Select>
         </div>
 
-        <div className="xl:hidden">
+        <div className="lg:hidden">
           <Collapsible open={mobilePreviewOpen} onOpenChange={setMobilePreviewOpen}>
-            <div className="rounded-3xl border bg-card/60">
+            <div className="rounded-2xl border bg-card/60 sm:rounded-3xl">
               <CollapsibleTrigger asChild>
                 <button
                   type="button"
-                  className="flex w-full items-center justify-between gap-4 px-4 py-4 text-left"
+                  className="flex w-full items-center justify-between gap-4 px-4 py-3.5 text-left sm:px-5 sm:py-4"
                 >
                   <div className="space-y-1">
-                    <div className="text-lg font-semibold text-foreground">{t('mobilePreviewTitle')}</div>
-                    <p className="text-sm text-muted-foreground">{t('mobilePreviewDescription')}</p>
+                    <div className="text-base font-semibold text-foreground sm:text-lg">{t('mobilePreviewTitle')}</div>
+                    <p className="text-xs text-muted-foreground sm:text-sm">{t('mobilePreviewDescription')}</p>
                   </div>
                   <ChevronDown
                     className={`size-5 shrink-0 transition-transform ${
@@ -208,7 +208,7 @@ export function ShowcaseSubmitForm({
                 </button>
               </CollapsibleTrigger>
 
-              <CollapsibleContent className="space-y-4 px-4 pb-4">
+              <CollapsibleContent className="space-y-4 px-4 pb-4 sm:px-5 sm:pb-5">
                 {renderPreviewBody()}
               </CollapsibleContent>
             </div>
@@ -273,9 +273,9 @@ export function ShowcaseSubmitForm({
         </Button>
       </div>
 
-      <div className="hidden space-y-4 rounded-3xl border bg-card p-6 xl:block">
+      <div className="hidden space-y-4 rounded-3xl border bg-card p-5 lg:block xl:p-6">
         <div className="space-y-2">
-          <h2 className="text-2xl font-semibold text-foreground">{t('mobilePreviewTitle')}</h2>
+          <h2 className="text-xl font-semibold text-foreground xl:text-2xl">{t('mobilePreviewTitle')}</h2>
           <p className="text-sm text-muted-foreground">{t('mobilePreviewDescription')}</p>
         </div>
 

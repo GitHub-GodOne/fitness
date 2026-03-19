@@ -150,8 +150,14 @@ export function extractVideoUrlFromAITask(params: {
 export function extractVideoCoverFromAITask(taskResult?: string | null) {
   const result = parseJson(taskResult);
   const cover =
+    result?.videos?.[0]?.thumbnailUrl ||
+    result?.videos?.[0]?.thumbnail_url ||
+    result?.content?.thumbnail_url ||
+    result?.content?.thumbnailUrl ||
     result?.last_frame_image ||
     result?.saved_last_frame_image ||
+    result?.saved_last_frame_url ||
+    result?.last_frame_url ||
     result?.poster ||
     result?.cover_url ||
     result?.coverUrl ||

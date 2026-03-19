@@ -20,13 +20,14 @@ import { ShareButton } from "@/shared/blocks/common/share-button";
 import {
   Dialog,
   DialogContent,
-  DialogHeader,
+  DialogDescription,
   DialogTitle,
 } from "@/shared/components/ui/dialog";
 import { VideoGiftButton } from "@/shared/blocks/generator/video-gift-button";
 import {
   extractFinalPromptFromAITask,
   extractVerseReferenceFromAITask,
+  extractVideoCoverFromAITask,
   extractVideoUrlFromAITask,
 } from "@/shared/lib/ai-task-video";
 
@@ -67,6 +68,7 @@ export function PrayerGallery({
   const t = useTranslations("ai.video.generator");
   const [selectedVideo, setSelectedVideo] = useState<{
     url: string;
+    poster?: string | null;
     prompt: string | null;
     finalPrompt: string;
   } | null>(null);
@@ -219,6 +221,7 @@ export function PrayerGallery({
                     options: task.options,
                     taskResult: task.taskResult,
                   });
+                  const coverUrl = extractVideoCoverFromAITask(task.taskResult);
                   const statusDisplay = getStatusDisplay(task.status);
                   const isProcessing =
                     task.status === AITaskStatus.PROCESSING ||
@@ -237,17 +240,25 @@ export function PrayerGallery({
                           task.status === AITaskStatus.SUCCESS &&
                           setSelectedVideo({
                             url: videoUrl,
+                            poster: coverUrl,
                             prompt: task.prompt,
                             finalPrompt,
                           })
                         }
                       >
                         {videoUrl && task.status === AITaskStatus.SUCCESS ? (
-                          <video
-                            src={videoUrl}
-                            className="w-full h-full object-cover"
-                            preload="metadata"
-                          />
+                          coverUrl ? (
+                            <img
+                              src={coverUrl}
+                              alt={task.prompt || finalPrompt || "Prayer video"}
+                              loading="lazy"
+                              className="h-full w-full object-cover"
+                            />
+                          ) : (
+                            <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-primary/10 to-primary/20">
+                              <span className="text-4xl">🙏</span>
+                            </div>
+                          )
                         ) : (
                           <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-primary/5 to-primary/10">
                             {isProcessing ? (
@@ -276,6 +287,7 @@ export function PrayerGallery({
                               onClick={() =>
                                 setSelectedVideo({
                                   url: videoUrl!,
+                                  poster: coverUrl,
                                   prompt: task.prompt,
                                   finalPrompt,
                                 })
@@ -334,6 +346,7 @@ export function PrayerGallery({
                               onClick={() =>
                                 setSelectedVideo({
                                   url: videoUrl,
+                                  poster: coverUrl,
                                   prompt: task.prompt,
                                   finalPrompt,
                                 })
@@ -425,6 +438,10 @@ export function PrayerGallery({
         onOpenChange={() => setSelectedVideo(null)}
       >
         <DialogContent className="!left-0 !top-0 !inset-0 !h-screen !w-screen !max-w-none !translate-x-0 !translate-y-0 rounded-none border-none bg-black/95 p-0">
+          <div className="sr-only">
+            <DialogTitle>{selectedVideo?.prompt || t("history.title")}</DialogTitle>
+            <DialogDescription>{selectedVideo?.finalPrompt || t("history.play")}</DialogDescription>
+          </div>
           {/* Keep the playback surface clean; only show native controls. */}
           <Button
             type="button"
@@ -441,6 +458,7 @@ export function PrayerGallery({
             {selectedVideo && (
               <video
                 src={selectedVideo.url}
+                poster={selectedVideo.poster || undefined}
                 controls
                 autoPlay
                 loop
