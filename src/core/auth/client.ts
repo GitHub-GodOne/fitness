@@ -3,6 +3,16 @@ import { createAuthClient } from 'better-auth/react';
 
 import { envConfigs } from '@/config';
 
+function getAuthClientBaseURL() {
+  // In the browser, let better-auth resolve the current origin so
+  // `www` and apex domains both call their own same-origin `/api/auth`.
+  if (typeof window !== 'undefined') {
+    return undefined;
+  }
+
+  return envConfigs.auth_url || undefined;
+}
+
 function createGetSessionThrottledFetch({
   minIntervalMs,
 }: {
@@ -81,7 +91,7 @@ const AUTH_GET_SESSION_MIN_INTERVAL_MS =
 
 // create default auth client, without plugins
 export const authClient = createAuthClient({
-  baseURL: envConfigs.auth_url,
+  baseURL: getAuthClientBaseURL(),
   fetchOptions: {
     // Avoid amplifying request storms (e.g. during env/db switching in dev).
     retry: 1,
@@ -97,7 +107,7 @@ export const { useSession, signIn, signUp, signOut } = authClient;
 // get auth client with plugins
 export function getAuthClient(configs: Record<string, string>) {
   const authClient = createAuthClient({
-    baseURL: envConfigs.auth_url,
+    baseURL: getAuthClientBaseURL(),
     plugins: getAuthPlugins(configs),
     fetchOptions: {
       // Avoid amplifying request storms (e.g. during env/db switching in dev).

@@ -15,21 +15,73 @@ import { getClientIp } from '@/shared/lib/ip';
 import { grantCreditsForNewUser } from '@/shared/models/credit';
 import { grantRoleForNewUser } from '@/shared/services/rbac';
 
+function getOriginVariants(url: string) {
+  if (!url) return [];
+
+  try {
+    const { protocol, hostname, port } = new URL(url);
+    const origin = `${protocol}//${hostname}${port ? `:${port}` : ''}`;
+    const alternateHostname = hostname.startsWith('www.')
+      ? hostname.slice(4)
+      : `www.${hostname}`;
+    const alternateOrigin =
+      hostname === alternateHostname
+        ? origin
+        : `${protocol}//${alternateHostname}${port ? `:${port}` : ''}`;
+
+    return [origin, alternateOrigin].filter(
+      (value, index, self) => self.indexOf(value) === index
+    );
+  } catch {
+    return [];
+  }
+}
+
+function getCrossSubDomainCookieDomain() {
+  const configuredDomain = envConfigs.auth_cookie_domain.trim();
+  if (configuredDomain) {
+    return configuredDomain.startsWith('.')
+      ? configuredDomain
+      : `.${configuredDomain}`;
+  }
+
+  const sourceUrl = envConfigs.auth_url || envConfigs.app_url;
+  if (!sourceUrl) return undefined;
+
+  try {
+    const { hostname } = new URL(sourceUrl);
+    if (
+      !hostname ||
+      hostname === 'localhost' ||
+      hostname.endsWith('.localhost') ||
+      /^[\d.:]+$/.test(hostname)
+    ) {
+      return undefined;
+    }
+
+    const cookieDomain = hostname.replace(/^www\./, '');
+    return cookieDomain.includes('.') ? `.${cookieDomain}` : undefined;
+  } catch {
+    return undefined;
+  }
+}
+
+const trustedOrigins = [envConfigs.app_url, envConfigs.auth_url]
+  .flatMap(getOriginVariants)
+  .filter((value, index, self) => self.indexOf(value) === index);
+
+const crossSubDomainCookieDomain = getCrossSubDomainCookieDomain();
+const useSecureCookies =
+  envConfigs.auth_url.startsWith('https://') ||
+  envConfigs.app_url.startsWith('https://');
+
 // Static auth options - NO database connection
 // This ensures zero database calls during build time
 const authOptions = {
   appName: envConfigs.app_name,
   baseURL: envConfigs.auth_url,
   secret: envConfigs.auth_secret,
-  trustedOrigins: envConfigs.app_url
-    ? [
-      envConfigs.app_url,
-      // Add www subdomain support to avoid CORS issues
-      envConfigs.app_url.replace(/^(https?:\/\/)/, '$1www.'),
-      // Also add non-www version if www is the primary
-      envConfigs.app_url.replace(/^(https?:\/\/)www\./, '$1'),
-    ].filter((url, index, self) => self.indexOf(url) === index) // Remove duplicates
-    : [],
+  trustedOrigins,
   user: {
     // Allow persisting custom columns on user table.
     // Without this, better-auth may ignore extra properties during create/update.
@@ -58,6 +110,17 @@ const authOptions = {
   advanced: {
     database: {
       generateId: () => getUuid(),
+    },
+    crossSubDomainCookies: {
+      enabled: !!crossSubDomainCookieDomain,
+      ...(crossSubDomainCookieDomain
+        ? { domain: crossSubDomainCookieDomain }
+        : {}),
+    },
+    defaultCookieAttributes: {
+      secure: useSecureCookies,
+      sameSite: 'lax',
+      path: '/',
     },
   },
   emailAndPassword: {
