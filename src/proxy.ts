@@ -2,11 +2,47 @@ import { NextRequest, NextResponse } from 'next/server';
 import { getSessionCookie } from 'better-auth/cookies';
 import createIntlMiddleware from 'next-intl/middleware';
 
+import { envConfigs } from '@/config';
 import { routing } from '@/core/i18n/config';
 
 const intlMiddleware = createIntlMiddleware(routing);
 
+function getCanonicalWwwRedirectUrl(request: NextRequest) {
+  const configuredUrl = envConfigs.auth_url || envConfigs.app_url;
+  if (!configuredUrl) return null;
+
+  try {
+    const canonicalUrl = new URL(configuredUrl);
+    const canonicalHost = canonicalUrl.hostname;
+
+    // Only normalize the bare domain to www when the configured primary
+    // hostname is explicitly a www host. Other subdomains stay untouched.
+    if (!canonicalHost.startsWith('www.')) {
+      return null;
+    }
+
+    const apexHost = canonicalHost.slice(4);
+    if (request.nextUrl.hostname !== apexHost) {
+      return null;
+    }
+
+    const redirectUrl = request.nextUrl.clone();
+    redirectUrl.protocol = canonicalUrl.protocol;
+    redirectUrl.hostname = canonicalHost;
+    redirectUrl.port = canonicalUrl.port;
+
+    return redirectUrl;
+  } catch {
+    return null;
+  }
+}
+
 export async function proxy(request: NextRequest) {
+  const canonicalRedirectUrl = getCanonicalWwwRedirectUrl(request);
+  if (canonicalRedirectUrl) {
+    return NextResponse.redirect(canonicalRedirectUrl, 308);
+  }
+
   const { pathname } = request.nextUrl;
 
   // Handle internationalization first
