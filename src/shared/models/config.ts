@@ -91,11 +91,12 @@ export async function getAllConfigs(): Promise<Configs> {
   const settingNames = await getAllSettingNames();
   settingNames.forEach((key) => {
     const upperKey = key.toUpperCase();
-    // use env configs if available
-    if (process.env[upperKey]) {
-      dbConfigs[key] = process.env[upperKey] ?? '';
-    } else if (process.env[key]) {
-      dbConfigs[key] = process.env[key] ?? '';
+    const envValue = process.env[upperKey] ?? process.env[key];
+
+    // Database-backed settings should win when they are explicitly set.
+    // Fall back to env only when the DB value is missing or blank.
+    if ((dbConfigs[key] === undefined || dbConfigs[key] === '') && envValue) {
+      dbConfigs[key] = envValue;
     }
   });
 
