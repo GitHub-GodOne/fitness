@@ -57,6 +57,13 @@ export default async function ShowcaseCategoriesPage({
         metadata: { message: t('fields.copyMessage') },
       },
       { name: 'title', title: t('fields.title') },
+      {
+        name: 'targetUrl',
+        title: t('fields.targetUrl'),
+        placeholder: '-',
+        type: 'copy',
+        metadata: { message: t('fields.copyMessage') },
+      },
       { name: 'status', title: t('fields.status'), type: 'label' },
       { name: 'sort', title: t('fields.sort') },
       { name: 'updatedAt', title: t('fields.updatedAt'), type: 'time' },

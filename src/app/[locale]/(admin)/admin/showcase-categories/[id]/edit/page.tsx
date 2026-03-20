@@ -64,6 +64,13 @@ export default async function ShowcaseCategoryEditPage({
         attributes: { rows: 5 },
       },
       {
+        name: 'targetUrl',
+        type: 'url',
+        title: t('fields.targetUrl'),
+        tip: t('fields.targetUrlTip'),
+        placeholder: t('fields.targetUrlPlaceholder'),
+      },
+      {
         name: 'image',
         type: 'upload_image',
         title: t('fields.image'),
@@ -116,6 +123,7 @@ export default async function ShowcaseCategoryEditPage({
         const slug = String(data.get('slug') || '').trim().toLowerCase();
         const title = String(data.get('title') || '').trim();
         const description = String(data.get('description') || '').trim();
+        const targetUrl = String(data.get('targetUrl') || '').trim();
         const image = String(data.get('image') || '').trim();
         const sort = Number(data.get('sort') || 0);
         const status = String(data.get('status') || TaxonomyStatus.PUBLISHED);
@@ -139,6 +147,7 @@ export default async function ShowcaseCategoryEditPage({
           slug,
           title,
           description,
+          targetUrl,
           image,
           icon: '',
           status,

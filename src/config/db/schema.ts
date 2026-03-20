@@ -177,6 +177,30 @@ export const pageOverride = table(
   ],
 );
 
+export const customHtmlPage = table(
+  "custom_html_page",
+  {
+    id: text("id").primaryKey(),
+    slug: text("slug").notNull(),
+    locale: text("locale").notNull(),
+    title: text("title"),
+    description: text("description"),
+    html: text("html").notNull(),
+    updatedBy: text("updated_by").references(() => user.id, {
+      onDelete: "set null",
+    }),
+    createdAt: timestamp("created_at").defaultNow().notNull(),
+    updatedAt: timestamp("updated_at")
+      .defaultNow()
+      .$onUpdate(() => /* @__PURE__ */ new Date())
+      .notNull(),
+  },
+  (table) => [
+    uniqueIndex("idx_custom_html_page_locale_slug").on(table.locale, table.slug),
+    index("idx_custom_html_page_locale").on(table.locale),
+  ],
+);
+
 export const taxonomy = table(
   "taxonomy",
   {
@@ -189,6 +213,7 @@ export const taxonomy = table(
     type: text("type").notNull(),
     title: text("title").notNull(),
     description: text("description"),
+    targetUrl: text("target_url"),
     image: text("image"),
     icon: text("icon"),
     status: text("status").notNull(),

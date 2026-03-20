@@ -1,10 +1,23 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { readdir, readFile, writeFile, stat } from 'fs/promises';
-import { join, relative } from 'path';
+import { mkdir, readdir, readFile, writeFile, stat } from 'fs/promises';
+import { join, relative, resolve } from 'path';
 
 import { getUserInfo } from '@/shared/models/user';
 
 const PUBLIC_DIR = join(process.cwd(), 'public');
+
+function resolvePublicPath(targetPath: string) {
+  const resolvedPath = resolve(PUBLIC_DIR, targetPath || '');
+
+  if (
+    resolvedPath !== PUBLIC_DIR &&
+    !resolvedPath.startsWith(`${PUBLIC_DIR}/`)
+  ) {
+    throw new Error('Invalid path');
+  }
+
+  return resolvedPath;
+}
 
 export async function GET(request: NextRequest) {
   const user = await getUserInfo();
@@ -18,11 +31,11 @@ export async function GET(request: NextRequest) {
 
   try {
     if (file) {
-      const filePath = join(PUBLIC_DIR, file);
+      const filePath = resolvePublicPath(file);
       const content = await readFile(filePath, 'utf-8');
       return NextResponse.json({ code: 0, data: { content } });
     } else {
-      const currentDir = join(PUBLIC_DIR, path);
+      const currentDir = resolvePublicPath(path);
       const allFiles = await readdir(currentDir);
       const items = [];
 
@@ -54,9 +67,36 @@ export async function POST(request: NextRequest) {
   }
 
   try {
-    const { file, content } = await request.json();
-    const filePath = join(PUBLIC_DIR, file);
-    await writeFile(filePath, content, 'utf-8');
+    const body = await request.json();
+
+    if (body.action === 'create_folder') {
+      const normalizedName = String(body.name || '').trim();
+      if (!normalizedName) {
+        return NextResponse.json(
+          { code: 400, message: 'Folder name required' },
+          { status: 400 }
+        );
+      }
+
+      if (
+        normalizedName.includes('/') ||
+        normalizedName.includes('\\') ||
+        normalizedName === '.' ||
+        normalizedName === '..'
+      ) {
+        return NextResponse.json(
+          { code: 400, message: 'Invalid folder name' },
+          { status: 400 }
+        );
+      }
+
+      const folderPath = resolvePublicPath(join(String(body.path || ''), normalizedName));
+      await mkdir(folderPath, { recursive: false });
+      return NextResponse.json({ code: 0, message: 'Folder created successfully' });
+    }
+
+    const filePath = resolvePublicPath(String(body.file || ''));
+    await writeFile(filePath, String(body.content || ''), 'utf-8');
     return NextResponse.json({ code: 0, message: 'File saved successfully' });
   } catch (error) {
     return NextResponse.json({ code: 500, message: 'Failed to save file' }, { status: 500 });
@@ -77,7 +117,7 @@ export async function DELETE(request: NextRequest) {
     }
 
     const { unlink } = await import('fs/promises');
-    const filePath = join(PUBLIC_DIR, file);
+    const filePath = resolvePublicPath(file);
     await unlink(filePath);
     return NextResponse.json({ code: 0, message: 'File deleted successfully' });
   } catch (error) {

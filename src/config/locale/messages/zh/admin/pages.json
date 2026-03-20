@@ -1,5 +1,6 @@
 {
   "fields": {
+    "page_type": "页面类型",
     "slug": "路由",
     "title": "标题",
     "description": "描述",
@@ -12,19 +13,100 @@
   },
   "list": {
     "title": "页面",
-    "description": "为 content/pages 下的文件编辑运行时覆盖内容，同时保留 MDX 文件作为默认来源。",
-    "empty": "content/pages 下没有找到静态页面文件。",
+    "description": "统一管理基于 MDX 的页面和使用落地页布局渲染的自定义 HTML 页面。",
+    "empty": "没有找到可管理的页面。",
     "crumbs": {
       "admin": "管理后台",
       "pages": "页面"
     },
     "buttons": {
       "edit": "编辑覆盖",
+      "edit_html": "编辑 HTML 页面",
+      "add_html": "添加 HTML 页面",
+      "delete": "删除",
       "view": "查看页面"
+    },
+    "types": {
+      "mdx": "MDX 页面",
+      "html": "HTML 页面"
+    },
+    "source": {
+      "database_html": "数据库 HTML"
     },
     "status": {
       "default": "MDX 默认值",
-      "overridden": "已启用覆盖"
+      "overridden": "已启用覆盖",
+      "custom_html": "自定义 HTML"
+    }
+  },
+  "form": {
+    "add": {
+      "title": "添加 HTML 页面",
+      "description": "创建一个保留落地页布局并渲染你粘贴或上传 HTML 代码的自定义页面。",
+      "crumbs": {
+        "admin": "管理后台",
+        "pages": "页面",
+        "add": "添加 HTML 页面"
+      }
+    },
+    "edit": {
+      "title": "编辑 HTML 页面",
+      "description": "修改这个自定义页面的路由、元信息和渲染 HTML。",
+      "crumbs": {
+        "admin": "管理后台",
+        "pages": "页面",
+        "edit": "编辑 HTML 页面"
+      }
+    },
+    "labels": {
+      "locale": "语言",
+      "slug": "路径",
+      "title": "标题",
+      "description": "描述",
+      "html": "HTML 内容",
+      "upload_html": "导入 HTML 文件",
+      "upload_hint": "选择本地 .html 文件后，会把文件代码读入编辑器。",
+      "submit_add": "创建 HTML 页面",
+      "submit_edit": "保存 HTML 页面",
+      "back": "返回页面列表",
+      "preview": "预览页面",
+      "path_preview": "预览路径"
+    },
+    "cards": {
+      "details_title": "页面信息",
+      "details_description": "这个页面存储在数据库中，并使用前台落地页布局渲染。",
+      "route": "路由",
+      "updated_at": "最近更新时间"
+    },
+    "buttons": {
+      "delete": "删除 HTML 页面"
+    },
+    "messages": {
+      "saved": "HTML 页面已保存",
+      "deleted": "HTML 页面已删除",
+      "signin": "请重新登录",
+      "not_found": "未找到 HTML 页面",
+      "slug_required": "必须填写页面路径",
+      "invalid_locale": "语言不合法",
+      "invalid_slug": "页面路径只能包含字母、数字、短横线、下划线和斜杠",
+      "reserved_slug": "这个路径已被系统路由或现有页面占用",
+      "slug_exists": "这个路径已经存在",
+      "html_required": "必须填写 HTML 内容"
+    }
+  },
+  "delete": {
+    "title": "删除 HTML 页面",
+    "description": "从数据库中删除这个自定义 HTML 页面。",
+    "crumbs": {
+      "delete": "删除"
+    },
+    "buttons": {
+      "confirm": "删除页面",
+      "cancel": "返回编辑页"
+    },
+    "messages": {
+      "confirm": "此操作会删除这个自定义 HTML 页面，并同步移除 sitemap 条目。",
+      "only_custom_html": "这里只能删除数据库里的 HTML 页面，基于 MDX 的页面不能在这里删除。"
     }
   },
   "edit": {

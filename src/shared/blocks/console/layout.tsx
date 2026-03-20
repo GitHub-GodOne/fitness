@@ -1,12 +1,13 @@
 "use client";
 
-import { ReactNode, useState } from "react";
+import { ReactNode, useEffect, useState } from "react";
 
 import { Link, usePathname } from "@/core/i18n/navigation";
 import { SmartIcon } from "@/shared/blocks/common/smart-icon";
 import { Button } from "@/shared/components/ui/button";
 import {
   Sheet,
+  SheetClose,
   SheetContent,
   SheetHeader,
   SheetTitle,
@@ -31,27 +32,50 @@ export function ConsoleLayout({
 }) {
   const pathname = usePathname();
   const [searchQuery, setSearchQuery] = useState("");
+  const [isMobileNavOpen, setIsMobileNavOpen] = useState(false);
   const filteredItems = nav?.items.filter((item) =>
     item.title?.toLowerCase().includes(searchQuery.toLowerCase()),
   );
 
-  const renderNavItems = () => (
+  useEffect(() => {
+    setIsMobileNavOpen(false);
+  }, [pathname]);
+
+  const renderNavItems = ({ mobile = false }: { mobile?: boolean } = {}) => (
     <nav className="space-y-1">
       {filteredItems?.map((item, idx) => (
-        <Link
-          key={idx}
-          href={item.url || ""}
-          className={`flex items-center space-x-3 rounded-md px-3 py-2 text-sm transition-colors ${
-            item.is_active ||
-            pathname.endsWith(item.url as string) ||
-            item.url?.endsWith(pathname)
-              ? "bg-secondary text-secondary-foreground font-medium"
-              : "text-muted-foreground hover:text-foreground hover:bg-secondary/50"
-          }`}
-        >
-          <SmartIcon name={item.icon as string} size={16} />
-          <span>{item.title}</span>
-        </Link>
+        mobile ? (
+          <SheetClose key={idx} asChild>
+            <Link
+              href={item.url || ""}
+              className={`flex items-center space-x-3 rounded-md px-3 py-2 text-sm transition-colors ${
+                item.is_active ||
+                pathname.endsWith(item.url as string) ||
+                item.url?.endsWith(pathname)
+                  ? "bg-secondary text-secondary-foreground font-medium"
+                  : "text-muted-foreground hover:text-foreground hover:bg-secondary/50"
+              }`}
+            >
+              <SmartIcon name={item.icon as string} size={16} />
+              <span>{item.title}</span>
+            </Link>
+          </SheetClose>
+        ) : (
+          <Link
+            key={idx}
+            href={item.url || ""}
+            className={`flex items-center space-x-3 rounded-md px-3 py-2 text-sm transition-colors ${
+              item.is_active ||
+              pathname.endsWith(item.url as string) ||
+              item.url?.endsWith(pathname)
+                ? "bg-secondary text-secondary-foreground font-medium"
+                : "text-muted-foreground hover:text-foreground hover:bg-secondary/50"
+            }`}
+          >
+            <SmartIcon name={item.icon as string} size={16} />
+            <span>{item.title}</span>
+          </Link>
+        )
       ))}
     </nav>
   );
@@ -93,7 +117,7 @@ export function ConsoleLayout({
             </h1>
 
             {/* Mobile Menu Trigger */}
-            <Sheet>
+            <Sheet open={isMobileNavOpen} onOpenChange={setIsMobileNavOpen}>
               <SheetTrigger asChild>
                 <Button variant="outline" size="icon" className="md:hidden">
                   <SmartIcon name="Menu" size={20} />
@@ -103,7 +127,7 @@ export function ConsoleLayout({
                 <SheetHeader className="mb-4 px-0">
                   <SheetTitle>{title || "Menu"}</SheetTitle>
                 </SheetHeader>
-                {renderNavItems()}
+                {renderNavItems({ mobile: true })}
               </SheetContent>
             </Sheet>
           </div>

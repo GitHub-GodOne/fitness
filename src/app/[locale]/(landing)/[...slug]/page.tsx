@@ -3,6 +3,8 @@ import { getTranslations, setRequestLocale } from "next-intl/server";
 
 import { getThemePage } from "@/core/theme";
 import { envConfigs } from "@/config";
+import { CustomHtmlRenderer } from "@/shared/blocks/common/custom-html-renderer";
+import { getCustomHtmlPageBySlug } from "@/shared/models/custom-html-page";
 import { getLocalPage } from "@/shared/models/static-page";
 
 export const revalidate = 3600;
@@ -70,6 +72,24 @@ export async function generateMetadata({
   if (staticPage) {
     title = staticPage.title || "";
     description = staticPage.description || "";
+
+    return {
+      title,
+      description,
+      alternates: {
+        canonical: canonicalUrl,
+      },
+    };
+  }
+
+  const customHtmlPage = await getCustomHtmlPageBySlug({
+    slug: staticPageSlug,
+    locale,
+  });
+
+  if (customHtmlPage) {
+    title = customHtmlPage.title || "";
+    description = customHtmlPage.description || "";
 
     return {
       title,
@@ -158,6 +178,15 @@ export default async function DynamicPage({
     const Page = await getThemePage("static-page");
 
     return <Page locale={locale} post={staticPage} />;
+  }
+
+  const customHtmlPage = await getCustomHtmlPageBySlug({
+    slug: staticPageSlug,
+    locale,
+  });
+
+  if (customHtmlPage) {
+    return <CustomHtmlRenderer className="min-w-0" html={customHtmlPage.html} />;
   }
 
   // 2. static page not found

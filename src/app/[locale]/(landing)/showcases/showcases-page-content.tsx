@@ -14,6 +14,10 @@ import { getTaxonomies, TaxonomyStatus, TaxonomyType } from '@/shared/models/tax
 import { ShowcasesBackLink } from './showcases-back-link';
 import { ShowcaseVideoGallery } from './showcase-video-gallery';
 
+function getCategoryHref(item: { slug: string; targetUrl?: string | null }) {
+  return item.targetUrl?.trim() || `/showcases/${item.slug}`;
+}
+
 export async function ShowcasesPageContent({
   locale,
   categorySlug,
@@ -116,7 +120,7 @@ export async function ShowcasesPageContent({
               return (
                 <Link
                   key={item.id}
-                  href={`/showcases/${item.slug}`}
+                  href={getCategoryHref(item)}
                   className={`rounded-full border px-4 py-2 text-sm transition ${
                     isActive
                       ? 'border-primary bg-primary text-primary-foreground'
@@ -135,7 +139,7 @@ export async function ShowcasesPageContent({
             {categories.map((item) => (
               <Link
                 key={item.id}
-                href={`/showcases/${item.slug}`}
+                href={getCategoryHref(item)}
                 className="group overflow-hidden rounded-3xl border bg-card transition hover:border-primary/40 hover:shadow-sm"
               >
                 <div className="relative aspect-[16/10] bg-muted">

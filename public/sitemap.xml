@@ -56,4 +56,14 @@
   <lastmod>2026-02-10T19:36:46+00:00</lastmod>
   <priority>0.60</priority>
 </url>
+  <url>
+    <loc>http://localhost:3000/my-test</loc>
+    <lastmod>2026-03-20T11:53:17.762Z</lastmod>
+    <priority>1.00</priority>
+  </url>
+  <url>
+    <loc>http://localhost:3000/wxy</loc>
+    <lastmod>2026-03-20T11:56:25.856Z</lastmod>
+    <priority>1.00</priority>
+  </url>
 </urlset>
