@@ -65,7 +65,8 @@
     },
     "show_sign": true,
     "show_theme": true,
-    "show_locale": true,
+    "show_locale": false,
+    "show_notification": true,
     "topbanner": {
       "text": ""
     }

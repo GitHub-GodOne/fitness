@@ -6,6 +6,7 @@ import {
   KieProvider,
   ReplicateProvider,
   VolcanoProvider,
+  VolcanoSPProvider,
   GWAPIProvider,
   FitnessVideoProvider,
   VideoLibraryProvider,
@@ -57,6 +58,13 @@ export function getAIManagerWithConfigs(configs: Configs) {
   if (configs.volcano_engine_api_key) {
     aiManager.addProvider(
       new VolcanoProvider({
+        apiKey: configs.volcano_engine_api_key,
+        customStorage: configs.volcano_custom_storage === 'true',
+      })
+    );
+
+    aiManager.addProvider(
+      new VolcanoSPProvider({
         apiKey: configs.volcano_engine_api_key,
         customStorage: configs.volcano_custom_storage === 'true',
       })

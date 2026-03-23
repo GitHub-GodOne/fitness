@@ -13,6 +13,8 @@
       "namespace": "命名空间",
       "search": "搜索 key 或文案",
       "searchPlaceholder": "搜索 key 或默认/覆盖值",
+      "globalSearch": "全局搜索",
+      "globalSearchPlaceholder": "在全部语言和命名空间中搜索",
       "importMode": "导入模式",
       "importModes": {
         "merge": "合并导入的键",
@@ -23,7 +25,8 @@
       "title": "默认 JSON + 数据库覆盖",
       "description": "列表来自源 JSON 文件。保存后会写入数据库覆盖值，运行时优先使用覆盖值。重置会删除覆盖值并回退到文件默认值。",
       "mergeDescription": "只把导入 JSON 中出现的 key 合并到当前命名空间覆盖值里。",
-      "replaceDescription": "先清空当前命名空间的所有覆盖值，再把导入 JSON 作为新的覆盖值写入。"
+      "replaceDescription": "先清空当前命名空间的所有覆盖值，再把导入 JSON 作为新的覆盖值写入。",
+      "globalSearchResults": "“{query}” 全局匹配到 {count} 条结果"
     },
     "columns": {
       "key": "Key",
@@ -37,7 +40,9 @@
       "resetting": "恢复中...",
       "exportCurrent": "导出当前 JSON",
       "exportOverrides": "导出覆盖 JSON",
-      "importJson": "导入 JSON"
+      "importJson": "导入 JSON",
+      "searchAll": "搜索全部命名空间",
+      "clearSearch": "清空"
     },
     "messages": {
       "loading": "加载中...",
@@ -49,7 +54,8 @@
       "saveFailed": "保存翻译覆盖失败",
       "resetFailed": "恢复默认失败",
       "noRows": "当前命名空间下没有可编辑的翻译值。",
-      "noSearchResults": "当前搜索条件下没有匹配项。"
+      "noSearchResults": "当前搜索条件下没有匹配项。",
+      "noGlobalSearchResults": "在可用命名空间中没有找到匹配项。"
     },
     "badges": {
       "overridden": "已覆盖",

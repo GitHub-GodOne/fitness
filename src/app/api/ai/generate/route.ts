@@ -10,6 +10,9 @@ import { getAIService } from '@/shared/services/ai';
 export async function POST(request: Request) {
   try {
     const user = await getUserInfo();
+    if (!user) {
+      return respErr('no auth, please sign in');
+    }
 
     let provider, mediaType, model, prompt, options, scene;
     const taskId = getUuid(); // Generate taskId early
@@ -120,11 +123,10 @@ export async function POST(request: Request) {
       throw new Error('invalid mediaType');
     }
 
-    const remainingCredits = user ? await getRemainingCredits(user.id) : 0;
-    const effectiveCostCredits = user ? costCredits : 0;
+    const remainingCredits = await getRemainingCredits(user.id);
+    const effectiveCostCredits = costCredits;
 
-    // check credits for signed-in users only
-    if (user && remainingCredits < costCredits) {
+    if (remainingCredits < costCredits) {
       throw new Error('insufficient credits');
     }
 
@@ -182,7 +184,7 @@ export async function POST(request: Request) {
 
     const newAITask: NewAITask = {
       id: getUuid(),
-      userId: user?.id ?? null,
+      userId: user.id,
       mediaType,
       provider,
       model,

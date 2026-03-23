@@ -4,6 +4,7 @@ import { useState } from 'react';
 import { X } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 
+import { Link } from '@/core/i18n/navigation';
 import {
   Dialog,
   DialogClose,
@@ -11,54 +12,103 @@ import {
   DialogDescription,
   DialogTitle,
 } from '@/shared/components/ui/dialog';
-import type { ShowcaseVideo } from '@/shared/models/showcase-video';
+import { Skeleton } from '@/shared/components/ui/skeleton';
+import {
+  getShowcaseVideoWatchPath,
+} from '@/shared/lib/showcase-video-url';
+
+type ShowcaseVideoCard = {
+  id: string;
+  title: string;
+  description: string | null;
+  videoUrl: string;
+  coverUrl: string | null;
+  createdAt: Date;
+  publishedAt: Date | null;
+};
 
 export function ShowcaseVideoGallery({
   videos,
   locale,
+  seoWatchPagesEnabled = false,
 }: {
-  videos: ShowcaseVideo[];
+  videos: ShowcaseVideoCard[];
   locale: string;
+  seoWatchPagesEnabled?: boolean;
 }) {
   const t = useTranslations('pages.showcases.page.gallery');
-  const [activeVideo, setActiveVideo] = useState<ShowcaseVideo | null>(null);
+  const [activeVideo, setActiveVideo] = useState<ShowcaseVideoCard | null>(null);
+  const dateLocale = t('dateLocale');
 
   return (
     <>
       <div className="grid gap-6 md:grid-cols-2 xl:grid-cols-3">
-        {videos.map((video) => (
-          <button
-            key={video.id}
-            type="button"
-            onClick={() => setActiveVideo(video)}
-            className="group overflow-hidden rounded-3xl border bg-card text-left transition hover:border-primary/40 hover:shadow-sm"
-          >
-            <div className="relative aspect-[16/10] bg-muted">
-              <video
-                src={video.videoUrl}
-                poster={video.coverUrl || undefined}
-                preload="metadata"
-                muted
-                playsInline
-                className="h-full w-full object-cover transition duration-300 group-hover:scale-[1.02]"
-              />
-            </div>
+        {videos.map((video) => {
+          const cardClassName =
+            'group flex h-full flex-col overflow-hidden rounded-3xl border bg-card text-left transition hover:border-primary/40 hover:shadow-sm';
+          const content = (
+            <>
+              <div className="relative aspect-[16/10] shrink-0 overflow-hidden bg-muted">
+                {video.coverUrl ? (
+                  <>
+                    <Skeleton className="absolute inset-0 rounded-none" />
+                    <img
+                      src={video.coverUrl}
+                      alt={video.title}
+                      loading="lazy"
+                      className="relative z-10 h-full w-full object-cover transition duration-300 group-hover:scale-[1.02]"
+                    />
+                  </>
+                ) : (
+                  <div className="flex h-full w-full items-center justify-center bg-gradient-to-br from-primary/10 via-secondary/10 to-accent/10">
+                    <span className="text-3xl font-semibold text-foreground/70">
+                      {video.title.slice(0, 1)}
+                    </span>
+                  </div>
+                )}
 
-            <div className="space-y-3 p-5">
-              <div className="flex items-center justify-between gap-3">
-                <h2 className="text-xl font-semibold text-foreground">{video.title}</h2>
-                <span className="text-xs text-muted-foreground">
-                  {new Date(video.publishedAt || video.createdAt).toLocaleDateString(
-                    locale === 'zh' ? 'zh-CN' : 'en-US'
-                  )}
-                </span>
+                <div className="pointer-events-none absolute inset-0 bg-black/0 transition group-hover:bg-black/10" />
               </div>
-              <p className="line-clamp-3 text-sm text-muted-foreground">
-                {video.description || t('descriptionFallback')}
-              </p>
+
+              <div className="flex flex-1 flex-col space-y-3 p-5">
+                <div className="flex items-center justify-between gap-3">
+                  <h2 className="line-clamp-2 min-h-[3.5rem] text-xl font-semibold text-foreground">
+                    {video.title}
+                  </h2>
+                  <span className="shrink-0 text-xs text-muted-foreground">
+                    {new Date(video.publishedAt || video.createdAt).toLocaleDateString(
+                      dateLocale
+                    )}
+                  </span>
+                </div>
+                <p className="line-clamp-3 min-h-[3.75rem] text-sm text-muted-foreground">
+                  {video.description || t('descriptionFallback')}
+                </p>
+              </div>
+            </>
+          );
+
+          return (
+            <div key={video.id}>
+              <button
+                type="button"
+                onClick={() => setActiveVideo(video)}
+                className={cardClassName}
+              >
+                {content}
+              </button>
+              {seoWatchPagesEnabled ? (
+                <Link
+                  href={getShowcaseVideoWatchPath({ video, locale })}
+                  className="sr-only"
+                  aria-label={`Open watch page for ${video.title}`}
+                >
+                  {video.title}
+                </Link>
+              ) : null}
             </div>
-          </button>
-        ))}
+          );
+        })}
       </div>
 
       <Dialog open={Boolean(activeVideo)} onOpenChange={(open) => !open && setActiveVideo(null)}>
@@ -90,23 +140,7 @@ export function ShowcaseVideoGallery({
                 className="absolute inset-0 h-full w-full bg-black object-contain"
               />
 
-              <div className="pointer-events-none absolute inset-x-0 top-0 z-10 bg-gradient-to-b from-black/75 via-black/35 to-transparent px-4 py-4 text-white sm:px-6">
-                <div className="max-w-3xl">
-                  <div className="pr-14 text-lg font-semibold sm:pr-16">
-                    {activeVideo.title}
-                  </div>
-                  {activeVideo.description ? (
-                    <p className="mt-1 text-sm text-white/70">
-                      {activeVideo.description}
-                    </p>
-                  ) : null}
-                  <div className="mt-2 text-xs text-white/60">
-                    {new Date(
-                      activeVideo.publishedAt || activeVideo.createdAt
-                    ).toLocaleDateString(locale === 'zh' ? 'zh-CN' : 'en-US')}
-                  </div>
-                </div>
-              </div>
+              {/* Keep the playback surface clean; only show native controls. */}
             </div>
           ) : null}
         </DialogContent>

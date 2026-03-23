@@ -19,6 +19,7 @@ import {
 import { toast } from "sonner";
 
 import { MediaAssetPickerDialog } from "@/shared/blocks/admin/media-asset-picker-dialog";
+import { Header, Main, MainHeader } from "@/shared/blocks/dashboard";
 import { Button } from "@/shared/components/ui/button";
 import { Input } from "@/shared/components/ui/input";
 import { Label } from "@/shared/components/ui/label";
@@ -61,6 +62,7 @@ import {
   TabsTrigger,
 } from "@/shared/components/ui/tabs";
 import { uploadAdminMediaFilesDirect } from "@/shared/lib/admin-media-upload";
+import { Crumb } from "@/shared/types/blocks/common";
 
 interface FitnessObject {
   id: string;
@@ -299,6 +301,10 @@ function MediaUrlField({
 
 export default function VideoLibraryPage() {
   const t = useTranslations("admin");
+  const crumbs: Crumb[] = [
+    { title: "Admin", url: "/admin" },
+    { title: "Video Library", is_active: true },
+  ];
   const [activeTab, setActiveTab] = useState("videos");
   const [loading, setLoading] = useState(false);
 
@@ -697,12 +703,12 @@ export default function VideoLibraryPage() {
   };
 
   return (
-    <div className="container mx-auto py-6 space-y-6">
-      <div className="flex items-center justify-between">
-        <h1 className="text-2xl font-bold">Video Library Management</h1>
-      </div>
-
-      <Tabs value={activeTab} onValueChange={setActiveTab}>
+    <>
+      <Header crumbs={crumbs} />
+      <Main>
+        <MainHeader title="Video Library Management" />
+        <div className="space-y-6">
+          <Tabs value={activeTab} onValueChange={setActiveTab}>
         <TabsList>
           <TabsTrigger value="videos" className="flex items-center gap-2">
             <Video className="h-4 w-4" />
@@ -1281,10 +1287,10 @@ export default function VideoLibraryPage() {
             </CardContent>
           </Card>
         </TabsContent>
-      </Tabs>
+          </Tabs>
 
-      {/* Object Dialog */}
-      <Dialog open={objectDialogOpen} onOpenChange={setObjectDialogOpen}>
+          {/* Object Dialog */}
+          <Dialog open={objectDialogOpen} onOpenChange={setObjectDialogOpen}>
         <DialogContent>
           <DialogHeader>
             <DialogTitle>
@@ -1391,10 +1397,10 @@ export default function VideoLibraryPage() {
             </Button>
           </DialogFooter>
         </DialogContent>
-      </Dialog>
+          </Dialog>
 
-      {/* Body Part Dialog */}
-      <Dialog open={bodyPartDialogOpen} onOpenChange={setBodyPartDialogOpen}>
+          {/* Body Part Dialog */}
+          <Dialog open={bodyPartDialogOpen} onOpenChange={setBodyPartDialogOpen}>
         <DialogContent>
           <DialogHeader>
             <DialogTitle>
@@ -1493,10 +1499,10 @@ export default function VideoLibraryPage() {
             </Button>
           </DialogFooter>
         </DialogContent>
-      </Dialog>
+          </Dialog>
 
-      {/* Video Group Dialog */}
-      <Dialog open={videoGroupDialogOpen} onOpenChange={setVideoGroupDialogOpen}>
+          {/* Video Group Dialog */}
+          <Dialog open={videoGroupDialogOpen} onOpenChange={setVideoGroupDialogOpen}>
         <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
           <DialogHeader>
             <DialogTitle>
@@ -1815,7 +1821,9 @@ export default function VideoLibraryPage() {
             </Button>
           </DialogFooter>
         </DialogContent>
-      </Dialog>
-    </div>
+          </Dialog>
+        </div>
+      </Main>
+    </>
   );
 }

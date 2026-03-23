@@ -13,6 +13,8 @@
       "namespace": "Namespace",
       "search": "Search key or text",
       "searchPlaceholder": "Search keys or values",
+      "globalSearch": "Global Search",
+      "globalSearchPlaceholder": "Search across all locales and namespaces",
       "importMode": "Import Mode",
       "importModes": {
         "merge": "Merge Imported Keys",
@@ -23,7 +25,8 @@
       "title": "Default JSON + database override",
       "description": "Rows come from the source JSON file. Save an override to replace the default value at runtime. Reset removes the override and falls back to the file value.",
       "mergeDescription": "Merge only the keys from the imported JSON into the current namespace overrides.",
-      "replaceDescription": "Clear all overrides in the current namespace first, then write the imported JSON as the new overrides."
+      "replaceDescription": "Clear all overrides in the current namespace first, then write the imported JSON as the new overrides.",
+      "globalSearchResults": "{count} global matches for \"{query}\""
     },
     "columns": {
       "key": "Key",
@@ -37,7 +40,9 @@
       "resetting": "Resetting...",
       "exportCurrent": "Export Current JSON",
       "exportOverrides": "Export Overrides JSON",
-      "importJson": "Import JSON"
+      "importJson": "Import JSON",
+      "searchAll": "Search All Namespaces",
+      "clearSearch": "Clear"
     },
     "messages": {
       "loading": "Loading...",
@@ -49,7 +54,8 @@
       "saveFailed": "Failed to save translation override",
       "resetFailed": "Failed to reset translation override",
       "noRows": "No translatable values found for the selected namespace.",
-      "noSearchResults": "No translation rows match the current search."
+      "noSearchResults": "No translation rows match the current search.",
+      "noGlobalSearchResults": "No matches were found across the available namespaces."
     },
     "badges": {
       "overridden": "Override active",

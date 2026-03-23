@@ -1,4 +1,5 @@
 import { Fragment } from 'react';
+import { ExternalLink } from 'lucide-react';
 
 import { Link } from '@/core/i18n/navigation';
 import {
@@ -33,7 +34,7 @@ export function Header({
   show_theme?: boolean;
 }) {
   return (
-    <header className="flex h-(--header-height) shrink-0 items-center gap-2 border-b transition-[width,height] ease-linear group-has-data-[collapsible=icon]/sidebar-wrapper:h-(--header-height)">
+    <header className="sticky top-0 z-20 flex h-(--header-height) shrink-0 items-center gap-2 border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/80 transition-[width,height] ease-linear group-has-data-[collapsible=icon]/sidebar-wrapper:h-(--header-height)">
       <div className="flex w-full items-center gap-1 px-4 lg:gap-2 lg:px-6">
         <SidebarTrigger className="-ml-1" />
         {crumbs && crumbs.length > 0 && (
@@ -63,6 +64,12 @@ export function Header({
           </Breadcrumb>
         )}
         <div className="ml-auto flex items-center gap-4">
+          <Button variant="outline" size="sm" asChild>
+            <Link href="/" className="flex items-center gap-2">
+              <ExternalLink className="size-4" />
+              <span>View Site</span>
+            </Link>
+          </Button>
           {buttons && buttons.length > 0 && (
             <div className="flex items-center gap-4">
               {buttons.map((button, idx) => (
@@ -84,7 +91,7 @@ export function Header({
             </div>
           )}
           {show_theme && <ThemeToggler />}
-          {show_locale !== false && <LocaleSelector type="button" />}
+          {show_locale ? <LocaleSelector type="button" /> : null}
         </div>
       </div>
     </header>

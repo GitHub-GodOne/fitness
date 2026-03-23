@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import { Menu, X } from "lucide-react";
+import { Menu, Sparkles, X } from "lucide-react";
 
 import { Link, usePathname, useRouter } from "@/core/i18n/navigation";
 import {
@@ -49,7 +49,13 @@ function NavigationMenuTrigger(
   return <RawNavigationMenuTrigger {...props} />;
 }
 
-export function Header({ header }: { header: HeaderType }) {
+export function Header({
+  header,
+  mobileNavMode = "accordion",
+}: {
+  header: HeaderType;
+  mobileNavMode?: "accordion" | "tabs";
+}) {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isScrolled, setIsScrolled] = useState(false);
   const isLarge = useMedia("(min-width: 64rem)");
@@ -68,6 +74,28 @@ export function Header({ header }: { header: HeaderType }) {
     window.addEventListener("scroll", handleScroll);
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
+
+  const showMobileTabs =
+    mobileNavMode === "tabs" && (header.nav?.items?.length || 0) > 0;
+
+  useEffect(() => {
+    if (showMobileTabs && isMobileMenuOpen) {
+      setIsMobileMenuOpen(false);
+    }
+  }, [showMobileTabs, isMobileMenuOpen]);
+
+  const isNavItemActive = (url?: string) => {
+    if (!url) return false;
+    if (!url.startsWith("/")) return false;
+
+    const normalizedPath = pathname === "/" ? "/" : pathname.replace(/\/$/, "");
+    const normalizedUrl = url === "/" ? "/" : url.replace(/\/$/, "");
+
+    return (
+      normalizedPath === normalizedUrl ||
+      normalizedPath.startsWith(`${normalizedUrl}/`)
+    );
+  };
 
   // Navigation menu for large screens
   const NavMenu = () => {
@@ -229,73 +257,138 @@ export function Header({ header }: { header: HeaderType }) {
       >
         <div
           className={cn(
-            "absolute inset-x-0 top-0 z-50 h-18 bg-background/80 backdrop-blur-md border-b border-border transition-all duration-300",
-            "has-data-[state=open]:ring-foreground/5 has-data-[state=open]:bg-background/90 has-data-[state=open]:h-[calc(var(--navigation-menu-viewport-height)+3.4rem)] has-data-[state=open]:shadow-lg has-data-[state=open]:shadow-foreground/10",
-            "max-lg:in-data-[state=active]:bg-background/90 max-lg:h-14 max-lg:overflow-hidden max-lg:in-data-[state=active]:h-screen",
+            "absolute inset-x-0 top-0 z-50 bg-background border-b border-border ring-1 ring-transparent transition-all duration-300",
+            "has-data-[state=open]:ring-foreground/5 has-data-[state=open]:bg-card has-data-[state=open]:h-[calc(var(--navigation-menu-viewport-height)+3.4rem)] has-data-[state=open]:shadow-lg has-data-[state=open]:shadow-black/10",
+            "h-18",
+            showMobileTabs
+              ? "max-lg:h-24 max-lg:in-data-[state=active]:h-24"
+              : "max-lg:h-14 max-lg:overflow-hidden max-lg:in-data-[state=active]:h-screen",
+            "max-lg:in-data-[state=active]:bg-background",
           )}
         >
-          <div className="container">
-            <div className="relative flex flex-wrap items-center justify-between lg:py-5">
-              <div className="flex justify-between gap-8 max-lg:h-14 max-lg:w-full max-lg:border-b">
-                {/* Brand Logo */}
+          <div className="container px-4 sm:px-6 md:px-8">
+            <div className="relative flex items-center justify-between h-14 lg:h-18">
+              <div className="flex items-center gap-8">
                 {header.brand && <BrandLogo brand={header.brand} />}
 
-                {/* Desktop Navigation Menu */}
-                {isLarge && <NavMenu />}
-                {/* Hamburger menu button for mobile navigation */}
-                <button
-                  onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-                  aria-label={
-                    isMobileMenuOpen == true ? "Close Menu" : "Open Menu"
-                  }
-                  className="relative z-20 -m-2.5 -mr-3 block cursor-pointer p-2.5 lg:hidden text-foreground"
-                >
-                  <Menu className="m-auto size-5 duration-200 in-data-[state=active]:scale-0 in-data-[state=active]:rotate-180 in-data-[state=active]:opacity-0" />
-                  <X className="absolute inset-0 m-auto size-5 scale-0 -rotate-180 opacity-0 duration-200 in-data-[state=active]:scale-100 in-data-[state=active]:rotate-0 in-data-[state=active]:opacity-100" />
-                </button>
+                <div className="hidden lg:flex items-center">
+                  <NavMenu />
+                </div>
               </div>
 
-              {/* Show mobile menu if needed */}
-              {!isLarge && isMobileMenuOpen && (
-                <MobileMenu closeMenu={() => setIsMobileMenuOpen(false)} />
-              )}
-
-              {/* Header right section: theme toggler, locale selector, sign, buttons */}
-              <div className="mb-6 hidden w-full flex-wrap items-center justify-end space-y-8 in-data-[state=active]:flex max-lg:in-data-[state=active]:mt-6 md:flex-nowrap lg:m-0 lg:flex lg:w-fit lg:gap-6 lg:space-y-0 lg:border-transparent lg:bg-transparent lg:p-0 lg:shadow-none">
-                <div className="flex w-full flex-row items-center gap-2 sm:gap-4 md:gap-6 sm:flex-row sm:space-y-0 md:w-fit">
+              {/* Right section: Buttons, Theme, Locale, Sign In */}
+              <div className="flex items-center gap-2 sm:gap-4">
+                {/* Desktop: Full menu */}
+                <div className="hidden lg:flex items-center gap-3">
+                  {header.show_theme_switcher ? <ThemeSwitcher /> : null}
+                  {header.show_theme_toggler ? <ThemeToggler /> : null}
+                  {header.show_locale ? <LocaleSelector /> : null}
+                  {header.show_notification && user ? (
+                    <NotificationBell />
+                  ) : null}
                   {header.buttons &&
-                    header.buttons.map((button, idx) => (
-                      <Link
-                        key={idx}
-                        href={button.url || ""}
-                        target={button.target || "_self"}
-                        className={cn(
-                          "focus-visible:ring-ring inline-flex items-center justify-center gap-2 rounded-md text-sm font-medium whitespace-nowrap transition-colors focus-visible:ring-1 focus-visible:outline-none disabled:pointer-events-none disabled:opacity-50",
-                          "h-7 px-2 sm:px-3 ring-0",
-                          button.variant === "outline"
-                            ? "bg-foreground/10 border-foreground/20 text-foreground ring-foreground/10 hover:bg-foreground/20 border shadow-sm ring-1 duration-200"
-                            : "bg-primary text-primary-foreground hover:bg-primary/90 border-[0.5px] border-primary/50 shadow-md",
-                        )}
-                      >
-                        {button.icon && (
-                          <SmartIcon
-                            name={button.icon as string}
-                            className="size-4"
-                          />
-                        )}
-                        <span className="text-xs sm:text-sm">
+                    header.buttons.map((button, idx) =>
+                      user ? (
+                        <Button
+                          key={idx}
+                          variant="default"
+                          size="sm"
+                          className="rounded-full text-sm"
+                          onClick={() => navigateWithAuth(button.url || "")}
+                        >
+                          {button.title}
+                        </Button>
+                      ) : (
+                        <span
+                          key={idx}
+                          onClick={() => navigateWithAuth(button.url || "")}
+                          className="cursor-pointer text-sm font-medium text-foreground transition-colors hover:text-primary"
+                        >
                           {button.title}
                         </span>
-                      </Link>
-                    ))}
-
-                  {user ? <NotificationBell /> : null}
+                      ),
+                    )}
                   {header.show_sign ? (
                     <SignUser userNav={header.user_nav} />
                   ) : null}
                 </div>
+
+                {/* Mobile: Show notification bell + Sign In */}
+                <div className="flex items-center gap-2 overflow-visible lg:hidden">
+                  {header.show_notification && user ? (
+                    <NotificationBell />
+                  ) : null}
+                  {header.buttons?.map((button, idx) => (
+                    <Button
+                      key={`mobile-cta-${idx}`}
+                      type="button"
+                      size="icon-sm"
+                      className="h-8 w-8 rounded-full bg-primary text-primary-foreground shadow-sm hover:bg-primary/90"
+                      aria-label={button.title}
+                      title={button.title}
+                      onClick={() => navigateWithAuth(button.url || "")}
+                    >
+                      <Sparkles className="size-4" />
+                    </Button>
+                  ))}
+                  {header.show_sign ? (
+                    <div className="flex-shrink-0">
+                      <SignUser userNav={header.user_nav} />
+                    </div>
+                  ) : null}
+                </div>
+
+                {/* Mobile menu button */}
+                {!showMobileTabs ? (
+                  <button
+                    onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+                    aria-label={
+                      isMobileMenuOpen == true ? "Close Menu" : "Open Menu"
+                    }
+                    className="relative z-20 -m-2.5 block cursor-pointer p-2.5 lg:hidden"
+                  >
+                    <Menu className="m-auto size-5 duration-200 in-data-[state=active]:scale-0 in-data-[state=active]:rotate-180 in-data-[state=active]:opacity-0" />
+                    <X className="absolute inset-0 m-auto size-5 scale-0 -rotate-180 opacity-0 duration-200 in-data-[state=active]:scale-100 in-data-[state=active]:rotate-0 in-data-[state=active]:opacity-100" />
+                  </button>
+                ) : null}
               </div>
             </div>
+
+              {showMobileTabs ? (
+                <div className="border-t border-border/70 lg:hidden">
+                  <div className="scrollbar-hide -mx-4 overflow-x-auto px-4 sm:-mx-6 sm:px-6 md:-mx-8 md:px-8">
+                    <nav
+                      aria-label="Mobile navigation tabs"
+                      className="flex h-10 min-w-max items-center gap-4"
+                    >
+                      {header.nav?.items?.map((item, idx) => {
+                        const isActive = isNavItemActive(item.url);
+
+                        return (
+                          <Link
+                            key={`${item.title}-${idx}`}
+                            href={item.url || ""}
+                            target={item.target || "_self"}
+                            className={cn(
+                              "inline-flex h-8 shrink-0 items-center whitespace-nowrap px-0.5 text-sm transition-colors",
+                              isActive
+                                ? "font-medium text-foreground"
+                                : "text-muted-foreground",
+                            )}
+                          >
+                            {item.title}
+                          </Link>
+                        );
+                      })}
+                    </nav>
+                  </div>
+                </div>
+              ) : null}
+
+              {/* Mobile menu */}
+              {!isLarge && !showMobileTabs && isMobileMenuOpen && (
+                <MobileMenu closeMenu={() => setIsMobileMenuOpen(false)} />
+              )}
           </div>
         </div>
       </header>

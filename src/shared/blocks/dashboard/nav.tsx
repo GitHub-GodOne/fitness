@@ -3,7 +3,7 @@
 import { useEffect, useState } from 'react';
 import { ChevronRight } from 'lucide-react';
 
-import { Link, usePathname, useRouter } from '@/core/i18n/navigation';
+import { Link, usePathname } from '@/core/i18n/navigation';
 import { SmartIcon } from '@/shared/blocks/common/smart-icon';
 import {
   Collapsible,
@@ -20,17 +20,24 @@ import {
   SidebarMenuSub,
   SidebarMenuSubButton,
   SidebarMenuSubItem,
+  useSidebar,
 } from '@/shared/components/ui/sidebar';
 import { NavItem, type Nav as NavType } from '@/shared/types/blocks/common';
 
 export function Nav({ nav, className }: { nav: NavType; className?: string }) {
   const pathname = usePathname();
-  const router = useRouter();
   const [mounted, setMounted] = useState(false);
+  const { isMobile, setOpenMobile } = useSidebar();
 
   useEffect(() => {
     setMounted(true);
   }, []);
+
+  const handleNavClick = () => {
+    if (isMobile) {
+      setOpenMobile(false);
+    }
+  };
 
   return (
     <SidebarGroup className={className}>
@@ -79,6 +86,7 @@ export function Nav({ nav, className }: { nav: NavType; className?: string }) {
                     <Link
                       href={item?.url as string}
                       target={item?.target as string}
+                      onClick={handleNavClick}
                     >
                       {item?.icon && <SmartIcon name={item.icon as string} />}
                       <span>{item?.title || ''}</span>
@@ -105,6 +113,7 @@ export function Nav({ nav, className }: { nav: NavType; className?: string }) {
                             <Link
                               href={subItem.url as string}
                               target={subItem.target as string}
+                              onClick={handleNavClick}
                             >
                               {/* {subItem.icon && (
                                 <SmartIcon name={subItem.icon as string} />

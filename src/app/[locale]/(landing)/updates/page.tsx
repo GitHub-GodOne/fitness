@@ -3,6 +3,10 @@ import { getTranslations, setRequestLocale } from 'next-intl/server';
 import { getThemePage } from '@/core/theme';
 import { getMetadata } from '@/shared/lib/seo';
 import {
+  getCustomHtmlPageOverrideMetadata,
+  renderCustomHtmlPageOverride,
+} from '@/shared/lib/custom-html-page-override';
+import {
   getLocalPostsAndCategories,
   PostType as PostDataType,
 } from '@/shared/models/post';
@@ -11,10 +15,26 @@ import { DynamicPage } from '@/shared/types/blocks/landing';
 
 export const revalidate = 3600;
 
-export const generateMetadata = getMetadata({
+const getDefaultMetadata = getMetadata({
   metadataKey: 'pages.updates.metadata',
   canonicalUrl: '/updates',
 });
+
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ locale: string }>;
+}) {
+  const { locale } = await params;
+
+  const customHtmlMetadata = await getCustomHtmlPageOverrideMetadata({
+    slug: 'updates',
+    locale,
+    canonicalPath: '/updates',
+  });
+
+  return customHtmlMetadata ?? getDefaultMetadata({ params });
+}
 
 export default async function UpdatesPage({
   params,
@@ -23,6 +43,15 @@ export default async function UpdatesPage({
 }) {
   const { locale } = await params;
   setRequestLocale(locale);
+
+  const customHtmlPage = await renderCustomHtmlPageOverride({
+    slug: 'updates',
+    locale,
+  });
+
+  if (customHtmlPage) {
+    return customHtmlPage;
+  }
 
   // load updates data
   const t = await getTranslations('pages.updates');

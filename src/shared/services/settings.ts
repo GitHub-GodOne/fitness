@@ -430,6 +430,32 @@ export async function getSettings() {
       tab: 'general',
     },
     {
+      name: 'showcases_video_page_mode',
+      title: 'Showcases SEO Watch Pages',
+      type: 'select',
+      value: 'modal',
+      options: [
+        { title: 'Disabled', value: 'modal' },
+        { title: 'Enabled', value: 'watch_page' },
+      ],
+      tip: 'Front-end cards still open the video modal. When enabled, the site also keeps dedicated watch pages, hidden crawlable links, and the video sitemap feed for search engines.',
+      group: 'showcases',
+      tab: 'general',
+    },
+    {
+      name: 'mobile_header_nav_mode',
+      title: 'Mobile Header Navigation',
+      type: 'select',
+      value: 'accordion',
+      options: [
+        { title: 'Accordion Menu', value: 'accordion' },
+        { title: 'Sticky Tabs', value: 'tabs' },
+      ],
+      tip: 'Accordion keeps the hamburger menu. Sticky Tabs shows top-level navigation as a horizontal bar fixed under the mobile header.',
+      group: 'appinfo',
+      tab: 'general',
+    },
+    {
       name: 'guest_page_popup_enabled',
       title: 'Enable Guest Login Popup Protection',
       type: 'switch',

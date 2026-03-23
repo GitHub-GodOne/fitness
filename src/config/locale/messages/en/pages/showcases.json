@@ -88,8 +88,19 @@
       }
     },
     "gallery": {
+      "dateLocale": "en-US",
       "descriptionFallback": "Open this showcase video in the current page.",
       "closeVideo": "Close video"
+    },
+    "watch": {
+      "dateLocale": "en-US",
+      "backToShowcases": "Back to showcases",
+      "backToCategory": "Back to category",
+      "videoLabel": "Featured video",
+      "relatedTitle": "More showcase videos",
+      "relatedDescription": "Keep exploring other published videos from this category.",
+      "emptyRelatedVideos": "No other published videos are available in this category yet.",
+      "descriptionFallback": "Watch this published showcase video."
     }
   }
 }

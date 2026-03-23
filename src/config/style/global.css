@@ -35,6 +35,15 @@ textarea {
   @apply border-border outline-ring/50 bg-background;
 }
 
+/* Prevent iOS Safari from zooming the viewport when text inputs receive focus. */
+@media (max-width: 767px) {
+  input:not([type='checkbox']):not([type='radio']):not([type='range']):not([type='file']):not([type='color']):not([type='submit']):not([type='button']):not([type='reset']),
+  select,
+  textarea {
+    font-size: 16px !important;
+  }
+}
+
 button {
   @apply border-border outline-ring/50 cursor-pointer;
 }

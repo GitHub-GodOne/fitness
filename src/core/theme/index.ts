@@ -1,14 +1,9 @@
 import { envConfigs } from '@/config';
 import { defaultTheme } from '@/config/theme';
-import { getConfigs } from '@/shared/models/config';
+import { Configs, getAllConfigs } from '@/shared/models/config';
 
-/**
- * get active theme
- */
-export async function getActiveTheme(): Promise<string> {
-  const configs = await getConfigs();
-
-  if (configs.theme) {
+export function resolveActiveTheme(configs?: Partial<Configs>): string {
+  if (configs?.theme) {
     return configs.theme as string;
   }
 
@@ -18,6 +13,18 @@ export async function getActiveTheme(): Promise<string> {
   }
 
   return defaultTheme;
+}
+
+/**
+ * get active theme
+ */
+export async function getActiveTheme(configs?: Partial<Configs>): Promise<string> {
+  if (configs) {
+    return resolveActiveTheme(configs);
+  }
+
+  const resolvedConfigs = await getAllConfigs();
+  return resolveActiveTheme(resolvedConfigs);
 }
 
 /**

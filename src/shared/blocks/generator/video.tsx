@@ -37,6 +37,7 @@ import {
 } from "@/shared/components/ui/card";
 import { Label } from "@/shared/components/ui/label";
 import { Progress } from "@/shared/components/ui/progress";
+import { Skeleton } from "@/shared/components/ui/skeleton";
 import {
   Select,
   SelectContent,
@@ -82,6 +83,10 @@ import { Checkbox } from "@/shared/components/ui/checkbox";
 import { Switch } from "@/shared/components/ui/switch";
 import { useMediaQuery } from "@/shared/hooks/use-media-query";
 import { cn } from "@/shared/lib/utils";
+import {
+  extractOriginalImageUrlsFromAITask,
+  extractVideoCoverFromAITask,
+} from "@/shared/lib/ai-task-video";
 import { useAppContext } from "@/shared/contexts/app";
 import { SignModal } from "@/shared/blocks/sign/sign-modal";
 import { usePathname, useRouter } from "@/core/i18n/navigation";
@@ -107,6 +112,7 @@ interface HistoryTask {
 interface GeneratedVideo {
   id: string;
   url: string;
+  poster?: string;
   provider?: string;
   model?: string;
   prompt?: string;
@@ -323,6 +329,31 @@ function extractVideoUrls(result: any): string[] {
   }
 
   return [];
+}
+
+function extractGeneratedVideoPoster(params: {
+  taskInfo?: string | null;
+  taskResult?: string | null;
+  fallbackImages?: string[];
+}) {
+  const preferredCover =
+    extractVideoCoverFromAITask(params.taskResult) ||
+    extractVideoCoverFromAITask(params.taskInfo);
+
+  if (preferredCover) {
+    return preferredCover;
+  }
+
+  const originalImages = extractOriginalImageUrlsFromAITask({
+    taskInfo: params.taskInfo,
+    taskResult: params.taskResult,
+  });
+
+  if (originalImages.length > 0) {
+    return originalImages[0];
+  }
+
+  return params.fallbackImages?.[0] || undefined;
 }
 
 export function VideoGenerator({
@@ -548,7 +579,9 @@ export function VideoGenerator({
     draftHydratedRef.current = true;
 
     try {
-      const rawDraft = sessionStorage.getItem(VIDEO_GENERATOR_DRAFT_STORAGE_KEY);
+      const rawDraft = sessionStorage.getItem(
+        VIDEO_GENERATOR_DRAFT_STORAGE_KEY,
+      );
       if (!rawDraft) {
         return;
       }
@@ -1022,6 +1055,7 @@ export function VideoGenerator({
           {
             id: `merged-${Date.now()}`,
             url: result.data.url,
+            poster: referenceImageUrls[0] || undefined,
             provider: "merged",
             prompt: `Merged ${mergedCount} videos`,
           },
@@ -1182,6 +1216,11 @@ export function VideoGenerator({
 
         const parsedResult = parseTaskResult(task.taskInfo);
         const parsedTaskResult = parseTaskResult(task.taskResult);
+        const posterUrl = extractGeneratedVideoPoster({
+          taskInfo: task.taskInfo,
+          taskResult: task.taskResult,
+          fallbackImages: referenceImageUrls,
+        });
 
         // Update progress from backend if available
         if (parsedResult?.progress) {
@@ -1212,6 +1251,7 @@ export function VideoGenerator({
               videoUrls.map((url, index) => ({
                 id: `${task.id}-${index}`,
                 url,
+                poster: posterUrl,
                 provider: task.provider,
                 model: task.model,
                 prompt: task.prompt ?? undefined,
@@ -1271,7 +1311,14 @@ export function VideoGenerator({
         return true;
       }
     },
-    [generationStartTime, resetTaskState, fetchUserCredits, isQuerying],
+    [
+      generationStartTime,
+      resetTaskState,
+      fetchUserCredits,
+      isQuerying,
+      referenceImageUrls,
+      router,
+    ],
   );
 
   useEffect(() => {
@@ -1459,6 +1506,10 @@ export function VideoGenerator({
       if (data.status === AITaskStatus.SUCCESS && (data.taskResult || data.taskInfo)) {
         const parsedResult = parseTaskResult(data.taskResult) || parseTaskResult(data.taskInfo);
         const videoUrls = extractVideoUrls(parsedResult);
+        const posterUrl = extractGeneratedVideoPoster({
+          taskInfo: data.taskInfo,
+          fallbackImages: referenceImageUrls,
+        });
 
         if (videoUrls.length > 0) {
           toast.success("Video generated successfully");

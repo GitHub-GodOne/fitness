@@ -7,7 +7,7 @@ import {
   text,
   timestamp,
   uniqueIndex,
-} from 'drizzle-orm/pg-core';
+} from "drizzle-orm/pg-core";
 
 import { envConfigs } from "@/config";
 
@@ -124,30 +124,106 @@ export const config = table("config", {
 });
 
 export const i18nMessage = table(
-  'i18n_message',
+  "i18n_message",
   {
-    id: text('id').primaryKey(),
-    locale: text('locale').notNull(),
-    namespace: text('namespace').notNull(),
-    key: text('key').notNull(),
-    value: text('value').notNull(),
-    updatedBy: text('updated_by').references(() => user.id, {
-      onDelete: 'set null',
+    id: text("id").primaryKey(),
+    locale: text("locale").notNull(),
+    namespace: text("namespace").notNull(),
+    key: text("key").notNull(),
+    value: text("value").notNull(),
+    updatedBy: text("updated_by").references(() => user.id, {
+      onDelete: "set null",
     }),
-    createdAt: timestamp('created_at').defaultNow().notNull(),
-    updatedAt: timestamp('updated_at')
+    createdAt: timestamp("created_at").defaultNow().notNull(),
+    updatedAt: timestamp("updated_at")
       .defaultNow()
       .$onUpdate(() => /* @__PURE__ */ new Date())
       .notNull(),
   },
   (table) => [
-    uniqueIndex('idx_i18n_message_locale_namespace_key').on(
+    uniqueIndex("idx_i18n_message_locale_namespace_key").on(
       table.locale,
       table.namespace,
-      table.key
+      table.key,
     ),
-    index('idx_i18n_message_locale_namespace').on(table.locale, table.namespace),
-  ]
+    index("idx_i18n_message_locale_namespace").on(
+      table.locale,
+      table.namespace,
+    ),
+  ],
+);
+
+export const pageOverride = table(
+  "page_override",
+  {
+    id: text("id").primaryKey(),
+    slug: text("slug").notNull(),
+    locale: text("locale").notNull(),
+    title: text("title"),
+    description: text("description"),
+    content: text("content"),
+    updatedBy: text("updated_by").references(() => user.id, {
+      onDelete: "set null",
+    }),
+    createdAt: timestamp("created_at").defaultNow().notNull(),
+    updatedAt: timestamp("updated_at")
+      .defaultNow()
+      .$onUpdate(() => /* @__PURE__ */ new Date())
+      .notNull(),
+  },
+  (table) => [
+    uniqueIndex("idx_page_override_locale_slug").on(table.locale, table.slug),
+    index("idx_page_override_locale").on(table.locale),
+  ],
+);
+
+export const customHtmlPage = table(
+  "custom_html_page",
+  {
+    id: text("id").primaryKey(),
+    slug: text("slug").notNull(),
+    locale: text("locale").notNull(),
+    title: text("title"),
+    description: text("description"),
+    html: text("html").notNull(),
+    updatedBy: text("updated_by").references(() => user.id, {
+      onDelete: "set null",
+    }),
+    createdAt: timestamp("created_at").defaultNow().notNull(),
+    updatedAt: timestamp("updated_at")
+      .defaultNow()
+      .$onUpdate(() => /* @__PURE__ */ new Date())
+      .notNull(),
+  },
+  (table) => [
+    uniqueIndex("idx_custom_html_page_locale_slug").on(table.locale, table.slug),
+    index("idx_custom_html_page_locale").on(table.locale),
+  ],
+);
+
+export const customHtmlPageRevision = table(
+  "custom_html_page_revision",
+  {
+    id: text("id").primaryKey(),
+    pageId: text("page_id")
+      .notNull()
+      .references(() => customHtmlPage.id, { onDelete: "cascade" }),
+    slug: text("slug").notNull(),
+    locale: text("locale").notNull(),
+    title: text("title"),
+    description: text("description"),
+    html: text("html").notNull(),
+    createdBy: text("created_by").references(() => user.id, {
+      onDelete: "set null",
+    }),
+    createdAt: timestamp("created_at").defaultNow().notNull(),
+  },
+  (table) => [
+    index("idx_custom_html_page_revision_page_created_at").on(
+      table.pageId,
+      table.createdAt,
+    ),
+  ],
 );
 
 export const taxonomy = table(
@@ -162,6 +238,7 @@ export const taxonomy = table(
     type: text("type").notNull(),
     title: text("title").notNull(),
     description: text("description"),
+    targetUrl: text("target_url"),
     image: text("image"),
     icon: text("icon"),
     status: text("status").notNull(),
@@ -504,7 +581,9 @@ export const aiTask = table(
   "ai_task",
   {
     id: text("id").primaryKey(),
-    userId: text("user_id"),
+    userId: text("user_id")
+      .notNull()
+      .references(() => user.id, { onDelete: "cascade" }),
     mediaType: text("media_type").notNull(),
     provider: text("provider").notNull(),
     model: text("model").notNull(),
@@ -833,23 +912,18 @@ export const notification = table(
   ],
 );
 
-// ============================================
-// Fitness Video Library Tables
-// ============================================
-
-// 物品表 - 可用于健身的物品
 export const fitnessObject = table(
   "fitness_object",
   {
     id: text("id").primaryKey(),
-    name: text("name").notNull(), // 物品名称 (英文)
-    nameZh: text("name_zh"), // 物品名称 (中文)
-    aliases: text("aliases"), // 别名列表 (JSON array)
-    category: text("category").notNull(), // 分类: household, outdoor, gym, etc.
-    description: text("description"), // 物品描述
-    image: text("image"), // 物品图片URL
-    status: text("status").notNull().default("active"), // active, inactive
-    priority: integer("priority").default(0).notNull(), // higher = checked first by AI
+    name: text("name").notNull(),
+    nameZh: text("name_zh"),
+    aliases: text("aliases"),
+    category: text("category").notNull(),
+    description: text("description"),
+    image: text("image"),
+    status: text("status").notNull().default("active"),
+    priority: integer("priority").default(0).notNull(),
     createdAt: timestamp("created_at").defaultNow().notNull(),
     updatedAt: timestamp("updated_at")
       .$onUpdate(() => new Date())
@@ -863,16 +937,15 @@ export const fitnessObject = table(
   ],
 );
 
-// 身体部位表 - 肌肉群/身体部位
 export const bodyPart = table(
   "body_part",
   {
     id: text("id").primaryKey(),
-    name: text("name").notNull(), // 部位名称 (英文): chest, arms, legs, core, back, shoulders
-    nameZh: text("name_zh"), // 部位名称 (中文)
-    icon: text("icon"), // 图标名称
-    description: text("description"), // 部位描述
-    status: text("status").notNull().default("active"), // active, inactive
+    name: text("name").notNull(),
+    nameZh: text("name_zh"),
+    icon: text("icon"),
+    description: text("description"),
+    status: text("status").notNull().default("active"),
     sort: integer("sort").default(0).notNull(),
     createdAt: timestamp("created_at").defaultNow().notNull(),
     updatedAt: timestamp("updated_at")
@@ -885,25 +958,23 @@ export const bodyPart = table(
   ],
 );
 
-// 健身视频表 - 视频资源库
-// 健身视频组表 - 一个视频组包含多个不同角度的视频
 export const fitnessVideoGroup = table(
   "fitness_video_group",
   {
     id: text("id").primaryKey(),
-    title: text("title").notNull(), // 视频组标题
-    titleZh: text("title_zh"), // 视频组标题 (中文)
-    description: text("description"), // 视频组描述
-    descriptionZh: text("description_zh"), // 视频组描述 (中文)
-    thumbnailUrl: text("thumbnail_url"), // 缩略图URL
-    difficulty: text("difficulty").notNull().default("beginner"), // beginner, intermediate, advanced
-    gender: text("gender").notNull().default("unisex"), // male, female, unisex
-    accessType: text("access_type").notNull().default("free"), // free, premium, hidden
-    ageGroup: text("age_group").notNull().default("all"), // young, middle, senior, all
-    instructions: text("instructions"), // 动作说明
-    instructionsZh: text("instructions_zh"), // 动作说明 (中文)
-    tags: text("tags"), // 标签 (JSON array)
-    status: text("status").notNull().default("active"), // active, inactive, pending
+    title: text("title").notNull(),
+    titleZh: text("title_zh"),
+    description: text("description"),
+    descriptionZh: text("description_zh"),
+    thumbnailUrl: text("thumbnail_url"),
+    difficulty: text("difficulty").notNull().default("beginner"),
+    gender: text("gender").notNull().default("unisex"),
+    accessType: text("access_type").notNull().default("free"),
+    ageGroup: text("age_group").notNull().default("all"),
+    instructions: text("instructions"),
+    instructionsZh: text("instructions_zh"),
+    tags: text("tags"),
+    status: text("status").notNull().default("active"),
     viewCount: integer("view_count").default(0).notNull(),
     sort: integer("sort").default(0).notNull(),
     createdAt: timestamp("created_at").defaultNow().notNull(),
@@ -920,7 +991,6 @@ export const fitnessVideoGroup = table(
   ],
 );
 
-// 健身视频表 - 属于某个视频组的单个视频（不同角度）
 export const fitnessVideo = table(
   "fitness_video",
   {
@@ -928,12 +998,12 @@ export const fitnessVideo = table(
     groupId: text("group_id")
       .notNull()
       .references(() => fitnessVideoGroup.id, { onDelete: "cascade" }),
-    viewAngle: text("view_angle").notNull(), // 视角标签：front (正面), side (侧面), back (背面), 或自定义
-    viewAngleZh: text("view_angle_zh"), // 视角标签中文
-    videoUrl: text("video_url").notNull(), // 视频URL
-    duration: integer("duration"), // 视频时长 (秒)
-    sort: integer("sort").default(0).notNull(), // 排序
-    status: text("status").notNull().default("active"), // active, inactive
+    viewAngle: text("view_angle").notNull(),
+    viewAngleZh: text("view_angle_zh"),
+    videoUrl: text("video_url").notNull(),
+    duration: integer("duration"),
+    sort: integer("sort").default(0).notNull(),
+    status: text("status").notNull().default("active"),
     createdAt: timestamp("created_at").defaultNow().notNull(),
     updatedAt: timestamp("updated_at")
       .$onUpdate(() => new Date())
@@ -945,7 +1015,6 @@ export const fitnessVideo = table(
   ],
 );
 
-// 物品-视频组关联表 - 物品可以用于哪些健身视频组
 export const objectVideoMapping = table(
   "object_video_mapping",
   {
@@ -959,7 +1028,7 @@ export const objectVideoMapping = table(
     bodyPartId: text("body_part_id")
       .notNull()
       .references(() => bodyPart.id, { onDelete: "cascade" }),
-    isPrimary: boolean("is_primary").default(false).notNull(), // 是否为主要物品
+    isPrimary: boolean("is_primary").default(false).notNull(),
     createdAt: timestamp("created_at").defaultNow().notNull(),
   },
   (table) => [
@@ -970,7 +1039,6 @@ export const objectVideoMapping = table(
   ],
 );
 
-// User wizard progress - stores user's step-by-step selections
 export const userWizardProgress = table(
   "user_wizard_progress",
   {
@@ -978,19 +1046,12 @@ export const userWizardProgress = table(
     userId: text("user_id")
       .notNull()
       .references(() => user.id, { onDelete: "cascade" }),
-    // Step 1: Voice gender
-    voiceGender: text("voice_gender"), // 'male' | 'female'
-    // Step 2: Age group
-    ageGroup: text("age_group"), // 'young' | 'middle' | 'senior'
-    // Step 3: Difficulty
-    difficulty: text("difficulty"), // 'easy' | 'medium' | 'hard'
-    // Step 4: Reference images (JSON array of URLs)
-    referenceImages: text("reference_images"), // JSON string: ["url1", "url2"]
-    // Step 5: Selected body parts (JSON array)
-    selectedBodyParts: text("selected_body_parts"), // JSON string: ["neck", "shoulders", "chest"]
-    // Current step (1-5)
+    voiceGender: text("voice_gender"),
+    ageGroup: text("age_group"),
+    difficulty: text("difficulty"),
+    referenceImages: text("reference_images"),
+    selectedBodyParts: text("selected_body_parts"),
     currentStep: integer("current_step").default(1).notNull(),
-    // Additional settings
     aspectRatio: text("aspect_ratio").default("adaptive"),
     duration: integer("duration").default(12),
     generateAudio: boolean("generate_audio").default(true).notNull(),
@@ -1010,20 +1071,24 @@ export const supportChatMessage = table(
   "support_chat_message",
   {
     id: text("id").primaryKey(),
-    userId: text("user_id").notNull(),
+    userId: text("user_id")
+      .notNull()
+      .references(() => user.id, { onDelete: "cascade" }),
     content: text("content").notNull(),
-    type: text("type").notNull(), // user | admin
-    status: text("status").notNull().default("active"), // active | deleted
-    read: boolean("read").notNull().default(false),
+    type: text("type").notNull(), // user, admin
+    status: text("status").notNull().default("active"), // active, deleted
+    read: boolean("read").notNull().default(false), // For admin to track unread user messages
     createdAt: timestamp("created_at").defaultNow().notNull(),
     updatedAt: timestamp("updated_at")
-      .defaultNow()
       .$onUpdate(() => new Date())
       .notNull(),
   },
   (table) => [
+    // Query messages by user ordered by time
     index("idx_support_chat_user_created").on(table.userId, table.createdAt),
+    // Query unread messages for admin
     index("idx_support_chat_unread").on(table.type, table.read),
+    // Query by status
     index("idx_support_chat_status").on(table.status),
   ],
 );

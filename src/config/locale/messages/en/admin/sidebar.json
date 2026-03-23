@@ -51,6 +51,11 @@
               "url": "/admin/posts"
             },
             {
+              "title": "Pages",
+              "icon": "FileStack",
+              "url": "/admin/pages"
+            },
+            {
               "title": "Translations",
               "icon": "Languages",
               "url": "/admin/translations"

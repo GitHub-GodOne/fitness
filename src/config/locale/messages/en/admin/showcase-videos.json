@@ -43,6 +43,10 @@
   },
   "add": {
     "title": "Add Showcase Video",
+    "fields": {
+      "coverUrlDirectLabel": "Or paste cover image URL",
+      "coverUrlDirectPlaceholder": "https://example.com/cover.jpg"
+    },
     "crumbs": {
       "admin": "Admin",
       "videos": "Showcase Videos",
@@ -50,7 +54,9 @@
     },
     "buttons": {
       "submit": "Create Showcase Video",
-      "chooseVideo": "Choose Video from Library"
+      "chooseVideo": "Choose Video from Library",
+      "uploadVideo": "Upload Video",
+      "chooseCover": "Choose Cover from Library"
     },
     "messages": {
       "success": "Showcase video created"
@@ -58,6 +64,10 @@
   },
   "edit": {
     "title": "Review Showcase Video",
+    "fields": {
+      "coverUrlDirectLabel": "Or paste cover image URL",
+      "coverUrlDirectPlaceholder": "https://example.com/cover.jpg"
+    },
     "crumbs": {
       "admin": "Admin",
       "videos": "Showcase Videos",
@@ -65,7 +75,9 @@
     },
     "buttons": {
       "submit": "Save Review",
-      "chooseVideo": "Choose Video from Library"
+      "chooseVideo": "Choose Video from Library",
+      "uploadVideo": "Upload Video",
+      "chooseCover": "Choose Cover from Library"
     },
     "messages": {
       "notFound": "Showcase video not found",

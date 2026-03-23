@@ -1,14 +1,13 @@
 import { ReactNode } from 'react';
 import { getTranslations } from 'next-intl/server';
 
-import { getThemeLayout } from '@/core/theme';
+import { getThemeLayout, resolveActiveTheme } from '@/core/theme';
 import {
   GuestPageAccessGuard,
   LocaleDetector,
   TopBanner,
 } from '@/shared/blocks/common';
-import { CursorTrail } from '@/shared/components/cursor-trail';
-import { getConfigs } from '@/shared/models/config';
+import { getAllConfigs } from '@/shared/models/config';
 import { parseGuestAccessPaths } from '@/shared/lib/guest-access';
 import {
   Footer as FooterType,
@@ -23,11 +22,13 @@ export default async function LandingLayout({
   // load page data
   const [t, configs] = await Promise.all([
     getTranslations('landing'),
-    getConfigs(),
+    getAllConfigs(),
   ]);
 
+  const activeTheme = resolveActiveTheme(configs);
+
   // load layout component
-  const Layout = await getThemeLayout('landing');
+  const Layout = await getThemeLayout('landing', activeTheme);
 
   // header and footer to display
   const header: HeaderType = t.raw('header');
@@ -36,10 +37,15 @@ export default async function LandingLayout({
   const guestPagePopupPaths = parseGuestAccessPaths(
     configs.guest_page_popup_paths
   );
+  const mobileHeaderNavMode =
+    configs.mobile_header_nav_mode === 'tabs' ? 'tabs' : 'accordion';
 
   return (
-    <Layout header={header} footer={footer}>
-      <CursorTrail />
+    <Layout
+      header={header}
+      footer={footer}
+      mobileHeaderNavMode={mobileHeaderNavMode}
+    >
       <LocaleDetector />
       <GuestPageAccessGuard
         enabled={guestPagePopupEnabled}

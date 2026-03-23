@@ -3,6 +3,7 @@ import { notFound } from 'next/navigation';
 import { ArrowLeft } from 'lucide-react';
 
 import { Link } from '@/core/i18n/navigation';
+import { Skeleton } from '@/shared/components/ui/skeleton';
 import { getConfigs } from '@/shared/models/config';
 import {
   getShowcaseVideos,
@@ -10,7 +11,12 @@ import {
 } from '@/shared/models/showcase-video';
 import { getTaxonomies, TaxonomyStatus, TaxonomyType } from '@/shared/models/taxonomy';
 
+import { ShowcasesBackLink } from './showcases-back-link';
 import { ShowcaseVideoGallery } from './showcase-video-gallery';
+
+function getCategoryHref(item: { slug: string; targetUrl?: string | null }) {
+  return item.targetUrl?.trim() || `/showcases/${item.slug}`;
+}
 
 export async function ShowcasesPageContent({
   locale,
@@ -23,6 +29,8 @@ export async function ShowcasesPageContent({
   const configs = await getConfigs();
   const showcaseDisplayMode =
     configs.showcases_display_mode === 'cards' ? 'cards' : 'tabs';
+  const seoWatchPagesEnabled =
+    configs.showcases_video_page_mode === 'watch_page';
 
   const categories = await getTaxonomies({
     type: TaxonomyType.SHOWCASE_CATEGORY,
@@ -59,33 +67,37 @@ export async function ShowcasesPageContent({
         <section className="space-y-4">
           <div className="flex items-center justify-between gap-4">
             {showcaseDisplayMode === 'cards' && activeCategory ? (
-              <Link
+              <ShowcasesBackLink
                 href="/showcases"
                 className="inline-flex h-10 w-10 items-center justify-center rounded-full border text-muted-foreground transition hover:border-primary/40 hover:text-foreground"
-                aria-label={t('backToCategories')}
+                ariaLabel={t('backToCategories')}
                 title={t('backToCategories')}
               >
                 <ArrowLeft className="size-4" />
-              </Link>
+              </ShowcasesBackLink>
             ) : (
               <div />
             )}
 
-            <Link
-              href="/showcases/submit"
-              className="inline-flex h-11 items-center justify-center rounded-full bg-primary px-5 text-sm font-medium text-primary-foreground"
-            >
-              {t('submitCta')}
-            </Link>
+            {activeCategory ? (
+              <Link
+                href="/showcases/submit"
+                className="inline-flex h-9 items-center justify-center rounded-full bg-primary px-3.5 text-[11px] font-medium text-primary-foreground sm:h-11 sm:px-5 sm:text-sm"
+              >
+                {t('submitCta')}
+              </Link>
+            ) : (
+              <div />
+            )}
           </div>
 
           <div className="mx-auto max-w-3xl space-y-3 text-center">
-            <h1 className="text-4xl font-semibold tracking-tight text-foreground sm:text-5xl">
+            <h1 className="text-2xl font-semibold tracking-tight text-foreground sm:text-5xl">
               {activeCategory
                 ? activeCategory.title
                 : t('defaultTitle')}
             </h1>
-            <p className="text-muted-foreground text-lg">
+            <p className="text-sm text-muted-foreground sm:text-lg">
               {activeCategory
                 ? activeCategory.description || t('activeCategoryFallbackDescription')
                 : t('defaultDescription')}
@@ -110,7 +122,7 @@ export async function ShowcasesPageContent({
               return (
                 <Link
                   key={item.id}
-                  href={`/showcases/${item.slug}`}
+                  href={getCategoryHref(item)}
                   className={`rounded-full border px-4 py-2 text-sm transition ${
                     isActive
                       ? 'border-primary bg-primary text-primary-foreground'
@@ -129,16 +141,19 @@ export async function ShowcasesPageContent({
             {categories.map((item) => (
               <Link
                 key={item.id}
-                href={`/showcases/${item.slug}`}
+                href={getCategoryHref(item)}
                 className="group overflow-hidden rounded-3xl border bg-card transition hover:border-primary/40 hover:shadow-sm"
               >
                 <div className="relative aspect-[16/10] bg-muted">
+                  {item.image ? (
+                    <Skeleton className="absolute inset-0 rounded-none" />
+                  ) : null}
                   {item.image ? (
                     <img
                       src={item.image}
                       alt={item.title}
                       loading="lazy"
-                      className="h-full w-full object-cover transition duration-300 group-hover:scale-[1.02]"
+                      className="relative z-10 h-full w-full object-cover transition duration-300 group-hover:scale-[1.02]"
                     />
                   ) : (
                     <div className="flex h-full w-full items-center justify-center bg-gradient-to-br from-primary/10 via-secondary/10 to-accent/10">
@@ -170,7 +185,11 @@ export async function ShowcasesPageContent({
                 {t('emptyCategoryVideos')}
               </div>
             ) : (
-              <ShowcaseVideoGallery videos={videos} locale={locale} />
+              <ShowcaseVideoGallery
+                videos={videos}
+                locale={locale}
+                seoWatchPagesEnabled={seoWatchPagesEnabled}
+              />
             )}
           </section>
         ) : null}

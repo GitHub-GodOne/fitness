@@ -9,21 +9,26 @@ import {
   RefreshCw,
   ChevronLeft,
   ChevronRight,
+  X,
 } from "lucide-react";
 import { toast } from "sonner";
 
 import { AITaskStatus } from "@/extensions/ai/types";
 import { Button } from "@/shared/components/ui/button";
 import { Card, CardContent, CardHeader } from "@/shared/components/ui/card";
+import { Skeleton } from "@/shared/components/ui/skeleton";
+import { ShareButton } from "@/shared/blocks/common/share-button";
 import {
   Dialog,
   DialogContent,
-  DialogHeader,
+  DialogDescription,
   DialogTitle,
 } from "@/shared/components/ui/dialog";
+import { VideoGiftButton } from "@/shared/blocks/generator/video-gift-button";
 import {
   extractFinalPromptFromAITask,
   extractVerseReferenceFromAITask,
+  extractVideoCoverFromAITask,
   extractVideoUrlFromAITask,
 } from "@/shared/lib/ai-task-video";
 
@@ -64,6 +69,7 @@ export function PrayerGallery({
   const t = useTranslations("ai.video.generator");
   const [selectedVideo, setSelectedVideo] = useState<{
     url: string;
+    poster?: string | null;
     prompt: string | null;
     finalPrompt: string;
   } | null>(null);
@@ -118,6 +124,23 @@ export function PrayerGallery({
         toast.error(t("download_failed"));
       } finally {
         setDownloadingId(null);
+      }
+    },
+    [t],
+  );
+
+  const handleCopyFinalPrompt = useCallback(
+    async (value: string) => {
+      if (!value.trim()) {
+        return;
+      }
+
+      try {
+        await navigator.clipboard.writeText(value);
+        toast.success(t("copied"));
+      } catch (error) {
+        console.error("Failed to copy final prompt:", error);
+        toast.error(t("download_failed"));
       }
     },
     [t],
@@ -199,6 +222,7 @@ export function PrayerGallery({
                     options: task.options,
                     taskResult: task.taskResult,
                   });
+                  const coverUrl = extractVideoCoverFromAITask(task.taskResult);
                   const statusDisplay = getStatusDisplay(task.status);
                   const isProcessing =
                     task.status === AITaskStatus.PROCESSING ||
@@ -217,17 +241,28 @@ export function PrayerGallery({
                           task.status === AITaskStatus.SUCCESS &&
                           setSelectedVideo({
                             url: videoUrl,
+                            poster: coverUrl,
                             prompt: task.prompt,
                             finalPrompt,
                           })
                         }
                       >
                         {videoUrl && task.status === AITaskStatus.SUCCESS ? (
-                          <video
-                            src={videoUrl}
-                            className="w-full h-full object-cover"
-                            preload="metadata"
-                          />
+                          coverUrl ? (
+                            <>
+                              <Skeleton className="absolute inset-0 rounded-none" />
+                              <img
+                                src={coverUrl}
+                                alt={task.prompt || finalPrompt || "Prayer video"}
+                                loading="lazy"
+                                className="relative z-10 h-full w-full object-cover"
+                              />
+                            </>
+                          ) : (
+                            <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-primary/10 to-primary/20">
+                              <span className="text-4xl">🙏</span>
+                            </div>
+                          )
                         ) : (
                           <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-primary/5 to-primary/10">
                             {isProcessing ? (
@@ -256,6 +291,7 @@ export function PrayerGallery({
                               onClick={() =>
                                 setSelectedVideo({
                                   url: videoUrl!,
+                                  poster: coverUrl,
                                   prompt: task.prompt,
                                   finalPrompt,
                                 })
@@ -288,54 +324,70 @@ export function PrayerGallery({
 
                         {/* Final Prompt */}
                         {finalPrompt && (
-                          <div className="rounded-lg border bg-muted/20 p-2.5">
+                          <button
+                            type="button"
+                            className="block w-full rounded-lg border bg-muted/20 p-2.5 text-left transition hover:border-primary/40 hover:bg-muted/30"
+                            onClick={() => handleCopyFinalPrompt(finalPrompt)}
+                            title={t("copied")}
+                          >
                             <div className="mb-1 text-[11px] font-medium uppercase tracking-wide text-muted-foreground">
                               {t("history.final_prompt")}
                             </div>
                             <p className="line-clamp-3 text-xs text-foreground/90">
                               {finalPrompt}
                             </p>
-                          </div>
+                          </button>
                         )}
 
                         {/* Actions */}
                         {task.status === AITaskStatus.SUCCESS && videoUrl && (
-                          <div className="flex gap-2 pt-2">
+                          <div className="grid grid-cols-2 gap-2 pt-2 sm:grid-cols-4">
                             <Button
-                              size="sm"
-                              variant="default"
-                              className="flex-1 text-xs sm:text-sm h-8 sm:h-9"
+                              type="button"
+                              size="icon-sm"
+                              variant="outline"
+                              className="h-8 w-full shrink-0 text-foreground sm:h-9"
                               onClick={() =>
                                 setSelectedVideo({
                                   url: videoUrl,
+                                  poster: coverUrl,
                                   prompt: task.prompt,
                                   finalPrompt,
                                 })
                               }
+                              title={t("history.play")}
                             >
-                              <Play className="h-3.5 w-3.5 sm:h-4 sm:w-4 mr-1 sm:mr-1.5" />
-                              <span className="hidden sm:inline">
-                                {t("history.play")}
-                              </span>
+                              <Play className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
+                              <span className="sr-only">{t("history.play")}</span>
                             </Button>
                             <Button
-                              size="sm"
+                              type="button"
+                              size="icon-sm"
                               variant="outline"
-                              className="flex-1 text-xs sm:text-sm h-8 sm:h-9"
+                              className="h-8 w-full shrink-0 text-foreground sm:h-9"
                               onClick={() => handleDownload(task)}
                               disabled={downloadingId === task.id}
+                              title={t("history.download")}
                             >
                               {downloadingId === task.id ? (
                                 <Loader2 className="h-3.5 w-3.5 sm:h-4 sm:w-4 animate-spin" />
                               ) : (
-                                <>
-                                  <Download className="h-3.5 w-3.5 sm:h-4 sm:w-4 mr-1 sm:mr-1.5" />
-                                  <span className="hidden sm:inline">
-                                    {t("history.download")}
-                                  </span>
-                                </>
+                                <Download className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
                               )}
+                              <span className="sr-only">{t("history.download")}</span>
                             </Button>
+                            <VideoGiftButton
+                              taskId={task.id}
+                              videoUrl={videoUrl}
+                              prompt={task.prompt}
+                              className="h-8 w-full shrink-0 text-foreground sm:h-9"
+                            />
+                            <ShareButton
+                              url={videoUrl}
+                              size="icon-sm"
+                              variant="outline"
+                              className="h-8 w-full shrink-0 text-foreground sm:h-9"
+                            />
                           </div>
                         )}
                       </div>
@@ -389,23 +441,28 @@ export function PrayerGallery({
         open={!!selectedVideo}
         onOpenChange={() => setSelectedVideo(null)}
       >
-        <DialogContent className="max-w-none w-screen h-screen p-0 bg-black/95 border-none">
-          <DialogHeader className="px-6 pt-6 absolute top-0 left-0 right-0 z-10">
-            <div className="min-w-0">
-              <DialogTitle className="line-clamp-1 text-white">
-                {selectedVideo?.prompt || t("generated_videos")}
-              </DialogTitle>
-              {selectedVideo?.finalPrompt ? (
-                <p className="mt-2 line-clamp-2 max-w-3xl text-sm text-white/75">
-                  {selectedVideo.finalPrompt}
-                </p>
-              ) : null}
-            </div>
-          </DialogHeader>
+        <DialogContent className="!left-0 !top-0 !inset-0 !h-screen !w-screen !max-w-none !translate-x-0 !translate-y-0 rounded-none border-none bg-black/95 p-0">
+          <div className="sr-only">
+            <DialogTitle>{selectedVideo?.prompt || t("history.title")}</DialogTitle>
+            <DialogDescription>{selectedVideo?.finalPrompt || t("history.play")}</DialogDescription>
+          </div>
+          {/* Keep the playback surface clean; only show native controls. */}
+          <Button
+            type="button"
+            size="icon"
+            variant="ghost"
+            className="absolute right-4 top-4 z-20 h-10 w-10 rounded-full text-white hover:bg-white/10 hover:text-white"
+            onClick={() => setSelectedVideo(null)}
+            title={t("close")}
+          >
+            <X className="h-5 w-5" />
+            <span className="sr-only">{t("close")}</span>
+          </Button>
           <div className="w-full h-full flex items-center justify-center p-4">
             {selectedVideo && (
               <video
                 src={selectedVideo.url}
+                poster={selectedVideo.poster || undefined}
                 controls
                 autoPlay
                 loop

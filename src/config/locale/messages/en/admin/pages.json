@@ -1,0 +1,149 @@
+{
+  "fields": {
+    "page_type": "Page Type",
+    "slug": "Slug",
+    "title": "Title",
+    "description": "Description",
+    "content": "Content",
+    "locale": "Locale",
+    "source_file": "Source File",
+    "override_status": "Override Status",
+    "updated_at": "Last Override Update",
+    "url": "Page URL"
+  },
+  "list": {
+    "title": "Pages",
+    "description": "Manage both MDX-backed pages and custom HTML pages rendered inside the landing layout.",
+    "empty": "No pages found.",
+    "crumbs": {
+      "admin": "Admin",
+      "pages": "Pages"
+    },
+    "buttons": {
+      "edit": "Edit Override",
+      "edit_html": "Edit HTML Page",
+      "add_html": "Add HTML Page",
+      "delete": "Delete",
+      "view": "View Page"
+    },
+    "types": {
+      "mdx": "MDX Page",
+      "html": "HTML Page"
+    },
+    "source": {
+      "database_html": "Database HTML"
+    },
+    "status": {
+      "default": "MDX default",
+      "overridden": "Override active",
+      "custom_html": "Custom HTML"
+    }
+  },
+  "form": {
+    "add": {
+      "title": "Add HTML Page",
+      "description": "Create a custom HTML page that keeps the landing layout and renders your pasted or uploaded HTML code.",
+      "crumbs": {
+        "admin": "Admin",
+        "pages": "Pages",
+        "add": "Add HTML Page"
+      }
+    },
+    "edit": {
+      "title": "Edit HTML Page",
+      "description": "Update the route, metadata, and rendered HTML for this custom page.",
+      "crumbs": {
+        "admin": "Admin",
+        "pages": "Pages",
+        "edit": "Edit HTML Page"
+      }
+    },
+    "labels": {
+      "locale": "Locale",
+      "slug": "Route Path",
+      "title": "Title",
+      "description": "Description",
+      "html": "HTML Content",
+      "upload_html": "Import HTML File",
+      "upload_hint": "Select a local .html file to load its code into the editor.",
+      "submit_add": "Create HTML Page",
+      "submit_edit": "Save HTML Page",
+      "back": "Back to Pages",
+      "preview": "Preview Page",
+      "path_preview": "Preview path"
+    },
+    "cards": {
+      "details_title": "Page Details",
+      "details_description": "This page is stored in the database and rendered with the public landing layout.",
+      "history_title": "Save History",
+      "history_description": "Each save creates a full snapshot you can restore later.",
+      "history_empty": "No saved history yet.",
+      "route": "Route",
+      "updated_at": "Last Updated"
+    },
+    "buttons": {
+      "delete": "Delete HTML Page",
+      "restore_version": "Restore This Version"
+    },
+    "messages": {
+      "saved": "HTML page saved",
+      "deleted": "HTML page deleted",
+      "restored": "HTML page version restored",
+      "signin": "Please sign in again",
+      "not_found": "HTML page not found",
+      "slug_required": "Route path is required",
+      "invalid_locale": "Invalid locale",
+      "invalid_slug": "Route path can only contain letters, numbers, hyphens, underscores, and slashes",
+      "reserved_slug": "That route path is reserved by an existing page or system route",
+      "slug_exists": "That route path already exists",
+      "html_required": "HTML content is required"
+    }
+  },
+  "delete": {
+    "title": "Delete HTML Page",
+    "description": "Remove this custom HTML page from the database.",
+    "crumbs": {
+      "delete": "Delete"
+    },
+    "buttons": {
+      "confirm": "Delete Page",
+      "cancel": "Back to Edit"
+    },
+    "messages": {
+      "confirm": "This action will remove the custom HTML page and its sitemap entry.",
+      "only_custom_html": "This only applies to database HTML pages. MDX-backed pages cannot be deleted here."
+    }
+  },
+  "edit": {
+    "title": "Edit Page Override",
+    "description": "The form starts from the current page content. Matching the MDX file value will automatically fall back to the file instead of storing a duplicate override.",
+    "crumbs": {
+      "admin": "Admin",
+      "pages": "Pages",
+      "edit": "Edit Override"
+    },
+    "cards": {
+      "source_title": "Source",
+      "source_description": "These values come from the checked-in MDX file.",
+      "override_title": "Override",
+      "override_description": "Only values different from the MDX file will be saved to the database.",
+      "current_status": "Current Status",
+      "default_status": "MDX default",
+      "overridden_status": "Override active",
+      "route": "Route",
+      "file": "File"
+    },
+    "buttons": {
+      "submit": "Save Override",
+      "reset": "Reset Override",
+      "back": "Back to Pages",
+      "preview": "Preview Page"
+    },
+    "messages": {
+      "saved": "Page override saved",
+      "reset": "Page override reset",
+      "signin": "Please sign in again",
+      "not_found": "Static page not found"
+    }
+  }
+}

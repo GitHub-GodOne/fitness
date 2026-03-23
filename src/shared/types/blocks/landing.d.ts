@@ -44,6 +44,7 @@ export interface Header extends Section {
   user_nav?: UserNav;
   show_theme?: boolean;
   show_locale?: boolean;
+  show_notification?: boolean;
   show_sign?: boolean;
   className?: string;
 }

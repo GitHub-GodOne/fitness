@@ -4,6 +4,7 @@ import { ArrowLeft } from 'lucide-react';
 import { Link } from '@/core/i18n/navigation';
 import { AIMediaType, AITaskStatus } from '@/extensions/ai';
 import { Empty } from '@/shared/blocks/common';
+import { renderCustomHtmlPageOverride } from '@/shared/lib/custom-html-page-override';
 import {
   addShowcaseVideo,
   findShowcaseVideoBySourceTaskId,
@@ -33,6 +34,15 @@ export default async function ShowcaseSubmitPage({
   params: Promise<{ locale: string }>;
 }) {
   const { locale } = await params;
+  const customHtmlPage = await renderCustomHtmlPageOverride({
+    slug: 'showcases/submit',
+    locale,
+  });
+
+  if (customHtmlPage) {
+    return customHtmlPage;
+  }
+
   const t = await getTranslations({ locale, namespace: 'pages.showcases.page.submit' });
   const user = await getUserInfo();
 
@@ -191,21 +201,21 @@ export default async function ShowcaseSubmitPage({
   };
 
   return (
-    <div className="container pb-16 pt-24 lg:pt-28">
-      <div className="mx-auto max-w-6xl space-y-8">
-        <div className="space-y-3">
+    <div className="container overflow-x-hidden px-4 pb-16 pt-20 sm:px-6 sm:pt-24 lg:pt-28">
+      <div className="mx-auto min-w-0 max-w-6xl space-y-6 sm:space-y-8">
+        <div className="space-y-2 sm:space-y-3">
           <Link
             href="/showcases"
-            className="inline-flex h-10 w-10 items-center justify-center rounded-full border text-muted-foreground transition hover:border-primary/40 hover:text-foreground"
+            className="inline-flex h-9 w-9 sm:h-10 sm:w-10 items-center justify-center rounded-full border text-muted-foreground transition hover:border-primary/40 hover:text-foreground"
             aria-label={t('backToShowcases')}
             title={t('backToShowcases')}
           >
-            <ArrowLeft className="size-4" />
+            <ArrowLeft className="size-3.5 sm:size-4" />
           </Link>
-          <h1 className="text-3xl font-semibold tracking-tight">
+          <h1 className="text-2xl sm:text-3xl font-semibold tracking-tight">
             {t('title')}
           </h1>
-          <p className="text-muted-foreground">{t('description')}</p>
+          <p className="text-sm sm:text-base text-muted-foreground">{t('description')}</p>
         </div>
 
         <ShowcaseSubmitForm

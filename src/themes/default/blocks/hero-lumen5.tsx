@@ -32,6 +32,11 @@ interface HeroLumen5Section extends Omit<Section, "buttons"> {
     src: string;
     poster?: string;
   };
+  watch_page?: {
+    url: string;
+    title?: string;
+    link_title?: string;
+  };
   partner_logos?: Array<{
     src: string;
     alt: string;

@@ -1,17 +1,31 @@
-import { notFound } from 'next/navigation';
-import { getTranslations, setRequestLocale } from 'next-intl/server';
+import { notFound } from "next/navigation";
+import { getTranslations, setRequestLocale } from "next-intl/server";
 
-import { getThemePage } from '@/core/theme';
-import { envConfigs } from '@/config';
-import { getLocalPage } from '@/shared/models/post';
+import { getThemePage } from "@/core/theme";
+import { envConfigs } from "@/config";
+import { CustomHtmlRenderer } from "@/shared/blocks/common/custom-html-renderer";
+import { getCustomHtmlPageBySlug } from "@/shared/models/custom-html-page";
+import { getLocalPage } from "@/shared/models/static-page";
 
 export const revalidate = 3600;
 
 // Common bot/scanner path prefixes to reject early
 const BLOCKED_PREFIXES = [
-  'wp-', 'wordpress', '.env', 'admin', 'login', 'assets',
-  'cgi-bin', 'vendor', 'node_modules', '.git', 'xmlrpc',
-  'phpmyadmin', 'config', '.well-known', 'actuator',
+  "wp-",
+  "wordpress",
+  ".env",
+  "admin",
+  "login",
+  "assets",
+  "cgi-bin",
+  "vendor",
+  "node_modules",
+  ".git",
+  "xmlrpc",
+  "phpmyadmin",
+  "config",
+  ".well-known",
+  "actuator",
 ];
 
 // dynamic page metadata
@@ -23,24 +37,24 @@ export async function generateMetadata({
   const { locale, slug } = await params;
 
   // metadata values
-  let title = '';
-  let description = '';
-  let canonicalUrl = '';
+  let title = "";
+  let description = "";
+  let canonicalUrl = "";
 
   // 1. try to get static page metadata from
   // content/pages/**/*.mdx
 
   // static page slug
   const staticPageSlug =
-    typeof slug === 'string' ? slug : (slug as string[]).join('/') || '';
+    typeof slug === "string" ? slug : (slug as string[]).join("/") || "";
 
   // filter invalid slug
-  if (staticPageSlug.includes('.')) {
+  if (staticPageSlug.includes(".")) {
     return;
   }
 
   // block bot/scanner paths early
-  const firstSegment = staticPageSlug.split('/')[0].toLowerCase();
+  const firstSegment = staticPageSlug.split("/")[0].toLowerCase();
   if (BLOCKED_PREFIXES.some((p) => firstSegment.startsWith(p))) {
     return;
   }
@@ -51,13 +65,28 @@ export async function generateMetadata({
       ? `${envConfigs.app_url}/${locale}/${staticPageSlug}`
       : `${envConfigs.app_url}/${staticPageSlug}`;
 
+  const customHtmlPage = await getCustomHtmlPageBySlug({
+    slug: staticPageSlug,
+    locale,
+  });
+
+  if (customHtmlPage?.title || customHtmlPage?.description) {
+    return {
+      title: customHtmlPage.title || undefined,
+      description: customHtmlPage.description || undefined,
+      alternates: {
+        canonical: canonicalUrl,
+      },
+    };
+  }
+
   // get static page content
   const staticPage = await getLocalPage({ slug: staticPageSlug, locale });
 
   // return static page metadata
   if (staticPage) {
-    title = staticPage.title || '';
-    description = staticPage.description || '';
+    title = staticPage.title || "";
+    description = staticPage.description || "";
 
     return {
       title,
@@ -73,7 +102,7 @@ export async function generateMetadata({
 
   // dynamic page slug
   const dynamicPageSlug =
-    typeof slug === 'string' ? slug : (slug as string[]).join('.') || '';
+    typeof slug === "string" ? slug : (slug as string[]).join(".") || "";
 
   const messageKey = `pages.${dynamicPageSlug}`;
 
@@ -81,9 +110,9 @@ export async function generateMetadata({
     const t = await getTranslations({ locale, namespace: messageKey });
 
     // return dynamic page metadata
-    if (t.has('metadata')) {
-      title = t.raw('metadata.title');
-      description = t.raw('metadata.description');
+    if (t.has("metadata")) {
+      title = t.raw("metadata.title");
+      description = t.raw("metadata.description");
 
       return {
         title,
@@ -98,10 +127,10 @@ export async function generateMetadata({
   }
 
   // 3. return common metadata
-  const tc = await getTranslations('common.metadata');
+  const tc = await getTranslations("common.metadata");
 
-  title = tc('title');
-  description = tc('description');
+  title = tc("title");
+  description = tc("description");
 
   return {
     title,
@@ -125,17 +154,26 @@ export default async function DynamicPage({
 
   // static page slug
   const staticPageSlug =
-    typeof slug === 'string' ? slug : (slug as string[]).join('/') || '';
+    typeof slug === "string" ? slug : (slug as string[]).join("/") || "";
 
   // filter invalid slug
-  if (staticPageSlug.includes('.')) {
+  if (staticPageSlug.includes(".")) {
     return notFound();
   }
 
   // block bot/scanner paths early
-  const firstSegment = staticPageSlug.split('/')[0].toLowerCase();
+  const firstSegment = staticPageSlug.split("/")[0].toLowerCase();
   if (BLOCKED_PREFIXES.some((p) => firstSegment.startsWith(p))) {
     return notFound();
+  }
+
+  const customHtmlPage = await getCustomHtmlPageBySlug({
+    slug: staticPageSlug,
+    locale,
+  });
+
+  if (customHtmlPage) {
+    return <CustomHtmlRenderer className="min-w-0" html={customHtmlPage.html} />;
   }
 
   // get static page content
@@ -143,7 +181,7 @@ export default async function DynamicPage({
 
   // return static page
   if (staticPage) {
-    const Page = await getThemePage('static-page');
+    const Page = await getThemePage("static-page");
 
     return <Page locale={locale} post={staticPage} />;
   }
@@ -154,7 +192,7 @@ export default async function DynamicPage({
 
   // dynamic page slug
   const dynamicPageSlug =
-    typeof slug === 'string' ? slug : (slug as string[]).join('.') || '';
+    typeof slug === "string" ? slug : (slug as string[]).join(".") || "";
 
   const messageKey = `pages.${dynamicPageSlug}`;
 
@@ -162,9 +200,9 @@ export default async function DynamicPage({
     const t = await getTranslations({ locale, namespace: messageKey });
 
     // return dynamic page
-    if (t.has('page')) {
-      const Page = await getThemePage('dynamic-page');
-      return <Page locale={locale} page={t.raw('page')} />;
+    if (t.has("page")) {
+      const Page = await getThemePage("dynamic-page");
+      return <Page locale={locale} page={t.raw("page")} />;
     }
   } catch (error) {
     // ignore error if translation not found

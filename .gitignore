@@ -11,7 +11,7 @@
 
 # next.js
 /.next/
-
+/tailwindcss_build/
 /out/
 /public/pic/
 /public/video/

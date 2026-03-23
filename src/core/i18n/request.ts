@@ -1,3 +1,4 @@
+import { unstable_cache } from 'next/cache';
 import { getRequestConfig } from 'next-intl/server';
 
 import {
@@ -6,7 +7,10 @@ import {
   localeMessagesRootPath,
 } from '@/config/locale';
 import { applyMessageOverride } from '@/shared/lib/i18n-messages';
-import { getI18nMessageOverrides } from '@/shared/models/i18n-message';
+import {
+  CACHE_TAG_I18N_MESSAGES,
+  getI18nMessageOverrides,
+} from '@/shared/models/i18n-message';
 
 import { routing } from './config';
 
@@ -34,6 +38,58 @@ export async function loadMessages(
   }
 }
 
+async function buildMergedLocaleMessages(locale: string) {
+  const allMessages = await Promise.all(
+    localeMessagesPaths.map((path) => loadMessages(path, locale))
+  );
+
+  const messages: any = {};
+
+  localeMessagesPaths.forEach((path, index) => {
+    const localMessages = allMessages[index];
+
+    const keys = path.split('/');
+    let current = messages;
+
+    for (let i = 0; i < keys.length - 1; i++) {
+      if (!current[keys[i]]) {
+        current[keys[i]] = {};
+      }
+      current = current[keys[i]];
+    }
+
+    current[keys[keys.length - 1]] = localMessages;
+  });
+
+  try {
+    const overrides = await getI18nMessageOverrides(locale);
+    overrides.forEach((item) => {
+      applyMessageOverride(messages, item.namespace, item.key, item.value);
+    });
+  } catch (error) {
+    console.error('[i18n] failed to load message overrides:', error);
+  }
+
+  return messages;
+}
+
+const getMergedLocaleMessagesCached = unstable_cache(
+  async (locale: string) => buildMergedLocaleMessages(locale),
+  ['merged-locale-messages'],
+  {
+    revalidate: 3600,
+    tags: [CACHE_TAG_I18N_MESSAGES],
+  }
+);
+
+async function getMergedLocaleMessages(locale: string) {
+  if (process.env.NODE_ENV !== 'production') {
+    return buildMergedLocaleMessages(locale);
+  }
+
+  return getMergedLocaleMessagesCached(locale);
+}
+
 export default getRequestConfig(async ({ requestLocale }) => {
   let locale = await requestLocale;
   if (!locale || !routing.locales.includes(locale as string)) {
@@ -45,38 +101,7 @@ export default getRequestConfig(async ({ requestLocale }) => {
   }
 
   try {
-    // load all local messages
-    const allMessages = await Promise.all(
-      localeMessagesPaths.map((path) => loadMessages(path, locale))
-    );
-
-    // merge all local messages
-    const messages: any = {};
-
-    localeMessagesPaths.forEach((path, index) => {
-      const localMessages = allMessages[index];
-
-      const keys = path.split('/');
-      let current = messages;
-
-      for (let i = 0; i < keys.length - 1; i++) {
-        if (!current[keys[i]]) {
-          current[keys[i]] = {};
-        }
-        current = current[keys[i]];
-      }
-
-      current[keys[keys.length - 1]] = localMessages;
-    });
-
-    try {
-      const overrides = await getI18nMessageOverrides(locale);
-      overrides.forEach((item) => {
-        applyMessageOverride(messages, item.namespace, item.key, item.value);
-      });
-    } catch (error) {
-      console.error('[i18n] failed to load message overrides:', error);
-    }
+    const messages = await getMergedLocaleMessages(locale);
 
     return {
       locale,

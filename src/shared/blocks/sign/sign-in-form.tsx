@@ -88,7 +88,7 @@ export function SignInForm({
 
   return (
     <div className={`w-full md:max-w-md ${className}`}>
-      <div className="grid gap-4">
+      <div className="grid gap-3">
         {isEmailAuthEnabled && (
           <>
             <div className="grid gap-2">
@@ -96,6 +96,7 @@ export function SignInForm({
               <Input
                 id="email"
                 type="email"
+                className="transition-none"
                 placeholder={t('email_placeholder')}
                 required
                 onChange={(e) => {
@@ -117,6 +118,7 @@ export function SignInForm({
               <Input
                 id="password"
                 type="password"
+                className="transition-none"
                 placeholder={t('password_placeholder')}
                 autoComplete="password"
                 value={password}
@@ -158,7 +160,7 @@ export function SignInForm({
         />
       </div>
       {isEmailAuthEnabled && (
-        <div className="flex w-full justify-center border-t py-4">
+        <div className="flex w-full justify-center border-t pt-4 pb-2">
           <p className="text-center text-xs text-muted-foreground">
             {t('no_account')}
             <Link

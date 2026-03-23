@@ -32,12 +32,12 @@ export function MainHeader({
 }) {
   return (
     <div className="flex flex-col">
-      <div className="mb-6 flex items-center justify-between">
+      <div className="mb-6 flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
         <div className="flex flex-col gap-2">
           <h2 className="text-2xl font-bold tracking-tight">{title || ""}</h2>
           <p className="text-muted-foreground">{description || ""}</p>
         </div>
-        <div className="flex items-center gap-2">
+        <div className="flex w-full flex-wrap items-center gap-2 sm:w-auto sm:justify-end">
           <NotificationBell />
           {actions?.map((action, idx) => (
             <Link

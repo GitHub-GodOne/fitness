@@ -1,10 +1,12 @@
 'use client';
 
 import { useState, useEffect, useRef } from 'react';
-import { Loader2, Save, Folder, File, ChevronLeft, Image as ImageIcon, Video as VideoIcon, Trash2, Upload } from 'lucide-react';
+import { Loader2, Save, Folder, File, ChevronLeft, Image as ImageIcon, Video as VideoIcon, Trash2, Upload, FolderPlus } from 'lucide-react';
 import { toast } from 'sonner';
 
+import { Header, Main, MainHeader } from '@/shared/blocks/dashboard';
 import { Button } from '@/shared/components/ui/button';
+import { Input } from '@/shared/components/ui/input';
 import { Textarea } from '@/shared/components/ui/textarea';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/shared/components/ui/card';
 
@@ -20,9 +22,11 @@ export default function PublicFilesPage() {
   const [currentPath, setCurrentPath] = useState('');
   const [selectedFile, setSelectedFile] = useState('');
   const [content, setContent] = useState('');
+  const [newFolderName, setNewFolderName] = useState('');
   const [loading, setLoading] = useState(false);
   const [saving, setSaving] = useState(false);
   const [uploading, setUploading] = useState(false);
+  const [creatingFolder, setCreatingFolder] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
@@ -124,6 +128,39 @@ export default function PublicFilesPage() {
     }
   };
 
+  const createFolder = async () => {
+    const folderName = newFolderName.trim();
+    if (!folderName) {
+      toast.error('Folder name is required');
+      return;
+    }
+
+    setCreatingFolder(true);
+    try {
+      const res = await fetch('/api/admin/public-files', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          action: 'create_folder',
+          path: currentPath,
+          name: folderName,
+        }),
+      });
+      const data = await res.json();
+      if (data.code === 0) {
+        toast.success('Folder created successfully');
+        setNewFolderName('');
+        fetchItems(currentPath);
+      } else {
+        toast.error(data.message || 'Failed to create folder');
+      }
+    } catch (error) {
+      toast.error('Failed to create folder');
+    } finally {
+      setCreatingFolder(false);
+    }
+  };
+
   const handleUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
@@ -154,22 +191,51 @@ export default function PublicFilesPage() {
   };
 
   const selectedItem = items.find(i => i.path === selectedFile);
+  const crumbs = [
+    { title: 'Admin', url: '/admin' },
+    { title: 'Public Files', is_active: true },
+  ];
 
   return (
-    <div className="container mx-auto p-6 space-y-6">
-      <div>
-        <h1 className="text-3xl font-bold">Public Files Manager</h1>
-        <p className="text-muted-foreground mt-2">Browse and edit files in the public directory</p>
-      </div>
-
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
-        <Card className="md:col-span-1">
+    <>
+      <Header crumbs={crumbs} />
+      <Main>
+        <MainHeader
+          title="Public Files Manager"
+          description="Browse and edit files in the public directory"
+        />
+        <div className="grid grid-cols-1 gap-6 md:grid-cols-4">
+          <Card className="md:col-span-1">
           <CardHeader>
             <CardTitle>Files</CardTitle>
             <CardDescription>/{currentPath || 'public'}</CardDescription>
           </CardHeader>
           <CardContent>
             <div className="space-y-2 mb-4">
+              <div className="flex gap-2">
+                <Input
+                  value={newFolderName}
+                  onChange={(e) => setNewFolderName(e.target.value)}
+                  placeholder="New folder name"
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter') {
+                      e.preventDefault();
+                      void createFolder();
+                    }
+                  }}
+                />
+                <Button
+                  variant="outline"
+                  onClick={() => void createFolder()}
+                  disabled={creatingFolder}
+                >
+                  {creatingFolder ? (
+                    <Loader2 className="h-4 w-4 animate-spin" />
+                  ) : (
+                    <FolderPlus className="h-4 w-4" />
+                  )}
+                </Button>
+              </div>
               <input
                 ref={fileInputRef}
                 type="file"
@@ -220,14 +286,21 @@ export default function PublicFilesPage() {
               </div>
             )}
           </CardContent>
-        </Card>
+          </Card>
 
-        <Card className="md:col-span-3">
+          <Card className="md:col-span-3">
           <CardHeader>
-            <div className="flex items-center justify-between">
-              <CardTitle>{selectedFile || 'No file selected'}</CardTitle>
+            <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+              <CardTitle className="min-w-0 break-all text-base sm:text-lg">
+                {selectedFile || 'No file selected'}
+              </CardTitle>
               {selectedFile && !selectedItem?.isDirectory && (
-                <Button variant="destructive" size="sm" onClick={deleteFile}>
+                <Button
+                  variant="destructive"
+                  size="sm"
+                  className="w-full sm:w-auto"
+                  onClick={deleteFile}
+                >
                   <Trash2 className="h-4 w-4 mr-2" />
                   Delete
                 </Button>
@@ -266,8 +339,9 @@ export default function PublicFilesPage() {
               </div>
             )}
           </CardContent>
-        </Card>
-      </div>
-    </div>
+          </Card>
+        </div>
+      </Main>
+    </>
   );
 }

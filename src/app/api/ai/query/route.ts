@@ -6,6 +6,8 @@ import {
 } from '@/shared/models/ai_task';
 import { getUserInfo } from '@/shared/models/user';
 import { getAIService } from '@/shared/services/ai';
+import { ensureUploadedVideoThumbnail } from '@/shared/services/video-thumbnail';
+import { AIMediaType, AITaskStatus } from '@/extensions/ai/types';
 
 export async function POST(req: Request) {
   try {
@@ -57,6 +59,39 @@ export async function POST(req: Request) {
 
     if (!result?.taskStatus) {
       return respErr('query ai task failed');
+    }
+
+    if (
+      task.mediaType === AIMediaType.VIDEO &&
+      result.taskStatus === AITaskStatus.SUCCESS
+    ) {
+      const uploadedThumbnailUrl = await ensureUploadedVideoThumbnail({
+        taskId: task.id,
+        taskInfo: result.taskInfo,
+        taskResult: result.taskResult,
+      });
+
+      if (uploadedThumbnailUrl) {
+        if (Array.isArray(result.taskInfo?.videos)) {
+          result.taskInfo.videos = result.taskInfo.videos.map((item, index) =>
+            index === 0 && !item?.thumbnailUrl
+              ? {
+                  ...item,
+                  thumbnailUrl: uploadedThumbnailUrl,
+                }
+              : item,
+          );
+        }
+
+        result.taskResult = {
+          ...(result.taskResult || {}),
+          cover_url: result.taskResult?.cover_url || uploadedThumbnailUrl,
+          coverUrl: result.taskResult?.coverUrl || uploadedThumbnailUrl,
+          poster: result.taskResult?.poster || uploadedThumbnailUrl,
+          saved_last_frame_image:
+            result.taskResult?.saved_last_frame_image || uploadedThumbnailUrl,
+        };
+      }
     }
 
     // update ai task
