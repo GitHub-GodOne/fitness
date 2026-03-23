@@ -29,6 +29,8 @@ export async function ShowcasesPageContent({
   const configs = await getConfigs();
   const showcaseDisplayMode =
     configs.showcases_display_mode === 'cards' ? 'cards' : 'tabs';
+  const seoWatchPagesEnabled =
+    configs.showcases_video_page_mode === 'watch_page';
 
   const categories = await getTaxonomies({
     type: TaxonomyType.SHOWCASE_CATEGORY,
@@ -183,7 +185,11 @@ export async function ShowcasesPageContent({
                 {t('emptyCategoryVideos')}
               </div>
             ) : (
-              <ShowcaseVideoGallery videos={videos} locale={locale} />
+              <ShowcaseVideoGallery
+                videos={videos}
+                locale={locale}
+                seoWatchPagesEnabled={seoWatchPagesEnabled}
+              />
             )}
           </section>
         ) : null}

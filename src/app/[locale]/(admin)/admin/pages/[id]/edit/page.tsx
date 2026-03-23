@@ -16,7 +16,10 @@ import {
 } from "@/shared/components/ui/card";
 import {
   deleteCustomHtmlPageById,
+  getCustomHtmlPageDisplaySlug,
   getCustomHtmlPageById,
+  getCustomHtmlPageRevisionById,
+  getCustomHtmlPageRevisions,
   getCustomHtmlPageUrl,
   saveCustomHtmlPage,
   validateCustomHtmlPageInput,
@@ -45,7 +48,10 @@ export default async function EditHtmlPageAdminPage({
   });
 
   const t = await getTranslations("admin.pages");
-  const page = await getCustomHtmlPageById(id);
+  const [page, revisions] = await Promise.all([
+    getCustomHtmlPageById(id),
+    getCustomHtmlPageRevisions(id),
+  ]);
 
   if (!page) {
     return <Empty message={t("form.messages.not_found")} />;
@@ -60,6 +66,7 @@ export default async function EditHtmlPageAdminPage({
   const messages = {
     saved: t("form.messages.saved"),
     deleted: t("form.messages.deleted"),
+    restored: t("form.messages.restored"),
     signin: t("form.messages.signin"),
     slug_required: t("form.messages.slug_required"),
     invalid_locale: t("form.messages.invalid_locale"),
@@ -136,6 +143,47 @@ export default async function EditHtmlPageAdminPage({
     });
   }
 
+  async function restoreRevisionAction(revisionId: string) {
+    "use server";
+
+    await requirePermission({
+      code: PERMISSIONS.POSTS_WRITE,
+      redirectUrl: "/admin/no-permission",
+      locale,
+    });
+
+    const currentUser = await getUserInfo();
+    if (!currentUser) {
+      return redirect({
+        href: `/admin/pages/${page.id}/edit`,
+        locale,
+      });
+    }
+
+    const revision = await getCustomHtmlPageRevisionById(revisionId);
+    if (!revision || revision.pageId !== page.id) {
+      redirect({
+        href: `/admin/pages/${page.id}/edit`,
+        locale,
+      });
+    }
+
+    await saveCustomHtmlPage({
+      id: page.id,
+      slug: revision.slug,
+      locale: revision.locale,
+      title: revision.title || "",
+      description: revision.description || "",
+      html: revision.html,
+      updatedBy: currentUser.id,
+    });
+
+    redirect({
+      href: `/admin/pages/${page.id}/edit`,
+      locale,
+    });
+  }
+
   const previewUrl = getCustomHtmlPageUrl({
     slug: page.slug,
     locale: page.locale,
@@ -149,85 +197,125 @@ export default async function EditHtmlPageAdminPage({
           title={t("form.edit.title")}
           description={t("form.edit.description")}
         />
-        <div className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_320px]">
-          <HtmlPageEditorForm
-            action={updateHtmlPageAction}
-            defaultLocale={defaultLocale}
-            localeOptions={locales.map((value) => ({ value, label: value }))}
-            initialValues={{
-              slug: page.slug,
-              locale: page.locale,
-              title: page.title || "",
-              description: page.description || "",
-              html: page.html,
-            }}
-            labels={{
-              locale: t("form.labels.locale"),
-              slug: t("form.labels.slug"),
-              title: t("form.labels.title"),
-              description: t("form.labels.description"),
-              html: t("form.labels.html"),
-              uploadHtml: t("form.labels.upload_html"),
-              uploadHint: t("form.labels.upload_hint"),
-              submit: t("form.labels.submit_edit"),
-              back: t("form.labels.back"),
-              preview: t("form.labels.preview"),
-              pathPreview: t("form.labels.path_preview"),
-            }}
-            cancelUrl="/admin/pages"
-            previewUrl={previewUrl}
-            showMetadataFields={false}
-          />
-          <div className="space-y-6">
-            <Card>
-              <CardHeader>
-                <CardTitle>{t("form.cards.details_title")}</CardTitle>
-                <CardDescription>
-                  {t("form.cards.details_description")}
-                </CardDescription>
-              </CardHeader>
-              <CardContent className="space-y-4 text-sm">
-                <div>
-                  <div className="text-muted-foreground text-xs uppercase tracking-[0.12em]">
-                    {t("fields.slug")}
+        <div className="space-y-6">
+          <div className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_320px]">
+            <HtmlPageEditorForm
+              action={updateHtmlPageAction}
+              defaultLocale={defaultLocale}
+              localeOptions={locales.map((value) => ({ value, label: value }))}
+              initialValues={{
+                slug: page.slug || "/",
+                locale: page.locale,
+                title: page.title || "",
+                description: page.description || "",
+                html: page.html,
+              }}
+              labels={{
+                locale: t("form.labels.locale"),
+                slug: t("form.labels.slug"),
+                title: t("form.labels.title"),
+                description: t("form.labels.description"),
+                html: t("form.labels.html"),
+                uploadHtml: t("form.labels.upload_html"),
+                uploadHint: t("form.labels.upload_hint"),
+                submit: t("form.labels.submit_edit"),
+                back: t("form.labels.back"),
+                preview: t("form.labels.preview"),
+                pathPreview: t("form.labels.path_preview"),
+              }}
+              cancelUrl="/admin/pages"
+              previewUrl={previewUrl}
+              showMetadataFields={false}
+            />
+            <div className="space-y-6">
+              <Card>
+                <CardHeader>
+                  <CardTitle>{t("form.cards.details_title")}</CardTitle>
+                  <CardDescription>
+                    {t("form.cards.details_description")}
+                  </CardDescription>
+                </CardHeader>
+                <CardContent className="space-y-4 text-sm">
+                  <div>
+                    <div className="text-muted-foreground text-xs uppercase tracking-[0.12em]">
+                      {t("fields.slug")}
+                    </div>
+                    <div className="mt-1 break-all font-medium">
+                      {getCustomHtmlPageDisplaySlug(page.slug)}
+                    </div>
                   </div>
-                  <div className="mt-1 break-all font-medium">{page.slug}</div>
-                </div>
-                <div>
-                  <div className="text-muted-foreground text-xs uppercase tracking-[0.12em]">
-                    {t("fields.locale")}
+                  <div>
+                    <div className="text-muted-foreground text-xs uppercase tracking-[0.12em]">
+                      {t("fields.locale")}
+                    </div>
+                    <div className="mt-1 font-medium">{page.locale}</div>
                   </div>
-                  <div className="mt-1 font-medium">{page.locale}</div>
-                </div>
-                <div>
-                  <div className="text-muted-foreground text-xs uppercase tracking-[0.12em]">
-                    {t("form.cards.route")}
+                  <div>
+                    <div className="text-muted-foreground text-xs uppercase tracking-[0.12em]">
+                      {t("form.cards.route")}
+                    </div>
+                    <div className="mt-1 break-all font-medium">{previewUrl}</div>
                   </div>
-                  <div className="mt-1 break-all font-medium">{previewUrl}</div>
-                </div>
-                <div>
-                  <div className="text-muted-foreground text-xs uppercase tracking-[0.12em]">
-                    {t("form.cards.updated_at")}
+                  <div>
+                    <div className="text-muted-foreground text-xs uppercase tracking-[0.12em]">
+                      {t("form.cards.updated_at")}
+                    </div>
+                    <div className="mt-1 font-medium">
+                      {page.updatedAt.toLocaleString()}
+                    </div>
                   </div>
-                  <div className="mt-1 font-medium">
-                    {page.updatedAt.toLocaleString()}
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-            <Card>
-              <CardHeader>
-                <CardTitle>{t("form.buttons.delete")}</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <form action={deleteAction}>
-                  <Button type="submit" variant="outline" size="sm">
-                    {t("form.buttons.delete")}
-                  </Button>
-                </form>
-              </CardContent>
-            </Card>
+                </CardContent>
+              </Card>
+              <Card>
+                <CardHeader>
+                  <CardTitle>{t("form.buttons.delete")}</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <form action={deleteAction}>
+                    <Button type="submit" variant="outline" size="sm">
+                      {t("form.buttons.delete")}
+                    </Button>
+                  </form>
+                </CardContent>
+              </Card>
+            </div>
           </div>
+          <Card>
+            <CardHeader>
+              <CardTitle>{t("form.cards.history_title")}</CardTitle>
+              <CardDescription>
+                {t("form.cards.history_description")}
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-3">
+              {revisions.length > 0 ? (
+                revisions.map((revision) => (
+                  <div
+                    key={revision.id}
+                    className="flex flex-col gap-3 rounded-lg border p-3 md:flex-row md:items-center md:justify-between"
+                  >
+                    <div className="space-y-1 text-sm">
+                      <div className="font-medium">
+                        {revision.createdAt.toLocaleString()}
+                      </div>
+                      <div className="text-muted-foreground break-all text-xs">
+                        {getCustomHtmlPageDisplaySlug(revision.slug)}
+                      </div>
+                    </div>
+                    <form action={restoreRevisionAction.bind(null, revision.id)}>
+                      <Button type="submit" variant="outline" size="sm" className="w-full md:w-auto">
+                        {t("form.buttons.restore_version")}
+                      </Button>
+                    </form>
+                  </div>
+                ))
+              ) : (
+                <div className="text-muted-foreground text-sm">
+                  {t("form.cards.history_empty")}
+                </div>
+              )}
+            </CardContent>
+          </Card>
         </div>
       </Main>
     </>

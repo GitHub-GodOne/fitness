@@ -3,6 +3,10 @@ import { getTranslations, setRequestLocale } from 'next-intl/server';
 import { getThemePage } from '@/core/theme';
 import { envConfigs } from '@/config';
 import { Empty } from '@/shared/blocks/common';
+import {
+  getCustomHtmlPageOverrideMetadata,
+  renderCustomHtmlPageOverride,
+} from '@/shared/lib/custom-html-page-override';
 import { getPost } from '@/shared/models/post';
 import { DynamicPage } from '@/shared/types/blocks/landing';
 
@@ -15,6 +19,15 @@ export async function generateMetadata({
 }) {
   const { locale, slug } = await params;
   const t = await getTranslations('pages.blog.metadata');
+  const customHtmlMetadata = await getCustomHtmlPageOverrideMetadata({
+    slug: `blog/${slug}`,
+    locale,
+    canonicalPath: `/blog/${slug}`,
+  });
+
+  if (customHtmlMetadata) {
+    return customHtmlMetadata;
+  }
 
   const canonicalUrl =
     locale !== envConfigs.locale
@@ -48,6 +61,15 @@ export default async function BlogDetailPage({
 }) {
   const { locale, slug } = await params;
   setRequestLocale(locale);
+
+  const customHtmlPage = await renderCustomHtmlPageOverride({
+    slug: `blog/${slug}`,
+    locale,
+  });
+
+  if (customHtmlPage) {
+    return customHtmlPage;
+  }
 
   const post = await getPost({ slug, locale });
 

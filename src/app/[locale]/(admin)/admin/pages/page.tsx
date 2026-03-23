@@ -4,6 +4,7 @@ import { PERMISSIONS, requirePermission } from "@/core/rbac";
 import { Header, Main, MainHeader } from "@/shared/blocks/dashboard";
 import { TableCard } from "@/shared/blocks/table";
 import {
+  getCustomHtmlPageDisplaySlug,
   getCustomHtmlPageUrl,
   getCustomHtmlPages,
 } from "@/shared/models/custom-html-page";
@@ -51,8 +52,8 @@ export default async function PagesAdminPage({
     ...customHtmlPages.map((item) => ({
       id: item.id,
       pageType: t("list.types.html"),
-      title: item.title || item.slug,
-      slug: item.slug,
+      title: item.title || getCustomHtmlPageDisplaySlug(item.slug),
+      slug: getCustomHtmlPageDisplaySlug(item.slug),
       locale: item.locale,
       sourceFile: t("list.source.database_html"),
       overrideStatus: t("list.status.custom_html"),

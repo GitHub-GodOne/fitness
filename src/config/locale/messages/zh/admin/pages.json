@@ -75,15 +75,20 @@
     "cards": {
       "details_title": "页面信息",
       "details_description": "这个页面存储在数据库中，并使用前台落地页布局渲染。",
+      "history_title": "保存历史",
+      "history_description": "每次保存都会生成完整快照，后面可以直接恢复。",
+      "history_empty": "暂时还没有保存历史。",
       "route": "路由",
       "updated_at": "最近更新时间"
     },
     "buttons": {
-      "delete": "删除 HTML 页面"
+      "delete": "删除 HTML 页面",
+      "restore_version": "恢复这个版本"
     },
     "messages": {
       "saved": "HTML 页面已保存",
       "deleted": "HTML 页面已删除",
+      "restored": "HTML 页面版本已恢复",
       "signin": "请重新登录",
       "not_found": "未找到 HTML 页面",
       "slug_required": "必须填写页面路径",

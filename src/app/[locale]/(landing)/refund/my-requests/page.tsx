@@ -1,6 +1,7 @@
 import { getTranslations, setRequestLocale } from 'next-intl/server';
 import { redirect } from '@/core/i18n/navigation';
 
+import { renderCustomHtmlPageOverride } from '@/shared/lib/custom-html-page-override';
 import { getUserInfo } from '@/shared/models/user';
 import { MyRefundRequests } from '@/shared/blocks/common/my-refund-requests';
 
@@ -11,6 +12,15 @@ export default async function MyRefundRequestsPage({
 }) {
   const { locale } = await params;
   setRequestLocale(locale);
+
+  const customHtmlPage = await renderCustomHtmlPageOverride({
+    slug: 'refund/my-requests',
+    locale,
+  });
+
+  if (customHtmlPage) {
+    return customHtmlPage;
+  }
 
   const user = await getUserInfo();
   if (!user) {

@@ -88,8 +88,19 @@
       }
     },
     "gallery": {
+      "dateLocale": "zh-CN",
       "descriptionFallback": "点击在当前页面全屏查看这个视频作品。",
       "closeVideo": "关闭视频"
+    },
+    "watch": {
+      "dateLocale": "zh-CN",
+      "backToShowcases": "返回案例库",
+      "backToCategory": "返回当前分类",
+      "videoLabel": "主视频",
+      "relatedTitle": "更多视频作品",
+      "relatedDescription": "继续浏览这个分类下其他已发布的视频作品。",
+      "emptyRelatedVideos": "这个分类下暂时没有其他已发布的视频。",
+      "descriptionFallback": "观看这个已发布的视频作品。"
     }
   }
 }

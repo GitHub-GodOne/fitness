@@ -5,6 +5,10 @@ import { getThemePage } from '@/core/theme';
 import { envConfigs } from '@/config';
 import { Empty } from '@/shared/blocks/common';
 import {
+  getCustomHtmlPageOverrideMetadata,
+  renderCustomHtmlPageOverride,
+} from '@/shared/lib/custom-html-page-override';
+import {
   PostType as DBPostType,
   getPosts,
   PostStatus,
@@ -29,6 +33,16 @@ export async function generateMetadata({
   params: Promise<{ locale: string; slug: string }>;
 }) {
   const { locale, slug } = await params;
+  const customHtmlMetadata = await getCustomHtmlPageOverrideMetadata({
+    slug: `blog/category/${slug}`,
+    locale,
+    canonicalPath: `/blog/category/${slug}`,
+  });
+
+  if (customHtmlMetadata) {
+    return customHtmlMetadata;
+  }
+
   const t = await getTranslations('pages.blog.metadata');
 
   return {
@@ -52,6 +66,15 @@ export default async function CategoryBlogPage({
 }) {
   const { locale, slug } = await params;
   setRequestLocale(locale);
+
+  const customHtmlPage = await renderCustomHtmlPageOverride({
+    slug: `blog/category/${slug}`,
+    locale,
+  });
+
+  if (customHtmlPage) {
+    return customHtmlPage;
+  }
 
   // load blog data
   const t = await getTranslations('pages.blog');

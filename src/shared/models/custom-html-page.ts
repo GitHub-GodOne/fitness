@@ -1,9 +1,8 @@
-import { and, asc, eq, ne } from "drizzle-orm";
+import { and, asc, desc, eq, ne } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
 
 import { defaultLocale, locales } from "@/config/locale";
-import { customHtmlPage } from "@/config/db/schema";
-import { pagesSource } from "@/core/docs/source";
+import { customHtmlPage, customHtmlPageRevision } from "@/config/db/schema";
 import { db } from "@/core/db";
 import { getUuid } from "@/shared/lib/hash";
 import {
@@ -12,27 +11,19 @@ import {
 } from "@/shared/lib/sitemap-updater";
 
 export type CustomHtmlPage = typeof customHtmlPage.$inferSelect;
+export type CustomHtmlPageRevision = typeof customHtmlPageRevision.$inferSelect;
 
 const RESERVED_LANDING_SEGMENTS = new Set([
   "admin",
-  "ai-image-generator",
-  "ai-music-generator",
-  "ai-video-generator",
   "api",
   "assets",
-  "blog",
   "cgi-bin",
-  "comments",
   "config",
   "docs",
   "login",
   "node_modules",
   "phpmyadmin",
-  "pricing",
-  "refund",
   "settings",
-  "showcases",
-  "updates",
   "vendor",
   "wordpress",
   "xmlrpc",
@@ -49,6 +40,10 @@ function buildLocalizedPath({
   slug: string;
   locale: string;
 }) {
+  if (!slug) {
+    return locale === defaultLocale ? "/" : `/${locale}`;
+  }
+
   return locale === defaultLocale ? `/${slug}` : `/${locale}/${slug}`;
 }
 
@@ -97,7 +92,7 @@ export function extractRenderableHtml(html: string) {
 function isReservedSlug(slug: string) {
   const firstSegment = slug.split("/")[0]?.toLowerCase() || "";
   if (!firstSegment) {
-    return true;
+    return false;
   }
 
   if (RESERVED_LANDING_SEGMENTS.has(firstSegment)) {
@@ -147,6 +142,25 @@ export async function getCustomHtmlPageBySlug({
   return result ?? null;
 }
 
+export async function getCustomHtmlPageRevisions(pageId: string, limit = 20) {
+  return await db()
+    .select()
+    .from(customHtmlPageRevision)
+    .where(eq(customHtmlPageRevision.pageId, pageId))
+    .orderBy(desc(customHtmlPageRevision.createdAt))
+    .limit(limit);
+}
+
+export async function getCustomHtmlPageRevisionById(id: string) {
+  const [result] = await db()
+    .select()
+    .from(customHtmlPageRevision)
+    .where(eq(customHtmlPageRevision.id, id))
+    .limit(1);
+
+  return result ?? null;
+}
+
 export async function validateCustomHtmlPageInput({
   id,
   slug,
@@ -159,10 +173,12 @@ export async function validateCustomHtmlPageInput({
   html: string;
 }) {
   const normalizedSlug = normalizeCustomHtmlPageSlug(slug);
+  const rawSlug = slug.trim();
   const normalizedLocale = locale.trim();
   const normalizedHtml = html.trim();
+  const isRootPath = !normalizedSlug && rawSlug === "/";
 
-  if (!normalizedSlug) {
+  if (!normalizedSlug && !isRootPath) {
     return { error: "slug_required" as const };
   }
 
@@ -174,22 +190,17 @@ export async function validateCustomHtmlPageInput({
     return { error: "invalid_slug" as const };
   }
 
-  const segments = normalizedSlug.split("/");
+  const segments = normalizedSlug ? normalizedSlug.split("/") : [];
   if (segments.some((segment) => !SLUG_SEGMENT_PATTERN.test(segment))) {
     return { error: "invalid_slug" as const };
   }
 
-  if (isReservedSlug(normalizedSlug)) {
+  if (normalizedSlug && isReservedSlug(normalizedSlug)) {
     return { error: "reserved_slug" as const };
   }
 
   if (!normalizedHtml) {
     return { error: "html_required" as const };
-  }
-
-  const localPage = await pagesSource.getPage(segments, normalizedLocale);
-  if (localPage) {
-    return { error: "slug_exists" as const };
   }
 
   const existing = await db()
@@ -264,6 +275,19 @@ export async function saveCustomHtmlPage({
     })
     .returning();
 
+  if (result) {
+    await db().insert(customHtmlPageRevision).values({
+      id: getUuid(),
+      pageId: result.id,
+      slug: result.slug,
+      locale: result.locale,
+      title: result.title,
+      description: result.description,
+      html: result.html,
+      createdBy: updatedBy ?? null,
+    });
+  }
+
   revalidateCustomHtmlPagePaths({ slug, locale });
   await addUrlToSitemap(buildLocalizedPath({ slug, locale }));
 
@@ -317,4 +341,8 @@ export function getCustomHtmlPageUrl({
   locale: string;
 }) {
   return buildLocalizedPath({ slug, locale });
+}
+
+export function getCustomHtmlPageDisplaySlug(slug: string) {
+  return slug || "/";
 }

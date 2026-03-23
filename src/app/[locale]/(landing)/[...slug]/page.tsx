@@ -65,6 +65,21 @@ export async function generateMetadata({
       ? `${envConfigs.app_url}/${locale}/${staticPageSlug}`
       : `${envConfigs.app_url}/${staticPageSlug}`;
 
+  const customHtmlPage = await getCustomHtmlPageBySlug({
+    slug: staticPageSlug,
+    locale,
+  });
+
+  if (customHtmlPage?.title || customHtmlPage?.description) {
+    return {
+      title: customHtmlPage.title || undefined,
+      description: customHtmlPage.description || undefined,
+      alternates: {
+        canonical: canonicalUrl,
+      },
+    };
+  }
+
   // get static page content
   const staticPage = await getLocalPage({ slug: staticPageSlug, locale });
 
@@ -72,24 +87,6 @@ export async function generateMetadata({
   if (staticPage) {
     title = staticPage.title || "";
     description = staticPage.description || "";
-
-    return {
-      title,
-      description,
-      alternates: {
-        canonical: canonicalUrl,
-      },
-    };
-  }
-
-  const customHtmlPage = await getCustomHtmlPageBySlug({
-    slug: staticPageSlug,
-    locale,
-  });
-
-  if (customHtmlPage) {
-    title = customHtmlPage.title || "";
-    description = customHtmlPage.description || "";
 
     return {
       title,
@@ -170,6 +167,15 @@ export default async function DynamicPage({
     return notFound();
   }
 
+  const customHtmlPage = await getCustomHtmlPageBySlug({
+    slug: staticPageSlug,
+    locale,
+  });
+
+  if (customHtmlPage) {
+    return <CustomHtmlRenderer className="min-w-0" html={customHtmlPage.html} />;
+  }
+
   // get static page content
   const staticPage = await getLocalPage({ slug: staticPageSlug, locale });
 
@@ -178,15 +184,6 @@ export default async function DynamicPage({
     const Page = await getThemePage("static-page");
 
     return <Page locale={locale} post={staticPage} />;
-  }
-
-  const customHtmlPage = await getCustomHtmlPageBySlug({
-    slug: staticPageSlug,
-    locale,
-  });
-
-  if (customHtmlPage) {
-    return <CustomHtmlRenderer className="min-w-0" html={customHtmlPage.html} />;
   }
 
   // 2. static page not found

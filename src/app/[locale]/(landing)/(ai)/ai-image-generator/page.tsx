@@ -2,15 +2,35 @@ import { getTranslations, setRequestLocale } from 'next-intl/server';
 
 import { getThemePage } from '@/core/theme';
 import { ImageGenerator } from '@/shared/blocks/generator';
+import {
+  getCustomHtmlPageOverrideMetadata,
+  renderCustomHtmlPageOverride,
+} from '@/shared/lib/custom-html-page-override';
 import { getMetadata } from '@/shared/lib/seo';
 import { DynamicPage } from '@/shared/types/blocks/landing';
 
 export const revalidate = 3600;
 
-export const generateMetadata = getMetadata({
+const getDefaultMetadata = getMetadata({
   metadataKey: 'ai.image.metadata',
   canonicalUrl: '/ai-image-generator',
 });
+
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ locale: string }>;
+}) {
+  const { locale } = await params;
+
+  const customHtmlMetadata = await getCustomHtmlPageOverrideMetadata({
+    slug: 'ai-image-generator',
+    locale,
+    canonicalPath: '/ai-image-generator',
+  });
+
+  return customHtmlMetadata ?? getDefaultMetadata({ params });
+}
 
 export default async function AiImageGeneratorPage({
   params,
@@ -19,6 +39,15 @@ export default async function AiImageGeneratorPage({
 }) {
   const { locale } = await params;
   setRequestLocale(locale);
+
+  const customHtmlPage = await renderCustomHtmlPageOverride({
+    slug: 'ai-image-generator',
+    locale,
+  });
+
+  if (customHtmlPage) {
+    return customHtmlPage;
+  }
 
   // get ai image data
   const t = await getTranslations('ai.image');

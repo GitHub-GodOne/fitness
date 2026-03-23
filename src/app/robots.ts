@@ -11,6 +11,6 @@ export default function robots(): MetadataRoute.Robots {
       allow: "/",
       disallow: ["/api/", "/admin/", "/activity/", "/settings/", "/*?callbackUrl=*"],
     },
-    sitemap: `${appUrl}/sitemap.xml`,
+    sitemap: [`${appUrl}/sitemap.xml`, `${appUrl}/video-sitemap.xml`],
   };
 }

@@ -201,6 +201,31 @@ export const customHtmlPage = table(
   ],
 );
 
+export const customHtmlPageRevision = table(
+  "custom_html_page_revision",
+  {
+    id: text("id").primaryKey(),
+    pageId: text("page_id")
+      .notNull()
+      .references(() => customHtmlPage.id, { onDelete: "cascade" }),
+    slug: text("slug").notNull(),
+    locale: text("locale").notNull(),
+    title: text("title"),
+    description: text("description"),
+    html: text("html").notNull(),
+    createdBy: text("created_by").references(() => user.id, {
+      onDelete: "set null",
+    }),
+    createdAt: timestamp("created_at").defaultNow().notNull(),
+  },
+  (table) => [
+    index("idx_custom_html_page_revision_page_created_at").on(
+      table.pageId,
+      table.createdAt,
+    ),
+  ],
+);
+
 export const taxonomy = table(
   "taxonomy",
   {

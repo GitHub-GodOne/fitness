@@ -1,7 +1,8 @@
-import { and, count, desc, eq, inArray } from 'drizzle-orm';
+import { and, count, desc, eq, inArray, ne } from 'drizzle-orm';
 
 import { db } from '@/core/db';
 import { showcaseVideo } from '@/config/db/schema';
+import { parseShowcaseVideoIdFromWatchSlug } from '@/shared/lib/showcase-video-url';
 import { appendUserToResult } from '@/shared/models/user';
 
 export type ShowcaseVideo = typeof showcaseVideo.$inferSelect & {
@@ -45,6 +46,26 @@ export async function findShowcaseVideoById(id: string) {
   return result;
 }
 
+export async function findPublishedShowcaseVideoByWatchSlug(watchSlug: string) {
+  const id = parseShowcaseVideoIdFromWatchSlug(watchSlug);
+  if (!id) {
+    return null;
+  }
+
+  const [result] = await db()
+    .select()
+    .from(showcaseVideo)
+    .where(
+      and(
+        eq(showcaseVideo.id, id),
+        eq(showcaseVideo.status, ShowcaseVideoStatus.PUBLISHED)
+      )
+    )
+    .limit(1);
+
+  return result ?? null;
+}
+
 export async function findShowcaseVideoBySourceTaskId(params: {
   userId: string;
   sourceTaskId: string;
@@ -68,6 +89,7 @@ export async function getShowcaseVideos({
   userId,
   categoryId,
   status,
+  excludeId,
   page = 1,
   limit = 24,
   getUser = false,
@@ -76,6 +98,7 @@ export async function getShowcaseVideos({
   userId?: string;
   categoryId?: string;
   status?: ShowcaseVideoStatus | string;
+  excludeId?: string;
   page?: number;
   limit?: number;
   getUser?: boolean;
@@ -88,7 +111,8 @@ export async function getShowcaseVideos({
         ids ? inArray(showcaseVideo.id, ids) : undefined,
         userId ? eq(showcaseVideo.userId, userId) : undefined,
         categoryId ? eq(showcaseVideo.categoryId, categoryId) : undefined,
-        status ? eq(showcaseVideo.status, status) : undefined
+        status ? eq(showcaseVideo.status, status) : undefined,
+        excludeId ? ne(showcaseVideo.id, excludeId) : undefined
       )
     )
     .orderBy(desc(showcaseVideo.featured), desc(showcaseVideo.sort), desc(showcaseVideo.createdAt))

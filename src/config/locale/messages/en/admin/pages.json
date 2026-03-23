@@ -75,15 +75,20 @@
     "cards": {
       "details_title": "Page Details",
       "details_description": "This page is stored in the database and rendered with the public landing layout.",
+      "history_title": "Save History",
+      "history_description": "Each save creates a full snapshot you can restore later.",
+      "history_empty": "No saved history yet.",
       "route": "Route",
       "updated_at": "Last Updated"
     },
     "buttons": {
-      "delete": "Delete HTML Page"
+      "delete": "Delete HTML Page",
+      "restore_version": "Restore This Version"
     },
     "messages": {
       "saved": "HTML page saved",
       "deleted": "HTML page deleted",
+      "restored": "HTML page version restored",
       "signin": "Please sign in again",
       "not_found": "HTML page not found",
       "slug_required": "Route path is required",

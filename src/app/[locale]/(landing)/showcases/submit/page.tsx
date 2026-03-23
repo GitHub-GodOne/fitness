@@ -4,6 +4,7 @@ import { ArrowLeft } from 'lucide-react';
 import { Link } from '@/core/i18n/navigation';
 import { AIMediaType, AITaskStatus } from '@/extensions/ai';
 import { Empty } from '@/shared/blocks/common';
+import { renderCustomHtmlPageOverride } from '@/shared/lib/custom-html-page-override';
 import {
   addShowcaseVideo,
   findShowcaseVideoBySourceTaskId,
@@ -33,6 +34,15 @@ export default async function ShowcaseSubmitPage({
   params: Promise<{ locale: string }>;
 }) {
   const { locale } = await params;
+  const customHtmlPage = await renderCustomHtmlPageOverride({
+    slug: 'showcases/submit',
+    locale,
+  });
+
+  if (customHtmlPage) {
+    return customHtmlPage;
+  }
+
   const t = await getTranslations({ locale, namespace: 'pages.showcases.page.submit' });
   const user = await getUserInfo();
 

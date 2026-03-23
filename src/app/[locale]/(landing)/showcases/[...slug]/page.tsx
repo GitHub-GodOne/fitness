@@ -3,6 +3,10 @@ import { setRequestLocale } from 'next-intl/server';
 import { envConfigs } from '@/config';
 import { defaultLocale } from '@/config/locale';
 import {
+  getCustomHtmlPageOverrideMetadata,
+  renderCustomHtmlPageOverride,
+} from '@/shared/lib/custom-html-page-override';
+import {
   getTaxonomies,
   TaxonomyStatus,
   TaxonomyType,
@@ -21,6 +25,16 @@ export async function generateMetadata({
   setRequestLocale(locale);
 
   const categorySlug = Array.isArray(slug) ? slug.join('/') : slug;
+  const customHtmlMetadata = await getCustomHtmlPageOverrideMetadata({
+    slug: `showcases/${categorySlug}`,
+    locale,
+    canonicalPath: `/showcases/${categorySlug}`,
+  });
+
+  if (customHtmlMetadata) {
+    return customHtmlMetadata;
+  }
+
   const categories = await getTaxonomies({
     type: TaxonomyType.SHOWCASE_CATEGORY,
     status: TaxonomyStatus.PUBLISHED,
@@ -60,6 +74,14 @@ export default async function ShowcaseCategoryPage({
   setRequestLocale(locale);
 
   const categorySlug = Array.isArray(slug) ? slug.join('/') : slug;
+  const customHtmlPage = await renderCustomHtmlPageOverride({
+    slug: `showcases/${categorySlug}`,
+    locale,
+  });
+
+  if (customHtmlPage) {
+    return customHtmlPage;
+  }
 
   return <ShowcasesPageContent locale={locale} categorySlug={categorySlug} />;
 }

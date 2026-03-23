@@ -15,6 +15,7 @@ import {
 import {
   deleteCustomHtmlPageById,
   getCustomHtmlPageById,
+  getCustomHtmlPageDisplaySlug,
   getCustomHtmlPageUrl,
 } from "@/shared/models/custom-html-page";
 import { Crumb } from "@/shared/types/blocks/common";
@@ -77,7 +78,7 @@ export default async function DeleteHtmlPageAdminPage({
         />
         <Card className="max-w-xl">
           <CardHeader>
-            <CardTitle>{page.slug}</CardTitle>
+            <CardTitle>{getCustomHtmlPageDisplaySlug(page.slug)}</CardTitle>
             <CardDescription>{previewUrl}</CardDescription>
           </CardHeader>
           <CardContent className="space-y-6">
