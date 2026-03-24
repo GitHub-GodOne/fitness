@@ -36,7 +36,9 @@
     "status": {
       "default": "MDX 默认值",
       "overridden": "已启用覆盖",
-      "custom_html": "自定义 HTML"
+      "custom_html": "自定义 HTML",
+      "custom_html_active": "自定义 HTML 已启用",
+      "custom_html_inactive": "自定义 HTML 已停用"
     }
   },
   "form": {
@@ -75,15 +77,22 @@
     "cards": {
       "details_title": "页面信息",
       "details_description": "这个页面存储在数据库中，并使用前台落地页布局渲染。",
+      "publish_title": "发布状态",
+      "publish_description": "可以直接停用这个页面而不删除。停用后前台将不再渲染它。",
       "history_title": "保存历史",
       "history_description": "每次保存都会生成完整快照，后面可以直接恢复。",
       "history_empty": "暂时还没有保存历史。",
       "route": "路由",
-      "updated_at": "最近更新时间"
+      "updated_at": "最近更新时间",
+      "active_state": "当前状态",
+      "active_state_enabled": "已启用",
+      "active_state_disabled": "已停用"
     },
     "buttons": {
       "delete": "删除 HTML 页面",
-      "restore_version": "恢复这个版本"
+      "restore_version": "恢复这个版本",
+      "disable": "停用页面",
+      "enable": "启用页面"
     },
     "messages": {
       "saved": "HTML 页面已保存",

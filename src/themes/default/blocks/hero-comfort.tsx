@@ -8,6 +8,7 @@ import { Link } from '@/core/i18n/navigation';
 import { Button } from '@/shared/components/ui/button';
 import { cn } from '@/shared/lib/utils';
 import { Section } from '@/shared/types/blocks/landing';
+import { SectionCtaIcon } from './section-cta-icon';
 
 export function HeroComfort({
   section,
@@ -137,22 +138,27 @@ export function HeroComfort({
                   asChild
                   size="lg"
                   className={cn(
-                    'group relative px-4 sm:px-6 md:px-8 py-3 sm:py-4 md:py-6 text-xs sm:text-sm md:text-base lg:text-lg font-medium rounded-full',
+                    'group relative mx-auto h-auto min-h-11 w-fit max-w-full min-w-0 whitespace-nowrap px-3 py-2.5 text-[10px] font-medium leading-none sm:px-6 sm:py-4 sm:text-sm md:px-8 md:py-6 md:text-base lg:text-lg rounded-full',
                     'bg-gradient-to-r from-amber-500 to-amber-600 dark:from-amber-600 dark:to-amber-700',
                     'text-white shadow-lg shadow-amber-500/30 dark:shadow-amber-600/20',
                     'hover:shadow-xl hover:shadow-amber-500/40 dark:hover:shadow-amber-600/30',
                     'hover:scale-105 active:scale-100',
                     'transition-all duration-300 ease-out',
                     'border border-amber-400/20 dark:border-amber-500/30',
-                    'w-full sm:w-auto'
                   )}
                 >
                   <Link href={button.url ?? '/pricing'} target={button.target ?? '_self'}>
-                    <span className="flex items-center justify-center gap-1.5 sm:gap-2">
+                    <span className="flex w-full items-center justify-center">
+                      <SectionCtaIcon
+                        section="heroComfort"
+                        className="mr-2 h-5 w-5 shrink-0"
+                      />
                       {button.icon && typeof button.icon === 'string' && (
-                        <span className="text-lg sm:text-xl md:text-2xl group-hover:scale-110 transition-transform duration-300">{button.icon}</span>
+                        <span className="mr-2 text-lg transition-transform duration-300 group-hover:scale-110 sm:text-xl md:text-2xl">{button.icon}</span>
                       )}
-                      <span className="break-words overflow-wrap-anywhere">{button.title}</span>
+                      <span className="whitespace-nowrap text-center leading-none">
+                        {button.title}
+                      </span>
                     </span>
                     {/* 按钮光晕效果 */}
                     <span className="absolute inset-0 rounded-full bg-gradient-to-r from-amber-400/0 via-amber-300/20 to-amber-400/0 opacity-0 group-hover:opacity-100 transition-opacity duration-500 blur-xl" />
@@ -181,4 +187,3 @@ export function HeroComfort({
     </section>
   );
 }
-

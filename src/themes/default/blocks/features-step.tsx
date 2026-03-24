@@ -4,11 +4,10 @@ import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
 import { Gift, ScrollText, Sparkles } from "lucide-react";
 
-import { SmartIcon } from "@/shared/blocks/common";
-import { Button } from "@/shared/components/ui/button";
 import { useRequireAuth } from "@/shared/hooks/use-require-auth";
 import { cn } from "@/shared/lib/utils";
 import { Section } from "@/shared/types/blocks/landing";
+import { HomeCtaButton } from "./home-cta-button";
 
 type ButtonVariant =
   | "default"
@@ -314,27 +313,16 @@ export function FeaturesStep({
                   ? (btn.variant as ButtonVariant)
                   : "default";
               return (
-                <Button
+                <HomeCtaButton
                   key={index}
-                  size="default"
-                  variant={safeVariant}
+                  title={btn.title}
+                  sectionIcon="featuresStep"
                   onClick={() => navigateWithAuth(btn.url)}
                   className={cn(
-                    "h-11 sm:h-12 text-sm sm:text-base font-semibold rounded-full",
-                    "flex items-center justify-center gap-2",
-                    "w-full sm:w-auto px-6 sm:px-8",
                     safeVariant === "default" &&
-                      "shadow-lg shadow-primary/25 hover:shadow-primary/40 transition-shadow",
+                      "shadow-lg shadow-primary/25 hover:shadow-primary/40",
                   )}
-                >
-                  {btn.icon && (
-                    <SmartIcon
-                      name={btn.icon}
-                      className="h-4 w-4 sm:h-5 sm:w-5 shrink-0"
-                    />
-                  )}
-                  {btn.title}
-                </Button>
+                />
               );
             })}
           </motion.div>

@@ -3,7 +3,6 @@
 import { useRef, useState } from "react";
 import { Play, Star, Check, X } from "lucide-react";
 import { LazyImage } from "@/shared/blocks/common";
-import { Button } from "@/shared/components/ui/button";
 import { ScrollAnimation } from "@/shared/components/ui/scroll-animation";
 import {
   Dialog,
@@ -13,6 +12,7 @@ import {
 import { useRequireAuth } from "@/shared/hooks/use-require-auth";
 import { cn } from "@/shared/lib/utils";
 import { Section, SectionItem } from "@/shared/types/blocks/landing";
+import { HomeCtaButton } from "./home-cta-button";
 
 interface TestimonialItem extends SectionItem {
   type?: "video" | "text";
@@ -33,14 +33,6 @@ interface TestimonialItem extends SectionItem {
     location?: string;
   };
 }
-
-type ButtonVariant =
-  | "default"
-  | "link"
-  | "destructive"
-  | "outline"
-  | "secondary"
-  | "ghost";
 
 export function Testimonials({
   section,
@@ -279,34 +271,17 @@ export function Testimonials({
             <div className="mt-8 sm:mt-10 md:mt-12 flex flex-col sm:flex-row justify-center gap-3 sm:gap-4 px-4">
               {section.buttons.map((button, index) => {
                 const btn = button as any;
-                const safeVariant: ButtonVariant =
-                  btn.variant &&
-                  [
-                    "default",
-                    "link",
-                    "destructive",
-                    "outline",
-                    "secondary",
-                    "ghost",
-                  ].includes(btn.variant)
-                    ? (btn.variant as ButtonVariant)
-                    : "default";
                 return (
-                  <Button
+                  <HomeCtaButton
                     key={index}
-                    size="default"
-                    className={cn(
-                      "h-auto min-h-11 sm:min-h-12 text-sm sm:text-base px-4 sm:px-6 md:px-8 font-semibold shadow-lg hover:shadow-xl transition-all",
-                      "flex items-center justify-center gap-2 whitespace-normal break-words text-center",
-                      "w-full sm:w-auto max-w-full py-2.5 sm:py-3",
-                    )}
-                    variant={safeVariant}
+                    title={btn.title}
+                    sectionIcon="testimonials"
                     onClick={() => navigateWithAuth(btn.url || "")}
-                  >
-                    <span className="break-words overflow-wrap-anywhere">
-                      {btn.title}
-                    </span>
-                  </Button>
+                    className={cn(
+                      "max-w-full",
+                      "w-full sm:w-auto",
+                    )}
+                  />
                 );
               })}
             </div>

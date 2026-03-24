@@ -1,4 +1,4 @@
-import { and, count, desc, eq } from 'drizzle-orm';
+import { and, count, desc, eq, sql } from 'drizzle-orm';
 
 import { db } from '@/core/db';
 import { comment, commentReply, commentLike } from '@/config/db/schema';
@@ -49,22 +49,83 @@ export interface AITaskReference {
     prompt?: string;
 }
 
+let commentPageIdColumnExistsCache: boolean | null = null;
+
+async function hasCommentPageIdColumn() {
+    if (commentPageIdColumnExistsCache !== null) {
+        return commentPageIdColumnExistsCache;
+    }
+
+    const result = await db().execute(sql`
+        select exists (
+            select 1
+            from information_schema.columns
+            where table_schema = current_schema()
+              and table_name = 'comment'
+              and column_name = 'page_id'
+        ) as "exists"
+    `);
+
+    const firstRow = (result as any)?.rows?.[0] ?? (result as any)?.[0];
+    commentPageIdColumnExistsCache = Boolean(
+        firstRow?.exists
+    );
+
+    return commentPageIdColumnExistsCache;
+}
+
+function getCommentSelectFields(withPageId: boolean) {
+    return {
+        id: comment.id,
+        userId: comment.userId,
+        userName: comment.userName,
+        userEmail: comment.userEmail,
+        userAvatar: comment.userAvatar,
+        content: comment.content,
+        pageId: withPageId
+            ? comment.pageId
+            : sql<string | null>`null`.as('page_id'),
+        referencedTaskId: comment.referencedTaskId,
+        referencedTaskType: comment.referencedTaskType,
+        referencedTaskUrl: comment.referencedTaskUrl,
+        status: comment.status,
+        visibility: comment.visibility,
+        likes: comment.likes,
+        replies: comment.replies,
+        ipAddress: comment.ipAddress,
+        userAgent: comment.userAgent,
+        createdAt: comment.createdAt,
+        updatedAt: comment.updatedAt,
+        deletedAt: comment.deletedAt,
+    };
+}
+
 // Comment CRUD operations
 export async function createComment(newComment: NewComment): Promise<Comment> {
-    const [result] = await db().insert(comment).values(newComment).returning();
-    return result;
+    const hasPageIdColumn = await hasCommentPageIdColumn();
+    const values = hasPageIdColumn
+        ? newComment
+        : (({ pageId, ...legacyComment }) => legacyComment)(newComment as any);
+
+    const [result] = await db()
+        .insert(comment)
+        .values(values as any)
+        .returning(getCommentSelectFields(hasPageIdColumn));
+    return result as Comment;
 }
 
 export async function findCommentById(id: string): Promise<Comment | null> {
+    const hasPageIdColumn = await hasCommentPageIdColumn();
     const [result] = await db()
-        .select()
+        .select(getCommentSelectFields(hasPageIdColumn))
         .from(comment)
         .where(eq(comment.id, id));
-    return result || null;
+    return (result as Comment) || null;
 }
 
 export async function getComments({
     userId,
+    pageId,
     status,
     visibility,
     page = 1,
@@ -73,6 +134,7 @@ export async function getComments({
     getUser = false,
 }: {
     userId?: string;
+    pageId?: string;
     status?: string;
     visibility?: string;
     page?: number;
@@ -80,17 +142,19 @@ export async function getComments({
     sortBy?: 'time' | 'hot';
     getUser?: boolean;
 }): Promise<Comment[]> {
+    const hasPageIdColumn = await hasCommentPageIdColumn();
     const orderBy =
         sortBy === 'hot'
             ? [desc(comment.likes), desc(comment.replies), desc(comment.createdAt)]
             : [desc(comment.createdAt)];
 
     const result = await db()
-        .select()
+        .select(getCommentSelectFields(hasPageIdColumn))
         .from(comment)
         .where(
             and(
                 userId ? eq(comment.userId, userId) : undefined,
+                hasPageIdColumn && pageId ? eq(comment.pageId, pageId) : undefined,
                 status ? eq(comment.status, status) : undefined,
                 visibility ? eq(comment.visibility, visibility) : undefined
             )
@@ -100,27 +164,31 @@ export async function getComments({
         .offset((page - 1) * limit);
 
     if (getUser) {
-        return appendUserToResult(result);
+        return appendUserToResult(result as Comment[]);
     }
 
-    return result;
+    return result as Comment[];
 }
 
 export async function getCommentsCount({
     userId,
+    pageId,
     status,
     visibility,
 }: {
     userId?: string;
+    pageId?: string;
     status?: string;
     visibility?: string;
 }): Promise<number> {
+    const hasPageIdColumn = await hasCommentPageIdColumn();
     const [result] = await db()
         .select({ count: count() })
         .from(comment)
         .where(
             and(
                 userId ? eq(comment.userId, userId) : undefined,
+                hasPageIdColumn && pageId ? eq(comment.pageId, pageId) : undefined,
                 status ? eq(comment.status, status) : undefined,
                 visibility ? eq(comment.visibility, visibility) : undefined
             )
@@ -133,13 +201,18 @@ export async function updateComment(
     id: string,
     updateComment: UpdateComment
 ): Promise<Comment> {
+    const hasPageIdColumn = await hasCommentPageIdColumn();
+    const values = hasPageIdColumn
+        ? updateComment
+        : (({ pageId, ...legacyComment }) => legacyComment)(updateComment as any);
+
     const [result] = await db()
         .update(comment)
-        .set(updateComment)
+        .set(values)
         .where(eq(comment.id, id))
-        .returning();
+        .returning(getCommentSelectFields(hasPageIdColumn));
 
-    return result;
+    return result as Comment;
 }
 
 export async function deleteComment(id: string): Promise<void> {

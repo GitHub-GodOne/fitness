@@ -56,7 +56,9 @@ export default async function PagesAdminPage({
       slug: getCustomHtmlPageDisplaySlug(item.slug),
       locale: item.locale,
       sourceFile: t("list.source.database_html"),
-      overrideStatus: t("list.status.custom_html"),
+      overrideStatus: item.isActive
+        ? t("list.status.custom_html_active")
+        : t("list.status.custom_html_inactive"),
       updatedAt: item.updatedAt,
       url: getCustomHtmlPageUrl({
         slug: item.slug,

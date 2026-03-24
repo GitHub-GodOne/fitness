@@ -6,10 +6,10 @@ import {
   AccordionItem,
   AccordionTrigger,
 } from "@/shared/components/ui/accordion";
-import { Button } from "@/shared/components/ui/button";
 import { ScrollAnimation } from "@/shared/components/ui/scroll-animation";
 import { useRequireAuth } from "@/shared/hooks/use-require-auth";
 import { Section } from "@/shared/types/blocks/landing";
+import { HomeCtaButton } from "./home-cta-button";
 
 export function Faq({
   section,
@@ -75,15 +75,12 @@ export function Faq({
           <ScrollAnimation delay={0.4}>
             <div className="mt-8 sm:mt-10 md:mt-12 flex justify-center">
               {section.buttons.map((button, index) => (
-                <Button
+                <HomeCtaButton
                   key={index}
-                  size="default"
-                  className="h-11 sm:h-12 text-sm sm:text-base px-6 sm:px-8 font-semibold shadow-lg hover:shadow-xl transition-all"
-                  variant={button.variant || "default"}
+                  title={button.title || ""}
+                  sectionIcon="faq"
                   onClick={() => navigateWithAuth(button.url || "")}
-                >
-                  {button.title}
-                </Button>
+                />
               ))}
             </div>
           </ScrollAnimation>

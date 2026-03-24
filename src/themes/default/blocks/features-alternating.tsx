@@ -2,19 +2,11 @@
 
 import Image from "next/image";
 import { SmartIcon } from "@/shared/blocks/common/smart-icon";
-import { Button } from "@/shared/components/ui/button";
 import { ScrollAnimation } from "@/shared/components/ui/scroll-animation";
 import { useRequireAuth } from "@/shared/hooks/use-require-auth";
 import { cn } from "@/shared/lib/utils";
 import { Section } from "@/shared/types/blocks/landing";
-
-type ButtonVariant =
-  | "default"
-  | "link"
-  | "destructive"
-  | "outline"
-  | "secondary"
-  | "ghost";
+import { HomeCtaButton } from "./home-cta-button";
 
 interface FeaturesAlternatingItem {
   title: string;
@@ -148,27 +140,13 @@ export function FeaturesAlternating({
                       <div className="col-span-1 lg:col-span-2 mt-6 sm:mt-8 flex flex-col sm:flex-row gap-3 sm:gap-4 justify-center lg:justify-start">
                         {section.buttons.map((button, btnIdx) => {
                           const btn = button as any;
-                          const safeVariant: ButtonVariant =
-                            btn.variant &&
-                            [
-                              "default",
-                              "link",
-                              "destructive",
-                              "outline",
-                              "secondary",
-                              "ghost",
-                            ].includes(btn.variant)
-                              ? (btn.variant as ButtonVariant)
-                              : "default";
                           return (
-                            <Button
+                            <HomeCtaButton
                               key={btnIdx}
-                              variant={safeVariant}
-                              size="lg"
+                              title={btn.title}
+                              sectionIcon="featuresAlternating"
                               onClick={() => navigateWithAuth(btn.url)}
-                            >
-                              {btn.title}
-                            </Button>
+                            />
                           );
                         })}
                       </div>

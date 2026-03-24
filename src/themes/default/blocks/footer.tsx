@@ -34,7 +34,7 @@ export function Footer({ footer }: { footer: FooterType }) {
       />
 
       <div className="container space-y-8 overflow-x-hidden">
-        <div className="grid min-w-0 gap-12 md:grid-cols-5">
+        <div className="flex min-w-0 flex-col gap-12 md:grid md:grid-cols-5">
           <div className="min-w-0 space-y-4 break-words md:col-span-2 md:space-y-6">
             {footer.brand ? <BrandLogo brand={footer.brand} /> : null}
 
@@ -46,7 +46,7 @@ export function Footer({ footer }: { footer: FooterType }) {
             ) : null}
           </div>
 
-          <div className="col-span-3 grid min-w-0 gap-6 sm:grid-cols-3">
+          <div className="min-w-0 space-y-6 md:col-span-3 md:grid md:gap-6 md:space-y-0 md:grid-cols-3">
             {footer.nav?.items.map((item, idx) => {
               const isHidden = (item as any).hidden === true;
               if (isHidden) return null;

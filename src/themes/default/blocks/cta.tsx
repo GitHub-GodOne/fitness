@@ -7,6 +7,8 @@ import { useRequireAuth } from "@/shared/hooks/use-require-auth";
 import { cn } from "@/shared/lib/utils";
 import { Section } from "@/shared/types/blocks/landing";
 
+import { SectionCtaIcon } from "./section-cta-icon";
+
 type ButtonVariant =
   | "default"
   | "link"
@@ -76,6 +78,10 @@ export function Cta({
                       "px-4 sm:px-6 py-2.5 sm:py-3",
                     )}
                   >
+                    <SectionCtaIcon
+                      section="cta"
+                      className="h-4 w-4 shrink-0 sm:h-5 sm:w-5"
+                    />
                     {btn.icon && (
                       <SmartIcon
                         name={btn.icon as string}

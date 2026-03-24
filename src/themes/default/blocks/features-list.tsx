@@ -7,6 +7,8 @@ import { ScrollAnimation } from "@/shared/components/ui/scroll-animation";
 import { cn } from "@/shared/lib/utils";
 import { Section } from "@/shared/types/blocks/landing";
 
+import { SectionCtaIcon } from "./section-cta-icon";
+
 export function FeaturesList({
   section,
   className,
@@ -60,15 +62,22 @@ export function FeaturesList({
                         href={button.url ?? ""}
                         target={button.target ?? "_self"}
                         className={cn(
-                          "focus-visible:ring-ring inline-flex items-center justify-center gap-2 rounded-md text-sm font-medium whitespace-nowrap transition-colors focus-visible:ring-1 focus-visible:outline-none disabled:pointer-events-none disabled:opacity-50",
+                          "focus-visible:ring-ring inline-flex flex-row items-center justify-center gap-2 rounded-md text-sm font-medium transition-colors focus-visible:ring-1 focus-visible:outline-none disabled:pointer-events-none disabled:opacity-50",
                           "h-9 px-4 py-2",
                           "bg-background ring-foreground/10 hover:bg-muted/50 dark:ring-foreground/15 dark:hover:bg-muted/50 border border-transparent shadow-sm ring-1 shadow-black/15 duration-200",
+                          "whitespace-normal",
                         )}
                       >
+                        <SectionCtaIcon
+                          section="featuresList"
+                          className="size-5 shrink-0"
+                        />
                         {button.icon && (
                           <SmartIcon name={button.icon as string} size={24} />
                         )}
-                        {button.title}
+                        <span className="text-center break-words w-full">
+                          {button.title}
+                        </span>
                       </Link>
                     </Button>
                   ))}

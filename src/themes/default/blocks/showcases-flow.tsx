@@ -11,6 +11,8 @@ import { Button } from "@/shared/components/ui/button";
 import { cn } from "@/shared/lib/utils";
 import { Section } from "@/shared/types/blocks/landing";
 
+import { SectionCtaIcon } from "./section-cta-icon";
+
 export function ShowcasesFlow({
   section,
   className,
@@ -96,6 +98,10 @@ export function ShowcasesFlow({
                 asChild
               >
                 <Link href={button.url || ""} target={button.target || "_self"}>
+                  <SectionCtaIcon
+                    section="showcasesFlow"
+                    className="inline-flex size-4 shrink-0"
+                  />
                   {button.icon && <SmartIcon name={button.icon as string} />}
                   {button.title}
                 </Link>

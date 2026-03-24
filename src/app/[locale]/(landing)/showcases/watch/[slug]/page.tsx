@@ -2,8 +2,10 @@ import { ArrowLeft } from 'lucide-react';
 import { getTranslations, setRequestLocale } from 'next-intl/server';
 import { notFound } from 'next/navigation';
 
+import { envConfigs } from '@/config';
 import { Link } from '@/core/i18n/navigation';
 import { defaultLocale } from '@/config/locale';
+import { CommentSection } from '@/shared/blocks/common/comment-section';
 import {
   getCustomHtmlPageOverrideMetadata,
   renderCustomHtmlPageOverride,
@@ -52,6 +54,13 @@ export async function generateMetadata({
     return {};
   }
 
+  const categories = await getTaxonomies({
+    type: TaxonomyType.SHOWCASE_CATEGORY,
+    status: TaxonomyStatus.PUBLISHED,
+    limit: 100,
+  });
+  const category = categories.find((item) => item.id === video.categoryId);
+
   const description = getShowcaseVideoDescription(
     video,
     'Watch this published showcase video.'
@@ -62,6 +71,15 @@ export async function generateMetadata({
   return {
     title: video.title,
     description,
+    keywords: [
+      video.title,
+      category?.title,
+      'Bible video',
+      'Christian video',
+      'showcase video',
+      'faith video',
+    ].filter(Boolean),
+    category: category?.title || 'Showcases',
     alternates: {
       canonical,
     },
@@ -138,13 +156,60 @@ export default async function ShowcaseWatchPage({
     fallbackDescription: t('descriptionFallback'),
   });
   const publishedAt = getShowcaseVideoPublishedAt(video);
-  const backHref = category
+  const commentsPageId = `showcase-video:${video.id}`;
+  const showcasesHref =
+    locale === defaultLocale ? '/showcases' : `/${locale}/showcases`;
+  const categoryHref = category
     ? locale === defaultLocale
       ? `/showcases/${category.slug}`
       : `/${locale}/showcases/${category.slug}`
-    : locale === defaultLocale
-      ? '/showcases'
-      : `/${locale}/showcases`;
+    : null;
+  const backHref = category
+    ? categoryHref!
+    : showcasesHref;
+  const breadcrumbSchema = {
+    '@context': 'https://schema.org',
+    '@type': 'BreadcrumbList',
+    itemListElement: [
+      {
+        '@type': 'ListItem',
+        position: 1,
+        name: t('breadcrumbShowcases'),
+        item: `${envConfigs.app_url}${showcasesHref}`,
+      },
+      ...(category && categoryHref
+        ? [
+            {
+              '@type': 'ListItem',
+              position: 2,
+              name: category.title,
+              item: `${envConfigs.app_url}${categoryHref}`,
+            },
+          ]
+        : []),
+      {
+        '@type': 'ListItem',
+        position: category ? 3 : 2,
+        name: video.title,
+        item: getShowcaseVideoWatchAbsoluteUrl({ video, locale }),
+      },
+    ],
+  };
+  const relatedVideosSchema = relatedVideos.length
+    ? {
+        '@context': 'https://schema.org',
+        '@type': 'ItemList',
+        name: t('relatedTitle'),
+        itemListElement: relatedVideos.map(
+          (relatedVideo: ShowcaseVideo, index: number) => ({
+            '@type': 'ListItem',
+            position: index + 1,
+            url: getShowcaseVideoWatchAbsoluteUrl({ video: relatedVideo, locale }),
+            name: relatedVideo.title,
+          })
+        ),
+      }
+    : null;
 
   return (
     <div className="container pb-16 pt-24 lg:pt-28">
@@ -154,13 +219,52 @@ export default async function ShowcaseWatchPage({
           __html: JSON.stringify(videoObject),
         }}
       />
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{
+          __html: JSON.stringify(breadcrumbSchema),
+        }}
+      />
+      {relatedVideosSchema ? (
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{
+            __html: JSON.stringify(relatedVideosSchema),
+          }}
+        />
+      ) : null}
 
-      <div className="mx-auto max-w-5xl space-y-10">
-        <section className="space-y-5">
+      <div className="grid gap-8 xl:grid-cols-[minmax(0,1fr)_360px]">
+        <section className="min-w-0 space-y-5">
+          <nav
+            aria-label={t('breadcrumbLabel')}
+            className="overflow-x-auto text-sm text-muted-foreground"
+          >
+            <ol className="flex min-w-max items-center gap-2">
+              <li>
+                <Link href={showcasesHref} className="transition hover:text-foreground">
+                  {t('breadcrumbShowcases')}
+                </Link>
+              </li>
+              {category && categoryHref ? (
+                <>
+                  <li className="text-border">/</li>
+                  <li>
+                    <Link href={categoryHref} className="transition hover:text-foreground">
+                      {category.title}
+                    </Link>
+                  </li>
+                </>
+              ) : null}
+              <li className="text-border">/</li>
+              <li className="truncate text-foreground">{video.title}</li>
+            </ol>
+          </nav>
+
           <div className="flex flex-wrap items-center justify-between gap-4">
             <Link
               href={backHref}
-              className="inline-flex h-10 items-center justify-center gap-2 rounded-full border px-4 text-sm text-muted-foreground transition hover:border-primary/40 hover:text-foreground"
+              className="inline-flex h-10 items-center justify-center gap-2 rounded-full border border-border/70 bg-background px-4 text-sm text-muted-foreground transition hover:border-primary/40 hover:text-foreground"
             >
               <ArrowLeft className="size-4" />
               {category ? t('backToCategory') : t('backToShowcases')}
@@ -173,33 +277,14 @@ export default async function ShowcaseWatchPage({
                     ? `/showcases/${category.slug}`
                     : `/${locale}/showcases/${category.slug}`
                 }
-                className="text-sm text-muted-foreground transition hover:text-foreground"
+                className="rounded-full bg-muted px-3 py-1 text-xs font-medium text-muted-foreground transition hover:text-foreground"
               >
                 {category.title}
               </Link>
             ) : null}
           </div>
 
-          <div className="space-y-3">
-            <p className="text-sm font-medium uppercase tracking-[0.2em] text-muted-foreground">
-              {t('videoLabel')}
-            </p>
-            <h1 className="max-w-4xl text-3xl font-semibold tracking-tight text-foreground sm:text-5xl">
-              {video.title}
-            </h1>
-            <div className="flex flex-wrap items-center gap-3 text-sm text-muted-foreground">
-              <span>
-                {publishedAt.toLocaleDateString(dateLocale)}
-              </span>
-            </div>
-            <p className="max-w-3xl text-base leading-7 text-muted-foreground sm:text-lg">
-              {description}
-            </p>
-          </div>
-        </section>
-
-        <section className="space-y-4">
-          <div className="overflow-hidden rounded-3xl border bg-black shadow-sm">
+          <div className="overflow-hidden rounded-[28px] border border-border/70 bg-black shadow-lg">
             <video
               src={video.videoUrl}
               poster={getShowcaseVideoThumbnailUrl(video) || undefined}
@@ -209,53 +294,177 @@ export default async function ShowcaseWatchPage({
               className="aspect-video w-full bg-black object-contain"
             />
           </div>
+
+          <div className="space-y-4">
+            <div className="space-y-3">
+              <p className="text-xs font-semibold uppercase tracking-[0.18em] text-muted-foreground">
+                {t('videoLabel')}
+              </p>
+              <h1 className="max-w-5xl text-2xl font-semibold leading-tight tracking-tight text-foreground sm:text-3xl lg:text-[2rem]">
+                {video.title}
+              </h1>
+              <div className="flex flex-wrap items-center gap-x-3 gap-y-1 text-sm text-muted-foreground">
+                <span>{publishedAt.toLocaleDateString(dateLocale)}</span>
+                {category ? (
+                  <>
+                    <span className="text-border">•</span>
+                    <span>{category.title}</span>
+                  </>
+                ) : null}
+              </div>
+            </div>
+
+            <section className="rounded-[24px] border border-border/70 bg-card px-5 py-4 shadow-sm sm:px-6">
+              <h2 className="text-base font-semibold text-foreground sm:text-lg">
+                {t('aboutTitle')}
+              </h2>
+              <div className="mt-3 flex flex-wrap items-center gap-x-4 gap-y-2 text-sm text-muted-foreground">
+                <span>
+                  {t('publishedLabel')}: {publishedAt.toLocaleDateString(dateLocale)}
+                </span>
+                {category ? (
+                  <span>
+                    {t('categoryLabel')}: {category.title}
+                  </span>
+                ) : null}
+              </div>
+              <p className="mt-3 text-sm leading-7 text-muted-foreground sm:text-[15px]">
+                {description}
+              </p>
+              {category && categoryHref ? (
+                <p className="mt-3 text-sm text-muted-foreground">
+                  <Link href={categoryHref} className="font-medium text-primary transition hover:underline">
+                    {t('exploreCategory', { category: category.title })}
+                  </Link>
+                </p>
+              ) : null}
+            </section>
+
+            <div className="xl:hidden">
+              <aside className="space-y-4">
+                <div className="rounded-[24px] border border-border/70 bg-card px-4 py-4 shadow-sm sm:px-5">
+                  <h2 className="text-lg font-semibold tracking-tight text-foreground">
+                    {t('relatedTitle')}
+                  </h2>
+                  <p className="mt-1 text-sm leading-6 text-muted-foreground">
+                    {t('relatedDescription')}
+                  </p>
+                </div>
+
+                {relatedVideos.length === 0 ? (
+                  <div className="rounded-[24px] border border-dashed border-border/70 bg-card/70 p-8 text-center text-sm text-muted-foreground">
+                    {t('emptyRelatedVideos')}
+                  </div>
+                ) : (
+                  <div className="space-y-3">
+                    {relatedVideos.map((relatedVideo: ShowcaseVideo) => (
+                      <Link
+                        key={relatedVideo.id}
+                        href={getShowcaseVideoWatchPath({ video: relatedVideo, locale })}
+                        className="group flex gap-3 rounded-[20px] border border-border/70 bg-card p-2.5 transition hover:border-primary/40 hover:shadow-sm"
+                      >
+                        <div className="w-[44%] shrink-0">
+                          <div className="relative aspect-video overflow-hidden rounded-[14px] bg-muted">
+                            {relatedVideo.coverUrl ? (
+                              <img
+                                src={relatedVideo.coverUrl}
+                                alt={relatedVideo.title}
+                                loading="lazy"
+                                className="absolute inset-0 h-full w-full object-cover transition duration-300 group-hover:scale-[1.02]"
+                              />
+                            ) : (
+                              <div className="absolute inset-0 flex items-center justify-center bg-gradient-to-br from-primary/10 via-secondary/10 to-accent/10">
+                                <span className="text-2xl font-semibold text-foreground/70">
+                                  {relatedVideo.title.slice(0, 1)}
+                                </span>
+                              </div>
+                            )}
+                          </div>
+                        </div>
+
+                        <div className="min-w-0 flex-1 py-1">
+                          <h3 className="line-clamp-2 text-sm font-semibold leading-5 text-foreground">
+                            {relatedVideo.title}
+                          </h3>
+                          <p className="mt-1.5 line-clamp-2 text-xs leading-5 text-muted-foreground">
+                            {getShowcaseVideoDescription(
+                              relatedVideo,
+                              t('descriptionFallback')
+                            )}
+                          </p>
+                          <p className="mt-2 text-[11px] text-muted-foreground">
+                            {getShowcaseVideoPublishedAt(relatedVideo).toLocaleDateString(
+                              dateLocale
+                            )}
+                          </p>
+                        </div>
+                      </Link>
+                    ))}
+                  </div>
+                )}
+              </aside>
+            </div>
+
+            <div className="rounded-[28px] border border-border/70 bg-card px-4 py-5 shadow-sm sm:px-6">
+              <CommentSection pageId={commentsPageId} />
+            </div>
+          </div>
         </section>
 
-        <section className="space-y-4">
-          <h2 className="text-2xl font-semibold tracking-tight text-foreground">
-            {t('relatedTitle')}
-          </h2>
-          <p className="text-sm text-muted-foreground sm:text-base">
-            {t('relatedDescription')}
-          </p>
+        <aside className="hidden space-y-4 xl:sticky xl:top-28 xl:block xl:self-start">
+          <div className="rounded-[24px] border border-border/70 bg-card px-4 py-4 shadow-sm sm:px-5">
+            <h2 className="text-lg font-semibold tracking-tight text-foreground">
+              {t('relatedTitle')}
+            </h2>
+            <p className="mt-1 text-sm leading-6 text-muted-foreground">
+              {t('relatedDescription')}
+            </p>
+          </div>
 
           {relatedVideos.length === 0 ? (
-            <div className="rounded-3xl border border-dashed p-10 text-center text-muted-foreground">
+            <div className="rounded-[24px] border border-dashed border-border/70 bg-card/70 p-8 text-center text-sm text-muted-foreground">
               {t('emptyRelatedVideos')}
             </div>
           ) : (
-            <div className="grid gap-6 md:grid-cols-2 xl:grid-cols-3">
+            <div className="space-y-3">
               {relatedVideos.map((relatedVideo: ShowcaseVideo) => (
                 <Link
                   key={relatedVideo.id}
                   href={getShowcaseVideoWatchPath({ video: relatedVideo, locale })}
-                  className="group overflow-hidden rounded-3xl border bg-card transition hover:border-primary/40 hover:shadow-sm"
+                  className="group flex gap-3 rounded-[20px] border border-border/70 bg-card p-2.5 transition hover:border-primary/40 hover:shadow-sm"
                 >
-                  <div className="relative aspect-[16/10] overflow-hidden bg-muted">
-                    {relatedVideo.coverUrl ? (
-                      <img
-                        src={relatedVideo.coverUrl}
-                        alt={relatedVideo.title}
-                        loading="lazy"
-                        className="h-full w-full object-cover transition duration-300 group-hover:scale-[1.02]"
-                      />
-                    ) : (
-                      <div className="flex h-full w-full items-center justify-center bg-gradient-to-br from-primary/10 via-secondary/10 to-accent/10">
-                        <span className="text-3xl font-semibold text-foreground/70">
-                          {relatedVideo.title.slice(0, 1)}
-                        </span>
-                      </div>
-                    )}
+                  <div className="w-[44%] shrink-0">
+                    <div className="relative aspect-video overflow-hidden rounded-[14px] bg-muted">
+                      {relatedVideo.coverUrl ? (
+                        <img
+                          src={relatedVideo.coverUrl}
+                          alt={relatedVideo.title}
+                          loading="lazy"
+                          className="absolute inset-0 h-full w-full object-cover transition duration-300 group-hover:scale-[1.02]"
+                        />
+                      ) : (
+                        <div className="absolute inset-0 flex items-center justify-center bg-gradient-to-br from-primary/10 via-secondary/10 to-accent/10">
+                          <span className="text-2xl font-semibold text-foreground/70">
+                            {relatedVideo.title.slice(0, 1)}
+                          </span>
+                        </div>
+                      )}
+                    </div>
                   </div>
 
-                  <div className="space-y-3 p-5">
-                    <h3 className="line-clamp-2 min-h-[3.5rem] text-xl font-semibold text-foreground">
+                  <div className="min-w-0 flex-1 py-1">
+                    <h3 className="line-clamp-2 text-sm font-semibold leading-5 text-foreground">
                       {relatedVideo.title}
                     </h3>
-                    <p className="line-clamp-3 min-h-[3.75rem] text-sm text-muted-foreground">
+                    <p className="mt-1.5 line-clamp-2 text-xs leading-5 text-muted-foreground">
                       {getShowcaseVideoDescription(
                         relatedVideo,
                         t('descriptionFallback')
+                      )}
+                    </p>
+                    <p className="mt-2 text-[11px] text-muted-foreground">
+                      {getShowcaseVideoPublishedAt(relatedVideo).toLocaleDateString(
+                        dateLocale
                       )}
                     </p>
                   </div>
@@ -263,7 +472,7 @@ export default async function ShowcaseWatchPage({
               ))}
             </div>
           )}
-        </section>
+        </aside>
       </div>
     </div>
   );

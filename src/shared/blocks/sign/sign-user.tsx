@@ -20,6 +20,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/shared/components/ui/dropdown-menu";
+import { NotificationBell } from "@/shared/components/notification";
 import { useAppContext } from "@/shared/contexts/app";
 import { cn } from "@/shared/lib/utils";
 import { NavItem, UserNav } from "@/shared/types/blocks/common";
@@ -31,10 +32,12 @@ export function SignUser({
   isScrolled,
   signButtonSize = "sm",
   userNav,
+  showNotification = false,
 }: {
   isScrolled?: boolean;
   signButtonSize?: "default" | "sm" | "lg" | "icon";
   userNav?: UserNav;
+  showNotification?: boolean;
 }) {
   const t = useTranslations("common.sign");
   const { isCheckSign, user, setIsShowSignModal } = useAppContext();
@@ -52,7 +55,7 @@ export function SignUser({
           <Loader2 className="size-4 animate-spin" />
         </div>
       ) : user ? (
-        <DropdownMenu>
+        <DropdownMenu modal={false}>
           <DropdownMenuTrigger asChild>
             <Button
               variant="ghost"
@@ -65,6 +68,15 @@ export function SignUser({
             </Button>
           </DropdownMenuTrigger>
           <DropdownMenuContent>
+            {showNotification ? (
+              <>
+                <div className="px-1 py-1">
+                  <NotificationBell variant="menu-item" />
+                </div>
+                <DropdownMenuSeparator />
+              </>
+            ) : null}
+
             {userNav?.show_name && (
               <>
                 <DropdownMenuItem asChild>

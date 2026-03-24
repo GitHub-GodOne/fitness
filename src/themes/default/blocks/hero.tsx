@@ -8,6 +8,7 @@ import { Highlighter } from "@/shared/components/ui/highlighter";
 import { cn } from "@/shared/lib/utils";
 import { Section } from "@/shared/types/blocks/landing";
 
+import { SectionCtaIcon } from "./section-cta-icon";
 import { SocialAvatars } from "./social-avatars";
 
 export function Hero({
@@ -87,6 +88,10 @@ export function Hero({
                 key={idx}
               >
                 <Link href={button.url ?? ""} target={button.target ?? "_self"}>
+                  <SectionCtaIcon
+                    section="hero"
+                    className="inline-flex size-4 shrink-0"
+                  />
                   {button.icon && <SmartIcon name={button.icon as string} />}
                   <span>{button.title}</span>
                 </Link>

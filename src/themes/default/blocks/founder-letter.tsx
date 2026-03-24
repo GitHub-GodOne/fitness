@@ -1,19 +1,11 @@
 "use client";
 
 import { LazyImage } from "@/shared/blocks/common";
-import { Button } from "@/shared/components/ui/button";
 import { ScrollAnimation } from "@/shared/components/ui/scroll-animation";
 import { useRequireAuth } from "@/shared/hooks/use-require-auth";
 import { cn } from "@/shared/lib/utils";
 import { Section } from "@/shared/types/blocks/landing";
-
-type ButtonVariant =
-  | "default"
-  | "link"
-  | "destructive"
-  | "outline"
-  | "secondary"
-  | "ghost";
+import { HomeCtaButton } from "./home-cta-button";
 
 export function FounderLetter({
   section,
@@ -97,34 +89,17 @@ export function FounderLetter({
                 <div className="flex flex-col sm:flex-row justify-center gap-3 sm:gap-4">
                   {section.buttons.map((button, index) => {
                     const btn = button as any;
-                    const safeVariant: ButtonVariant =
-                      btn.variant &&
-                      [
-                        "default",
-                        "link",
-                        "destructive",
-                        "outline",
-                        "secondary",
-                        "ghost",
-                      ].includes(btn.variant)
-                        ? (btn.variant as ButtonVariant)
-                        : "default";
                     return (
-                      <Button
+                      <HomeCtaButton
                         key={index}
-                        size="default"
-                        className={cn(
-                          "h-auto min-h-11 sm:min-h-12 text-sm sm:text-base px-4 sm:px-6 md:px-8 font-semibold shadow-lg hover:shadow-xl transition-all",
-                          "flex items-center justify-center gap-2 whitespace-normal break-words text-center",
-                          "w-full sm:w-auto max-w-full py-2.5 sm:py-3",
-                        )}
-                        variant={safeVariant}
+                        title={btn.title}
+                        sectionIcon="founderLetter"
                         onClick={() => navigateWithAuth(btn.url || "")}
-                      >
-                        <span className="break-words overflow-wrap-anywhere">
-                          {btn.title}
-                        </span>
-                      </Button>
+                        className={cn(
+                          "max-w-full",
+                          "w-full sm:w-auto",
+                        )}
+                      />
                     );
                   })}
                 </div>

@@ -7,6 +7,8 @@ import { SmartIcon } from "@/shared/blocks/common";
 import { cn } from "@/shared/lib/utils";
 import { Section } from "@/shared/types/blocks/landing";
 
+import { SectionCtaIcon } from "./section-cta-icon";
+
 interface HeroVideoButton {
   title: string;
   url: string;
@@ -208,6 +210,10 @@ export function HeroVideo({
                       target={button.target || "_self"}
                       className="flex items-center justify-center gap-2 w-full sm:w-auto"
                     >
+                      <SectionCtaIcon
+                        section="heroVideo"
+                        className="h-4 w-4 shrink-0 sm:h-5 sm:w-5"
+                      />
                       {button.icon && (
                         <SmartIcon
                           name={button.icon}

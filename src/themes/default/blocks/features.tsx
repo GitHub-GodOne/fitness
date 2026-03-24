@@ -7,6 +7,8 @@ import { ScrollAnimation } from "@/shared/components/ui/scroll-animation";
 import { cn } from "@/shared/lib/utils";
 import { Section } from "@/shared/types/blocks/landing";
 
+import { SectionCtaIcon } from "./section-cta-icon";
+
 type ButtonVariant =
   | "default"
   | "link"
@@ -129,6 +131,10 @@ export function Features({
                       target={btn.target || "_self"}
                       className="flex items-center justify-center gap-2 w-full sm:w-auto"
                     >
+                      <SectionCtaIcon
+                        section="features"
+                        className="h-4 w-4 shrink-0 sm:h-5 sm:w-5"
+                      />
                       {btn.icon && (
                         <SmartIcon
                           name={btn.icon}

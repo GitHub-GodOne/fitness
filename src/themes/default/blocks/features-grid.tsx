@@ -1,12 +1,13 @@
 "use client";
 
 import { motion } from "framer-motion";
+import { Gift } from "lucide-react";
 
-import { Button } from "@/shared/components/ui/button";
-import { LazyImage, SmartIcon } from "@/shared/blocks/common";
+import { LazyImage } from "@/shared/blocks/common";
 import { cn } from "@/shared/lib/utils";
 import { useRequireAuth } from "@/shared/hooks/use-require-auth";
 import { Section } from "@/shared/types/blocks/landing";
+import { HomeCtaButton } from "./home-cta-button";
 
 export function FeaturesGrid({ section }: { section: Section }) {
   const { navigateWithAuth } = useRequireAuth({
@@ -83,19 +84,13 @@ export function FeaturesGrid({ section }: { section: Section }) {
             transition={{ duration: 0.5, delay: 0.4 }}
           >
             {section.buttons.map((button) => (
-              <Button
+              <HomeCtaButton
                 key={button.title}
-                className="h-12 px-8 text-base font-semibold rounded-full w-auto sm:w-auto"
+                title={button.title || ""}
+                sectionIcon="featuresGrid"
+                leftIcon={<Gift className="mr-2 h-5 w-5 shrink-0" />}
                 onClick={() => navigateWithAuth(button.url || "/ai-video-generator")}
-              >
-                {button.icon && (
-                  <SmartIcon
-                    name={button.icon as string}
-                    className="mr-2 h-5 w-5"
-                  />
-                )}
-                {button.title}
-              </Button>
+              />
             ))}
           </motion.div>
         )}

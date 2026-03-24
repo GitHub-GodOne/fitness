@@ -2,12 +2,12 @@
 
 import { useCallback, useEffect, useRef, useState } from "react";
 import Image from "next/image";
-import { ArrowRight, Play, Pause, Volume2, VolumeX } from "lucide-react";
-import { Button } from "@/shared/components/ui/button";
+import { Play, Pause, Volume2, VolumeX } from "lucide-react";
 import { SmartIcon } from "@/shared/blocks/common";
 import { useRequireAuth } from "@/shared/hooks/use-require-auth";
 import { cn } from "@/shared/lib/utils";
 import { Section } from "@/shared/types/blocks/landing";
+import { HomeCtaButton } from "./home-cta-button";
 
 interface HeroLumen5Button {
   title: string;
@@ -332,18 +332,12 @@ export function HeroLumen5({
             {section.buttons && section.buttons.length > 0 && (
               <div className="mt-6 sm:mt-8 flex flex-col sm:flex-row gap-3 justify-center lg:justify-start">
                 {section.buttons.map((button, index) => (
-                  <Button
+                  <HomeCtaButton
                     key={index}
-                    variant={
-                      button.variant || (index === 0 ? "default" : "outline")
-                    }
-                    size="lg"
+                    title={button.title}
+                    sectionIcon="heroLumen5"
                     onClick={() => navigateWithAuth(button.url)}
-                    className="flex items-center justify-center gap-2 w-full sm:w-auto cursor-pointer"
-                  >
-                    <span className="text-sm lg:text-md">{button.title}</span>
-                    {index === 0 && <ArrowRight className="h-4 w-4" />}
-                  </Button>
+                  />
                 ))}
               </div>
             )}

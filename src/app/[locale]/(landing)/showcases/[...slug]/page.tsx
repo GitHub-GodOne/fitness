@@ -67,10 +67,13 @@ export async function generateMetadata({
 
 export default async function ShowcaseCategoryPage({
   params,
+  searchParams,
 }: {
   params: Promise<{ locale: string; slug: string[] }>;
+  searchParams: Promise<{ q?: string }>;
 }) {
   const { locale, slug } = await params;
+  const { q } = await searchParams;
   setRequestLocale(locale);
 
   const categorySlug = Array.isArray(slug) ? slug.join('/') : slug;
@@ -83,5 +86,11 @@ export default async function ShowcaseCategoryPage({
     return customHtmlPage;
   }
 
-  return <ShowcasesPageContent locale={locale} categorySlug={categorySlug} />;
+  return (
+    <ShowcasesPageContent
+      locale={locale}
+      categorySlug={categorySlug}
+      searchQuery={q}
+    />
+  );
 }

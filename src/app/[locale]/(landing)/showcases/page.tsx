@@ -37,10 +37,10 @@ export default async function ShowcasesPage({
   searchParams,
 }: {
   params: Promise<{ locale: string }>;
-  searchParams: Promise<{ category?: string }>;
+  searchParams: Promise<{ category?: string; q?: string }>;
 }) {
   const { locale } = await params;
-  const { category } = await searchParams;
+  const { category, q } = await searchParams;
   setRequestLocale(locale);
 
   const customHtmlPage = await renderCustomHtmlPageOverride({
@@ -53,8 +53,8 @@ export default async function ShowcasesPage({
   }
 
   if (category) {
-    redirect(`/showcases/${category}`);
+    redirect(q ? `/showcases/${category}?q=${encodeURIComponent(q)}` : `/showcases/${category}`);
   }
 
-  return <ShowcasesPageContent locale={locale} />;
+  return <ShowcasesPageContent locale={locale} searchQuery={q} />;
 }
