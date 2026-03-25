@@ -1,10 +1,51 @@
 {
   "metadata": {
     "title": "Pricing",
-    "description": "Choose a plan that brings peace and comfort to your heart"
+    "description": "Choose a plan that brings peace and comfort to your heart",
+    "keywords": "pricing, Bible video pricing, AI Bible video pricing, Christian video pricing, video credits, comfort video pricing"
   },
   "page": {
     "title": "Fear Not Pricing",
+    "seo": {
+      "comparison": {
+        "eyebrow": "Plan Comparison",
+        "title": "Compare plans before you buy",
+        "description": "Each pricing option is designed for a different stage of use, from trying your first comfort video to creating and sharing many videos with family, friends, or church members.",
+        "items": [
+          {
+            "title": "Free Plan for first-time visitors",
+            "description": "Start with 3 credits to experience the full video flow, test the output quality, and see how personalized Bible comfort videos fit your needs."
+          },
+          {
+            "title": "20 Credits for occasional creation",
+            "description": "Choose this option if you create videos now and then for prayer, encouragement, grief support, or special moments without committing to a larger pack."
+          },
+          {
+            "title": "60 Credits for regular use and better value",
+            "description": "This plan fits users who expect to create videos more often, need more flexibility, and want a lower effective price per video."
+          }
+        ]
+      },
+      "faq": {
+        "eyebrow": "Pricing FAQ",
+        "title": "Questions people ask before choosing a plan",
+        "description": "These answers clarify how credits work, whether they expire, and which plan makes sense based on how often you create videos.",
+        "items": [
+          {
+            "question": "Do my video credits expire?",
+            "answer": "Paid credits do not expire, so you can use them whenever you need comfort, encouragement, or a faith-filled video to share."
+          },
+          {
+            "question": "Which plan is best if I only create videos occasionally?",
+            "answer": "The 20 Credits plan is the best fit for occasional use because it gives you enough room to create meaningful videos without buying a larger package."
+          },
+          {
+            "question": "Why do people choose the 60 Credits plan?",
+            "answer": "Many users choose 60 Credits because it lowers the effective price per video and makes it easier to create multiple videos for different moments, loved ones, or church needs."
+          }
+        ]
+      }
+    },
     "sections": {
       "pricing": {
         "id": "pricing",

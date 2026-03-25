@@ -86,7 +86,7 @@ export function FounderLetter({
             {/* CTA Buttons */}
             {section.buttons && section.buttons.length > 0 && (
               <ScrollAnimation delay={0.4}>
-                <div className="flex flex-col sm:flex-row justify-center gap-3 sm:gap-4">
+                <div className="flex flex-col items-center sm:flex-row sm:flex-wrap sm:justify-center gap-3 sm:gap-4">
                   {section.buttons.map((button, index) => {
                     const btn = button as any;
                     return (
@@ -97,7 +97,6 @@ export function FounderLetter({
                         onClick={() => navigateWithAuth(btn.url || "")}
                         className={cn(
                           "max-w-full",
-                          "w-full sm:w-auto",
                         )}
                       />
                     );

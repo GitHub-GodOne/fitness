@@ -27,6 +27,13 @@ export function getShowcaseVideoDescription(
   return video.description?.trim() || fallbackDescription;
 }
 
+export function getShowcaseVideoSeoKeywords(video: ShowcaseVideo) {
+  return String(video.seoKeywords || '')
+    .split(/[\n,，]+/)
+    .map((item) => item.trim())
+    .filter(Boolean);
+}
+
 export function getShowcaseVideoThumbnailUrl(video: ShowcaseVideo) {
   return toPublicAbsoluteUrl(video.coverUrl || envConfigs.app_preview_image);
 }
@@ -38,17 +45,22 @@ export function getShowcaseVideoWatchAbsoluteUrl({
   video: ShowcaseVideo;
   locale?: string;
 }) {
-  return toPublicAbsoluteUrl(getShowcaseVideoWatchPath({ video, locale }));
+  const path = getShowcaseVideoWatchPath({ video });
+  return toPublicAbsoluteUrl(
+    locale === defaultLocale ? path : `/${locale}${path}`
+  );
 }
 
 export function buildShowcaseVideoObject({
   video,
   locale = defaultLocale,
   fallbackDescription,
+  keywords,
 }: {
   video: ShowcaseVideo;
   locale?: string;
   fallbackDescription: string;
+  keywords?: string[];
 }) {
   return {
     '@context': 'https://schema.org',
@@ -60,6 +72,7 @@ export function buildShowcaseVideoObject({
     contentUrl: toPublicAbsoluteUrl(video.videoUrl),
     embedUrl: getShowcaseVideoWatchAbsoluteUrl({ video, locale }),
     url: getShowcaseVideoWatchAbsoluteUrl({ video, locale }),
+    keywords: keywords?.length ? keywords.join(', ') : undefined,
     inLanguage: locale,
     isFamilyFriendly: true,
   };

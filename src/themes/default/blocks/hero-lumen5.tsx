@@ -330,7 +330,7 @@ export function HeroLumen5({
 
             {/* CTA Buttons */}
             {section.buttons && section.buttons.length > 0 && (
-              <div className="mt-6 sm:mt-8 flex flex-col sm:flex-row gap-3 justify-center lg:justify-start">
+              <div className="mt-6 sm:mt-8 flex flex-col items-center sm:flex-row sm:flex-wrap gap-3 justify-center">
                 {section.buttons.map((button, index) => (
                   <HomeCtaButton
                     key={index}

@@ -137,7 +137,7 @@ export function FeaturesAlternating({
                   {section.buttons &&
                     section.items &&
                     idx === section.items.length - 1 && (
-                      <div className="col-span-1 lg:col-span-2 mt-6 sm:mt-8 flex flex-col sm:flex-row gap-3 sm:gap-4 justify-center lg:justify-start">
+                      <div className="col-span-1 lg:col-span-2 mt-6 sm:mt-8 flex flex-col items-center sm:flex-row sm:flex-wrap gap-3 sm:gap-4 justify-center">
                         {section.buttons.map((button, btnIdx) => {
                           const btn = button as any;
                           return (

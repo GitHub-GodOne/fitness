@@ -1,6 +1,6 @@
 "use client";
 
-import { ReactNode, useEffect, useState } from "react";
+import { ReactNode, useEffect, useRef, useState } from "react";
 
 import { Link, usePathname } from "@/core/i18n/navigation";
 import { SmartIcon } from "@/shared/blocks/common/smart-icon";
@@ -33,6 +33,11 @@ export function ConsoleLayout({
   const pathname = usePathname();
   const [searchQuery, setSearchQuery] = useState("");
   const [isMobileNavOpen, setIsMobileNavOpen] = useState(false);
+  const [mobileHeaderOffset, setMobileHeaderOffset] = useState(0);
+  const stickyHeaderRef = useRef<HTMLDivElement>(null);
+  const headerHeightRef = useRef(56);
+  const lastScrollYRef = useRef(0);
+  const scrollFrameRef = useRef<number | null>(null);
   const filteredItems = nav?.items.filter((item) =>
     item.title?.toLowerCase().includes(searchQuery.toLowerCase()),
   );
@@ -40,6 +45,60 @@ export function ConsoleLayout({
   useEffect(() => {
     setIsMobileNavOpen(false);
   }, [pathname]);
+
+  useEffect(() => {
+    const updateHeaderHeight = () => {
+      headerHeightRef.current = stickyHeaderRef.current?.offsetHeight ?? 56;
+    };
+
+    updateHeaderHeight();
+    window.addEventListener("resize", updateHeaderHeight);
+
+    return () => window.removeEventListener("resize", updateHeaderHeight);
+  }, []);
+
+  useEffect(() => {
+    const handleScroll = () => {
+      if (scrollFrameRef.current !== null) return;
+
+      scrollFrameRef.current = window.requestAnimationFrame(() => {
+        const currentScrollY = window.scrollY;
+        const delta = currentScrollY - lastScrollYRef.current;
+
+        if (window.innerWidth >= 768 || isMobileNavOpen) {
+          setMobileHeaderOffset(0);
+          lastScrollYRef.current = currentScrollY;
+          scrollFrameRef.current = null;
+          return;
+        }
+
+        if (currentScrollY <= 8) {
+          setMobileHeaderOffset(0);
+          lastScrollYRef.current = currentScrollY;
+          scrollFrameRef.current = null;
+          return;
+        }
+
+        setMobileHeaderOffset((prev) => {
+          const nextOffset = prev + delta;
+          return Math.max(0, Math.min(headerHeightRef.current, nextOffset));
+        });
+
+        lastScrollYRef.current = currentScrollY;
+        scrollFrameRef.current = null;
+      });
+    };
+
+    handleScroll();
+    window.addEventListener("scroll", handleScroll);
+
+    return () => {
+      window.removeEventListener("scroll", handleScroll);
+      if (scrollFrameRef.current !== null) {
+        window.cancelAnimationFrame(scrollFrameRef.current);
+      }
+    };
+  }, [isMobileNavOpen]);
 
   const renderNavItems = ({ mobile = false }: { mobile?: boolean } = {}) => (
     <nav className="space-y-1">
@@ -109,7 +168,13 @@ export function ConsoleLayout({
       )}
 
       {/* Page Header */}
-      <div className="border-border sticky top-14 z-20 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/80 md:static md:bg-transparent md:backdrop-blur-0">
+      <div
+        ref={stickyHeaderRef}
+        className="border-border sticky top-14 z-20 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/80 transition-transform duration-200 will-change-transform md:static md:bg-transparent md:backdrop-blur-0"
+        style={{
+          transform: `translateY(-${isMobileNavOpen ? 0 : mobileHeaderOffset}px)`,
+        }}
+      >
         <div className="container">
           <div className="flex flex-col pt-12">
             <h1 className="text-foreground text-2xl font-semibold md:text-3xl">

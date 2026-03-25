@@ -15,6 +15,7 @@ import {
   buildShowcaseVideoObject,
   getShowcaseVideoDescription,
   getShowcaseVideoPublishedAt,
+  getShowcaseVideoSeoKeywords,
   getShowcaseVideoThumbnailUrl,
   getShowcaseVideoWatchAbsoluteUrl,
 } from '@/shared/lib/showcase-video-seo';
@@ -67,18 +68,27 @@ export async function generateMetadata({
   );
   const canonical = getShowcaseVideoWatchAbsoluteUrl({ video, locale });
   const thumbnailUrl = getShowcaseVideoThumbnailUrl(video);
+  const manualKeywords = getShowcaseVideoSeoKeywords(video);
+  const keywordSet = new Set(
+    [
+      video.title,
+      category?.title,
+      'Bible verses',
+      'Bible video',
+      'Christian comfort video',
+      'faith video',
+      'showcase video',
+      ...manualKeywords,
+      ...slug.split('--')[0].split('-').filter(Boolean),
+    ]
+      .filter(Boolean)
+      .map((item) => String(item).trim())
+  );
 
   return {
     title: video.title,
     description,
-    keywords: [
-      video.title,
-      category?.title,
-      'Bible video',
-      'Christian video',
-      'showcase video',
-      'faith video',
-    ].filter(Boolean),
+    keywords: Array.from(keywordSet),
     category: category?.title || 'Showcases',
     alternates: {
       canonical,
@@ -150,10 +160,19 @@ export default async function ShowcaseWatchPage({
   });
 
   const description = getShowcaseVideoDescription(video, t('descriptionFallback'));
+  const seoKeywords = Array.from(
+    new Set([
+      video.title,
+      category?.title,
+      ...getShowcaseVideoSeoKeywords(video),
+      ...slug.split('--')[0].split('-').filter(Boolean),
+    ].filter(Boolean).map((item) => String(item).trim()))
+  );
   const videoObject = buildShowcaseVideoObject({
     video,
     locale,
     fallbackDescription: t('descriptionFallback'),
+    keywords: seoKeywords,
   });
   const publishedAt = getShowcaseVideoPublishedAt(video);
   const commentsPageId = `showcase-video:${video.id}`;
@@ -210,6 +229,37 @@ export default async function ShowcaseWatchPage({
         ),
       }
     : null;
+  const webPageSchema = {
+    '@context': 'https://schema.org',
+    '@type': 'WebPage',
+    name: video.title,
+    description,
+    url: getShowcaseVideoWatchAbsoluteUrl({ video, locale }),
+    inLanguage: locale,
+    keywords: seoKeywords.length ? seoKeywords.join(', ') : undefined,
+    primaryImageOfPage: getShowcaseVideoThumbnailUrl(video),
+    isPartOf: {
+      '@type': 'WebSite',
+      name: envConfigs.app_name,
+      url: envConfigs.app_url,
+    },
+    breadcrumb: breadcrumbSchema,
+    about: category
+      ? {
+          '@type': 'Thing',
+          name: category.title,
+        }
+      : undefined,
+    mainEntity: {
+      '@type': 'VideoObject',
+      name: video.title,
+      description,
+      contentUrl: video.videoUrl,
+      embedUrl: getShowcaseVideoWatchAbsoluteUrl({ video, locale }),
+      thumbnailUrl: getShowcaseVideoThumbnailUrl(video),
+      uploadDate: publishedAt.toISOString(),
+    },
+  };
 
   return (
     <div className="container pb-16 pt-24 lg:pt-28">
@@ -223,6 +273,12 @@ export default async function ShowcaseWatchPage({
         type="application/ld+json"
         dangerouslySetInnerHTML={{
           __html: JSON.stringify(breadcrumbSchema),
+        }}
+      />
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{
+          __html: JSON.stringify(webPageSchema),
         }}
       />
       {relatedVideosSchema ? (

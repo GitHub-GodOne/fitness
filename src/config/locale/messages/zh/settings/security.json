@@ -35,6 +35,37 @@
       "new_password_required": "请输入新密码"
     }
   },
+  "forgot_password": {
+    "title": "忘记密码",
+    "description": "输入你的账户邮箱，我们会向你发送密码重置链接。",
+    "sent_description": "如果这个邮箱存在，我们已经发送了重置链接，请检查你的收件箱。",
+    "success": "如果这个邮箱存在，我们已经发送了重置链接。",
+    "buttons": {
+      "submit": "发送重置链接",
+      "back_to_sign_in": "返回登录"
+    },
+    "error": {
+      "email_required": "请输入邮箱",
+      "failed": "发送重置邮件失败"
+    }
+  },
+  "reset_password": {
+    "title": "重置密码",
+    "description": "输入你的新密码以完成密码重置。",
+    "invalid_description": "这个重置链接无效或已过期，请重新申请。",
+    "success": "密码重置成功",
+    "buttons": {
+      "submit": "重置密码",
+      "back_to_sign_in": "返回登录"
+    },
+    "error": {
+      "invalid_token": "这个重置链接无效或已过期",
+      "password_mismatch": "两次输入的密码不一致",
+      "password_too_short": "密码长度至少为8位",
+      "new_password_required": "请输入新密码",
+      "failed": "重置密码失败"
+    }
+  },
   "delete_account": {
     "title": "删除账户",
     "description": "删除你的账户",

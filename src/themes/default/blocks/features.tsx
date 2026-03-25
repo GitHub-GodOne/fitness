@@ -99,7 +99,7 @@ export function Features({
         {/* Buttons */}
         {section.buttons && section.buttons.length > 0 && (
           <ScrollAnimation delay={0.6}>
-            <div className="mt-8 sm:mt-10 md:mt-12 flex flex-col sm:flex-row justify-center gap-3 sm:gap-4 px-4">
+            <div className="mt-8 sm:mt-10 md:mt-12 flex flex-col items-center sm:flex-row sm:flex-wrap sm:justify-center gap-3 sm:gap-4 px-4">
               {section.buttons.map((button, index) => {
                 const btn = button as any;
                 const safeVariant: ButtonVariant =
@@ -122,14 +122,14 @@ export function Features({
                     className={cn(
                       "h-auto min-h-11 sm:min-h-12 text-sm sm:text-base px-4 sm:px-6 md:px-8 font-semibold shadow-lg hover:shadow-xl transition-all",
                       "flex items-center justify-center gap-2 whitespace-normal break-words text-center",
-                      "w-full sm:w-auto max-w-full py-2.5 sm:py-3",
+                      "w-fit max-w-full self-center py-2.5 sm:py-3",
                     )}
                     variant={safeVariant}
                   >
                     <Link
                       href={btn.url || ""}
                       target={btn.target || "_self"}
-                      className="flex items-center justify-center gap-2 w-full sm:w-auto"
+                      className="flex w-fit max-w-full items-center justify-center gap-2"
                     >
                       <SectionCtaIcon
                         section="features"

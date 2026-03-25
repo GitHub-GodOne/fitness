@@ -26,10 +26,9 @@ export function getShowcaseVideoWatchPath({
   };
   locale?: string;
 }) {
+  void locale;
   const slug = getShowcaseVideoWatchSlug(video);
-  return locale === defaultLocale
-    ? `/showcases/watch/${slug}`
-    : `/${locale}/showcases/watch/${slug}`;
+  return `/showcases/watch/${slug}`;
 }
 
 export function parseShowcaseVideoIdFromWatchSlug(watchSlug: string) {

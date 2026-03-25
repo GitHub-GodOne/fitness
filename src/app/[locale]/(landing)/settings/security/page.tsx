@@ -2,6 +2,7 @@ import { getTranslations } from 'next-intl/server';
 
 import { Empty } from '@/shared/blocks/common';
 import { PanelCard } from '@/shared/blocks/panel';
+import { ForgotPasswordForm } from '@/shared/blocks/sign/forgot-password-form';
 import { PasswordManager } from '@/shared/blocks/settings/password-manager';
 import { getUserInfo } from '@/shared/models/user';
 
@@ -16,6 +17,7 @@ export default async function SecurityPage() {
   return (
     <div className="space-y-8">
       <PasswordManager />
+      <ForgotPasswordForm initialEmail={user.email || ''} compact />
       <PanelCard
         title={t('delete_account.title')}
         description={t('delete_account.description')}

@@ -3,7 +3,7 @@
 import * as React from "react";
 import { Slot } from "@radix-ui/react-slot";
 import { cva, VariantProps } from "class-variance-authority";
-import { PanelLeftIcon } from "lucide-react";
+import { PanelLeftIcon, XIcon } from "lucide-react";
 
 import { useIsMobile } from "@/shared/hooks/use-mobile";
 import { cn } from "@/shared/lib/utils";
@@ -199,7 +199,19 @@ function Sidebar({
             <SheetTitle>Sidebar</SheetTitle>
             <SheetDescription>Displays the mobile sidebar.</SheetDescription>
           </SheetHeader>
-          <div className="flex h-full w-full flex-col">{children}</div>
+          <div className="relative flex h-full w-full flex-col">
+            <Button
+              type="button"
+              size="icon"
+              variant="ghost"
+              className="absolute right-3 top-3 z-10 size-8 rounded-full text-sidebar-foreground/80 hover:bg-sidebar-accent hover:text-sidebar-accent-foreground"
+              onClick={() => setOpenMobile(false)}
+              aria-label="Close Sidebar"
+            >
+              <XIcon className="size-4" />
+            </Button>
+            {children}
+          </div>
         </SheetContent>
       </Sheet>
     );

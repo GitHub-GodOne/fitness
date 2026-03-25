@@ -66,6 +66,15 @@ export default async function ShowcaseVideoAddPage({
         attributes: { rows: 6 },
       },
       {
+        name: 'seoKeywords',
+        type: 'textarea',
+        title: t('fields.seoKeywords'),
+        attributes: {
+          rows: 4,
+          placeholder: t('fields.seoKeywordsPlaceholder'),
+        },
+      },
+      {
         name: 'videoUrl',
         type: 'url',
         title: t('fields.videoUrl'),
@@ -151,6 +160,7 @@ export default async function ShowcaseVideoAddPage({
         const categoryId = String(data.get('categoryId') || '').trim();
         const title = String(data.get('title') || '').trim();
         const description = String(data.get('description') || '').trim();
+        const seoKeywords = String(data.get('seoKeywords') || '').trim();
         const videoUrl = String(data.get('videoUrl') || '').trim();
         const coverUrl = String(data.get('coverUrl') || '').trim();
         const status = String(data.get('status') || ShowcaseVideoStatus.PENDING);
@@ -173,6 +183,7 @@ export default async function ShowcaseVideoAddPage({
           sourceType: 'upload',
           title,
           description,
+          seoKeywords,
           videoUrl,
           coverUrl,
           status,

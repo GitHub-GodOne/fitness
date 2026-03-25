@@ -27,7 +27,7 @@ export function HomeCtaButton({
       size="lg"
       onClick={onClick}
       className={cn(
-        "flex h-auto min-h-12 w-fit max-w-full cursor-pointer items-center justify-center gap-0 whitespace-nowrap px-2.5 py-2.5 has-[>svg]:px-2.5 sm:h-12 sm:px-10 sm:py-3 sm:has-[>svg]:px-10",
+        "self-center flex h-auto min-h-12 w-fit max-w-full cursor-pointer items-center justify-center gap-0 whitespace-nowrap px-2.5 py-2.5 has-[>svg]:px-2.5 sm:h-12 sm:px-10 sm:py-3 sm:has-[>svg]:px-10",
         "rounded-full text-[9px] font-semibold leading-none shadow-lg transition-all hover:-translate-y-0.5 hover:shadow-xl sm:text-sm",
         className,
       )}

@@ -107,14 +107,20 @@ export function SignInForm({
             </div>
 
             <div className="grid gap-2">
-              {/* <div className="flex items-center">
-              <Label htmlFor="password">{t("password_title")}</Label>
-              <Link href="#" className="ml-auto inline-block text-sm underline">
-                Forgot your password?
-              </Link>
-            </div> */}
-
-              <Label htmlFor="password" className="text-foreground">{t('password_title')}</Label>
+              <div className="flex items-center">
+                <Label htmlFor="password" className="text-foreground">
+                  {t('password_title')}
+                </Label>
+                <Link
+                  href={{
+                    pathname: '/forgot-password',
+                    query: callbackUrl ? { callbackUrl } : {},
+                  }}
+                  className="ml-auto inline-block text-sm underline"
+                >
+                  {t('forgot_password')}
+                </Link>
+              </div>
               <Input
                 id="password"
                 type="password"

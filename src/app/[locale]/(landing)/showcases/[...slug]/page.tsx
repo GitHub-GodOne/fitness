@@ -16,6 +16,13 @@ import { ShowcasesPageContent } from '../showcases-page-content';
 
 export const revalidate = 3600;
 
+function parseSeoKeywords(value?: string | null) {
+  return String(value || '')
+    .split(/[\n,，]+/)
+    .map((item) => item.trim())
+    .filter(Boolean);
+}
+
 export async function generateMetadata({
   params,
 }: {
@@ -45,6 +52,15 @@ export async function generateMetadata({
   const title = category?.title || 'Showcases';
   const description =
     category?.description || 'Browse the published videos in this category.';
+  const keywords = category
+    ? Array.from(
+        new Set([
+          category.title,
+          category.slug,
+          ...parseSeoKeywords(category.seoKeywords),
+        ])
+      )
+    : undefined;
   const canonical = `${envConfigs.app_url}${
     locale === defaultLocale ? '' : `/${locale}`
   }/showcases/${categorySlug}`;
@@ -52,6 +68,7 @@ export async function generateMetadata({
   return {
     title,
     description,
+    keywords,
     alternates: {
       canonical,
     },

@@ -35,6 +35,37 @@
       "new_password_required": "New password is required"
     }
   },
+  "forgot_password": {
+    "title": "Forgot Password",
+    "description": "Enter your account email and we will send you a password reset link.",
+    "sent_description": "If this email exists, a reset link has been sent. Please check your inbox.",
+    "success": "If this email exists, a reset link has been sent.",
+    "buttons": {
+      "submit": "Send Reset Link",
+      "back_to_sign_in": "Back to Sign In"
+    },
+    "error": {
+      "email_required": "Email is required",
+      "failed": "Failed to send reset email"
+    }
+  },
+  "reset_password": {
+    "title": "Reset Password",
+    "description": "Enter your new password below to complete the reset.",
+    "invalid_description": "This reset link is invalid or has expired. Request a new one to continue.",
+    "success": "Password reset successfully",
+    "buttons": {
+      "submit": "Reset Password",
+      "back_to_sign_in": "Back to Sign In"
+    },
+    "error": {
+      "invalid_token": "This reset link is invalid or has expired",
+      "password_mismatch": "Passwords do not match",
+      "password_too_short": "Password must be at least 8 characters",
+      "new_password_required": "New password is required",
+      "failed": "Failed to reset password"
+    }
+  },
   "delete_account": {
     "title": "Delete Account",
     "description": "Delete your account",
