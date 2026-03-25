@@ -57,6 +57,7 @@ export default async function BlogPage({
 
   // load blog data
   const t = await getTranslations('pages.blog');
+  const seoParagraphs = t.raw('seo.paragraphs') as string[];
 
   let posts: PostType[] = [];
   let categories: CategoryType[] = [];
@@ -107,5 +108,27 @@ export default async function BlogPage({
   // load page component
   const Page = await getThemePage('dynamic-page');
 
-  return <Page locale={locale} page={page} />;
+  return (
+    <>
+      <Page locale={locale} page={page} />
+      <section className="container pb-16 pt-4 sm:pt-6">
+        <div className="mx-auto max-w-4xl rounded-[24px] border border-border/70 bg-card/70 px-5 py-6 shadow-sm sm:px-8">
+          <h2 className="text-2xl font-semibold tracking-tight text-foreground">
+            {t('seo.title')}
+          </h2>
+          <div className="mt-4 space-y-4 text-sm leading-7 text-muted-foreground sm:text-[15px]">
+            <p>
+              {t('seo.listCountsParagraph', {
+                postCount: posts.length,
+                categoryCount: Math.max(categories.length - 1, 0),
+              })}
+            </p>
+            {seoParagraphs.map((paragraph) => (
+              <p key={paragraph}>{paragraph}</p>
+            ))}
+          </div>
+        </div>
+      </section>
+    </>
+  );
 }

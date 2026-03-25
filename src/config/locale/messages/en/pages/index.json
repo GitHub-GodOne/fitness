@@ -763,5 +763,13 @@
         "className": "bg-muted/30"
       }
     }
+  },
+  "seo": {
+    "title": "What This Site Helps You Do",
+    "paragraphs": [
+      "Fear Not helps people turn prayer requests, personal memories, and Bible verses into comforting videos centered on faith. The site is designed for visitors who want to create a meaningful video for themselves, a loved one, or a church community.",
+      "The homepage explains how the process works, shows examples of the visual style, and introduces the kinds of spiritual encouragement these videos are meant to offer. Visitors can explore testimonials, frequently asked questions, and sample scenes before starting their own project.",
+      "Together, these sections give search engines and human visitors a clearer understanding of the platform, the kinds of videos it creates, and the reasons someone may choose to use it during seasons of fear, grief, healing, or hope."
+    ]
   }
 }

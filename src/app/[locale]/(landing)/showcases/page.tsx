@@ -1,5 +1,5 @@
 import { redirect } from 'next/navigation';
-import { setRequestLocale } from 'next-intl/server';
+import { getTranslations, setRequestLocale } from 'next-intl/server';
 
 import {
   getCustomHtmlPageOverrideMetadata,
@@ -56,5 +56,26 @@ export default async function ShowcasesPage({
     redirect(q ? `/showcases/${category}?q=${encodeURIComponent(q)}` : `/showcases/${category}`);
   }
 
-  return <ShowcasesPageContent locale={locale} searchQuery={q} />;
+  const t = await getTranslations({ locale, namespace: 'pages.showcases.seo' });
+  const seoParagraphs = t.raw('paragraphs') as string[];
+
+  return (
+    <>
+      <ShowcasesPageContent locale={locale} searchQuery={q} />
+      <section className="container pb-16 pt-6 sm:pt-8">
+        <div className="mx-auto max-w-4xl rounded-[24px] border border-border/70 bg-card/70 px-5 py-6 shadow-sm sm:px-8">
+          <h2 className="text-2xl font-semibold tracking-tight text-foreground">
+            {t('title')}
+          </h2>
+          <div className="mt-4 space-y-4 text-sm leading-7 text-muted-foreground sm:text-[15px]">
+            <p>{t('homepageSearchParagraph')}</p>
+            <p>{t('homepageSubmissionParagraph')}</p>
+            {seoParagraphs.map((paragraph) => (
+              <p key={paragraph}>{paragraph}</p>
+            ))}
+          </div>
+        </div>
+      </section>
+    </>
+  );
 }

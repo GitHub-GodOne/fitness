@@ -139,6 +139,13 @@
     "seo_tooltip_label": "Learn about our pricing",
     "seo_tooltip_content": "Our pricing is designed to provide value and peace of mind. We offer flexible credit-based plans that never expire, allowing you to create personalized Bible comfort videos whenever you need them. Our transparent pricing ensures you only pay for what you use, with no hidden fees or recurring subscriptions. Perfect for individuals and families seeking spiritual comfort and peace.",
     "refund_support": "Refund service available",
-    "learn_more": "View refund policy"
+    "learn_more": "View refund policy",
+    "seo_body_title": "How to Choose a Plan",
+    "seo_body_paragraphs": [
+      "The pricing page is designed to help visitors compare credit packages based on how often they expect to create comfort videos, prayer videos, or scripture-based content.",
+      "Some users only need a small number of credits for occasional encouragement videos, while others need more room to create multiple videos for family members, ministry work, or regular sharing.",
+      "The comparison and FAQ sections explain how credits are used, what each package is best suited for, and how to decide between a smaller plan and a higher-value option."
+    ],
+    "seo_plan_summary": "Current options on this page include {plans}, giving visitors a clear way to choose between first-time access, occasional creation, and more consistent video use."
   }
 }

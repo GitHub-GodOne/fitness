@@ -126,6 +126,12 @@ export default async function PricingPage({
   const comparisonItems = Array.isArray(comparisonSection?.items)
     ? comparisonSection.items
     : [];
+  const planSummary = (pricingSection.items || [])
+    .map((item: any) =>
+      item.credits ? `${item.title} (${item.credits} credits)` : item.title
+    )
+    .filter(Boolean)
+    .join(', ');
   const faqSchema = faqItems.length
     ? {
         '@context': 'https://schema.org',
@@ -238,6 +244,21 @@ export default async function PricingPage({
                 ))}
               </div>
             </article>
+          </div>
+        </div>
+      </section>
+      <section className="container pb-16 pt-0">
+        <div className="rounded-[28px] border border-border/70 bg-card/70 px-5 py-6 shadow-sm sm:px-8">
+          <h2 className="text-2xl font-semibold tracking-tight text-foreground sm:text-3xl">
+            {t('messages.seo_body_title')}
+          </h2>
+          <div className="mt-4 space-y-4 text-sm leading-7 text-muted-foreground sm:text-[15px]">
+            {planSummary ? (
+              <p>{t('messages.seo_plan_summary', { plans: planSummary })}</p>
+            ) : null}
+            {(t.raw('messages.seo_body_paragraphs') as string[]).map((paragraph) => (
+              <p key={paragraph}>{paragraph}</p>
+            ))}
           </div>
         </div>
       </section>

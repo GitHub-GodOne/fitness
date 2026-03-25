@@ -43,12 +43,13 @@ export async function generateMetadata({
     return customHtmlMetadata;
   }
 
-  const t = await getTranslations('pages.blog.metadata');
-  const alternates = getLocaleAlternates(`/blog/category/${slug}`, locale);
+  const t = await getTranslations({ locale, namespace: 'pages.blog.metadata' });
+  const alternates = await getLocaleAlternates(`/blog/category/${slug}`, locale);
+  const description = t('categoryDescriptionTemplate', { slug });
 
   return {
     title: buildSeoTitle(`${slug} | ${t('title')}`),
-    description: t('description'),
+    description,
     alternates,
   };
 }

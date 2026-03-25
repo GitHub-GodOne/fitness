@@ -20,7 +20,9 @@ export function Footer({ footer }: { footer: FooterType }) {
   const feedbackLabels = (footer as any).feedback_labels;
 
   const isFeedbackLink = (url?: string) =>
-    url?.startsWith("mailto:") || false;
+    url?.startsWith("mailto:") ||
+    url?.startsWith("feedback:") ||
+    false;
 
   return (
     <footer

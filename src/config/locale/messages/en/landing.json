@@ -110,7 +110,7 @@
           "children": [
             {
               "title": "Contact Support",
-              "url": "mailto:support@your-domain.com",
+              "url": "feedback://support",
               "target": "_self"
             },
             {
@@ -164,7 +164,7 @@
         {
           "title": "Email",
           "icon": "Mail",
-          "url": "mailto:support@your-domain.com",
+          "url": "feedback://support",
           "target": "_self"
         }
       ]
@@ -185,7 +185,7 @@
         },
         {
           "title": "Contact Us",
-          "url": "mailto:support@fearnotforiamwithyou.com"
+          "url": "feedback://support"
         }
       ]
     },

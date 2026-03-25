@@ -57,7 +57,7 @@ export async function generateMetadata({
     return;
   }
 
-  const alternates = getLocaleAlternates(`/${staticPageSlug}`, locale);
+  const alternates = await getLocaleAlternates(`/${staticPageSlug}`, locale);
 
   const customHtmlPage = await getCustomHtmlPageBySlug({
     slug: staticPageSlug,

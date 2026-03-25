@@ -3,6 +3,14 @@
     "title": "Refund Request",
     "description": "Request a refund for your credits. We process refund requests via email."
   },
+  "seo": {
+    "title": "How Refund Requests Work",
+    "paragraphs": [
+      "Use this page to submit a refund request for unused credits. Include the reason for your request, the number of credits involved, and enough account or payment details for the support team to verify the purchase.",
+      "Refund requests are reviewed manually. This helps us confirm account ownership, understand the issue, and respond with the right resolution for duplicate purchases, accidental orders, or billing problems.",
+      "After submission, the team follows up by email with the review result, any follow-up questions, and the final processing status."
+    ]
+  },
   "title": "Refund Request",
   "description": "Fill out the form below to request a refund. We will review your request and contact you via email.",
   "sign_in_required": "Please sign in to request a refund",

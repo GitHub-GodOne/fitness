@@ -3,6 +3,7 @@ import { notFound } from 'next/navigation';
 import Image from 'next/image';
 import { ArrowLeft, ChevronRight, Search } from 'lucide-react';
 
+import { locales } from '@/config/locale';
 import { Link } from '@/core/i18n/navigation';
 import { Input } from '@/shared/components/ui/input';
 import {
@@ -20,8 +21,43 @@ import {
 import { ShowcasesBackLink } from './showcases-back-link';
 import { ShowcaseVideoGallery } from './showcase-video-gallery';
 
+function normalizeCategoryHref(href: string) {
+  const trimmed = href.trim();
+
+  if (!trimmed) {
+    return '/showcases';
+  }
+
+  if (
+    trimmed.startsWith('http://') ||
+    trimmed.startsWith('https://') ||
+    trimmed.startsWith('//') ||
+    trimmed.startsWith('#') ||
+    trimmed.startsWith('mailto:') ||
+    trimmed.startsWith('tel:')
+  ) {
+    return trimmed;
+  }
+
+  const normalizedPath = trimmed.startsWith('/') ? trimmed : `/${trimmed}`;
+
+  for (const locale of locales) {
+    if (normalizedPath === `/${locale}`) {
+      return '/';
+    }
+
+    if (normalizedPath.startsWith(`/${locale}/`)) {
+      return normalizedPath.slice(locale.length + 1);
+    }
+  }
+
+  return normalizedPath;
+}
+
 function getCategoryHref(item: { slug: string; targetUrl?: string | null }) {
-  return item.targetUrl?.trim() || `/showcases/${item.slug}`;
+  return normalizeCategoryHref(
+    item.targetUrl?.trim() || `/showcases/${item.slug}`
+  );
 }
 
 export async function ShowcasesPageContent({

@@ -17,7 +17,7 @@ export async function generateMetadata({
   return {
     title: buildSeoTitle(t('sign.sign_in_title')),
     robots: { index: true, follow: true },
-    alternates: getLocaleAlternates('/sign-in', locale),
+    alternates: await getLocaleAlternates('/sign-in', locale),
   };
 }
 

@@ -12,29 +12,12 @@ function normalizePath(path: string) {
 function buildSitemapUrls(path: string) {
   const normalizedPath = normalizePath(path);
   const baseUrl =
-    envConfigs.NEXT_PUBLIC_APP_URL ||
     envConfigs.app_url ||
     "https://fearnotforiamwithyou.com";
 
   try {
     const url = new URL(baseUrl);
-    const urls = [`${url.origin}${normalizedPath}`];
-    const hostname = url.hostname.toLowerCase();
-    const isLocalhost =
-      hostname === "localhost" ||
-      hostname === "127.0.0.1" ||
-      hostname === "::1";
-    const isIpAddress = /^\d{1,3}(?:\.\d{1,3}){3}$/.test(hostname);
-
-    if (!isLocalhost && !isIpAddress) {
-      const alternateUrl = new URL(baseUrl);
-      alternateUrl.hostname = hostname.startsWith("www.")
-        ? hostname.slice(4)
-        : `www.${hostname}`;
-      urls.push(`${alternateUrl.origin}${normalizedPath}`);
-    }
-
-    return Array.from(new Set(urls));
+    return [`${url.origin}${normalizedPath}`];
   } catch {
     return [`${baseUrl}${normalizedPath}`];
   }

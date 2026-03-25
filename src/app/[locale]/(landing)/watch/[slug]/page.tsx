@@ -47,7 +47,7 @@ export async function generateMetadata({
   }
 
   const canonical = toPublicAbsoluteUrl(watchPage.url);
-  const alternates = getLocaleAlternates(`/watch/${slug}`, locale);
+  const alternates = await getLocaleAlternates(`/watch/${slug}`, locale);
   const thumbnailUrl = toPublicAbsoluteUrl(watchPage.videoPoster || envConfigs.app_preview_image);
   const seoTitle = buildSeoTitle(watchPage.title);
 

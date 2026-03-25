@@ -36,7 +36,7 @@ export function ShowcaseVideoGallery({
         return (
         <Link
           key={video.id}
-          href={getShowcaseVideoWatchPath({ video, locale })}
+          href={getShowcaseVideoWatchPath({ video })}
           title={`${video.title} - ${videoDescription}`}
           aria-label={`${video.title}. ${videoDescription}`}
           className="group flex h-full flex-col overflow-hidden rounded-[16px] border border-border/70 bg-card text-left shadow-sm transition hover:border-primary/35 hover:shadow-md"

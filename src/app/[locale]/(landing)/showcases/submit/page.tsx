@@ -44,6 +44,7 @@ export default async function ShowcaseSubmitPage({
   }
 
   const t = await getTranslations({ locale, namespace: 'pages.showcases.page.submit' });
+  const seoParagraphs = t.raw('seoParagraphs') as string[];
   const user = await getUserInfo();
 
   if (!user) {
@@ -234,6 +235,22 @@ export default async function ShowcaseSubmitPage({
           }))}
           submitAction={handleSubmit}
         />
+        <section className="rounded-[28px] border border-border/70 bg-card/70 px-5 py-6 shadow-sm sm:px-8">
+          <h2 className="text-2xl font-semibold tracking-tight text-foreground sm:text-3xl">
+            {t('seoTitle')}
+          </h2>
+          <div className="mt-4 space-y-4 text-sm leading-7 text-muted-foreground sm:text-[15px]">
+            <p>
+              {t('seoCountParagraph', {
+                videoCount: selectableTasks.length,
+                categoryCount: categories.length,
+              })}
+            </p>
+            {seoParagraphs.map((paragraph) => (
+              <p key={paragraph}>{paragraph}</p>
+            ))}
+          </div>
+        </section>
       </div>
     </div>
   );

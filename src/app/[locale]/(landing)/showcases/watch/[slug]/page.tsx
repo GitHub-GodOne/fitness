@@ -42,6 +42,7 @@ export async function generateMetadata({
 }) {
   const { locale, slug } = await params;
   setRequestLocale(locale);
+  const t = await getTranslations({ locale, namespace: 'pages.showcases.page.watch' });
   const customHtmlMetadata = await getCustomHtmlPageOverrideMetadata({
     slug: `showcases/watch/${slug}`,
     locale,
@@ -66,10 +67,16 @@ export async function generateMetadata({
 
   const description = getShowcaseVideoDescription(
     video,
-    'Watch this published showcase video.'
+    t('descriptionFallback')
   );
+  const metadataDescription = [
+    description,
+    t('metadataDescriptionSuffix'),
+  ]
+    .filter(Boolean)
+    .join(' ');
   const canonical = getShowcaseVideoWatchAbsoluteUrl({ video, locale });
-  const alternates = getLocaleAlternates(
+  const alternates = await getLocaleAlternates(
     `/showcases/watch/${slug}`,
     locale
   );
@@ -96,7 +103,7 @@ export async function generateMetadata({
 
   return {
     title: seoTitle,
-    description,
+    description: metadataDescription,
     keywords: Array.from(keywordSet),
     category: category?.title || 'Showcases',
     alternates,
@@ -105,7 +112,7 @@ export async function generateMetadata({
       locale,
       url: canonical,
       title: seoTitle,
-      description,
+      description: metadataDescription,
       images: thumbnailUrl ? [{ url: thumbnailUrl }] : undefined,
       videos: video.videoUrl
         ? [
@@ -118,7 +125,7 @@ export async function generateMetadata({
     twitter: {
       card: 'summary_large_image',
       title: seoTitle,
-      description,
+      description: metadataDescription,
       images: thumbnailUrl ? [thumbnailUrl] : undefined,
     },
   };
@@ -183,16 +190,14 @@ export default async function ShowcaseWatchPage({
   });
   const publishedAt = getShowcaseVideoPublishedAt(video);
   const commentsPageId = `showcase-video:${video.id}`;
-  const showcasesHref =
-    locale === defaultLocale ? '/showcases' : `/${locale}/showcases`;
-  const categoryHref = category
-    ? locale === defaultLocale
-      ? `/showcases/${category.slug}`
-      : `/${locale}/showcases/${category.slug}`
+  const localePrefix = locale === defaultLocale ? '' : `/${locale}`;
+  const showcasesHref = '/showcases';
+  const showcasesAbsoluteHref = `${envConfigs.app_url}${localePrefix}${showcasesHref}`;
+  const categoryHref = category ? `/showcases/${category.slug}` : null;
+  const categoryAbsoluteHref = categoryHref
+    ? `${envConfigs.app_url}${localePrefix}${categoryHref}`
     : null;
-  const backHref = category
-    ? categoryHref!
-    : showcasesHref;
+  const backHref = category ? categoryHref! : showcasesHref;
   const breadcrumbSchema = {
     '@context': 'https://schema.org',
     '@type': 'BreadcrumbList',
@@ -201,15 +206,15 @@ export default async function ShowcaseWatchPage({
         '@type': 'ListItem',
         position: 1,
         name: t('breadcrumbShowcases'),
-        item: `${envConfigs.app_url}${showcasesHref}`,
+        item: showcasesAbsoluteHref,
       },
-      ...(category && categoryHref
+      ...(category && categoryAbsoluteHref
         ? [
             {
               '@type': 'ListItem',
               position: 2,
               name: category.title,
-              item: `${envConfigs.app_url}${categoryHref}`,
+              item: categoryAbsoluteHref,
             },
           ]
         : []),
@@ -335,11 +340,7 @@ export default async function ShowcaseWatchPage({
 
             {category ? (
               <Link
-                href={
-                  locale === defaultLocale
-                    ? `/showcases/${category.slug}`
-                    : `/${locale}/showcases/${category.slug}`
-                }
+                href={categoryHref!}
                 className="rounded-full bg-muted px-3 py-1 text-xs font-medium text-muted-foreground transition hover:text-foreground"
               >
                 {category.title}
@@ -423,7 +424,7 @@ export default async function ShowcaseWatchPage({
                     {relatedVideos.map((relatedVideo: ShowcaseVideo) => (
                       <Link
                         key={relatedVideo.id}
-                        href={getShowcaseVideoWatchPath({ video: relatedVideo, locale })}
+                        href={getShowcaseVideoWatchPath({ video: relatedVideo })}
                         className="group flex gap-3 rounded-[20px] border border-border/70 bg-card p-2.5 transition hover:border-primary/40 hover:shadow-sm"
                       >
                         <div className="w-[44%] shrink-0">
@@ -472,6 +473,27 @@ export default async function ShowcaseWatchPage({
             <div className="rounded-[28px] border border-border/70 bg-card px-4 py-5 shadow-sm sm:px-6">
               <CommentSection pageId={commentsPageId} />
             </div>
+
+            <section className="rounded-[28px] border border-border/70 bg-card px-5 py-5 shadow-sm sm:px-6">
+              <h2 className="text-lg font-semibold tracking-tight text-foreground">
+                {t('seoTitle')}
+              </h2>
+              <div className="mt-3 space-y-4 text-sm leading-7 text-muted-foreground sm:text-[15px]">
+                <p>
+                  {t('seoContextParagraph', {
+                    title: video.title,
+                    published: publishedAt.toLocaleDateString(dateLocale),
+                    category: category?.title || t('breadcrumbShowcases'),
+                  })}
+                </p>
+                {seoKeywords.length > 0 ? (
+                  <p>{t('seoKeywordsParagraph', { keywords: seoKeywords.join(', ') })}</p>
+                ) : null}
+                {(t.raw('seoParagraphs') as string[]).map((paragraph) => (
+                  <p key={paragraph}>{paragraph}</p>
+                ))}
+              </div>
+            </section>
           </div>
         </section>
 
@@ -494,7 +516,7 @@ export default async function ShowcaseWatchPage({
               {relatedVideos.map((relatedVideo: ShowcaseVideo) => (
                 <Link
                   key={relatedVideo.id}
-                  href={getShowcaseVideoWatchPath({ video: relatedVideo, locale })}
+                  href={getShowcaseVideoWatchPath({ video: relatedVideo })}
                   className="group flex gap-3 rounded-[20px] border border-border/70 bg-card p-2.5 transition hover:border-primary/40 hover:shadow-sm"
                 >
                   <div className="w-[44%] shrink-0">

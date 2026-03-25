@@ -15,7 +15,7 @@ export async function generateMetadata({
     title: buildSeoTitle(t('title')),
     description: t('description'),
     robots: { index: false, follow: false },
-    alternates: getLocaleAlternates('/forgot-password', locale),
+    alternates: await getLocaleAlternates('/forgot-password', locale),
   };
 }
 

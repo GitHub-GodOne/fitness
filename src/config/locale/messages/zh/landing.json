@@ -115,7 +115,7 @@
           "children": [
             {
               "title": "联系支持",
-              "url": "mailto:support@your-domain.com",
+              "url": "feedback://support",
               "target": "_self"
             },
             {
@@ -169,7 +169,7 @@
         {
           "title": "邮箱",
           "icon": "Mail",
-          "url": "mailto:support@your-domain.com",
+          "url": "feedback://support",
           "target": "_self"
         }
       ]
@@ -190,7 +190,7 @@
         },
         {
           "title": "联系我们",
-          "url": "mailto:support@fearnotforiamwithyou.com"
+          "url": "feedback://support"
         }
       ]
     },

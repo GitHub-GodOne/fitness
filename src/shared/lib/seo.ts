@@ -1,4 +1,5 @@
 import { getTranslations, setRequestLocale } from 'next-intl/server';
+import { headers } from 'next/headers';
 
 import { envConfigs } from '@/config';
 import { defaultLocale, locales } from '@/config/locale';
@@ -55,24 +56,52 @@ function toAppRelativePath(canonicalUrl: string) {
   }
 
   try {
-    const baseUrl = new URL(envConfigs.app_url);
     const targetUrl = new URL(canonicalUrl);
-
-    if (baseUrl.origin !== targetUrl.origin) {
-      return null;
-    }
-
     return normalizeAppPath(targetUrl.pathname);
   } catch {
     return null;
   }
 }
 
-export function buildCanonicalUrl(canonicalUrl: string, locale: string) {
+async function getRequestOrigin() {
+  const fallbackOrigin = envConfigs.app_url.replace(/\/$/, '');
+
+  try {
+    const requestHeaders = await headers();
+    const forwardedHost =
+      requestHeaders.get('x-forwarded-host') || requestHeaders.get('host');
+    const forwardedProto =
+      requestHeaders.get('x-forwarded-proto') ||
+      (forwardedHost?.includes('localhost') ? 'http' : 'https');
+
+    if (!forwardedHost) {
+      return fallbackOrigin;
+    }
+
+    return `${forwardedProto}://${forwardedHost}`.replace(/\/$/, '');
+  } catch {
+    return fallbackOrigin;
+  }
+}
+
+export async function buildCanonicalUrl(canonicalUrl: string, locale: string) {
   let resolvedCanonicalUrl = canonicalUrl || '/';
+  const requestOrigin = await getRequestOrigin();
 
   if (resolvedCanonicalUrl.startsWith('http')) {
-    return resolvedCanonicalUrl;
+    try {
+      const targetUrl = new URL(resolvedCanonicalUrl);
+      const normalizedPath = normalizeAppPath(targetUrl.pathname);
+      const localePrefix = !locale || locale === defaultLocale ? '' : `/${locale}`;
+
+      if (normalizedPath === '/') {
+        return `${requestOrigin}${localePrefix || ''}`;
+      }
+
+      return `${requestOrigin}${localePrefix}${normalizedPath}`;
+    } catch {
+      return resolvedCanonicalUrl;
+    }
   }
 
   if (!resolvedCanonicalUrl.startsWith('/')) {
@@ -83,25 +112,26 @@ export function buildCanonicalUrl(canonicalUrl: string, locale: string) {
   const localePrefix = !locale || locale === defaultLocale ? '' : `/${locale}`;
 
   if (normalizedPath === '/') {
-    return `${envConfigs.app_url}${localePrefix || ''}`;
+    return `${requestOrigin}${localePrefix || ''}`;
   }
 
-  return `${envConfigs.app_url}${localePrefix}${normalizedPath}`;
+  return `${requestOrigin}${localePrefix}${normalizedPath}`;
 }
 
-export function getLocaleAlternates(canonicalUrl: string, locale: string) {
-  const canonical = buildCanonicalUrl(canonicalUrl, locale);
+export async function getLocaleAlternates(canonicalUrl: string, locale: string) {
+  const canonical = await buildCanonicalUrl(canonicalUrl, locale);
   const relativePath = toAppRelativePath(canonicalUrl);
 
   if (!relativePath) {
     return { canonical };
   }
 
-  const languages = Object.fromEntries(
-    locales.map((item) => [item, buildCanonicalUrl(relativePath, item)])
-  ) as Record<string, string>;
+  const localizedUrls = await Promise.all(
+    locales.map(async (item) => [item, await buildCanonicalUrl(relativePath, item)] as const)
+  );
+  const languages = Object.fromEntries(localizedUrls) as Record<string, string>;
 
-  languages['x-default'] = buildCanonicalUrl(relativePath, defaultLocale);
+  languages['x-default'] = await buildCanonicalUrl(relativePath, defaultLocale);
 
   return {
     canonical,
@@ -153,7 +183,7 @@ export function getMetadata(
     }
 
     // canonical url
-    const alternates = getLocaleAlternates(options.canonicalUrl || '/', locale || '');
+    const alternates = await getLocaleAlternates(options.canonicalUrl || '/', locale || '');
 
     const title = buildSeoTitle(
       passedMetadata.title || translatedMetadata.title || defaultMetadata.title
