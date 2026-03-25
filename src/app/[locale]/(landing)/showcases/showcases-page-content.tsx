@@ -1,5 +1,6 @@
 import { getTranslations } from 'next-intl/server';
 import { notFound } from 'next/navigation';
+import Image from 'next/image';
 import { ArrowLeft, ChevronRight, Search } from 'lucide-react';
 
 import { Link } from '@/core/i18n/navigation';
@@ -83,11 +84,13 @@ export async function ShowcasesPageContent({
         <section className="overflow-hidden rounded-[26px] border border-border/70 bg-card shadow-lg sm:rounded-[32px]">
           <div className="relative aspect-[4/5] sm:aspect-[16/8] lg:aspect-[16/7]">
             {heroImage ? (
-              <img
+              <Image
                 src={heroImage}
                 alt={heroTitle}
+                fill
+                priority
+                sizes="100vw"
                 className="h-full w-full object-cover"
-                loading="eager"
               />
             ) : (
               <div className="h-full w-full bg-gradient-to-br from-primary/20 via-secondary/15 to-accent/20" />
@@ -158,10 +161,11 @@ export async function ShowcasesPageContent({
                       >
                         <div className="relative aspect-[4/5] sm:aspect-[5/4]">
                           {item.image ? (
-                            <img
+                            <Image
                               src={item.image}
                               alt={item.title}
-                              loading="lazy"
+                              fill
+                              sizes="(max-width: 1024px) 50vw, 25vw"
                               className="h-full w-full object-cover"
                             />
                           ) : (

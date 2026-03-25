@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { FormEvent, useState } from 'react';
 import { Loader2 } from 'lucide-react';
 import { useLocale, useTranslations } from 'next-intl';
 import { toast } from 'sonner';
@@ -85,6 +85,11 @@ export function SignIn({
     );
   };
 
+  const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    await handleSignIn();
+  };
+
   return (
     <Card className="mx-auto w-full text-foreground md:max-w-md">
       <CardHeader>
@@ -96,7 +101,7 @@ export function SignIn({
         </CardDescription>
       </CardHeader>
       <CardContent>
-        <div className="grid gap-4">
+        <form className="grid gap-4" onSubmit={handleSubmit}>
           {isEmailAuthEnabled && (
             <>
               <div className="grid gap-2">
@@ -151,7 +156,6 @@ export function SignIn({
                 type="submit"
                 className="w-full"
                 disabled={loading}
-                onClick={handleSignIn}
               >
                 {loading ? (
                   <Loader2 size={16} className="animate-spin" />
@@ -168,7 +172,7 @@ export function SignIn({
             loading={loading}
             setLoading={setLoading}
           />
-        </div>
+        </form>
       </CardContent>
       {isEmailAuthEnabled && (
         <CardFooter>

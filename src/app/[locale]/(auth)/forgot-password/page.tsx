@@ -1,8 +1,7 @@
 import { getTranslations } from 'next-intl/server';
 
-import { envConfigs } from '@/config';
-import { defaultLocale } from '@/config/locale';
 import { ForgotPasswordForm } from '@/shared/blocks/sign/forgot-password-form';
+import { buildSeoTitle, getLocaleAlternates } from '@/shared/lib/seo';
 
 export async function generateMetadata({
   params,
@@ -13,15 +12,10 @@ export async function generateMetadata({
   const t = await getTranslations('settings.security.forgot_password');
 
   return {
-    title: `${t('title')} - ${envConfigs.app_name}`,
+    title: buildSeoTitle(t('title')),
     description: t('description'),
     robots: { index: false, follow: false },
-    alternates: {
-      canonical:
-        locale !== defaultLocale
-          ? `${envConfigs.app_url}/${locale}/forgot-password`
-          : `${envConfigs.app_url}/forgot-password`,
-    },
+    alternates: getLocaleAlternates('/forgot-password', locale),
   };
 }
 

@@ -95,6 +95,8 @@ export function Testimonials({
             <LazyImage
               src={thumbnailUrl}
               alt={item.video?.title || item.title || ""}
+              fill
+              sizes="256px"
               className="w-full h-full object-contain group-hover:scale-105 transition-transform duration-300"
             />
             <div className="absolute inset-0 flex items-center justify-center">
@@ -178,11 +180,15 @@ export function Testimonials({
 
           <div className="flex items-center gap-3">
             {item.avatar?.src && (
-              <LazyImage
-                src={item.avatar.src}
-                alt={item.user?.name || ""}
-                className="w-10 h-10 rounded-full object-cover"
-              />
+              <div className="relative h-10 w-10 overflow-hidden rounded-full">
+                <LazyImage
+                  src={item.avatar.src}
+                  alt={item.user?.name || ""}
+                  fill
+                  sizes="40px"
+                  className="w-10 h-10 rounded-full object-cover"
+                />
+              </div>
             )}
             <div className="min-w-0">
               <p className="font-semibold text-gray-900 dark:text-foreground text-sm">

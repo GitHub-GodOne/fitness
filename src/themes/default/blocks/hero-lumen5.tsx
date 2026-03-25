@@ -200,22 +200,14 @@ function LogoCarousel({
             key={index}
             className="flex-shrink-0 h-10 w-10 sm:h-12 sm:w-12 rounded-full overflow-hidden border-2 border-border/50"
           >
-            {logo.src.startsWith("http") ? (
-              <img
-                src={logo.src}
-                alt={logo.alt}
-                className="h-full w-full object-cover"
-              />
-            ) : (
-              <Image
-                src={logo.src}
-                alt={logo.alt}
-                width={48}
-                height={48}
-                className="h-full w-full object-cover"
-                unoptimized={logo.src.startsWith("http")}
-              />
-            )}
+            <Image
+              src={logo.src}
+              alt={logo.alt}
+              width={48}
+              height={48}
+              sizes="(min-width: 640px) 48px, 40px"
+              className="h-full w-full object-cover"
+            />
           </div>
         ))}
       </div>
@@ -276,11 +268,13 @@ export function HeroLumen5({
     >
       {/* Background gradient image - Lumen5 style */}
       <div className="absolute inset-0 -z-10">
-        <img
-          className="w-full h-full object-cover"
+        <Image
           src="https://cdn.lumen5.com/lumen5-site-images/2025-website-assets/landing/Gradient%20Backgrounds-01-1280.webp"
           alt="Background gradient"
-          loading="eager"
+          fill
+          priority
+          sizes="100vw"
+          className="object-cover"
         />
         <div className="absolute inset-0 bg-gradient-to-br from-amber-50/60 via-background to-blue-50/40 dark:from-amber-950/30 dark:via-background dark:to-blue-950/20" />
       </div>
@@ -297,18 +291,24 @@ export function HeroLumen5({
                 }
               />
             ) : section.featured_image ? (
-              <img
+              <Image
                 src={section.featured_image.src}
                 alt={section.featured_image.alt || "Hero illustration"}
+                width={section.featured_image.width || 960}
+                height={section.featured_image.height || 720}
+                priority
+                sizes="(min-width: 1024px) 480px, 100vw"
                 className="w-full h-auto rounded-lg object-contain p-l5-32"
-                loading="eager"
               />
             ) : (
-              <img
+              <Image
                 src="/imgs/avatars/HomeHeroStatic3-1280.webp"
                 alt="Personalized Bible Video"
+                width={1280}
+                height={960}
+                priority
+                sizes="(min-width: 1024px) 480px, 100vw"
                 className="w-full h-auto rounded-lg object-contain p-l5-32"
-                loading="eager"
               />
             )}
           </div>

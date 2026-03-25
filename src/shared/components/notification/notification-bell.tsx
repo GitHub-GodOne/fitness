@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useState } from "react";
+import { useState } from "react";
 import { Bell } from "lucide-react";
 import { useTranslations } from "next-intl";
 
@@ -24,39 +24,32 @@ export function NotificationBell({
   className,
   variant = "icon",
 }: NotificationBellProps) {
-  const { user } = useAppContext();
+  const { configs, isConfigsLoaded } = useAppContext();
+
+  if (!isConfigsLoaded) {
+    return null;
+  }
+
+  if (configs.notification_bell_enabled === "false") {
+    return null;
+  }
+
+  return (
+    <NotificationBellContent className={className} variant={variant} />
+  );
+}
+
+function NotificationBellContent({
+  className,
+  variant,
+}: NotificationBellProps) {
+  const { unreadNotificationCount, refreshUnreadNotificationCount, user } =
+    useAppContext();
   const t = useTranslations("notification");
-  const [unreadCount, setUnreadCount] = useState(0);
   const [isOpen, setIsOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [selectedNotification, setSelectedNotification] =
     useState<Notification | null>(null);
-
-  const fetchUnreadCount = useCallback(async () => {
-    // Skip API call if user is not logged in
-    if (!user) {
-      setUnreadCount(0);
-      return;
-    }
-
-    try {
-      const response = await fetch("/api/notifications/unread-count");
-      if (response.ok) {
-        const data = await response.json();
-        if (data.code === 0) {
-          setUnreadCount(data.data.unreadCount);
-        }
-      }
-    } catch (error) {
-      console.error("Failed to fetch unread count:", error);
-    }
-  }, [user]);
-
-  useEffect(() => {
-    fetchUnreadCount();
-    const interval = setInterval(fetchUnreadCount, 30000);
-    return () => clearInterval(interval);
-  }, [fetchUnreadCount]);
 
   const handleMarkAllAsRead = async () => {
     setIsLoading(true);
@@ -68,7 +61,7 @@ export function NotificationBell({
       });
 
       if (response.ok) {
-        setUnreadCount(0);
+        await refreshUnreadNotificationCount();
       }
     } catch (error) {
       console.error("Failed to mark all as read:", error);
@@ -93,7 +86,7 @@ export function NotificationBell({
             {variant === "menu-item" ? (
               <span className="flex-1 text-left">{t("title")}</span>
             ) : null}
-            {unreadCount > 0 && (
+            {unreadNotificationCount > 0 && (
               <span
                 className={
                   variant === "menu-item"
@@ -101,7 +94,9 @@ export function NotificationBell({
                     : "absolute -top-1 -right-1 flex h-5 w-5 items-center justify-center rounded-full bg-red-500 text-[10px] font-bold text-white animate-pulse"
                 }
               >
-                {unreadCount > 99 ? "99+" : unreadCount}
+                {unreadNotificationCount > 99
+                  ? "99+"
+                  : unreadNotificationCount}
               </span>
             )}
           </button>
@@ -112,7 +107,7 @@ export function NotificationBell({
         >
           <div className="flex items-center justify-between border-b px-4 py-3">
             <h3 className="font-semibold">{t("title")}</h3>
-            {unreadCount > 0 && (
+            {unreadNotificationCount > 0 && (
               <Button
                 variant="ghost"
                 size="sm"
@@ -126,7 +121,7 @@ export function NotificationBell({
           </div>
           <NotificationList
             onNotificationRead={() => {
-              fetchUnreadCount();
+              void refreshUnreadNotificationCount();
             }}
             onViewDetail={(n) => {
               setIsOpen(false);

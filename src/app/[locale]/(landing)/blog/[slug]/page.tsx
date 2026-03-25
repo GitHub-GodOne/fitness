@@ -1,12 +1,12 @@
 import { getTranslations, setRequestLocale } from 'next-intl/server';
 
 import { getThemePage } from '@/core/theme';
-import { envConfigs } from '@/config';
 import { Empty } from '@/shared/blocks/common';
 import {
   getCustomHtmlPageOverrideMetadata,
   renderCustomHtmlPageOverride,
 } from '@/shared/lib/custom-html-page-override';
+import { buildSeoTitle, getLocaleAlternates } from '@/shared/lib/seo';
 import { getPost } from '@/shared/models/post';
 import { DynamicPage } from '@/shared/types/blocks/landing';
 
@@ -29,28 +29,21 @@ export async function generateMetadata({
     return customHtmlMetadata;
   }
 
-  const canonicalUrl =
-    locale !== envConfigs.locale
-      ? `${envConfigs.app_url}/${locale}/blog/${slug}`
-      : `${envConfigs.app_url}/blog/${slug}`;
+  const alternates = getLocaleAlternates(`/blog/${slug}`, locale);
 
   const post = await getPost({ slug, locale });
   if (!post) {
     return {
-      title: `${slug} | ${t('title')}`,
+      title: buildSeoTitle(`${slug} | ${t('title')}`),
       description: t('description'),
-      alternates: {
-        canonical: canonicalUrl,
-      },
+      alternates,
     };
   }
 
   return {
-    title: `${post.title} | ${t('title')}`,
+    title: buildSeoTitle(`${post.title} | ${t('title')}`),
     description: post.description,
-    alternates: {
-      canonical: canonicalUrl,
-    },
+    alternates,
   };
 }
 

@@ -1,3 +1,4 @@
+import Image from 'next/image';
 import { ArrowLeft } from 'lucide-react';
 import { getTranslations, setRequestLocale } from 'next-intl/server';
 import { notFound } from 'next/navigation';
@@ -19,6 +20,7 @@ import {
   getShowcaseVideoThumbnailUrl,
   getShowcaseVideoWatchAbsoluteUrl,
 } from '@/shared/lib/showcase-video-seo';
+import { buildSeoTitle, getLocaleAlternates } from '@/shared/lib/seo';
 import {
   findPublishedShowcaseVideoByWatchSlug,
   getShowcaseVideos,
@@ -67,8 +69,15 @@ export async function generateMetadata({
     'Watch this published showcase video.'
   );
   const canonical = getShowcaseVideoWatchAbsoluteUrl({ video, locale });
+  const alternates = getLocaleAlternates(
+    `/showcases/watch/${slug}`,
+    locale
+  );
   const thumbnailUrl = getShowcaseVideoThumbnailUrl(video);
   const manualKeywords = getShowcaseVideoSeoKeywords(video);
+  const seoTitle = buildSeoTitle(
+    category?.title ? `${video.title} | ${category.title}` : video.title
+  );
   const keywordSet = new Set(
     [
       video.title,
@@ -86,18 +95,16 @@ export async function generateMetadata({
   );
 
   return {
-    title: video.title,
+    title: seoTitle,
     description,
     keywords: Array.from(keywordSet),
     category: category?.title || 'Showcases',
-    alternates: {
-      canonical,
-    },
+    alternates,
     openGraph: {
       type: 'video.other',
       locale,
       url: canonical,
-      title: video.title,
+      title: seoTitle,
       description,
       images: thumbnailUrl ? [{ url: thumbnailUrl }] : undefined,
       videos: video.videoUrl
@@ -110,7 +117,7 @@ export async function generateMetadata({
     },
     twitter: {
       card: 'summary_large_image',
-      title: video.title,
+      title: seoTitle,
       description,
       images: thumbnailUrl ? [thumbnailUrl] : undefined,
     },
@@ -422,10 +429,11 @@ export default async function ShowcaseWatchPage({
                         <div className="w-[44%] shrink-0">
                           <div className="relative aspect-video overflow-hidden rounded-[14px] bg-muted">
                             {relatedVideo.coverUrl ? (
-                              <img
+                              <Image
                                 src={relatedVideo.coverUrl}
                                 alt={relatedVideo.title}
-                                loading="lazy"
+                                fill
+                                sizes="(max-width: 1280px) 44vw, 320px"
                                 className="absolute inset-0 h-full w-full object-cover transition duration-300 group-hover:scale-[1.02]"
                               />
                             ) : (
@@ -492,10 +500,11 @@ export default async function ShowcaseWatchPage({
                   <div className="w-[44%] shrink-0">
                     <div className="relative aspect-video overflow-hidden rounded-[14px] bg-muted">
                       {relatedVideo.coverUrl ? (
-                        <img
+                        <Image
                           src={relatedVideo.coverUrl}
                           alt={relatedVideo.title}
-                          loading="lazy"
+                          fill
+                          sizes="320px"
                           className="absolute inset-0 h-full w-full object-cover transition duration-300 group-hover:scale-[1.02]"
                         />
                       ) : (

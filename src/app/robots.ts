@@ -6,11 +6,14 @@ export default function robots(): MetadataRoute.Robots {
   const appUrl = envConfigs.app_url;
 
   return {
-    rules: {
-      userAgent: "*",
-      allow: "/",
-      disallow: ["/api/", "/admin/", "/activity/", "/settings/", "/*?callbackUrl=*"],
-    },
+    rules: [
+      {
+        userAgent: "*",
+        allow: "/",
+        disallow: ["/api/", "/admin/", "/activity/", "/settings/"],
+      },
+    ],
+    host: appUrl,
     sitemap: [`${appUrl}/sitemap.xml`, `${appUrl}/video-sitemap.xml`],
   };
 }

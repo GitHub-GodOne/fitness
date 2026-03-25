@@ -2,9 +2,9 @@
 
 import { Play } from 'lucide-react';
 import { useTranslations } from 'next-intl';
+import Image from 'next/image';
 
 import { Link } from '@/core/i18n/navigation';
-import { Skeleton } from '@/shared/components/ui/skeleton';
 import {
   getShowcaseVideoWatchPath,
 } from '@/shared/lib/showcase-video-url';
@@ -43,15 +43,13 @@ export function ShowcaseVideoGallery({
         >
           <div className="relative aspect-[16/10] shrink-0 overflow-hidden bg-muted">
             {video.coverUrl ? (
-              <>
-                <Skeleton className="absolute inset-0 rounded-none" />
-                <img
-                  src={video.coverUrl}
-                  alt={video.title}
-                  loading="lazy"
-                  className="relative z-10 h-full w-full object-cover transition duration-300 group-hover:scale-[1.03]"
-                />
-              </>
+              <Image
+                src={video.coverUrl}
+                alt={video.title}
+                fill
+                sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 25vw"
+                className="relative z-10 h-full w-full object-cover transition duration-300 group-hover:scale-[1.03]"
+              />
             ) : (
               <div className="flex h-full w-full items-center justify-center bg-gradient-to-br from-primary/10 via-secondary/10 to-accent/10">
                 <span className="text-3xl font-semibold text-foreground/70">

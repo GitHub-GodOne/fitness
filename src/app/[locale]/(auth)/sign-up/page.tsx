@@ -1,7 +1,7 @@
 import { getTranslations } from 'next-intl/server';
 
 import { envConfigs } from '@/config';
-import { defaultLocale } from '@/config/locale';
+import { buildSeoTitle, getLocaleAlternates } from '@/shared/lib/seo';
 import { SignUp } from '@/shared/blocks/sign/sign-up';
 import { getAllConfigs } from '@/shared/models/config';
 
@@ -15,14 +15,9 @@ export async function generateMetadata({
   const t = await getTranslations('common');
 
   return {
-    title: `${t('sign.sign_up_title')} - ${t('metadata.title')}`,
+    title: buildSeoTitle(t('sign.sign_up_title')),
     robots: { index: true, follow: true },
-    alternates: {
-      canonical:
-        locale !== defaultLocale
-          ? `${envConfigs.app_url}/${locale}/sign-up`
-          : `${envConfigs.app_url}/sign-up`,
-    },
+    alternates: getLocaleAlternates('/sign-up', locale),
   };
 }
 

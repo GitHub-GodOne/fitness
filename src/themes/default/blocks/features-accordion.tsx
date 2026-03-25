@@ -94,10 +94,12 @@ export function FeaturesAccordion({
                     animate={{ opacity: 1, y: 0, scale: 1 }}
                     exit={{ opacity: 0, y: 6, scale: 0.98 }}
                     transition={{ duration: 0.2 }}
-                    className="size-full overflow-hidden rounded-2xl border shadow-md"
+                    className="relative size-full overflow-hidden rounded-2xl border shadow-md"
                   >
                     <LazyImage
                       src={images[activeItem].image}
+                      fill
+                      sizes="(max-width: 768px) 100vw, 50vw"
                       className="size-full object-cover object-left-top dark:mix-blend-lighten"
                       alt={images[activeItem].alt}
                     />

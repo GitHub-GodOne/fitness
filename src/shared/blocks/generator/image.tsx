@@ -885,10 +885,18 @@ export function ImageGenerator({
                           <LazyImage
                             src={image.url}
                             alt={image.prompt || 'Generated image'}
+                            fill={generatedImages.length !== 1}
+                            width={generatedImages.length === 1 ? 1200 : undefined}
+                            height={generatedImages.length === 1 ? 1200 : undefined}
                             className={
                               generatedImages.length === 1
                                 ? 'h-auto w-full'
                                 : 'h-full w-full object-cover'
+                            }
+                            sizes={
+                              generatedImages.length === 1
+                                ? '(max-width: 768px) 100vw, 720px'
+                                : '(max-width: 768px) 100vw, 50vw'
                             }
                           />
 

@@ -43,10 +43,12 @@ export function FounderLetter({
             {/* Founder photo */}
             {founderImage && (
               <div className="flex justify-center mb-6">
-                <div className="w-20 h-20 sm:w-24 sm:h-24 rounded-full overflow-hidden border-4 border-primary/20 shadow-md">
+                <div className="relative w-20 h-20 sm:w-24 sm:h-24 rounded-full overflow-hidden border-4 border-primary/20 shadow-md">
                   <LazyImage
                     src={founderImage}
                     alt={founderName || "Founder"}
+                    fill
+                    sizes="96px"
                     className="w-full h-full object-cover"
                   />
                 </div>
@@ -72,6 +74,8 @@ export function FounderLetter({
                   <LazyImage
                     src={signatureImage}
                     alt="Signature"
+                    width={220}
+                    height={72}
                     className="h-10 sm:h-12 w-auto opacity-80"
                   />
                 )}

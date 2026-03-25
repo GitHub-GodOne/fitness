@@ -43,6 +43,7 @@ export function Faq({
             <Accordion
               type="single"
               collapsible
+              idPrefix={section.id || "faq"}
               className="bg-primary/5 w-full rounded-xl sm:rounded-2xl p-0.5 sm:p-1 border border-primary/20"
             >
               {section.items?.map((item, idx) => (

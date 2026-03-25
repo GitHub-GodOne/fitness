@@ -32,7 +32,10 @@ export function FeaturesList({
               <LazyImage
                 src={section.image?.src ?? ""}
                 alt={section.image?.alt ?? ""}
+                width={900}
+                height={700}
                 className="h-auto w-full rounded-lg object-cover"
+                sizes="(max-width: 768px) 100vw, 500px"
               />
             </div>
           </ScrollAnimation>

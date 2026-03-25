@@ -2,8 +2,8 @@ import { notFound } from "next/navigation";
 import { getTranslations, setRequestLocale } from "next-intl/server";
 
 import { getThemePage } from "@/core/theme";
-import { envConfigs } from "@/config";
 import { CustomHtmlRenderer } from "@/shared/blocks/common/custom-html-renderer";
+import { buildSeoTitle, getLocaleAlternates } from "@/shared/lib/seo";
 import { getCustomHtmlPageBySlug } from "@/shared/models/custom-html-page";
 import { getLocalPage } from "@/shared/models/static-page";
 
@@ -39,8 +39,6 @@ export async function generateMetadata({
   // metadata values
   let title = "";
   let description = "";
-  let canonicalUrl = "";
-
   // 1. try to get static page metadata from
   // content/pages/**/*.mdx
 
@@ -59,11 +57,7 @@ export async function generateMetadata({
     return;
   }
 
-  // build canonical url
-  canonicalUrl =
-    locale !== envConfigs.locale
-      ? `${envConfigs.app_url}/${locale}/${staticPageSlug}`
-      : `${envConfigs.app_url}/${staticPageSlug}`;
+  const alternates = getLocaleAlternates(`/${staticPageSlug}`, locale);
 
   const customHtmlPage = await getCustomHtmlPageBySlug({
     slug: staticPageSlug,
@@ -72,11 +66,11 @@ export async function generateMetadata({
 
   if (customHtmlPage?.title || customHtmlPage?.description) {
     return {
-      title: customHtmlPage.title || undefined,
+      title: customHtmlPage.title
+        ? buildSeoTitle(customHtmlPage.title)
+        : undefined,
       description: customHtmlPage.description || undefined,
-      alternates: {
-        canonical: canonicalUrl,
-      },
+      alternates,
     };
   }
 
@@ -89,11 +83,9 @@ export async function generateMetadata({
     description = staticPage.description || "";
 
     return {
-      title,
+      title: buildSeoTitle(title),
       description,
-      alternates: {
-        canonical: canonicalUrl,
-      },
+      alternates,
     };
   }
 
@@ -115,11 +107,9 @@ export async function generateMetadata({
       description = t.raw("metadata.description");
 
       return {
-        title,
+        title: buildSeoTitle(title),
         description,
-        alternates: {
-          canonical: canonicalUrl,
-        },
+        alternates,
       };
     }
   } catch {
@@ -133,11 +123,9 @@ export async function generateMetadata({
   description = tc("description");
 
   return {
-    title,
+    title: buildSeoTitle(title),
     description,
-    alternates: {
-      canonical: canonicalUrl,
-    },
+    alternates,
   };
 }
 

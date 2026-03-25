@@ -1,8 +1,8 @@
 "use client";
 
 import React from "react";
-import { motion, useInView, useReducedMotion } from "framer-motion";
-import { useRef } from "react";
+import { useEffect, useRef, useState } from "react";
+import { cn } from "@/shared/lib/utils";
 
 interface ScrollAnimationProps {
   children: React.ReactNode;
@@ -19,114 +19,96 @@ export function ScrollAnimation({
   direction = "up",
   stagger = false,
 }: ScrollAnimationProps) {
-  const ref = useRef(null);
-  const isInView = useInView(ref, {
-    once: true,
-    margin: "-50px", // Optimization: trigger animation earlier for better perceived performance
-  });
+  const ref = useRef<HTMLDivElement | null>(null);
+  const [isInView, setIsInView] = useState(false);
 
-  // Respect user's reduced motion preference (accessibility)
-  const shouldReduceMotion = useReducedMotion();
+  useEffect(() => {
+    if (typeof window === "undefined") {
+      return;
+    }
 
-  // If user prefers reduced motion or JavaScript is disabled, show content directly
-  if (shouldReduceMotion) {
-    return (
-      <div ref={ref} className={className}>
-        {children}
-      </div>
+    const media = window.matchMedia("(prefers-reduced-motion: reduce)");
+    if (media.matches) {
+      setIsInView(true);
+      return;
+    }
+
+    const element = ref.current;
+    if (!element) {
+      return;
+    }
+
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting) {
+          setIsInView(true);
+          observer.disconnect();
+        }
+      },
+      {
+        rootMargin: "0px 0px -50px 0px",
+        threshold: 0.1,
+      },
     );
-  }
 
-  const getInitialPosition = () => {
+    observer.observe(element);
+
+    return () => observer.disconnect();
+  }, []);
+
+  const getInitialTransform = () => {
     switch (direction) {
       case "up":
-        return { y: 30, x: 0 };
+        return "translate3d(0, 30px, 0)";
       case "down":
-        return { y: -30, x: 0 };
+        return "translate3d(0, -30px, 0)";
       case "left":
-        return { x: 30, y: 0 };
+        return "translate3d(30px, 0, 0)";
       case "right":
-        return { x: -30, y: 0 };
+        return "translate3d(-30px, 0, 0)";
       default:
-        return { y: 30, x: 0 };
+        return "translate3d(0, 30px, 0)";
     }
   };
 
-  const containerVariants = {
-    hidden: { opacity: 0 },
-    visible: {
-      opacity: 1,
-      transition: {
-        staggerChildren: 0.1,
-        delayChildren: delay,
-      },
-    },
-  };
-
-  const itemVariants = {
-    hidden: {
-      opacity: 0,
-      ...getInitialPosition(),
-      filter: "blur(4px)",
-    },
-    visible: {
-      opacity: 1,
-      x: 0,
-      y: 0,
-      filter: "blur(0px)",
-      transition: {
-        duration: 0.6,
-        ease: [0.22, 1, 0.36, 1] as const,
-      },
-    },
+  const sharedStyle: React.CSSProperties = {
+    opacity: isInView ? 1 : 0,
+    transform: isInView ? "translate3d(0, 0, 0)" : getInitialTransform(),
+    filter: isInView ? "blur(0px)" : "blur(4px)",
+    transitionDelay: `${delay}s`,
+    transitionDuration: "0.6s",
+    transitionTimingFunction: "cubic-bezier(0.22, 1, 0.36, 1)",
+    transitionProperty: "opacity, transform, filter",
   };
 
   if (stagger) {
     return (
-      <motion.div
+      <div
         ref={ref}
-        variants={containerVariants}
-        initial="hidden"
-        animate={isInView ? "visible" : "hidden"}
         className={className}
+        style={sharedStyle}
       >
-        {React.Children.map(children, (child) => (
-          <motion.div variants={itemVariants}>{child}</motion.div>
+        {React.Children.map(children, (child, index) => (
+          <div
+            style={{
+              ...sharedStyle,
+              transitionDelay: `${delay + index * 0.1}s`,
+            }}
+          >
+            {child}
+          </div>
         ))}
-      </motion.div>
+      </div>
     );
   }
 
   return (
-    <motion.div
+    <div
       ref={ref}
-      initial={{
-        opacity: 0,
-        ...getInitialPosition(),
-        filter: "blur(4px)",
-      }}
-      animate={
-        isInView
-          ? {
-              opacity: 1,
-              x: 0,
-              y: 0,
-              filter: "blur(0px)",
-            }
-          : {
-              opacity: 0,
-              ...getInitialPosition(),
-              filter: "blur(4px)",
-            }
-      }
-      transition={{
-        duration: 0.6,
-        delay,
-        ease: [0.22, 1, 0.36, 1] as const,
-      }}
-      className={className}
+      className={cn("will-change-transform", className)}
+      style={sharedStyle}
     >
       {children}
-    </motion.div>
+    </div>
   );
 }

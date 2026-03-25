@@ -186,6 +186,8 @@ export function ShowcasesFlow({
               <LazyImage
                 src={item.image?.src ?? ""}
                 alt={item.image?.alt ?? ""}
+                width={800}
+                height={600}
                 className="h-auto w-full transition-transform duration-300 group-hover:scale-105"
                 sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 25vw"
               />
@@ -290,6 +292,8 @@ export function ShowcasesFlow({
                   <LazyImage
                     src={filteredItems[selectedIndex].image?.src ?? ""}
                     alt={filteredItems[selectedIndex].image?.alt ?? ""}
+                    width={1600}
+                    height={900}
                     className="h-auto max-h-[90vh] w-auto max-w-full object-contain"
                   />
                   <div className="absolute right-0 bottom-0 left-0 bg-gradient-to-t from-black/80 via-black/50 to-transparent p-6 text-white">

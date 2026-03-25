@@ -6,6 +6,7 @@ import {
   getCustomHtmlPageOverrideMetadata,
   renderCustomHtmlPageOverride,
 } from '@/shared/lib/custom-html-page-override';
+import { buildSeoTitle, getLocaleAlternates } from '@/shared/lib/seo';
 import {
   getTaxonomies,
   TaxonomyStatus,
@@ -61,22 +62,18 @@ export async function generateMetadata({
         ])
       )
     : undefined;
-  const canonical = `${envConfigs.app_url}${
-    locale === defaultLocale ? '' : `/${locale}`
-  }/showcases/${categorySlug}`;
+  const alternates = getLocaleAlternates(`/showcases/${categorySlug}`, locale);
 
   return {
-    title,
+    title: buildSeoTitle(`${title} | Showcases`),
     description,
     keywords,
-    alternates: {
-      canonical,
-    },
+    alternates,
     openGraph: {
       type: 'website',
       locale,
-      url: canonical,
-      title,
+      url: alternates.canonical,
+      title: buildSeoTitle(`${title} | Showcases`),
       description,
     },
   };

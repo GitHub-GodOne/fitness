@@ -1,5 +1,6 @@
 "use client";
 
+import Image from "next/image";
 import { useState, useRef, useEffect } from "react";
 import { Play } from "lucide-react";
 import { Button } from "@/shared/components/ui/button";
@@ -248,10 +249,12 @@ export function HeroVideo({
                           key={index}
                           className="relative w-10 h-10 sm:w-12 sm:h-12 lg:w-14 lg:h-14 rounded-full border-3 border-background overflow-hidden bg-primary/10"
                         >
-                          <img
+                          <Image
                             src={avatar.src}
                             alt={avatar.alt}
-                            className="w-full h-full object-cover"
+                            fill
+                            sizes="(min-width: 1024px) 56px, (min-width: 640px) 48px, 40px"
+                            className="object-cover"
                           />
                         </div>
                       ))}

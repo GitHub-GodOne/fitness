@@ -124,7 +124,9 @@ export function FeaturesAlternating({
                             alt={item.image.alt || ""}
                             width={400}
                             height={300}
-                            className="w-full h-auto object-cover"
+                            className="w-full object-cover"
+                            style={{ height: "auto" }}
+                            sizes="(max-width: 640px) 280px, (max-width: 1024px) 320px, 400px"
                             loading="lazy"
                             decoding="async"
                           />

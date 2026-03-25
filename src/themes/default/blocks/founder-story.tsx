@@ -40,10 +40,12 @@ export function FounderStory({
                 {/* Photo - top on mobile, side on desktop */}
                 {founderImage && (
                   <div className="flex-shrink-0 flex justify-center md:justify-start">
-                    <div className="w-28 h-28 sm:w-32 sm:h-32 md:w-36 md:h-36 rounded-full overflow-hidden border-4 border-primary/20 shadow-md">
+                    <div className="relative w-28 h-28 sm:w-32 sm:h-32 md:w-36 md:h-36 rounded-full overflow-hidden border-4 border-primary/20 shadow-md">
                       <LazyImage
                         src={founderImage}
                         alt={founderName || "Founder"}
+                        fill
+                        sizes="144px"
                         className="w-full h-full object-cover"
                       />
                     </div>
@@ -70,6 +72,8 @@ export function FounderStory({
                     <LazyImage
                       src={signatureImage}
                       alt="Signature"
+                      width={240}
+                      height={80}
                       className="h-12 sm:h-14 w-auto opacity-80"
                     />
                   )}

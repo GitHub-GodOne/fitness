@@ -456,6 +456,24 @@ export async function getSettings() {
       tab: 'general',
     },
     {
+      name: 'floating_widget_enabled',
+      title: 'Enable Floating Support Button',
+      type: 'switch',
+      value: 'true',
+      group: 'appinfo',
+      tab: 'general',
+      tip: 'Controls the bottom-right floating support button with the headphones icon.',
+    },
+    {
+      name: 'notification_bell_enabled',
+      title: 'Enable Notification Bell',
+      type: 'switch',
+      value: 'true',
+      group: 'appinfo',
+      tab: 'general',
+      tip: 'Controls notification bell buttons shown in headers and user menus.',
+    },
+    {
       name: 'guest_page_popup_enabled',
       title: 'Enable Guest Login Popup Protection',
       type: 'switch',
@@ -1339,6 +1357,9 @@ export async function getSettings() {
 }
 
 export const publicSettingNames = [
+  'floating_widget_enabled',
+  'notification_bell_enabled',
+  'mobile_header_nav_mode',
   'email_auth_enabled',
   'google_auth_enabled',
   'google_one_tap_enabled',

@@ -1,6 +1,32 @@
 import { ComponentType, lazy, Suspense } from 'react';
+import {
+  ArrowLeft,
+  ChevronDown,
+  ChevronLeft,
+  ChevronRight,
+  ChevronUp,
+  HelpCircle,
+  Menu,
+  Search,
+  X,
+} from 'lucide-react';
+import { RiQuestionLine } from 'react-icons/ri';
 
 const iconCache: { [key: string]: ComponentType<any> } = {};
+const staticLucideIcons: Record<string, ComponentType<any>> = {
+  ArrowLeft,
+  ChevronDown,
+  ChevronLeft,
+  ChevronRight,
+  ChevronUp,
+  HelpCircle,
+  Menu,
+  Search,
+  X,
+};
+const staticRiIcons: Record<string, ComponentType<any>> = {
+  RiQuestionLine,
+};
 
 // Function to automatically detect icon library
 function detectIconLibrary(name: string): 'ri' | 'lucide' {
@@ -24,6 +50,15 @@ export function SmartIcon({
 }) {
   const library = detectIconLibrary(name);
   const cacheKey = `${library}-${name}`;
+  const staticIcon =
+    library === 'ri' ? staticRiIcons[name] : staticLucideIcons[name];
+
+  if (staticIcon) {
+    const StaticIconComponent = staticIcon;
+    return (
+      <StaticIconComponent size={size} className={className} {...props} />
+    );
+  }
 
   if (!iconCache[cacheKey]) {
     if (library === 'ri') {
