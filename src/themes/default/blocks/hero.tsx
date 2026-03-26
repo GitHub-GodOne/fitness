@@ -17,6 +17,15 @@ interface HeroSection extends Section {
   cta?: string;
   trusted_by?: string;
   demo_video_title?: string;
+  featured_video?: {
+    src?: string;
+    poster?: string;
+  };
+  watch_page?: {
+    url?: string;
+    title?: string;
+    link_title?: string;
+  };
 }
 
 // 预定义的粒子位置，避免hydration mismatch
@@ -84,6 +93,15 @@ export function Hero({
     window.addEventListener("mousemove", handleMouseMove);
     return () => window.removeEventListener("mousemove", handleMouseMove);
   }, [mouseX, mouseY]);
+
+  const featuredVideoSrc =
+    section.featured_video?.src || "/video/380c4931-5d5a-42b1-a83b-87cd219ffa1b.mp4";
+  const featuredVideoPoster = section.featured_video?.poster;
+  const watchPageUrl = section.watch_page?.url;
+  const watchPageTitle =
+    section.watch_page?.title || section.demo_video_title || "Featured Demo Video";
+  const watchPageLinkTitle =
+    section.watch_page?.link_title || `Watch: ${watchPageTitle}`;
 
   return (
     <section
@@ -300,11 +318,22 @@ export function Hero({
                 muted
                 loop
                 playsInline
+                poster={featuredVideoPoster}
                 className="w-full h-full object-cover"
               >
-                <source src="/video/380c4931-5d5a-42b1-a83b-87cd219ffa1b.mp4" type="video/mp4" />
+                <source src={featuredVideoSrc} type="video/mp4" />
               </video>
             </div>
+
+            {watchPageUrl ? (
+              <Link
+                href={watchPageUrl}
+                className="sr-only focus:not-sr-only focus:absolute focus:left-4 focus:top-4 focus:z-20 focus:inline-flex focus:items-center focus:rounded-md focus:bg-background focus:px-3 focus:py-2 focus:text-sm focus:font-medium focus:text-foreground"
+                title={watchPageTitle}
+              >
+                {watchPageLinkTitle}
+              </Link>
+            ) : null}
 
             {/* 装饰元素 */}
             <motion.div

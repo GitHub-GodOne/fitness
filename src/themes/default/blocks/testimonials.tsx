@@ -286,6 +286,7 @@ export function Testimonials({
                   ].includes(btn.variant)
                     ? (btn.variant as ButtonVariant)
                     : "default";
+
                 return (
                   <Button
                     key={index}

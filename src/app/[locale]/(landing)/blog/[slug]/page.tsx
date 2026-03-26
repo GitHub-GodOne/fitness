@@ -1,12 +1,12 @@
 import { getTranslations, setRequestLocale } from 'next-intl/server';
 
 import { getThemePage } from '@/core/theme';
-import { envConfigs } from '@/config';
 import { Empty } from '@/shared/blocks/common';
 import {
   getCustomHtmlPageOverrideMetadata,
   renderCustomHtmlPageOverride,
 } from '@/shared/lib/custom-html-page-override';
+import { buildSeoTitle, getLocaleAlternates } from '@/shared/lib/seo';
 import { getPost } from '@/shared/models/post';
 import { DynamicPage } from '@/shared/types/blocks/landing';
 
@@ -18,7 +18,7 @@ export async function generateMetadata({
   params: Promise<{ locale: string; slug: string }>;
 }) {
   const { locale, slug } = await params;
-  const t = await getTranslations('pages.blog.metadata');
+  const t = await getTranslations({ locale, namespace: 'pages.blog.metadata' });
   const customHtmlMetadata = await getCustomHtmlPageOverrideMetadata({
     slug: `blog/${slug}`,
     locale,
@@ -29,28 +29,22 @@ export async function generateMetadata({
     return customHtmlMetadata;
   }
 
-  const canonicalUrl =
-    locale !== envConfigs.locale
-      ? `${envConfigs.app_url}/${locale}/blog/${slug}`
-      : `${envConfigs.app_url}/blog/${slug}`;
+  const alternates = await getLocaleAlternates(`/blog/${slug}`, locale);
+  const localeSuffix = t('detailDescriptionSuffix');
 
   const post = await getPost({ slug, locale });
   if (!post) {
     return {
-      title: `${slug} | ${t('title')}`,
+      title: buildSeoTitle(`${slug} | ${t('title')}`),
       description: t('description'),
-      alternates: {
-        canonical: canonicalUrl,
-      },
+      alternates,
     };
   }
 
   return {
-    title: `${post.title} | ${t('title')}`,
-    description: post.description,
-    alternates: {
-      canonical: canonicalUrl,
-    },
+    title: buildSeoTitle(`${post.title} | ${t('title')}`),
+    description: [post.description, localeSuffix].filter(Boolean).join(' '),
+    alternates,
   };
 }
 
@@ -72,6 +66,7 @@ export default async function BlogDetailPage({
   }
 
   const post = await getPost({ slug, locale });
+  const t = await getTranslations({ locale, namespace: 'pages.blog' });
 
   if (!post) {
     return <Empty message={`Post not found`} />;
@@ -91,5 +86,22 @@ export default async function BlogDetailPage({
 
   const Page = await getThemePage('dynamic-page');
 
-  return <Page locale={locale} page={page} />;
+  return (
+    <>
+      <Page locale={locale} page={page} />
+      <section className="container pb-16 pt-0 sm:pb-20">
+        <div className="mx-auto max-w-4xl rounded-[28px] border border-border/70 bg-card/70 px-5 py-6 shadow-sm sm:px-8">
+          <h2 className="text-2xl font-semibold tracking-tight text-foreground sm:text-3xl">
+            {t('seo.detailTitle')}
+          </h2>
+          <div className="mt-4 space-y-4 text-sm leading-7 text-muted-foreground sm:text-[15px]">
+            {post.description ? <p>{post.description}</p> : null}
+            {(t.raw('seo.detailParagraphs') as string[]).map((paragraph) => (
+              <p key={paragraph}>{paragraph}</p>
+            ))}
+          </div>
+        </div>
+      </section>
+    </>
+  );
 }

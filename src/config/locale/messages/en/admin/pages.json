@@ -36,7 +36,9 @@
     "status": {
       "default": "MDX default",
       "overridden": "Override active",
-      "custom_html": "Custom HTML"
+      "custom_html": "Custom HTML",
+      "custom_html_active": "Custom HTML active",
+      "custom_html_inactive": "Custom HTML inactive"
     }
   },
   "form": {
@@ -75,15 +77,22 @@
     "cards": {
       "details_title": "Page Details",
       "details_description": "This page is stored in the database and rendered with the public landing layout.",
+      "publish_title": "Publishing",
+      "publish_description": "Disable this page without deleting it. Disabled pages stop rendering on the public site.",
       "history_title": "Save History",
       "history_description": "Each save creates a full snapshot you can restore later.",
       "history_empty": "No saved history yet.",
       "route": "Route",
-      "updated_at": "Last Updated"
+      "updated_at": "Last Updated",
+      "active_state": "Current State",
+      "active_state_enabled": "Enabled",
+      "active_state_disabled": "Disabled"
     },
     "buttons": {
       "delete": "Delete HTML Page",
-      "restore_version": "Restore This Version"
+      "restore_version": "Restore This Version",
+      "disable": "Disable Page",
+      "enable": "Enable Page"
     },
     "messages": {
       "saved": "HTML page saved",

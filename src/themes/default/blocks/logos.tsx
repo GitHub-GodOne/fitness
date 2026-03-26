@@ -26,6 +26,8 @@ export function Logos({
             {section.items?.map((item, idx) => (
               <LazyImage
                 key={idx}
+                width={160}
+                height={32}
                 className="h-8 w-fit dark:invert"
                 src={item.image?.src ?? ""}
                 alt={item.image?.alt ?? ""}

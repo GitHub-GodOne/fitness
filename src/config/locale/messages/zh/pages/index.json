@@ -23,6 +23,22 @@
         "description": "专为久坐办公人群设计的AI人体工学拉伸，由真正的医疗专业人士演示。仅用椅子和桌子，3分钟内缓解紧张。无需运动服。无需出汗。只需即时、安全的缓解。",
         "trusted_by": "经临床专家验证的方案 & 已有 {count}+ 美国办公人群喜爱",
         "demo_video_title": "办公室缓解演示",
+        "featured_video": {
+          "src": "/video/380c4931-5d5a-42b1-a83b-87cd219ffa1b.mp4",
+          "poster": "/imgs/video-poster.jpg"
+        },
+        "watch_page": {
+          "slug": "office-relief-demo",
+          "url": "/zh/watch/office-relief-demo",
+          "title": "办公室舒缓演示视频",
+          "description": "观看首页精选的办公室舒缓演示视频，了解 AI 如何把普通工位快速变成安全、可执行的舒缓训练场景。",
+          "link_title": "打开观看页",
+          "video_label": "精选演示视频",
+          "back_title": "返回首页",
+          "cta_title": "生成你的舒缓视频",
+          "cta_url": "/ai-video-generator",
+          "upload_date": "2026-01-26"
+        },
         "buttons": [
           {
             "title": "开始缓解计划",
@@ -390,5 +406,13 @@
         "className": "bg-background"
       }
     }
+  },
+  "seo": {
+    "title": "这个网站可以帮助你完成什么",
+    "paragraphs": [
+      "Fear Not 帮助用户把祷告请求、个人回忆和圣经经文转化为带来安慰与力量的信仰视频。这个网站适合想为自己、亲人或教会群体制作一支有意义视频的人。",
+      "首页会介绍创作流程、展示视频风格示例，并说明这些作品希望带来的属灵鼓励。访客也可以继续查看见证、常见问题和场景示例，再决定是否开始自己的创作。",
+      "这些内容组合在一起，可以让搜索引擎和真实访客更清楚地理解这个平台的用途、它所生成的视频类型，以及人们为什么会在恐惧、失落、医治或盼望的阶段来到这里。"
+    ]
   }
 }

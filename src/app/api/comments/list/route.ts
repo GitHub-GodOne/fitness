@@ -21,10 +21,12 @@ export async function GET(req: NextRequest) {
         const { searchParams } = new URL(req.url);
         const page = parseInt(searchParams.get('page') || '1');
         const limit = parseInt(searchParams.get('limit') || '20');
+        const pageId = searchParams.get('pageId') || undefined;
         const sortBy = (searchParams.get('sort') || 'time') as 'time' | 'hot';
 
         // Get comments using model
         const comments = await getComments({
+            pageId,
             status: 'visible',
             visibility: 'public',
             page,
@@ -34,6 +36,7 @@ export async function GET(req: NextRequest) {
 
         // Get total count
         const total = await getCommentsCount({
+            pageId,
             status: 'visible',
             visibility: 'public',
         });

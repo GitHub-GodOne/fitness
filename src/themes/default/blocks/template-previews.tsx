@@ -1,6 +1,4 @@
-'use client';
-
-import { useRef, useEffect } from 'react';
+import type { CSSProperties } from 'react';
 import Image from 'next/image';
 import { cn } from '@/shared/lib/utils';
 
@@ -16,81 +14,60 @@ interface TemplatePreviewRowProps {
   speed?: number;
 }
 
-function TemplatePreviewRow({ templates, direction = 'left', speed = 30 }: TemplatePreviewRowProps) {
-  const rowRef = useRef<HTMLDivElement>(null);
-  const animationRef = useRef<number | null>(null);
-  const positionRef = useRef(0);
+function TemplatePreviewCards({
+  templates,
+}: {
+  templates: TemplatePreview[];
+}) {
+  return (
+    <>
+      {templates.map((template, index) => (
+        <div
+          key={`${template.src}-${index}`}
+          className={cn(
+            'relative shrink-0 overflow-hidden rounded-lg shadow-md transition-transform hover:scale-[1.02]',
+            template.aspectRatio === 'landscape' && 'h-[157px] w-[280px]',
+            template.aspectRatio === 'square' && 'h-[200px] w-[200px]',
+            template.aspectRatio === 'vertical' && 'h-[280px] w-[157px]'
+          )}
+        >
+          <Image
+            src={template.src}
+            alt={template.alt}
+            fill
+            className="object-cover"
+            sizes="(max-width: 768px) 200px, 280px"
+            loading="lazy"
+            decoding="async"
+          />
+        </div>
+      ))}
+    </>
+  );
+}
 
-  useEffect(() => {
-    const row = rowRef.current;
-    if (!row) return;
-
-    const scrollWidth = row.scrollWidth / 2;
-    const baseSpeed = speed;
-
-    const animate = () => {
-      if (direction === 'left') {
-        positionRef.current -= baseSpeed / 60;
-        if (Math.abs(positionRef.current) >= scrollWidth) {
-          positionRef.current = 0;
-        }
-      } else {
-        positionRef.current += baseSpeed / 60;
-        if (positionRef.current >= 0) {
-          positionRef.current = -scrollWidth;
-        }
-      }
-
-      row.style.transform = `translateX(${positionRef.current}px)`;
-      animationRef.current = requestAnimationFrame(animate);
-    };
-
-    // Set initial position for right direction
-    if (direction === 'right') {
-      positionRef.current = -scrollWidth;
-      row.style.transform = `translateX(${positionRef.current}px)`;
-    }
-
-    animationRef.current = requestAnimationFrame(animate);
-
-    return () => {
-      if (animationRef.current) {
-        cancelAnimationFrame(animationRef.current);
-      }
-    };
-  }, [direction, speed]);
-
-  // Duplicate templates for seamless loop
-  const duplicatedTemplates = [...templates, ...templates, ...templates, ...templates];
+function TemplatePreviewRow({
+  templates,
+  direction = 'left',
+  speed = 30,
+}: TemplatePreviewRowProps) {
+  const animationDirection = direction === 'right' ? 'reverse' : 'normal';
+  const animationDuration = `${Math.max(speed, 12)}s`;
 
   return (
-    <div className="relative flex overflow-hidden" style={{ gap: '10px' }}>
+    <div className="relative flex overflow-hidden" style={{ '--gap': '10px' } as CSSProperties}>
       <div
-        ref={rowRef}
-        className="flex shrink-0"
-        style={{ gap: '10px' }}
+        className="flex w-max shrink-0 animate-marquee"
+        style={{
+          gap: '10px',
+          animationDirection,
+          animationDuration,
+        }}
       >
-        {duplicatedTemplates.map((template, index) => (
-          <div
-            key={index}
-            className={cn(
-              'relative shrink-0 overflow-hidden rounded-lg shadow-md transition-transform hover:scale-105',
-              template.aspectRatio === 'landscape' && 'w-[280px] h-[157px]',
-              template.aspectRatio === 'square' && 'w-[200px] h-[200px]',
-              template.aspectRatio === 'vertical' && 'w-[157px] h-[280px]'
-            )}
-          >
-            <Image
-              src={template.src}
-              alt={template.alt}
-              fill
-              className="object-cover"
-              sizes="(max-width: 768px) 200px, 280px"
-              loading="lazy"
-              decoding="async"
-            />
-          </div>
-        ))}
+        <TemplatePreviewCards templates={templates} />
+        <div aria-hidden="true" className="flex" style={{ gap: '10px' }}>
+          <TemplatePreviewCards templates={templates} />
+        </div>
       </div>
     </div>
   );

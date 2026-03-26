@@ -1,6 +1,23 @@
 {
   "metadata": {
-    "title": "Blog"
+    "title": "Blog",
+    "description": "Read Bible reflections, product updates, and faith-centered articles about creating personalized comfort videos.",
+    "detailDescriptionSuffix": "Read this blog article on Fear Not.",
+    "categoryDescriptionTemplate": "Browse blog posts and updates filed under the {slug} category."
+  },
+  "seo": {
+    "title": "What You Will Find on the Blog",
+    "paragraphs": [
+      "The blog brings together product updates, Bible-based reflections, feature explanations, and practical guidance for creating personalized comfort videos.",
+      "Readers can use these articles to learn how the platform works, explore new use cases, and discover ways to share faith-centered video content with friends, family, or church members.",
+      "Each post is designed to offer context, examples, and next steps so visitors can move from reading about an idea to creating a meaningful video experience."
+    ],
+    "listCountsParagraph": "This blog page currently presents {postCount} posts across {categoryCount} categories, making it easier for visitors to browse themes, product updates, and scripture-centered guidance in one place.",
+    "detailTitle": "Why This Article Is Relevant",
+    "detailParagraphs": [
+      "This article is part of the broader Fear Not blog library, where we publish practical guidance, platform updates, and faith-based reflections related to comfort videos and scripture-centered storytelling.",
+      "On article pages, readers can review the main post content, understand its context within the platform, and use the information as a starting point for creating or sharing a meaningful video experience of their own."
+    ]
   },
   "page": {
     "title": "FearNot Blog",

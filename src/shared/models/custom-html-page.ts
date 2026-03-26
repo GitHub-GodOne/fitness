@@ -1,4 +1,4 @@
-import { and, asc, desc, eq, ne } from "drizzle-orm";
+import { and, asc, desc, eq, ne, sql } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
 
 import { defaultLocale, locales } from "@/config/locale";
@@ -12,6 +12,8 @@ import {
 
 export type CustomHtmlPage = typeof customHtmlPage.$inferSelect;
 export type CustomHtmlPageRevision = typeof customHtmlPageRevision.$inferSelect;
+
+let customHtmlPageIsActiveColumnExistsCache: boolean | null = null;
 
 const RESERVED_LANDING_SEGMENTS = new Set([
   "admin",
@@ -66,6 +68,46 @@ function revalidateCustomHtmlPagePaths({
   revalidatePath(`/${locale}/admin/pages/add`);
 }
 
+async function hasCustomHtmlPageIsActiveColumn() {
+  if (customHtmlPageIsActiveColumnExistsCache !== null) {
+    return customHtmlPageIsActiveColumnExistsCache;
+  }
+
+  const result = await db().execute(sql`
+    select exists (
+      select 1
+      from information_schema.columns
+      where table_schema = current_schema()
+        and table_name = 'custom_html_page'
+        and column_name = 'is_active'
+    ) as "exists"
+  `);
+
+  const firstRow = (result as any)?.rows?.[0] ?? (result as any)?.[0];
+  customHtmlPageIsActiveColumnExistsCache = Boolean(
+    firstRow?.exists,
+  );
+
+  return customHtmlPageIsActiveColumnExistsCache;
+}
+
+function getCustomHtmlPageSelectFields(withIsActive: boolean) {
+  return {
+    id: customHtmlPage.id,
+    slug: customHtmlPage.slug,
+    locale: customHtmlPage.locale,
+    isActive: withIsActive
+      ? customHtmlPage.isActive
+      : sql<boolean>`true`.as("is_active"),
+    title: customHtmlPage.title,
+    description: customHtmlPage.description,
+    html: customHtmlPage.html,
+    updatedBy: customHtmlPage.updatedBy,
+    createdAt: customHtmlPage.createdAt,
+    updatedAt: customHtmlPage.updatedAt,
+  };
+}
+
 export function normalizeCustomHtmlPageSlug(input: string) {
   return input
     .trim()
@@ -105,15 +147,17 @@ function isReservedSlug(slug: string) {
 }
 
 export async function getCustomHtmlPages() {
+  const hasIsActiveColumn = await hasCustomHtmlPageIsActiveColumn();
   return await db()
-    .select()
+    .select(getCustomHtmlPageSelectFields(hasIsActiveColumn))
     .from(customHtmlPage)
     .orderBy(asc(customHtmlPage.slug), asc(customHtmlPage.locale));
 }
 
 export async function getCustomHtmlPageById(id: string) {
+  const hasIsActiveColumn = await hasCustomHtmlPageIsActiveColumn();
   const [result] = await db()
-    .select()
+    .select(getCustomHtmlPageSelectFields(hasIsActiveColumn))
     .from(customHtmlPage)
     .where(eq(customHtmlPage.id, id))
     .limit(1);
@@ -124,17 +168,21 @@ export async function getCustomHtmlPageById(id: string) {
 export async function getCustomHtmlPageBySlug({
   slug,
   locale,
+  activeOnly = true,
 }: {
   slug: string;
   locale: string;
+  activeOnly?: boolean;
 }) {
+  const hasIsActiveColumn = await hasCustomHtmlPageIsActiveColumn();
   const [result] = await db()
-    .select()
+    .select(getCustomHtmlPageSelectFields(hasIsActiveColumn))
     .from(customHtmlPage)
     .where(
       and(
         eq(customHtmlPage.slug, slug),
         eq(customHtmlPage.locale, locale),
+        hasIsActiveColumn && activeOnly ? eq(customHtmlPage.isActive, true) : undefined,
       ),
     )
     .limit(1);
@@ -232,6 +280,7 @@ export async function saveCustomHtmlPage({
   id,
   slug,
   locale,
+  isActive,
   title,
   description,
   html,
@@ -240,6 +289,7 @@ export async function saveCustomHtmlPage({
   id?: string;
   slug: string;
   locale: string;
+  isActive?: boolean;
   title?: string | null;
   description?: string | null;
   html: string;
@@ -249,23 +299,38 @@ export async function saveCustomHtmlPage({
   const normalizedTitle = title?.trim() || null;
   const normalizedDescription = description?.trim() || null;
   const previousRecord = id ? await getCustomHtmlPageById(id) : null;
+  const hasIsActiveColumn = await hasCustomHtmlPageIsActiveColumn();
+  const nextIsActive = isActive ?? previousRecord?.isActive ?? true;
+  const values = hasIsActiveColumn
+    ? {
+        id: nextId,
+        slug,
+        locale,
+        isActive: nextIsActive,
+        title: normalizedTitle,
+        description: normalizedDescription,
+        html,
+        updatedBy: updatedBy ?? null,
+      }
+    : {
+        id: nextId,
+        slug,
+        locale,
+        title: normalizedTitle,
+        description: normalizedDescription,
+        html,
+        updatedBy: updatedBy ?? null,
+      };
 
   const [result] = await db()
     .insert(customHtmlPage)
-    .values({
-      id: nextId,
-      slug,
-      locale,
-      title: normalizedTitle,
-      description: normalizedDescription,
-      html,
-      updatedBy: updatedBy ?? null,
-    })
+    .values(values as any)
     .onConflictDoUpdate({
       target: customHtmlPage.id,
       set: {
         slug,
         locale,
+        ...(hasIsActiveColumn ? { isActive: nextIsActive } : {}),
         title: normalizedTitle,
         description: normalizedDescription,
         html,
@@ -273,7 +338,7 @@ export async function saveCustomHtmlPage({
         updatedAt: new Date(),
       },
     })
-    .returning();
+    .returning(getCustomHtmlPageSelectFields(hasIsActiveColumn));
 
   if (result) {
     await db().insert(customHtmlPageRevision).values({
@@ -289,7 +354,11 @@ export async function saveCustomHtmlPage({
   }
 
   revalidateCustomHtmlPagePaths({ slug, locale });
-  await addUrlToSitemap(buildLocalizedPath({ slug, locale }));
+  if (nextIsActive) {
+    await addUrlToSitemap(buildLocalizedPath({ slug, locale }));
+  } else {
+    await removeUrlFromSitemap(buildLocalizedPath({ slug, locale }));
+  }
 
   if (
     previousRecord &&
@@ -305,6 +374,52 @@ export async function saveCustomHtmlPage({
       slug: previousRecord.slug,
       locale: previousRecord.locale,
     });
+  }
+
+  return result ?? null;
+}
+
+export async function setCustomHtmlPageActiveState({
+  id,
+  isActive,
+}: {
+  id: string;
+  isActive: boolean;
+}) {
+  const hasIsActiveColumn = await hasCustomHtmlPageIsActiveColumn();
+  const page = await getCustomHtmlPageById(id);
+  if (!page) {
+    return null;
+  }
+
+  if (!hasIsActiveColumn) {
+    return page;
+  }
+
+  const [result] = await db()
+    .update(customHtmlPage)
+    .set({
+      isActive,
+      updatedAt: new Date(),
+    })
+    .where(eq(customHtmlPage.id, id))
+    .returning(getCustomHtmlPageSelectFields(true));
+
+  if (result) {
+    const path = buildLocalizedPath({
+      slug: result.slug,
+      locale: result.locale,
+    });
+    if (result.isActive) {
+      await addUrlToSitemap(path);
+    } else {
+      await removeUrlFromSitemap(path);
+    }
+    revalidateCustomHtmlPagePaths({
+      slug: result.slug,
+      locale: result.locale,
+    });
+    revalidatePath(`/admin/pages/${id}/edit`);
   }
 
   return result ?? null;

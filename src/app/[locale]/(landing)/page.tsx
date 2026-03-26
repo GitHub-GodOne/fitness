@@ -50,6 +50,7 @@ export default async function LandingPage({
   }
 
   const t = await getTranslations('pages.index');
+  const seoParagraphs = t.raw('seo.paragraphs') as string[];
 
   // get page data
   const page: DynamicPage = t.raw('page');
@@ -57,5 +58,21 @@ export default async function LandingPage({
   // load page component
   const Page = await getThemePage('dynamic-page');
 
-  return <Page locale={locale} page={page} />;
+  return (
+    <>
+      <Page locale={locale} page={page} />
+      <section className="container pb-16 pt-0 sm:pb-20">
+        <div className="mx-auto max-w-4xl rounded-[28px] border border-border/70 bg-card/70 px-5 py-6 shadow-sm sm:px-8">
+          <h2 className="text-2xl font-semibold tracking-tight text-foreground sm:text-3xl">
+            {t('seo.title')}
+          </h2>
+          <div className="mt-4 space-y-4 text-sm leading-7 text-muted-foreground sm:text-[15px]">
+            {seoParagraphs.map((paragraph) => (
+              <p key={paragraph}>{paragraph}</p>
+            ))}
+          </div>
+        </div>
+      </section>
+    </>
+  );
 }

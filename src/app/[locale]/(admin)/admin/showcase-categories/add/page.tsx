@@ -59,6 +59,15 @@ export default async function ShowcaseCategoryAddPage({
         attributes: { rows: 5 },
       },
       {
+        name: 'seoKeywords',
+        type: 'textarea',
+        title: t('fields.seoKeywords'),
+        attributes: {
+          rows: 4,
+          placeholder: t('fields.seoKeywordsPlaceholder'),
+        },
+      },
+      {
         name: 'targetUrl',
         type: 'url',
         title: t('fields.targetUrl'),
@@ -120,6 +129,7 @@ export default async function ShowcaseCategoryAddPage({
         const slug = String(data.get('slug') || '').trim().toLowerCase();
         const title = String(data.get('title') || '').trim();
         const description = String(data.get('description') || '').trim();
+        const seoKeywords = String(data.get('seoKeywords') || '').trim();
         const targetUrl = String(data.get('targetUrl') || '').trim();
         const image = String(data.get('image') || '').trim();
         const sort = Number(data.get('sort') || 0);
@@ -147,6 +157,7 @@ export default async function ShowcaseCategoryAddPage({
           type: TaxonomyType.SHOWCASE_CATEGORY,
           title,
           description,
+          seoKeywords,
           targetUrl,
           image,
           icon: '',

@@ -4,18 +4,18 @@ import { getUuid } from '@/shared/lib/hash';
 import { respData, respErr } from '@/shared/lib/resp';
 import { createAITask, NewAITask, updateAITaskById } from '@/shared/models/ai_task';
 import { getRemainingCredits } from '@/shared/models/credit';
+import { getCurrentSubscription } from '@/shared/models/subscription';
+import { resolveVideoAccessTierFromSubscription } from '@/shared/lib/video-access';
 import { getUserInfo } from '@/shared/models/user';
+import { listBodyParts } from '@/shared/models/video_library';
 import { getAIService } from '@/shared/services/ai';
 
 export async function POST(request: Request) {
   try {
     const user = await getUserInfo();
-    if (!user) {
-      return respErr('no auth, please sign in');
-    }
+    const taskId = getUuid(); // Generate taskId early
 
     let provider, mediaType, model, prompt, options, scene;
-    const taskId = getUuid(); // Generate taskId early
 
     // Check content type for multipart/form-data
     const contentType = request.headers.get('content-type') || '';
@@ -59,6 +59,13 @@ export async function POST(request: Request) {
         await request.json());
     }
 
+    const isAnonymousVideoRequest =
+      !user && mediaType === AIMediaType.VIDEO;
+
+    if (!user && !isAnonymousVideoRequest) {
+      return respErr('no auth, please sign in');
+    }
+
     if (!mediaType || !model) {
       throw new Error("invalid params");
     }
@@ -94,6 +101,9 @@ export async function POST(request: Request) {
 
     // todo: get cost credits from settings
     let costCredits = 2;
+    let hasActiveSubscription = false;
+    let currentSubscription = null;
+    let accessTier = 'free';
 
     if (mediaType === AIMediaType.IMAGE) {
       // generate image
@@ -105,13 +115,13 @@ export async function POST(request: Request) {
         throw new Error('invalid scene');
       }
     } else if (mediaType === AIMediaType.VIDEO) {
-      // generate video
+      // generate video by subscription instead of credits
       if (scene === 'text-to-video') {
-        costCredits = 1;
+        costCredits = 0;
       } else if (scene === 'image-to-video') {
-        costCredits = 1;
+        costCredits = 0;
       } else if (scene === 'video-to-video') {
-        costCredits = 1;
+        costCredits = 0;
       } else {
         throw new Error('invalid scene');
       }
@@ -123,25 +133,51 @@ export async function POST(request: Request) {
       throw new Error('invalid mediaType');
     }
 
-    const remainingCredits = await getRemainingCredits(user.id);
+    const remainingCredits =
+      mediaType === AIMediaType.VIDEO || !user
+        ? 0
+        : await getRemainingCredits(user.id);
     const effectiveCostCredits = costCredits;
 
-    if (remainingCredits < costCredits) {
+    if (mediaType !== AIMediaType.VIDEO && remainingCredits < costCredits) {
       throw new Error('insufficient credits');
     }
 
-    // Validate video settings for free users (only 3 free credits)
-    if (mediaType === AIMediaType.VIDEO && options) {
-      const resolution = options.resolution;
-      const duration = options.duration;
-      const ratio = options.ratio;
+    if (mediaType === AIMediaType.VIDEO) {
+      currentSubscription = user
+        ? await getCurrentSubscription(user.id)
+        : null;
+      hasActiveSubscription = Boolean(currentSubscription);
+      accessTier = resolveVideoAccessTierFromSubscription(currentSubscription);
 
-      // Free users (with only 3 credits) can only use 480p
-      if (remainingCredits <= 3) {
-        if (resolution && resolution !== '480p') {
-          throw new Error('Free users can only use 480p resolution. Please purchase credits to unlock 720p and 1080p.');
-        }
+      const selectedBodyParts: string[] = Array.isArray(options?.selected_body_parts)
+        ? options.selected_body_parts
+            .map((item: unknown) => String(item).trim())
+            .filter(Boolean)
+        : [];
+      if (selectedBodyParts.length === 0) {
+        throw new Error('selected_body_parts_required');
       }
+
+      const activeBodyParts = await listBodyParts({
+        status: 'active',
+        limit: 1000,
+      });
+      const activeBodyPartNames = new Set(
+        activeBodyParts.map((item) => item.name).filter(Boolean),
+      );
+      const invalidBodyParts = selectedBodyParts.filter(
+        (item: string) => !activeBodyPartNames.has(item),
+      );
+      if (invalidBodyParts.length > 0) {
+        throw new Error(
+          `inactive_body_parts:${invalidBodyParts.join(',')}`,
+        );
+      }
+
+      const resolution = options?.resolution;
+      const duration = options?.duration;
+      const ratio = options?.ratio;
 
       // Validate duration (1-12 seconds)
       if (duration !== undefined) {
@@ -172,6 +208,9 @@ export async function POST(request: Request) {
       taskId,
       user,
       remainingCredits,
+      hasActiveSubscription,
+      currentSubscription,
+      accessTier,
     };
 
 
@@ -182,9 +221,37 @@ export async function POST(request: Request) {
       taskPrompt = options.user_feeling;
     }
 
+    // generate content
+    const result = await aiProvider.generate({ params });
+    if (!result?.taskId) {
+      throw new Error(
+        `ai generate failed, mediaType: ${mediaType}, provider: ${provider}, model: ${model}`
+      );
+    }
+
+    if (!user && mediaType === AIMediaType.VIDEO) {
+      return respData({
+        id: taskId,
+        userId: null,
+        mediaType,
+        provider,
+        model,
+        prompt: taskPrompt,
+        scene,
+        options: options ? JSON.stringify(options) : null,
+        status: result.taskStatus || AITaskStatus.PENDING,
+        taskId: result.taskId,
+        taskInfo: result.taskInfo ? JSON.stringify(result.taskInfo) : null,
+        taskResult: result.taskResult ? JSON.stringify(result.taskResult) : null,
+        costCredits: 0,
+        creditId: null,
+        anonymous: true,
+      });
+    }
+
     const newAITask: NewAITask = {
       id: getUuid(),
-      userId: user.id,
+      userId: user!.id,
       mediaType,
       provider,
       model,
@@ -197,15 +264,6 @@ export async function POST(request: Request) {
 
     };
     const createdTask = await createAITask(newAITask);
-
-
-    // generate content
-    const result = await aiProvider.generate({ params });
-    if (!result?.taskId) {
-      throw new Error(
-        `ai generate failed, mediaType: ${mediaType}, provider: ${provider}, model: ${model}`
-      );
-    }
 
     const nextStatus = result.taskStatus || AITaskStatus.PENDING;
     const persistedTask =

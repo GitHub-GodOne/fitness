@@ -23,6 +23,22 @@
         "description": "AI-powered ergonomic stretches designed for desk workers, demonstrated by real healthcare professionals. Relieve tension in under 3 minutes using just your chair and desk. No gym clothes. No sweating. Just instant, safe relief.",
         "trusted_by": "Routines validated by clinical experts & loved by {count}+ US desk workers",
         "demo_video_title": "Office Relief Demo",
+        "featured_video": {
+          "src": "/video/380c4931-5d5a-42b1-a83b-87cd219ffa1b.mp4",
+          "poster": "/imgs/video-poster.jpg"
+        },
+        "watch_page": {
+          "slug": "office-relief-demo",
+          "url": "/watch/office-relief-demo",
+          "title": "Office Relief Demo Video",
+          "description": "Watch our featured Office Relief demo video to see how AI-guided desk stretches turn an ordinary workspace into a fast, safe relief routine.",
+          "link_title": "Open watch page",
+          "video_label": "Featured Demo Video",
+          "back_title": "Back to home",
+          "cta_title": "Create Your Own Relief Video",
+          "cta_url": "/ai-video-generator",
+          "upload_date": "2026-01-26"
+        },
         "buttons": [
           {
             "title": "Start Your Relief Plan",
@@ -245,8 +261,277 @@
             "icon": "User"
           },
           {
-            "title": "Video Instructions",
-            "description": "Clear video demonstrations showing exactly how to perform each exercise safely and effectively.",
+            "title": "Receive Your Blessing",
+            "description": "Get a beautifully produced, scripture-anchored video delivered to your inbox in minutes."
+          }
+        ],
+        "buttons": [
+          {
+            "title": "Begin Your Journey",
+            "url": "/ai-video-generator",
+            "target": "_self",
+            "variant": "default"
+          }
+        ],
+        "className": "bg-background"
+      },
+      "vision-scenes": {
+        "block": "vision-scenes",
+        "id": "vision-scenes",
+        "label": "The 3-Act Visual Narrative",
+        "title": "Every Video Tells a Sacred Story in 3 Scenes",
+        "description": "Our AI crafts each video as a cinematic journey through three divinely inspired moments — presence, comfort, and promise.",
+        "items": [
+          {
+            "title": "Scene 1: Divine Presence",
+            "subtitle": "God draws near, but has not yet appeared.",
+            "description": "The opening scene sets the atmosphere of sacred anticipation. Soft light breaks through clouds, a cross stands silhouetted against the dawn, and scripture pages flutter in a gentle breeze. You feel something holy approaching.",
+            "symbols": ["Cross", "BookOpen", "Sun", "Feather"],
+            "symbol_labels": [
+              "The Cross",
+              "Scripture",
+              "Dawn Light",
+              "Spirit's Touch"
+            ],
+            "color_theme": "amber"
+          },
+          {
+            "title": "Scene 2: God's Comfort",
+            "subtitle": "God is with you, and comforts you.",
+            "description": "The heart of the story — God's presence is now felt. Warm light envelops the scene, hands reach out in compassion, and divine sparkles illuminate the darkness. This is the moment of encounter and embrace.",
+            "symbols": ["Heart", "HeartHandshake", "Sparkles", "Shield"],
+            "symbol_labels": [
+              "Love",
+              "Compassion",
+              "Divine Light",
+              "Protection"
+            ],
+            "color_theme": "blue"
+          },
+          {
+            "title": "Scene 3: Promise & Peace",
+            "subtitle": "God has answered. You are no longer alone.",
+            "description": "The final scene brings resolution and hope. The sun rises fully over calm waters, mountains stand firm in the distance, and you see yourself renewed — standing in the fullness of God's promise.",
+            "symbols": ["Sun", "Waves", "Mountain", "User"],
+            "symbol_labels": [
+              "New Dawn",
+              "Still Waters",
+              "Steadfast Hope",
+              "You, Renewed"
+            ],
+            "color_theme": "gold"
+          }
+        ],
+        "className": "bg-muted/30"
+      },
+      "founder-story": {
+        "block": "founder-story",
+        "id": "founder-story",
+        "title": "A Note from the Founder: Why I Built \"Fear Not\"",
+        "paragraphs": [
+          "For as long as I can remember, I lived in the shadow of fear.",
+          "As a child, it was the fear of a bad grade or a teacher's frown. As a young man, it was the crushing anxiety of not being \"good enough\" to survive in a competitive world. When I started my own business, the fear only grew — sleepless nights wondering if I could sustain what I had built.",
+          "Even now, in my 50s, I realize that fear doesn't care about your age or your title. I've looked into the eyes of doctors, farmers, workers, and leaders, and I've seen the same reflection: a quiet, persistent fear of the unknown.",
+          "I built this platform because I realized we all need more than just a quote — we need to hear a Promise that is meant specifically for us. When I first truly felt the weight of <em>Isaiah 41:10</em> — \"Fear not, for I am with you\" — it changed how I breathed.",
+          "\"Fear Not\" is my way of sharing that peace with you. We use technology not just to make videos, but to bridge the gap between your personal struggle and God's timeless comfort. Whatever storm you are walking through, I want you to hear His voice, speaking directly to your heart, telling you that you are not alone.",
+          "I've been there. I understand. And I promise, there is peace on the other side."
+        ],
+        "founder_name": "The Founder",
+        "founder_image": "/imgs/founder/founder-photo.jpg",
+        "signature_image": "/imgs/founder/signature.svg",
+        "className": "bg-muted/30"
+      },
+      "testimonials": {
+        "id": "testimonials",
+        "title": "Stories of Faith & Comfort",
+        "description": "",
+        "items": [
+          {
+            "type": "video",
+            "video": {
+              "thumbnail": "/imgs/tx/18.jpg",
+              "video_url": "https://public.pikju.top/uploads/video/20260126/2b2e8f3a-c875-4010-8cb1-bf0427dfdcd8/final_video.mp4",
+              "title": "Psalm 23:1-3"
+            },
+            "user": {
+              "name": "User Name"
+            }
+          },
+          {
+            "user": {
+              "name": "Sarah M.",
+              "location": "Believer"
+            },
+            "quote": "Breathtaking! I listen to this during my morning devotionals. It brings me so much peace before the day starts.",
+            "avatar": {
+              "src": "/imgs/tx/19.jpg",
+              "alt": "Sarah"
+            },
+            "stars": 5
+          },
+          {
+            "user": {
+              "name": "David L.",
+              "location": "Verified Customer"
+            },
+            "quote": "It perfectly captured my struggle and God's answer. I wept when I watched it. Truly a blessing.",
+            "avatar": {
+              "src": "/imgs/tx/20.jpg",
+              "alt": "David"
+            },
+            "stars": 5
+          },
+          {
+            "user": {
+              "name": "Sarah Mitchell",
+              "location": "Verified Customer"
+            },
+            "quote": "I was going through a really dark time after losing my job. This video with Psalm 23 came at the perfect moment. I watch it every morning now. Thank you for this beautiful ministry.",
+            "avatar": {
+              "src": "/imgs/tx/21.jpg",
+              "alt": "Sarah"
+            },
+            "stars": 5
+          },
+          {
+            "user": {
+              "name": "David Chen",
+              "location": "Verified Customer"
+            },
+            "quote": "My grandmother is in a nursing home and can't read anymore. I sent her a video with her favorite verse, Philippians 4:13. She cried tears of joy. This is truly a gift from God.",
+            "avatar": {
+              "src": "/imgs/tx/22.jpg",
+              "alt": "David"
+            },
+            "stars": 5
+          },
+          {
+            "user": {
+              "name": "Maria Rodriguez",
+              "location": "Verified Customer"
+            },
+            "quote": "As a busy mom of three, I rarely have time for Bible study. These 2-minute videos are exactly what I needed. The AI-generated images are stunning and really help me visualize the scriptures.",
+            "avatar": {
+              "src": "/imgs/tx/23.jpg",
+              "alt": "Maria"
+            },
+            "stars": 5
+          },
+          {
+            "user": {
+              "name": "James Thompson",
+              "location": "Verified Customer"
+            },
+            "quote": "I struggle with anxiety and panic attacks. Having these personalized videos with calming visuals and God's Word has become part of my daily coping routine. The voice is so peaceful.",
+            "avatar": {
+              "src": "/imgs/tx/24.jpg",
+              "alt": "James"
+            },
+            "stars": 5
+          },
+          {
+            "user": {
+              "name": "Emily Foster",
+              "location": "Verified Customer"
+            },
+            "quote": "I created a video for my husband who was deployed overseas. He said watching it before bed helped him feel connected to home and to God. This technology is a blessing for military families!",
+            "avatar": {
+              "src": "/imgs/tx/25.jpg",
+              "alt": "Emily"
+            },
+            "stars": 5
+          },
+          {
+            "user": {
+              "name": "Michael Brooks",
+              "location": "Verified Customer"
+            },
+            "quote": "I was skeptical at first - AI and religion? But the way it combines my personal prayer request with relevant scripture... it's genuinely moving. I've shared this with my entire church group.",
+            "avatar": {
+              "src": "/imgs/tx/26.jpg",
+              "alt": "Michael"
+            },
+            "stars": 5
+          },
+          {
+            "user": {
+              "name": "Rachel Kim",
+              "location": "Verified Customer"
+            },
+            "quote": "My teenage daughter has been questioning her faith. I made a video for her with Jeremiah 29:11 and she actually watched it three times. It opened up a conversation we'd been avoiding. Thank you!",
+            "avatar": {
+              "src": "/imgs/tx/27.jpg",
+              "alt": "Rachel"
+            },
+            "stars": 5
+          },
+          {
+            "user": {
+              "name": "Thomas Wright",
+              "location": "Verified Customer"
+            },
+            "quote": "After my wife passed away, I felt so alone. The video you created with Isaiah 41:10... I felt like God was speaking directly to me. I've bookmarked it and watch it whenever grief overwhelms me.",
+            "avatar": {
+              "src": "/imgs/tx/28.jpg",
+              "alt": "Thomas"
+            },
+            "stars": 5
+          },
+          {
+            "user": {
+              "name": "Lisa Anderson",
+              "location": "Verified Customer"
+            },
+            "quote": "I'm a hospice nurse and I've been sharing these videos with my patients and their families. The peace it brings during those final moments is incredible. This ministry is literally touching lives at the end of life.",
+            "avatar": {
+              "src": "/imgs/tx/29.png",
+              "alt": "Lisa"
+            },
+            "stars": 5
+          },
+          {
+            "user": {
+              "name": "Daniel Park",
+              "location": "Verified Customer"
+            },
+            "quote": "I battle depression and some days getting out of bed is hard. I made a video with Psalm 42:11 and set it as my alarm. Starting the day with God's Word in such a beautiful format has changed my mornings.",
+            "avatar": {
+              "src": "/imgs/tx/1.jpg",
+              "alt": "Daniel"
+            },
+            "stars": 5
+          },
+          {
+            "user": {
+              "name": "Amanda Lewis",
+              "location": "Verified Customer"
+            },
+            "quote": "I sent this to my sister who was diagnosed with breast cancer. She told me it's the most meaningful gift she's received. The combination of scripture and visuals is more powerful than just reading the Bible alone.",
+            "avatar": {
+              "src": "/imgs/tx/2.jpg",
+              "alt": "Amanda"
+            },
+            "stars": 5
+          },
+          {
+            "user": {
+              "name": "Robert Hughes",
+              "location": "Verified Customer"
+            },
+            "quote": "As someone who learns visually, reading the Bible has always been challenging for me. These videos bring the stories to life. I finally feel like I truly understand the Psalms I've read a hundred times before.",
+            "avatar": {
+              "src": "/imgs/tx/3.jpg",
+              "alt": "Robert"
+            },
+            "stars": 5
+          }
+        ],
+        "buttons": [
+          {
+            "title": "Create Your Personalized Video",
+            "url": "/ai-video-generator",
+            "target": "_self",
+            "variant": "default",
             "icon": "Video"
           },
           {
@@ -412,5 +697,13 @@
         "className": "bg-background"
       }
     }
+  },
+  "seo": {
+    "title": "What This Site Helps You Do",
+    "paragraphs": [
+      "Fear Not helps people turn prayer requests, personal memories, and Bible verses into comforting videos centered on faith. The site is designed for visitors who want to create a meaningful video for themselves, a loved one, or a church community.",
+      "The homepage explains how the process works, shows examples of the visual style, and introduces the kinds of spiritual encouragement these videos are meant to offer. Visitors can explore testimonials, frequently asked questions, and sample scenes before starting their own project.",
+      "Together, these sections give search engines and human visitors a clearer understanding of the platform, the kinds of videos it creates, and the reasons someone may choose to use it during seasons of fear, grief, healing, or hope."
+    ]
   }
 }

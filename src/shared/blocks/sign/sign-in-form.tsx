@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { FormEvent, useState } from 'react';
 import { Loader2 } from 'lucide-react';
 import { useLocale, useTranslations } from 'next-intl';
 import { toast } from 'sonner';
@@ -86,9 +86,14 @@ export function SignInForm({
     }
   };
 
+  const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    await handleSignIn();
+  };
+
   return (
     <div className={`w-full md:max-w-md ${className}`}>
-      <div className="grid gap-3">
+      <form className="grid gap-3" onSubmit={handleSubmit}>
         {isEmailAuthEnabled && (
           <>
             <div className="grid gap-2">
@@ -107,14 +112,20 @@ export function SignInForm({
             </div>
 
             <div className="grid gap-2">
-              {/* <div className="flex items-center">
-              <Label htmlFor="password">{t("password_title")}</Label>
-              <Link href="#" className="ml-auto inline-block text-sm underline">
-                Forgot your password?
-              </Link>
-            </div> */}
-
-              <Label htmlFor="password" className="text-foreground">{t('password_title')}</Label>
+              <div className="flex items-center">
+                <Label htmlFor="password" className="text-foreground">
+                  {t('password_title')}
+                </Label>
+                <Link
+                  href={{
+                    pathname: '/forgot-password',
+                    query: callbackUrl ? { callbackUrl } : {},
+                  }}
+                  className="ml-auto inline-block text-sm underline"
+                >
+                  {t('forgot_password')}
+                </Link>
+              </div>
               <Input
                 id="password"
                 type="password"
@@ -141,7 +152,6 @@ export function SignInForm({
               type="submit"
               className="w-full"
               disabled={loading}
-              onClick={handleSignIn}
             >
               {loading ? (
                 <Loader2 size={16} className="animate-spin" />
@@ -157,8 +167,8 @@ export function SignInForm({
           callbackUrl={callbackUrl || '/'}
           loading={loading}
           setLoading={setLoading}
-        />
-      </div>
+          />
+      </form>
       {isEmailAuthEnabled && (
         <div className="flex w-full justify-center border-t pt-4 pb-2">
           <p className="text-center text-xs text-muted-foreground">

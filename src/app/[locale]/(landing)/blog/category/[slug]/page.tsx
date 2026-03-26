@@ -2,12 +2,12 @@ import moment from 'moment';
 import { getTranslations, setRequestLocale } from 'next-intl/server';
 
 import { getThemePage } from '@/core/theme';
-import { envConfigs } from '@/config';
 import { Empty } from '@/shared/blocks/common';
 import {
   getCustomHtmlPageOverrideMetadata,
   renderCustomHtmlPageOverride,
 } from '@/shared/lib/custom-html-page-override';
+import { buildSeoTitle, getLocaleAlternates } from '@/shared/lib/seo';
 import {
   PostType as DBPostType,
   getPosts,
@@ -43,17 +43,14 @@ export async function generateMetadata({
     return customHtmlMetadata;
   }
 
-  const t = await getTranslations('pages.blog.metadata');
+  const t = await getTranslations({ locale, namespace: 'pages.blog.metadata' });
+  const alternates = await getLocaleAlternates(`/blog/category/${slug}`, locale);
+  const description = t('categoryDescriptionTemplate', { slug });
 
   return {
-    title: `${slug} | ${t('title')}`,
-    description: t('description'),
-    alternates: {
-      canonical:
-        locale !== envConfigs.locale
-          ? `${envConfigs.app_url}/${locale}/blog/category/${slug}`
-          : `${envConfigs.app_url}/blog/category/${slug}`,
-    },
+    title: buildSeoTitle(`${slug} | ${t('title')}`),
+    description,
+    alternates,
   };
 }
 

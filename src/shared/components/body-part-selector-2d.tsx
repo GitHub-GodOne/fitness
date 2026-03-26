@@ -1,11 +1,11 @@
 "use client";
 
-import { useCallback } from "react";
+import { useCallback, useEffect, useMemo, useRef } from "react";
 import { useTranslations } from "next-intl";
 import { X, RotateCcw } from "lucide-react";
 import { cn } from "@/shared/lib/utils";
 
-const BODY_PARTS = [
+export const BODY_PARTS = [
   "calves",
   "quads",
   "abdominals",
@@ -33,6 +33,7 @@ interface BodyPartSelector2DProps {
   onChange: (parts: string[]) => void;
   disabled?: boolean;
   singleSelect?: boolean; // New prop for single selection mode
+  availableParts?: string[];
 }
 
 export function BodyPartSelector2D({
@@ -40,12 +41,22 @@ export function BodyPartSelector2D({
   onChange,
   disabled,
   singleSelect = false, // Default to multi-select for backward compatibility
+  availableParts,
 }: BodyPartSelector2DProps) {
   const t = useTranslations("ai.video.generator.wizard.body_parts");
+  const containerRef = useRef<HTMLDivElement>(null);
+  const availableSet = useMemo(
+    () => (availableParts ? new Set(availableParts) : null),
+    [availableParts],
+  );
+  const isAvailable = useCallback(
+    (part: string) => !availableSet || availableSet.has(part),
+    [availableSet],
+  );
 
   const toggle = useCallback(
     (part: string) => {
-      if (disabled) return;
+      if (disabled || !isAvailable(part)) return;
 
       if (singleSelect) {
         // Single select mode: replace selection
@@ -63,13 +74,32 @@ export function BodyPartSelector2D({
         }
       }
     },
-    [disabled, selected, onChange, singleSelect],
+    [disabled, isAvailable, selected, onChange, singleSelect],
   );
 
   const isSelected = (part: string) => selected.includes(part);
 
+  useEffect(() => {
+    if (!containerRef.current || !availableSet) {
+      return;
+    }
+
+    for (const part of BODY_PARTS) {
+      const elements = containerRef.current.querySelectorAll<SVGGElement>(
+        `[id^="${part}"]`,
+      );
+      const enabled = availableSet.has(part);
+
+      elements.forEach((element) => {
+        element.style.pointerEvents = enabled ? "auto" : "none";
+        element.style.opacity = enabled ? "1" : "0.28";
+        element.style.cursor = enabled ? "pointer" : "not-allowed";
+      });
+    }
+  }, [availableSet]);
+
   return (
-    <div className="flex flex-col items-center gap-4 w-full">
+    <div ref={containerRef} className="flex flex-col items-center gap-4 w-full">
       {/* SVG Body Models */}
       <div className="w-full max-w-6xl">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4 px-4">
@@ -600,4 +630,3 @@ export function BodyPartSelector2D({
     </div>
   );
 }
-

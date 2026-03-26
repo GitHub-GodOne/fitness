@@ -12,6 +12,9 @@ import {
   fitnessVideoGroup,
   objectVideoMapping,
 } from '@/config/db/schema';
+import {
+  getAllowedVideoAccessTiers,
+} from '@/shared/lib/video-access';
 
 // ============================================
 // Fitness Object (物品) CRUD
@@ -504,13 +507,13 @@ export async function listFitnessVideoGroups(options?: {
     );
   }
   if (options?.accessType) {
-    if (options.accessType === 'premium') {
-      // Premium users can see both free and premium content
-      conditions.push(sql`${fitnessVideoGroup.accessType} IN ('free', 'premium')`);
-    } else {
-      // Free users can only see free content
-      conditions.push(eq(fitnessVideoGroup.accessType, 'free'));
-    }
+    const allowedTiers = getAllowedVideoAccessTiers(options.accessType);
+    conditions.push(
+      inArray(fitnessVideoGroup.accessType, [
+        ...allowedTiers,
+        ...(allowedTiers.includes('pro') ? ['premium'] : []),
+      ])
+    );
   } else {
     // Exclude hidden by default
     conditions.push(sql`${fitnessVideoGroup.accessType} != 'hidden'`);
@@ -722,13 +725,13 @@ export async function findVideosByObjectAndBodyParts(
     );
   }
   if (options?.accessType) {
-    if (options.accessType === 'premium') {
-      // Premium users can see both free and premium content
-      conditions.push(sql`${fitnessVideoGroup.accessType} IN ('free', 'premium')`);
-    } else {
-      // Free users can only see free content
-      conditions.push(eq(fitnessVideoGroup.accessType, 'free'));
-    }
+    const allowedTiers = getAllowedVideoAccessTiers(options.accessType);
+    conditions.push(
+      inArray(fitnessVideoGroup.accessType, [
+        ...allowedTiers,
+        ...(allowedTiers.includes('pro') ? ['premium'] : []),
+      ])
+    );
   } else {
     conditions.push(sql`${fitnessVideoGroup.accessType} != 'hidden'`);
   }
@@ -830,13 +833,13 @@ export async function getVideosByBodyPart(
       );
     }
     if (options?.accessType) {
-      if (options.accessType === 'premium') {
-        // Premium users can see both free and premium content
-        conds.push(sql`${fitnessVideoGroup.accessType} IN ('free', 'premium')`);
-      } else {
-        // Free users can only see free content
-        conds.push(eq(fitnessVideoGroup.accessType, 'free'));
-      }
+      const allowedTiers = getAllowedVideoAccessTiers(options.accessType);
+      conds.push(
+        inArray(fitnessVideoGroup.accessType, [
+          ...allowedTiers,
+          ...(allowedTiers.includes('pro') ? ['premium'] : []),
+        ])
+      );
     } else {
       conds.push(sql`${fitnessVideoGroup.accessType} != 'hidden'`);
     }

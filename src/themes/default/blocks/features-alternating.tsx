@@ -2,19 +2,11 @@
 
 import Image from "next/image";
 import { SmartIcon } from "@/shared/blocks/common/smart-icon";
-import { Button } from "@/shared/components/ui/button";
 import { ScrollAnimation } from "@/shared/components/ui/scroll-animation";
 import { useRequireAuth } from "@/shared/hooks/use-require-auth";
 import { cn } from "@/shared/lib/utils";
 import { Section } from "@/shared/types/blocks/landing";
-
-type ButtonVariant =
-  | "default"
-  | "link"
-  | "destructive"
-  | "outline"
-  | "secondary"
-  | "ghost";
+import { HomeCtaButton } from "./home-cta-button";
 
 interface FeaturesAlternatingItem {
   title: string;
@@ -132,7 +124,9 @@ export function FeaturesAlternating({
                             alt={item.image.alt || ""}
                             width={400}
                             height={300}
-                            className="w-full h-auto object-cover"
+                            className="w-full object-cover"
+                            style={{ height: "auto" }}
+                            sizes="(max-width: 640px) 280px, (max-width: 1024px) 320px, 400px"
                             loading="lazy"
                             decoding="async"
                           />
@@ -145,30 +139,16 @@ export function FeaturesAlternating({
                   {section.buttons &&
                     section.items &&
                     idx === section.items.length - 1 && (
-                      <div className="col-span-1 lg:col-span-2 mt-6 sm:mt-8 flex flex-col sm:flex-row gap-3 sm:gap-4 justify-center lg:justify-start">
+                      <div className="col-span-1 lg:col-span-2 mt-6 sm:mt-8 flex flex-col items-center sm:flex-row sm:flex-wrap gap-3 sm:gap-4 justify-center">
                         {section.buttons.map((button, btnIdx) => {
                           const btn = button as any;
-                          const safeVariant: ButtonVariant =
-                            btn.variant &&
-                            [
-                              "default",
-                              "link",
-                              "destructive",
-                              "outline",
-                              "secondary",
-                              "ghost",
-                            ].includes(btn.variant)
-                              ? (btn.variant as ButtonVariant)
-                              : "default";
                           return (
-                            <Button
+                            <HomeCtaButton
                               key={btnIdx}
-                              variant={safeVariant}
-                              size="lg"
+                              title={btn.title}
+                              sectionIcon="featuresAlternating"
                               onClick={() => navigateWithAuth(btn.url)}
-                            >
-                              {btn.title}
-                            </Button>
+                            />
                           );
                         })}
                       </div>

@@ -8,6 +8,7 @@ import {
 import {
   getShowcaseVideoDescription,
   getShowcaseVideoPublishedAt,
+  getShowcaseVideoSeoKeywords,
   getShowcaseVideoThumbnailUrl,
   getShowcaseVideoWatchAbsoluteUrl,
   toPublicAbsoluteUrl,
@@ -57,6 +58,10 @@ export async function GET() {
         video,
         'Watch this published showcase video.'
       );
+      const seoTags = getShowcaseVideoSeoKeywords(video)
+        .slice(0, 32)
+        .map((keyword) => `      <video:tag>${escapeXml(keyword)}</video:tag>`)
+        .join('\n');
 
       return `  <url>
     <loc>${escapeXml(watchUrl)}</loc>
@@ -66,6 +71,7 @@ export async function GET() {
       <video:description>${escapeXml(description)}</video:description>
       <video:content_loc>${escapeXml(toPublicAbsoluteUrl(video.videoUrl))}</video:content_loc>
       <video:publication_date>${escapeXml(getShowcaseVideoPublishedAt(video).toISOString())}</video:publication_date>
+      ${seoTags}
       <video:family_friendly>yes</video:family_friendly>
     </video:video>
   </url>`;

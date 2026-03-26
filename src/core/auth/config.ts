@@ -13,6 +13,7 @@ import {
 import { getUuid } from '@/shared/lib/hash';
 import { getClientIp } from '@/shared/lib/ip';
 import { grantCreditsForNewUser } from '@/shared/models/credit';
+import { sendResetPasswordEmail } from '@/shared/services/auth-email';
 import { grantRoleForNewUser } from '@/shared/services/rbac';
 
 function getOriginVariants(url: string) {
@@ -209,6 +210,22 @@ export async function getAuthOptions(configs: Record<string, string>) {
     },
     emailAndPassword: {
       enabled: configs.email_auth_enabled !== 'false',
+      sendResetPassword: async ({ user, url }: any) => {
+        const result = await sendResetPasswordEmail({
+          configs,
+          user: {
+            email: user.email,
+            name: user.name,
+            locale: user.locale,
+          },
+          url,
+        });
+
+        if (!result.success) {
+          throw new Error(result.error || 'failed to send reset password email');
+        }
+      },
+      resetPasswordTokenExpiresIn: 60 * 60,
     },
     socialProviders: await getSocialProviders(configs),
     plugins:

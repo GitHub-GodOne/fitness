@@ -23,6 +23,10 @@ import {
     convertImageToBase64,
     getR2Key,
 } from './utils';
+import {
+    resolveVideoAccessTierFromSubscription,
+    type VideoAccessTier,
+} from '@/shared/lib/video-access';
 
 /**
  * Video Library Provider configs
@@ -62,6 +66,20 @@ export interface VideoLibraryTaskProgress {
  */
 interface ObjectRecognitionResponse {
     matchedObject: string;
+}
+
+function limitVideosForAccessType(
+    groups: any[],
+    accessType: VideoAccessTier
+) {
+    if (accessType !== 'free') {
+        return groups;
+    }
+
+    return groups.map((group: any) => ({
+        ...group,
+        videos: Array.isArray(group.videos) ? group.videos.slice(0, 1) : group.videos,
+    }));
 }
 
 /**
@@ -202,20 +220,28 @@ Output: a single JSON with "matchedObject" set to the exact name from the list, 
     }: {
         params: AIGenerateParams;
     }): Promise<AITaskResult> {
-        const { prompt, options, taskId: paramTaskId, user, remainingCredits } = params as any;
+        const {
+            prompt,
+            options,
+            taskId: paramTaskId,
+            user,
+            remainingCredits,
+            hasActiveSubscription,
+            currentSubscription,
+        } = params as any;
         const taskId = paramTaskId || `vl-${Date.now()}`;
         const targetMuscleGroup = (options as any)?.target_muscle_group || (options as any)?.user_feeling || prompt || 'full_body';
         const apiKey = this.configs.apiKey;
 
-        // Determine access type based on user login status and credits
-        // Free: not logged in OR logged in with ≤3 credits
-        // Premium: logged in with >3 credits
-        let accessType: 'free' | 'premium' = 'free';
-        if (user && remainingCredits > 3) {
-            accessType = 'premium';
+        // Determine access type based on subscription status.
+        let accessType: VideoAccessTier = 'free';
+        if (user && hasActiveSubscription) {
+            accessType = resolveVideoAccessTierFromSubscription(currentSubscription);
         }
 
-        console.log(`[VideoLibrary] User: ${user ? user.id : 'anonymous'}, Credits: ${remainingCredits}, Access Type: ${accessType}`);
+        console.log(
+            `[VideoLibrary] User: ${user ? user.id : 'anonymous'}, Credits: ${remainingCredits}, Has subscription: ${Boolean(hasActiveSubscription)}, Access Type: ${accessType}`
+        );
 
         // Split comma-separated body parts into array
         const bodyPartsList = targetMuscleGroup.split(',').map((s: string) => s.trim()).filter(Boolean);
@@ -330,7 +356,10 @@ Output: a single JSON with "matchedObject" set to the exact name from the list, 
                     }
                 }
 
-                videosForResult = allVideoGroups.slice(0, 10);
+                videosForResult = limitVideosForAccessType(
+                    allVideoGroups.slice(0, 10),
+                    accessType
+                );
 
                 if (videosForResult.length === 0) {
                     throw new Error('No matching videos found for the identified object and selected body parts. Please try different options.');
@@ -408,7 +437,10 @@ Output: a single JSON with "matchedObject" set to the exact name from the list, 
                     }
                 }
 
-                videosForResult = allVideoGroups.slice(0, 10);
+                videosForResult = limitVideosForAccessType(
+                    allVideoGroups.slice(0, 10),
+                    accessType
+                );
                 console.log(`[VideoLibrary] Found ${videosForResult.length} videos for body parts: ${bodyPartsList.join(', ')}`);
 
                 if (videosForResult.length === 0) {

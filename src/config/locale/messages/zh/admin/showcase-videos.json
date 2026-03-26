@@ -7,6 +7,8 @@
     "featured": "推荐位",
     "createdAt": "提交时间",
     "description": "描述",
+    "seoKeywords": "SEO 关键词",
+    "seoKeywordsPlaceholder": "如：战胜恐惧祷告，经文安慰，焦虑中的盼望",
     "videoUrl": "视频地址",
     "coverUrl": "封面图",
     "sort": "排序",

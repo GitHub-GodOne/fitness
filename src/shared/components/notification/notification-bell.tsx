@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useState } from "react";
+import { useState } from "react";
 import { Bell } from "lucide-react";
 import { useTranslations } from "next-intl";
 
@@ -17,42 +17,39 @@ import type { Notification } from "@/shared/models/notification";
 
 interface NotificationBellProps {
   className?: string;
+  variant?: "icon" | "menu-item";
 }
 
-export function NotificationBell({ className }: NotificationBellProps) {
-  const { user } = useAppContext();
+export function NotificationBell({
+  className,
+  variant = "icon",
+}: NotificationBellProps) {
+  const { configs, isConfigsLoaded } = useAppContext();
+
+  if (!isConfigsLoaded) {
+    return null;
+  }
+
+  if (configs.notification_bell_enabled === "false") {
+    return null;
+  }
+
+  return (
+    <NotificationBellContent className={className} variant={variant} />
+  );
+}
+
+function NotificationBellContent({
+  className,
+  variant,
+}: NotificationBellProps) {
+  const { unreadNotificationCount, refreshUnreadNotificationCount, user } =
+    useAppContext();
   const t = useTranslations("notification");
-  const [unreadCount, setUnreadCount] = useState(0);
   const [isOpen, setIsOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [selectedNotification, setSelectedNotification] =
     useState<Notification | null>(null);
-
-  const fetchUnreadCount = useCallback(async () => {
-    // Skip API call if user is not logged in
-    if (!user) {
-      setUnreadCount(0);
-      return;
-    }
-
-    try {
-      const response = await fetch("/api/notifications/unread-count");
-      if (response.ok) {
-        const data = await response.json();
-        if (data.code === 0) {
-          setUnreadCount(data.data.unreadCount);
-        }
-      }
-    } catch (error) {
-      console.error("Failed to fetch unread count:", error);
-    }
-  }, [user]);
-
-  useEffect(() => {
-    fetchUnreadCount();
-    const interval = setInterval(fetchUnreadCount, 30000);
-    return () => clearInterval(interval);
-  }, [fetchUnreadCount]);
 
   const handleMarkAllAsRead = async () => {
     setIsLoading(true);
@@ -64,7 +61,7 @@ export function NotificationBell({ className }: NotificationBellProps) {
       });
 
       if (response.ok) {
-        setUnreadCount(0);
+        await refreshUnreadNotificationCount();
       }
     } catch (error) {
       console.error("Failed to mark all as read:", error);
@@ -82,21 +79,39 @@ export function NotificationBell({ className }: NotificationBellProps) {
       <DropdownMenu open={isOpen} onOpenChange={setIsOpen}>
         <DropdownMenuTrigger asChild>
           <button
-            className={`relative inline-flex items-center justify-center rounded-md p-2 text-muted-foreground hover:text-foreground transition-colors ${className}`}
+            className={
+              variant === "menu-item"
+                ? `relative flex w-full items-center gap-2 rounded-sm px-2 py-1.5 text-sm outline-hidden transition-colors hover:bg-accent hover:text-accent-foreground ${className}`
+                : `relative inline-flex items-center justify-center rounded-md p-2 text-muted-foreground transition-colors hover:text-foreground ${className}`
+            }
             aria-label={t("bell_aria_label")}
           >
             <Bell className="h-5 w-5" />
-            {unreadCount > 0 && (
-              <span className="absolute -top-1 -right-1 flex h-5 w-5 items-center justify-center rounded-full bg-red-500 text-[10px] font-bold text-white animate-pulse">
-                {unreadCount > 99 ? "99+" : unreadCount}
+            {variant === "menu-item" ? (
+              <span className="flex-1 text-left">{t("title")}</span>
+            ) : null}
+            {unreadNotificationCount > 0 && (
+              <span
+                className={
+                  variant === "menu-item"
+                    ? "ml-auto inline-flex min-w-5 items-center justify-center rounded-full bg-red-500 px-1.5 py-0.5 text-[10px] font-bold text-white"
+                    : "absolute -top-1 -right-1 flex h-5 w-5 items-center justify-center rounded-full bg-red-500 text-[10px] font-bold text-white animate-pulse"
+                }
+              >
+                {unreadNotificationCount > 99
+                  ? "99+"
+                  : unreadNotificationCount}
               </span>
             )}
           </button>
         </DropdownMenuTrigger>
-        <DropdownMenuContent className="w-80 p-0 sm:w-96" align="end">
+        <DropdownMenuContent
+          className="w-80 p-0 sm:w-96"
+          align={variant === "menu-item" ? "start" : "end"}
+        >
           <div className="flex items-center justify-between border-b px-4 py-3">
             <h3 className="font-semibold">{t("title")}</h3>
-            {unreadCount > 0 && (
+            {unreadNotificationCount > 0 && (
               <Button
                 variant="ghost"
                 size="sm"
@@ -110,7 +125,7 @@ export function NotificationBell({ className }: NotificationBellProps) {
           </div>
           <NotificationList
             onNotificationRead={() => {
-              fetchUnreadCount();
+              void refreshUnreadNotificationCount();
             }}
             onViewDetail={(n) => {
               setIsOpen(false);

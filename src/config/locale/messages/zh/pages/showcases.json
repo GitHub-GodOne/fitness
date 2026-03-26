@@ -1,15 +1,38 @@
 {
   "metadata": {
     "title": "圣经视频展示",
-    "description": "观看AI生成的圣经经文视频"
+    "description": "观看AI生成的圣经经文视频",
+    "categoryDescriptionTemplate": "浏览 {title} 分类下已发布的视频作品、祷告内容与信仰分享。",
+    "defaultCategoryDescription": "浏览分类整理好的已发布信仰视频作品。"
+  },
+  "seo": {
+    "title": "关于案例视频库",
+    "paragraphs": [
+      "案例视频库展示了根据祷告主题、圣经经文和真实信仰故事创作并发布的视频作品，帮助访客更直观地了解其他用户已经生成了哪些内容。",
+      "分类页会按主题整理这些视频，方便用户快速查看与恐惧、医治、赞美、失落或其他属灵需要相关的案例。播放页则提供完整视频、背景信息以及同分类下的更多内容。",
+      "这些页面组合在一起，可以帮助访客获得灵感、理解最终成品的呈现方式，并进一步决定自己接下来想创作哪一种个性化视频。"
+    ],
+    "homepageSearchParagraph": "在案例首页，访客可以按分类浏览、按主题搜索已发布的视频，并进入独立播放页查看完整作品和同主题下的更多内容。",
+    "homepageSubmissionParagraph": "案例区也与投稿流程直接连接，让社区用户可以从浏览他人的已发布作品，进一步过渡到提交自己审核通过的祷告视频或见证内容。"
   },
   "page": {
     "title": "圣经视频展示",
     "description": "观看AI生成的圣经经文视频",
-    "submitCta": "投稿我的视频",
+    "submitCta": "分享我的祷告",
     "backToCategories": "返回分类列表",
     "all": "全部",
+    "heroEyebrow": "社区案例库",
+    "categoriesTitle": "按分类浏览",
+    "videosTitle": "全部视频",
+    "sortRecent": "按最新发布时间排序",
+    "searchPlaceholder": "搜索视频",
+    "searchButton": "搜索",
+    "clearSearch": "清除",
+    "submitBannerTitle": "分享你的信仰故事",
+    "submitBannerDescription": "创作你自己的视频见证",
+    "submitBannerCta": "立即开始",
     "emptyCategoryVideos": "该分类下还没有已发布的视频。",
+    "emptySearchVideos": "没有找到匹配的视频免费观看。",
     "defaultTitle": "看看大家创作出的温暖视频",
     "defaultDescription": "这里收录了用户投稿并通过审核的视频作品。你可以按分类慢慢浏览，看看不同主题下的真实创作。",
     "activeCategoryFallbackDescription": "浏览这个分类下已经发布的视频作品。",
@@ -57,6 +80,13 @@
       "title": "投稿你的案例视频",
       "description": "选择一个你已经成功生成的视频，填写标题和分类，提交后由后台审核发布。",
       "backToShowcases": "返回案例库",
+      "seoTitle": "案例视频投稿页是如何工作的",
+      "seoParagraphs": [
+        "投稿页用于让创作者从自己已经完成的视频中选择一个作品，并整理后提交到案例库审核。这样用户就可以把自己的见证、祷告视频或经文鼓励内容分享给更多访客。",
+        "在正式投稿前，创作者可以选择原始视频、指定分类、修改标题，并补充更清晰的描述。这些信息能够帮助审核人员理解视频主题，也方便其他访客通过分类页和搜索结果找到相关内容。",
+        "更准确的标题与描述，也会直接提升整个案例库的质量，因为每一支通过审核的视频都会变得更容易被浏览、理解和再次引用。"
+      ],
+      "seoCountParagraph": "你当前有 {videoCount} 个可投稿视频可以选择，同时有 {categoryCount} 个已发布分类可用于投稿归类。",
       "messages": {
         "loginRequired": "请先登录后再投稿案例视频",
         "noCategories": "后台还没有创建案例分类，请先在后台添加分类。",
@@ -94,13 +124,27 @@
     },
     "watch": {
       "dateLocale": "zh-CN",
+      "breadcrumbLabel": "面包屑导航",
+      "breadcrumbShowcases": "案例库",
       "backToShowcases": "返回案例库",
       "backToCategory": "返回当前分类",
       "videoLabel": "主视频",
+      "aboutTitle": "关于这个视频",
+      "publishedLabel": "发布时间",
+      "categoryLabel": "分类",
+      "exploreCategory": "继续浏览 {category} 分类下的更多视频",
       "relatedTitle": "更多视频作品",
       "relatedDescription": "继续浏览这个分类下其他已发布的视频作品。",
       "emptyRelatedVideos": "这个分类下暂时没有其他已发布的视频。",
-      "descriptionFallback": "观看这个已发布的视频作品。"
+      "descriptionFallback": "观看这个已发布的视频作品。",
+      "metadataDescriptionSuffix": "这是视频详情播放页面，可查看完整内容、分类信息和更多相关作品。",
+      "seoContextParagraph": "{title} 发布于 {published}，当前归属于 {category} 分类。这个页面让访客可以观看完整视频、理解它背后的属灵主题，并继续发现同类主题下的更多案例作品。",
+      "seoKeywordsParagraph": "与这个页面相关的主题包括：{keywords}。",
+      "seoTitle": "为什么这个播放页有参考价值",
+      "seoParagraphs": [
+        "每个播放页都会把已发布的视频、对应主题以及所属分类放在一起展示，帮助访客理解这支视频为什么被创作出来，以及它想传达怎样的信息。",
+        "相关视频区域则方便访客继续浏览相似的祷告主题、经文鼓励内容，或其他围绕现实处境展开的信仰视频作品。"
+      ]
     }
   }
 }

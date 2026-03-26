@@ -86,6 +86,16 @@
     "generating": "生成中...",
     "queue_notice": "预计需要等待3～5分钟。清耐心等待哦。",
     "sign_in_to_generate": "登录生成视频",
+    "subscription": {
+      "checking": "正在检查订阅状态...",
+      "required": "生成视频需要有效订阅，请先订阅。",
+      "subscribe_to_generate": "订阅后生成视频",
+      "view_plans": "查看套餐",
+      "manage": "管理订阅",
+      "inactive": "当前无有效订阅",
+      "active": "当前订阅：{plan}",
+      "default_plan": "当前套餐"
+    },
     "credits_cost": "消耗 {credits} 积分",
     "credits_remaining": "剩余 {credits} 积分",
     "buy_credits": "购买积分",
@@ -127,7 +137,7 @@
     "merge_videos": "合并 {count} 个视频",
     "copied": "已复制！",
     "refund_support": "支持退款服务",
-    "learn_more": "了解更多",
+    "learn_more": "查看退款政策",
     "history": {
       "title": "历史记录",
       "order": "顺序",
@@ -223,6 +233,15 @@
         "image": "图片",
         "image_uploaded": "已上传",
         "image_none": "无"
+      },
+      "validation": {
+        "gender_required": "请先选择性别。",
+        "age_group_required": "请先选择年龄段。",
+        "difficulty_required": "请先选择难度等级。",
+        "body_parts_required": "请先选择目标身体部位。",
+        "body_parts_loading": "身体部位选项还在加载中，请稍后再试。",
+        "body_parts_unavailable": "你选择的身体部位已不可用，请重新选择。",
+        "no_body_parts_available": "当前没有可选的身体部位，请先在后台启用。"
       }
     },
     "regenerate_not_available": "重新生成功能暂不可用",

@@ -22,6 +22,7 @@ import {
   getCustomHtmlPageRevisions,
   getCustomHtmlPageUrl,
   saveCustomHtmlPage,
+  setCustomHtmlPageActiveState,
   validateCustomHtmlPageInput,
 } from "@/shared/models/custom-html-page";
 import { getUserInfo } from "@/shared/models/user";
@@ -32,6 +33,19 @@ type EditorState = {
   message?: string;
   redirectUrl?: string;
 };
+
+function formatDateTime(value: Date | string | null | undefined) {
+  if (!value) {
+    return "-";
+  }
+
+  const date = value instanceof Date ? value : new Date(value);
+  if (Number.isNaN(date.getTime())) {
+    return String(value);
+  }
+
+  return date.toLocaleString();
+}
 
 export default async function EditHtmlPageAdminPage({
   params,
@@ -114,6 +128,7 @@ export default async function EditHtmlPageAdminPage({
       id: page.id,
       slug: validation.data.slug,
       locale: validation.data.locale,
+      isActive: page.isActive,
       title: String(formData.get("title") || ""),
       description: String(formData.get("description") || ""),
       html: validation.data.html,
@@ -139,6 +154,26 @@ export default async function EditHtmlPageAdminPage({
     await deleteCustomHtmlPageById(page.id);
     redirect({
       href: "/admin/pages",
+      locale,
+    });
+  }
+
+  async function toggleActiveAction() {
+    "use server";
+
+    await requirePermission({
+      code: PERMISSIONS.POSTS_WRITE,
+      redirectUrl: "/admin/no-permission",
+      locale,
+    });
+
+    await setCustomHtmlPageActiveState({
+      id: page.id,
+      isActive: !page.isActive,
+    });
+
+    redirect({
+      href: `/admin/pages/${page.id}/edit`,
       locale,
     });
   }
@@ -257,18 +292,45 @@ export default async function EditHtmlPageAdminPage({
                     <div className="mt-1 break-all font-medium">{previewUrl}</div>
                   </div>
                   <div>
-                    <div className="text-muted-foreground text-xs uppercase tracking-[0.12em]">
-                      {t("form.cards.updated_at")}
-                    </div>
-                    <div className="mt-1 font-medium">
-                      {page.updatedAt.toLocaleString()}
-                    </div>
+                  <div className="text-muted-foreground text-xs uppercase tracking-[0.12em]">
+                    {t("form.cards.updated_at")}
                   </div>
-                </CardContent>
-              </Card>
-              <Card>
-                <CardHeader>
-                  <CardTitle>{t("form.buttons.delete")}</CardTitle>
+                  <div className="mt-1 font-medium">
+                      {formatDateTime(page.updatedAt)}
+                  </div>
+                </div>
+                <div>
+                  <div className="text-muted-foreground text-xs uppercase tracking-[0.12em]">
+                    {t("form.cards.active_state")}
+                  </div>
+                  <div className="mt-1 font-medium">
+                    {page.isActive
+                      ? t("form.cards.active_state_enabled")
+                      : t("form.cards.active_state_disabled")}
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+            <Card>
+              <CardHeader>
+                <CardTitle>{t("form.cards.publish_title")}</CardTitle>
+                <CardDescription>
+                  {t("form.cards.publish_description")}
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <form action={toggleActiveAction}>
+                  <Button type="submit" variant="outline" size="sm">
+                    {page.isActive
+                      ? t("form.buttons.disable")
+                      : t("form.buttons.enable")}
+                  </Button>
+                </form>
+              </CardContent>
+            </Card>
+            <Card>
+              <CardHeader>
+                <CardTitle>{t("form.buttons.delete")}</CardTitle>
                 </CardHeader>
                 <CardContent>
                   <form action={deleteAction}>
@@ -296,7 +358,7 @@ export default async function EditHtmlPageAdminPage({
                   >
                     <div className="space-y-1 text-sm">
                       <div className="font-medium">
-                        {revision.createdAt.toLocaleString()}
+                        {formatDateTime(revision.createdAt)}
                       </div>
                       <div className="text-muted-foreground break-all text-xs">
                         {getCustomHtmlPageDisplaySlug(revision.slug)}

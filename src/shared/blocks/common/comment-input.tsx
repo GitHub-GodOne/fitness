@@ -15,9 +15,10 @@ import { AITaskSelector } from './ai-task-selector';
 
 interface CommentInputProps {
   onCommentAdded?: () => void;
+  pageId?: string;
 }
 
-export function CommentInput({ onCommentAdded }: CommentInputProps) {
+export function CommentInput({ onCommentAdded, pageId }: CommentInputProps) {
   const t = useTranslations('components.comments');
   const { user } = useAppContext();
   const [content, setContent] = useState('');
@@ -52,6 +53,7 @@ export function CommentInput({ onCommentAdded }: CommentInputProps) {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           content: content.trim(),
+          pageId,
           userName: userName.trim(),
           userEmail: userEmail.trim(),
           referencedTaskId: selectedTask?.id || null,

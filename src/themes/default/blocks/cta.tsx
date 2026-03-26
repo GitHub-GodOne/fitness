@@ -8,6 +8,8 @@ import { cn } from "@/shared/lib/utils";
 import { Section } from "@/shared/types/blocks/landing";
 import { motion } from "framer-motion";
 
+import { SectionCtaIcon } from "./section-cta-icon";
+
 type ButtonVariant =
   | "default"
   | "link"

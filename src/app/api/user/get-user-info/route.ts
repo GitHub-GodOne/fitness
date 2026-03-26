@@ -2,6 +2,8 @@ import { PERMISSIONS } from '@/core/rbac';
 import { respData, respErr } from '@/shared/lib/resp';
 import { checkUserHasPassword } from '@/shared/models/account';
 import { getRemainingCredits } from '@/shared/models/credit';
+import { resolveVideoAccessTierFromSubscription } from '@/shared/lib/video-access';
+import { getCurrentSubscription } from '@/shared/models/subscription';
 import { getUserInfo } from '@/shared/models/user';
 import { hasPermission } from '@/shared/services/rbac';
 
@@ -19,10 +21,29 @@ export async function POST(req: Request) {
     // get remaining credits
     const remainingCredits = await getRemainingCredits(user.id);
 
+    const currentSubscription = await getCurrentSubscription(user.id);
+
     // check if user has a password set
     const hasPassword = await checkUserHasPassword(user.id);
 
-    return respData({ ...user, isAdmin, credits: { remainingCredits }, hasPassword });
+    return respData({
+      ...user,
+      isAdmin,
+      credits: { remainingCredits },
+      hasPassword,
+      hasActiveSubscription: Boolean(currentSubscription),
+      currentSubscription: currentSubscription
+        ? {
+            subscriptionNo: currentSubscription.subscriptionNo,
+            status: currentSubscription.status,
+            productId: currentSubscription.productId,
+            productName: currentSubscription.productName,
+            planName: currentSubscription.planName,
+            accessTier: resolveVideoAccessTierFromSubscription(currentSubscription),
+            currentPeriodEnd: currentSubscription.currentPeriodEnd,
+          }
+        : null,
+    });
   } catch (e) {
     console.log('get user info failed:', e);
     return respErr('get user info failed');

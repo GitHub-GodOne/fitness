@@ -1,8 +1,6 @@
 'use client';
 
-import { LazyLoadImage } from 'react-lazy-load-image-component';
-
-import 'react-lazy-load-image-component/src/effects/blur.css';
+import Image from 'next/image';
 
 export function LazyImage({
   src,
@@ -32,15 +30,56 @@ export function LazyImage({
     return null;
   }
 
+  const style: React.CSSProperties = {
+    ...(className?.includes('w-auto') || className?.includes('w-fit')
+      ? { width: 'auto' }
+      : {}),
+    ...(className?.includes('h-auto') ? { height: 'auto' } : {}),
+  };
+
+  if (fill) {
+    return (
+      <Image
+        src={src}
+        alt={alt}
+        fill
+        title={title}
+        priority={priority}
+        sizes={sizes}
+        className={className}
+        unoptimized={src.startsWith('data:')}
+      />
+    );
+  }
+
+  if (width && height) {
+    return (
+      <Image
+        src={src}
+        alt={alt}
+        width={width}
+        height={height}
+        title={title}
+        priority={priority}
+        sizes={sizes}
+        className={className}
+        placeholder={placeholderSrc ? 'blur' : 'empty'}
+        blurDataURL={placeholderSrc}
+        style={style}
+        unoptimized={src.startsWith('data:')}
+      />
+    );
+  }
+
   return (
-    <LazyLoadImage
+    <img
       src={src}
       alt={alt}
-      width={width}
-      height={height}
-      effect="blur" // 支持 blur、opacity 等
-      placeholderSrc={placeholderSrc} // 可选
+      title={title}
+      loading={priority ? 'eager' : 'lazy'}
+      decoding="async"
       className={className}
+      style={style}
     />
   );
 }

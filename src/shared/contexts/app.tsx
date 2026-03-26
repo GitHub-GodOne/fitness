@@ -1,6 +1,7 @@
 'use client';
 
 import {
+  useCallback,
   createContext,
   ReactNode,
   useContext,
@@ -22,11 +23,15 @@ export interface ContextValue {
   user: User | null;
   sessionUser: User | null;
   isCheckSign: boolean;
+  isConfigsLoaded: boolean;
+  unreadNotificationCount: number;
   isShowSignModal: boolean;
   setIsShowSignModal: (show: boolean) => void;
   isShowPaymentModal: boolean;
   setIsShowPaymentModal: (show: boolean) => void;
   configs: Record<string, string>;
+  fetchConfigs: () => Promise<void>;
+  refreshUnreadNotificationCount: () => Promise<void>;
   fetchUserCredits: () => Promise<void>;
   fetchUserInfo: () => Promise<void>;
   needsPassword: boolean;
@@ -36,10 +41,21 @@ const AppContext = createContext({} as ContextValue);
 
 export const useAppContext = () => useContext(AppContext);
 
-export const AppContextProvider = ({ children }: { children: ReactNode }) => {
+export const AppContextProvider = ({
+  children,
+  initialConfigs,
+}: {
+  children: ReactNode;
+  initialConfigs?: Record<string, string>;
+}) => {
   const router = useRouter();
   const pathname = usePathname();
-  const [configs, setConfigs] = useState<Record<string, string>>({});
+  const hasInitialConfigs = initialConfigs !== undefined;
+  const [configs, setConfigs] = useState<Record<string, string>>(
+    initialConfigs ?? {}
+  );
+  const [isConfigsLoaded, setIsConfigsLoaded] = useState(hasInitialConfigs);
+  const [unreadNotificationCount, setUnreadNotificationCount] = useState(0);
 
   // sign user
   const [user, setUser] = useState<User | null>(null);
@@ -57,10 +73,11 @@ export const AppContextProvider = ({ children }: { children: ReactNode }) => {
   // show payment modal
   const [isShowPaymentModal, setIsShowPaymentModal] = useState(false);
 
-  const fetchConfigs = async function () {
+  const fetchConfigs = useCallback(async function () {
     try {
       const resp = await fetch('/api/config/get-configs', {
         method: 'POST',
+        cache: 'no-store',
       });
       if (!resp.ok) {
         throw new Error(`fetch failed with status: ${resp.status}`);
@@ -73,8 +90,33 @@ export const AppContextProvider = ({ children }: { children: ReactNode }) => {
       setConfigs(data);
     } catch (e) {
       console.log('fetch configs failed:', e);
+    } finally {
+      setIsConfigsLoaded(true);
     }
-  };
+  }, []);
+
+  const refreshUnreadNotificationCount = useCallback(async function () {
+    if (!user || configs.notification_bell_enabled === 'false') {
+      setUnreadNotificationCount(0);
+      return;
+    }
+
+    try {
+      const response = await fetch('/api/notifications/unread-count', {
+        cache: 'no-store',
+      });
+      if (!response.ok) {
+        throw new Error(`fetch failed with status: ${response.status}`);
+      }
+
+      const data = await response.json();
+      if (data.code === 0) {
+        setUnreadNotificationCount(data.data.unreadCount);
+      }
+    } catch (error) {
+      console.error('Failed to fetch unread count:', error);
+    }
+  }, [configs.notification_bell_enabled, user]);
 
   const fetchUserCredits = async function () {
     try {
@@ -142,8 +184,13 @@ export const AppContextProvider = ({ children }: { children: ReactNode }) => {
   };
 
   useEffect(() => {
-    fetchConfigs();
-  }, []);
+    if (hasInitialConfigs) {
+      return;
+    }
+
+    setIsConfigsLoaded(false);
+    void fetchConfigs();
+  }, [fetchConfigs, hasInitialConfigs]);
 
   useEffect(() => {
     const sessionUser = session?.user;
@@ -180,6 +227,29 @@ export const AppContextProvider = ({ children }: { children: ReactNode }) => {
       // fetchUserCredits();
     }
   }, [user]);
+
+  useEffect(() => {
+    if (!isConfigsLoaded) {
+      return;
+    }
+
+    if (!user || configs.notification_bell_enabled === 'false') {
+      setUnreadNotificationCount(0);
+      return;
+    }
+
+    void refreshUnreadNotificationCount();
+    const interval = setInterval(() => {
+      void refreshUnreadNotificationCount();
+    }, 30000);
+
+    return () => clearInterval(interval);
+  }, [
+    configs.notification_bell_enabled,
+    isConfigsLoaded,
+    refreshUnreadNotificationCount,
+    user,
+  ]);
 
   useEffect(() => {
     setIsCheckSign(isPending);
@@ -226,11 +296,15 @@ export const AppContextProvider = ({ children }: { children: ReactNode }) => {
         user,
         sessionUser,
         isCheckSign,
+        isConfigsLoaded,
+        unreadNotificationCount,
         isShowSignModal,
         setIsShowSignModal,
         isShowPaymentModal,
         setIsShowPaymentModal,
         configs,
+        fetchConfigs,
+        refreshUnreadNotificationCount,
         fetchUserCredits,
         fetchUserInfo,
         needsPassword,

@@ -5,18 +5,62 @@
   },
   "page": {
     "title": "OfficeReliefAI 价格",
+    "seo": {
+      "comparison": {
+        "eyebrow": "方案对比",
+        "title": "根据你的训练频率选择合适的访问层级",
+        "description": "免费体验适合先尝试生成器并预览一个训练视角。入门订阅和专业订阅则会逐步解锁更完整的训练视频访问范围和观看能力。",
+        "items": [
+          {
+            "title": "免费体验",
+            "description": "适合第一次接触产品、想先测试 AI 训练视频生成效果的用户。"
+          },
+          {
+            "title": "入门订阅",
+            "description": "可解锁 free 和 starter 类型的视频内容，适合希望稳定使用并获得更完整训练体验的用户。"
+          },
+          {
+            "title": "专业订阅",
+            "description": "可解锁 free、starter 和 pro 类型的视频内容，适合希望获得最完整内容覆盖的用户。"
+          }
+        ]
+      },
+      "faq": {
+        "eyebrow": "常见问题",
+        "title": "关于订阅与访问权限的问题",
+        "description": "下面这些回答说明了免费视频访问与 Starter / Pro 订阅之间的差异。",
+        "items": [
+          {
+            "question": "不订阅也能生成视频吗？",
+            "answer": "可以。免费用户以及未登录访客也能生成视频，但结果页仅展示一个可见训练视角。"
+          },
+          {
+            "question": "入门订阅能解锁什么？",
+            "answer": "入门订阅可访问 free 和 starter 类型的视频内容，比免费体验能看到更完整的训练结果。"
+          },
+          {
+            "question": "专业订阅能解锁什么？",
+            "answer": "专业订阅可访问 free、starter 和 pro 全部层级的视频内容，能获得最完整的视频结果覆盖。"
+          }
+        ]
+      }
+    },
     "sections": {
       "pricing": {
         "id": "pricing",
         "title": "价格",
-        "description": "用AI将日常物品变成个性化训练视频。选择适合你健身目标的方案，今天就开始训练。",
+        "description": "用 AI 将日常物品变成个性化训练视频。先免费体验，再根据你的训练频率升级到订阅式完整访问方案。",
         "groups": [],
         "items": [
           {
-            "title": "免费方案",
-            "description": "开始你的AI健身之旅。非常适合尝试我们的服务，体验个性化训练视频。",
+            "title": "免费体验",
+            "description": "免费开始你的 AI 健身之旅。适合先体验生成器，并查看单一训练视角的视频效果。",
             "features_title": "包含内容",
-            "features": ["新注册的用户首次授予 3 个积分"],
+            "features": [
+              "可使用免费模式生成训练视频",
+              "每个视频仅显示一个训练视角",
+              "无需订阅即可开始体验"
+            ],
             "interval": "one-time",
             "amount": 0,
             "currency": "USD",
@@ -36,10 +80,14 @@
             "valid_days": 30
           },
           {
-            "title": "20 积分",
-            "description": "非常适合偶尔使用。随时生成训练视频，用身边的物品进行锻炼。",
+            "title": "入门订阅",
+            "description": "适合规律训练用户，解锁更完整的健身视频观看体验。",
             "features_title": "包含内容",
-            "features": ["20 次视频生成", "积分永不过期"],
+            "features": [
+              "完整训练视频访问",
+              "解锁全部可用训练视角",
+              "适合每周持续训练"
+            ],
             "interval": "one-time",
             "amount": 990,
             "currency": "USD",
@@ -47,28 +95,28 @@
             "original_price": "",
             "unit": "",
             "is_featured": false,
-            "tip": "一次性购买。积分永不过期，随时使用。",
+            "tip": "从免费模式升级，解锁更完整的训练观看体验。",
             "button": {
-              "title": "获取 20 积分",
+              "title": "选择入门版",
               "url": "/#pricing",
               "icon": "RiCoinsLine"
             },
             "product_id": "credits_20",
-            "product_name": "20 积分",
+            "product_name": "入门订阅",
             "credits": 20,
             "valid_days": 0
           },
           {
-            "title": "60 积分",
-            "description": "最受欢迎 - 为经常使用的用户提供最佳价值。定期生成训练视频，分享你的健身旅程。",
+            "title": "专业订阅",
+            "description": "最受欢迎。适合长期训练、需要更丰富训练内容和更高性价比的用户。",
             "label": "最受欢迎",
             "popular": "最受欢迎",
-            "features_title": "包含 20 积分的所有功能，此外",
+            "features_title": "包含入门订阅的全部内容，此外",
             "features": [
-              "60 次视频生成",
-              "积分永不过期",
-              "相比购买三次 20 积分节省 33%",
-              "与家人和朋友分享视频"
+              "包含入门订阅的全部内容",
+              "更适合高频训练用户",
+              "适合长期使用视频训练",
+              "可与家人和朋友分享更多训练内容"
             ],
             "interval": "one-time",
             "amount": 1990,
@@ -77,14 +125,14 @@
             "original_price": "$29.7",
             "unit": "",
             "is_featured": true,
-            "tip": "最佳价值！节省 33%，再也不用担心积分用完。",
+            "tip": "更适合想获得完整训练体验的长期用户。",
             "button": {
-              "title": "获取 60 积分",
+              "title": "选择专业版",
               "url": "/#pricing",
               "icon": "RiStarLine"
             },
             "product_id": "credits_60",
-            "product_name": "60 积分",
+            "product_name": "专业订阅",
             "credits": 60,
             "valid_days": 0
           }
@@ -96,8 +144,15 @@
     "current_plan": "当前方案",
     "processing": "处理中",
     "seo_tooltip_label": "了解我们的定价",
-    "seo_tooltip_content": "我们的定价旨在提供价值和灵活性。我们提供积分制方案，积分永不过期，让您随时生成个性化的AI训练视频。透明的定价确保您只为使用的内容付费，没有隐藏费用或定期订阅。非常适合想要用日常物品进行训练的健身爱好者。",
+    "seo_tooltip_content": "我们的定价页现在采用“免费体验 + 订阅式完整访问”的描述方式。免费用户可以先体验生成器，升级后则能解锁更完整的训练视频观看体验。",
     "refund_support": "支持退款服务",
-    "learn_more": "了解更多"
+    "learn_more": "查看退款政策",
+    "seo_body_title": "如何选择适合的方案",
+    "seo_body_paragraphs": [
+      "这个定价页的目标，是帮助访客比较免费体验与付费订阅式访问之间的差异。",
+      "有些用户只需要先免费试用生成器，而有些用户则希望获得更完整的训练视频和全部视角来支撑长期训练。",
+      "页面中的对比说明和常见问题，会帮助你理解每个访问层级适合什么使用阶段，以及何时适合从免费体验升级到更完整的订阅方案。"
+    ],
+    "seo_plan_summary": "当前页面提供 {plans} 等方案，让访客可以更清楚地在首次体验、偶尔创作与长期使用之间做出选择。"
   }
 }

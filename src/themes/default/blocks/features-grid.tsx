@@ -1,12 +1,13 @@
 "use client";
 
-import { motion } from "framer-motion";
+import { Gift } from "lucide-react";
 
-import { Button } from "@/shared/components/ui/button";
-import { LazyImage, SmartIcon } from "@/shared/blocks/common";
+import { LazyImage } from "@/shared/blocks/common";
+import { ScrollAnimation } from "@/shared/components/ui/scroll-animation";
 import { cn } from "@/shared/lib/utils";
 import { useRequireAuth } from "@/shared/hooks/use-require-auth";
 import { Section } from "@/shared/types/blocks/landing";
+import { HomeCtaButton } from "./home-cta-button";
 
 export function FeaturesGrid({ section }: { section: Section }) {
   const { navigateWithAuth } = useRequireAuth({
@@ -19,49 +20,34 @@ export function FeaturesGrid({ section }: { section: Section }) {
       className={cn("py-16 md:py-24", section.className)}
     >
       <div className="container mx-auto max-w-4xl px-4">
-        <motion.h2
-          className="text-3xl md:text-4xl font-semibold text-center mb-12"
-          initial={{ opacity: 0, y: 20 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          transition={{ duration: 0.5 }}
-        >
-          {section.title}
-        </motion.h2>
+        <ScrollAnimation className="mb-12">
+          <h2 className="text-3xl md:text-4xl font-semibold text-center">
+            {section.title}
+          </h2>
+        </ScrollAnimation>
 
         {section.description && (
-          <motion.p
-            className="text-center text-muted-foreground mb-8"
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.5, delay: 0.1 }}
-          >
-            {section.description}
-          </motion.p>
+          <ScrollAnimation className="mb-8" delay={0.1}>
+            <p className="text-center text-muted-foreground">
+              {section.description}
+            </p>
+          </ScrollAnimation>
         )}
 
-        <motion.div
-          className="grid grid-cols-3 gap-4 mb-12"
-          initial={{ opacity: 0, y: 30 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          transition={{ duration: 0.6, delay: 0.2 }}
-        >
+        <ScrollAnimation className="mb-12">
+          <div className="grid grid-cols-3 gap-4">
           {section.items?.map((item, index) => (
-            <motion.div
+            <div
               key={item.title}
-              className="relative rounded-xl overflow-hidden aspect-[4/3] cursor-pointer group"
-              initial={{ opacity: 0, scale: 0.9 }}
-              whileInView={{ opacity: 1, scale: 1 }}
-              viewport={{ once: true }}
-              transition={{ duration: 0.4, delay: 0.1 * index }}
-              whileHover={{ scale: 1.05 }}
+              className="relative rounded-xl overflow-hidden aspect-[4/3] cursor-pointer group transition-transform duration-300 hover:scale-[1.05]"
+              style={{ transitionDelay: `${index * 60}ms` }}
               onClick={() => navigateWithAuth("/ai-video-generator")}
             >
               <LazyImage
                 src={item.image?.src || item.image?.src || ""}
                 alt={item.image?.alt || item.title || ""}
+                fill
+                sizes="(max-width: 768px) 33vw, 240px"
                 className="w-full h-full object-cover transition-transform duration-200 group-hover:scale-105"
               />
               <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent" />
@@ -70,34 +56,25 @@ export function FeaturesGrid({ section }: { section: Section }) {
                   {item.title}
                 </h3>
               </div>
-            </motion.div>
+            </div>
           ))}
-        </motion.div>
+          </div>
+        </ScrollAnimation>
 
         {section.buttons && section.buttons.length > 0 && (
-          <motion.div
-            className="text-center"
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.5, delay: 0.4 }}
-          >
+          <ScrollAnimation delay={0.2}>
+            <div className="flex w-full justify-center text-center">
             {section.buttons.map((button) => (
-              <Button
+              <HomeCtaButton
                 key={button.title}
-                className="h-12 px-8 text-base font-semibold rounded-full w-auto sm:w-auto"
+                title={button.title || ""}
+                sectionIcon="featuresGrid"
+                leftIcon={<Gift className="mr-2 h-5 w-5 shrink-0" />}
                 onClick={() => navigateWithAuth(button.url || "/ai-video-generator")}
-              >
-                {button.icon && (
-                  <SmartIcon
-                    name={button.icon as string}
-                    className="mr-2 h-5 w-5"
-                  />
-                )}
-                {button.title}
-              </Button>
+              />
             ))}
-          </motion.div>
+            </div>
+          </ScrollAnimation>
         )}
       </div>
     </section>

@@ -183,6 +183,7 @@ export const customHtmlPage = table(
     id: text("id").primaryKey(),
     slug: text("slug").notNull(),
     locale: text("locale").notNull(),
+    isActive: boolean("is_active").notNull().default(true),
     title: text("title"),
     description: text("description"),
     html: text("html").notNull(),
@@ -238,6 +239,7 @@ export const taxonomy = table(
     type: text("type").notNull(),
     title: text("title").notNull(),
     description: text("description"),
+    seoKeywords: text("seo_keywords"),
     targetUrl: text("target_url"),
     image: text("image"),
     icon: text("icon"),
@@ -670,6 +672,7 @@ export const comment = table(
     userEmail: text("user_email").notNull(), // Required for anonymous
     userAvatar: text("user_avatar"), // User avatar URL
     content: text("content").notNull(),
+    pageId: text("page_id"), // Page-scoped comments (e.g. showcase watch page)
     referencedTaskId: text("referenced_task_id").references(() => aiTask.id, {
       onDelete: "set null",
     }), // AI task reference
@@ -690,6 +693,12 @@ export const comment = table(
   (table) => [
     // Query comments by status and creation time
     index("idx_comment_status_created").on(table.status, table.createdAt),
+    // Query comments by page scope
+    index("idx_comment_page_status_created").on(
+      table.pageId,
+      table.status,
+      table.createdAt,
+    ),
     // Query comments by user
     index("idx_comment_user_id").on(table.userId),
     // Query by visibility
@@ -836,6 +845,7 @@ export const showcaseVideo = table(
     sourceType: text("source_type").notNull().default("generated"),
     title: text("title").notNull(),
     description: text("description"),
+    seoKeywords: text("seo_keywords"),
     videoUrl: text("video_url").notNull(),
     coverUrl: text("cover_url"),
     status: text("status").notNull().default("pending"),

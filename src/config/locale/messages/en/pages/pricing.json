@@ -5,18 +5,62 @@
   },
   "page": {
     "title": "OfficeReliefAI Pricing",
+    "seo": {
+      "comparison": {
+        "eyebrow": "Plan Comparison",
+        "title": "Choose the access level that matches your training rhythm",
+        "description": "Free access is built for trying the generator and previewing one workout angle. Starter and Pro subscriptions unlock progressively broader workout video access and more complete viewing options.",
+        "items": [
+          {
+            "title": "Free Access",
+            "description": "Best for first-time visitors who want to test AI workout generation before committing to a subscription."
+          },
+          {
+            "title": "Starter Subscription",
+            "description": "Unlocks free and starter-level workout videos, making it the right fit for regular users who want a fuller guided training experience."
+          },
+          {
+            "title": "Pro Subscription",
+            "description": "Unlocks free, starter, and pro workout videos for users who want the broadest library and the most complete experience."
+          }
+        ]
+      },
+      "faq": {
+        "eyebrow": "FAQ",
+        "title": "Questions about subscriptions and access",
+        "description": "These answers clarify how free access differs from Starter and Pro subscriptions on the video side.",
+        "items": [
+          {
+            "question": "Can I generate videos without subscribing?",
+            "answer": "Yes. Free users and even visitors who are not logged in can generate videos, but the result view is limited to a single visible workout angle."
+          },
+          {
+            "question": "What does Starter unlock?",
+            "answer": "Starter unlocks both free and starter access type videos, giving subscribers a broader set of workout results than the free experience."
+          },
+          {
+            "question": "What does Pro unlock?",
+            "answer": "Pro unlocks free, starter, and pro access type videos, which gives the widest workout coverage and the fullest result set."
+          }
+        ]
+      }
+    },
     "sections": {
       "pricing": {
         "id": "pricing",
         "title": "Pricing",
-        "description": "Turn everyday objects into personalized workout videos with AI. Choose the plan that fits your fitness goals and start training today.",
+        "description": "Turn everyday objects into personalized workout videos with AI. Choose the access plan that fits your training rhythm and upgrade to subscription access when you want the full experience.",
         "groups": [],
         "items": [
           {
-            "title": "Free Plan",
-            "description": "Start your AI fitness journey. Perfect for trying out our service and experiencing personalized workout videos.",
+            "title": "Free Access",
+            "description": "Start your AI fitness journey for free. Perfect for trying the generator and seeing one guided workout angle before upgrading.",
             "features_title": "What's Included",
-            "features": ["3 credits granted to new users upon registration"],
+            "features": [
+              "Generate workout videos in free mode",
+              "Single visible workout angle per video",
+              "No subscription required to get started"
+            ],
             "interval": "one-time",
             "amount": 0,
             "currency": "USD",
@@ -36,10 +80,14 @@
             "valid_days": 30
           },
           {
-            "title": "20 Credits",
-            "description": "Perfect for occasional use. Generate workout videos whenever you want to train with objects around you.",
+            "title": "Starter Subscription",
+            "description": "Unlock the full guided workout experience with subscription access built for regular training.",
             "features_title": "What's Included",
-            "features": ["20 video generations", "Credits never expire"],
+            "features": [
+              "Full workout video access",
+              "Unlock all available view angles",
+              "Designed for ongoing weekly training"
+            ],
             "interval": "one-time",
             "amount": 990,
             "currency": "USD",
@@ -47,28 +95,28 @@
             "original_price": "",
             "unit": "",
             "is_featured": false,
-            "tip": "One-time purchase. Credits never expire, use them whenever you want to work out.",
+            "tip": "Upgrade from free mode and unlock the complete workout viewing experience.",
             "button": {
-              "title": "Get 20 Credits",
+              "title": "Choose Starter",
               "url": "/#pricing",
               "icon": "RiCoinsLine"
             },
             "product_id": "credits_20",
-            "product_name": "20 Credits",
+            "product_name": "Starter Subscription",
             "credits": 20,
             "valid_days": 0
           },
           {
-            "title": "60 Credits",
-            "description": "Most Popular - Best value for regular users. Generate workout videos regularly and share your fitness journey.",
+            "title": "Pro Subscription",
+            "description": "Most Popular. Best for consistent training, richer workout variety, and unlocking the strongest value from the platform.",
             "label": "Most Popular",
             "popular": "Most Popular",
-            "features_title": "Everything in 20 Credits, plus",
+            "features_title": "Everything in Starter, plus",
             "features": [
-              "60 video generations",
-              "Credits never expire",
-              "Save 33% compared to buying 20 credits three times",
-              "Share videos with family and friends"
+              "Everything in Starter Subscription",
+              "Best value for committed users",
+              "Ideal for frequent video workouts",
+              "Share more guided routines with family and friends"
             ],
             "interval": "one-time",
             "amount": 1990,
@@ -77,14 +125,14 @@
             "original_price": "$29.7",
             "unit": "",
             "is_featured": true,
-            "tip": "Best value! Save 33% and never worry about running out of credits.",
+            "tip": "Best value for members who want the fullest training experience.",
             "button": {
-              "title": "Get 60 Credits",
+              "title": "Choose Pro",
               "url": "/#pricing",
               "icon": "RiStarLine"
             },
             "product_id": "credits_60",
-            "product_name": "60 Credits",
+            "product_name": "Pro Subscription",
             "credits": 60,
             "valid_days": 0
           }
@@ -96,8 +144,15 @@
     "current_plan": "Current Plan",
     "processing": "Processing",
     "seo_tooltip_label": "Learn about our pricing",
-    "seo_tooltip_content": "Our pricing is designed to provide value and flexibility. We offer credit-based plans that never expire, allowing you to generate personalized AI workout videos whenever you want. Transparent pricing ensures you only pay for what you use, with no hidden fees or recurring subscriptions. Perfect for fitness enthusiasts looking to train with everyday objects.",
+    "seo_tooltip_content": "Our pricing is designed to guide visitors from free access into subscription-style workout access. Free users can try the generator first, while paid plans unlock fuller workout viewing and a more complete training experience.",
     "refund_support": "Refund service available",
-    "learn_more": "Learn more"
+    "learn_more": "View refund policy",
+    "seo_body_title": "How to Choose a Plan",
+    "seo_body_paragraphs": [
+      "The pricing page is designed to help visitors compare free access with paid subscription-style plans for AI fitness video generation.",
+      "Some users only need a lightweight free entry point to test the generator, while others want a fuller training experience with all workout angles unlocked.",
+      "The comparison and FAQ sections explain what each access level is best suited for and how to choose between trying the product for free and upgrading for more complete workout access."
+    ],
+    "seo_plan_summary": "Current options on this page include {plans}, giving visitors a clear way to choose between first-time access, occasional creation, and more consistent video use."
   }
 }

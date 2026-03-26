@@ -10,6 +10,7 @@ import {
   renderCustomHtmlPageOverride,
 } from '@/shared/lib/custom-html-page-override';
 import { getHomeHeroWatchPageBySlug } from '@/shared/lib/home-hero-watch-page';
+import { buildSeoTitle, getLocaleAlternates } from '@/shared/lib/seo';
 import { toPublicAbsoluteUrl } from '@/shared/lib/showcase-video-seo';
 
 export const revalidate = 3600;
@@ -46,19 +47,19 @@ export async function generateMetadata({
   }
 
   const canonical = toPublicAbsoluteUrl(watchPage.url);
+  const alternates = await getLocaleAlternates(`/watch/${slug}`, locale);
   const thumbnailUrl = toPublicAbsoluteUrl(watchPage.videoPoster || envConfigs.app_preview_image);
+  const seoTitle = buildSeoTitle(watchPage.title);
 
   return {
-    title: watchPage.title,
+    title: seoTitle,
     description: watchPage.description,
-    alternates: {
-      canonical,
-    },
+    alternates,
     openGraph: {
       type: 'video.other',
       locale,
       url: canonical,
-      title: watchPage.title,
+      title: seoTitle,
       description: watchPage.description,
       images: thumbnailUrl ? [{ url: thumbnailUrl }] : undefined,
       videos: watchPage.videoSrc
@@ -71,7 +72,7 @@ export async function generateMetadata({
     },
     twitter: {
       card: 'summary_large_image',
-      title: watchPage.title,
+      title: seoTitle,
       description: watchPage.description,
       images: thumbnailUrl ? [thumbnailUrl] : undefined,
     },

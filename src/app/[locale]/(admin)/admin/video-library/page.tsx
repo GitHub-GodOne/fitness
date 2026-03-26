@@ -817,12 +817,16 @@ export default function VideoLibraryPage() {
                           variant={
                             group.accessType === "free"
                               ? "secondary"
-                              : group.accessType === "premium"
+                              : group.accessType === "starter"
+                                ? "outline"
+                                : group.accessType === "premium" || group.accessType === "pro"
                                 ? "default"
                                 : "destructive"
                           }
                         >
-                          {group.accessType || "free"}
+                          {group.accessType === "premium"
+                            ? "pro"
+                            : group.accessType || "free"}
                         </Badge>
                       </TableCell>
                       <TableCell>{group.viewCount}</TableCell>
@@ -1621,7 +1625,8 @@ export default function VideoLibraryPage() {
                     </SelectTrigger>
                     <SelectContent>
                       <SelectItem value="free">Free</SelectItem>
-                      <SelectItem value="premium">Premium</SelectItem>
+                      <SelectItem value="starter">Starter</SelectItem>
+                      <SelectItem value="pro">Pro</SelectItem>
                       <SelectItem value="hidden">Hidden</SelectItem>
                     </SelectContent>
                   </Select>

@@ -13,9 +13,21 @@ export interface UserCredits {
   expiresAt: Date | null;
 }
 
+export interface UserSubscriptionSummary {
+  subscriptionNo?: string;
+  status?: string;
+  productId?: string | null;
+  productName?: string | null;
+  planName?: string | null;
+  accessTier?: string;
+  currentPeriodEnd?: Date | null;
+}
+
 export type User = typeof user.$inferSelect & {
   isAdmin?: boolean;
   credits?: UserCredits;
+  hasActiveSubscription?: boolean;
+  currentSubscription?: UserSubscriptionSummary | null;
   roles?: Role[];
   permissions?: Permission[];
   hasPassword?: boolean;

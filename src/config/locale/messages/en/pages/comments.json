@@ -3,6 +3,15 @@
     "title": "Comments",
     "description": "Share and discuss your thoughts"
   },
+  "seo": {
+    "title": "Comment Guidelines",
+    "countParagraph": "There are currently {count} public top-level comments available for browsing on this page, covering discussions linked to videos, articles, and faith-centered topics across the site.",
+    "paragraphs": [
+      "This page collects public comments, replies, and reactions shared across the site. Visitors can use it to follow ongoing discussions around Bible videos, prayer topics, and faith-centered experiences.",
+      "Thoughtful comments help other readers understand how a video, article, or scripture message was received. Replies and likes also make it easier to identify the most helpful discussions.",
+      "Please keep comments respectful, relevant, and supportive so the conversation remains useful for other visitors and community members."
+    ]
+  },
   "page": {
     "title": "Comments",
     "sections": {

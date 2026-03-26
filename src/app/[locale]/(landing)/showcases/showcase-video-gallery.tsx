@@ -1,18 +1,10 @@
 'use client';
 
-import { useState } from 'react';
-import { X } from 'lucide-react';
+import { Play } from 'lucide-react';
 import { useTranslations } from 'next-intl';
+import Image from 'next/image';
 
 import { Link } from '@/core/i18n/navigation';
-import {
-  Dialog,
-  DialogClose,
-  DialogContent,
-  DialogDescription,
-  DialogTitle,
-} from '@/shared/components/ui/dialog';
-import { Skeleton } from '@/shared/components/ui/skeleton';
 import {
   getShowcaseVideoWatchPath,
 } from '@/shared/lib/showcase-video-url';
@@ -30,121 +22,68 @@ type ShowcaseVideoCard = {
 export function ShowcaseVideoGallery({
   videos,
   locale,
-  seoWatchPagesEnabled = false,
 }: {
   videos: ShowcaseVideoCard[];
   locale: string;
-  seoWatchPagesEnabled?: boolean;
 }) {
   const t = useTranslations('pages.showcases.page.gallery');
-  const [activeVideo, setActiveVideo] = useState<ShowcaseVideoCard | null>(null);
   const dateLocale = t('dateLocale');
 
   return (
-    <>
-      <div className="grid gap-6 md:grid-cols-2 xl:grid-cols-3">
-        {videos.map((video) => {
-          const cardClassName =
-            'group flex h-full flex-col overflow-hidden rounded-3xl border bg-card text-left transition hover:border-primary/40 hover:shadow-sm';
-          const content = (
-            <>
-              <div className="relative aspect-[16/10] shrink-0 overflow-hidden bg-muted">
-                {video.coverUrl ? (
-                  <>
-                    <Skeleton className="absolute inset-0 rounded-none" />
-                    <img
-                      src={video.coverUrl}
-                      alt={video.title}
-                      loading="lazy"
-                      className="relative z-10 h-full w-full object-cover transition duration-300 group-hover:scale-[1.02]"
-                    />
-                  </>
-                ) : (
-                  <div className="flex h-full w-full items-center justify-center bg-gradient-to-br from-primary/10 via-secondary/10 to-accent/10">
-                    <span className="text-3xl font-semibold text-foreground/70">
-                      {video.title.slice(0, 1)}
-                    </span>
-                  </div>
-                )}
-
-                <div className="pointer-events-none absolute inset-0 bg-black/0 transition group-hover:bg-black/10" />
-              </div>
-
-              <div className="flex flex-1 flex-col space-y-3 p-5">
-                <div className="flex items-center justify-between gap-3">
-                  <h2 className="line-clamp-2 min-h-[3.5rem] text-xl font-semibold text-foreground">
-                    {video.title}
-                  </h2>
-                  <span className="shrink-0 text-xs text-muted-foreground">
-                    {new Date(video.publishedAt || video.createdAt).toLocaleDateString(
-                      dateLocale
-                    )}
-                  </span>
-                </div>
-                <p className="line-clamp-3 min-h-[3.75rem] text-sm text-muted-foreground">
-                  {video.description || t('descriptionFallback')}
-                </p>
-              </div>
-            </>
-          );
-
-          return (
-            <div key={video.id}>
-              <button
-                type="button"
-                onClick={() => setActiveVideo(video)}
-                className={cardClassName}
-              >
-                {content}
-              </button>
-              {seoWatchPagesEnabled ? (
-                <Link
-                  href={getShowcaseVideoWatchPath({ video, locale })}
-                  className="sr-only"
-                  aria-label={`Open watch page for ${video.title}`}
-                >
-                  {video.title}
-                </Link>
-              ) : null}
-            </div>
-          );
-        })}
-      </div>
-
-      <Dialog open={Boolean(activeVideo)} onOpenChange={(open) => !open && setActiveVideo(null)}>
-        <DialogContent
-          showCloseButton={false}
-          className="h-screen w-screen max-w-screen translate-x-[-50%] translate-y-[-50%] rounded-none border-0 bg-black p-0 sm:max-w-screen"
+    <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
+      {videos.map((video) => {
+        const videoDescription = video.description || t('descriptionFallback');
+        return (
+        <Link
+          key={video.id}
+          href={getShowcaseVideoWatchPath({ video })}
+          title={`${video.title} - ${videoDescription}`}
+          aria-label={`${video.title}. ${videoDescription}`}
+          className="group flex h-full flex-col overflow-hidden rounded-[16px] border border-border/70 bg-card text-left shadow-sm transition hover:border-primary/35 hover:shadow-md"
         >
-          {activeVideo ? (
-            <div className="relative h-full overflow-hidden bg-black">
-              <div className="sr-only">
-                <DialogTitle>{activeVideo.title}</DialogTitle>
-                <DialogDescription>
-                  {activeVideo.description || activeVideo.title}
-                </DialogDescription>
-              </div>
-
-              <DialogClose className="absolute right-4 top-4 z-20 inline-flex h-10 w-10 items-center justify-center rounded-full bg-black/55 text-white transition hover:bg-black/75 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/70 sm:right-6 sm:top-6">
-                <X className="size-5" />
-                <span className="sr-only">{t('closeVideo')}</span>
-              </DialogClose>
-
-              <video
-                src={activeVideo.videoUrl}
-                poster={activeVideo.coverUrl || undefined}
-                controls
-                autoPlay
-                playsInline
-                preload="auto"
-                className="absolute inset-0 h-full w-full bg-black object-contain"
+          <div className="relative aspect-[16/10] shrink-0 overflow-hidden bg-muted">
+            {video.coverUrl ? (
+              <Image
+                src={video.coverUrl}
+                alt={video.title}
+                fill
+                sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 25vw"
+                className="relative z-10 h-full w-full object-cover transition duration-300 group-hover:scale-[1.03]"
               />
+            ) : (
+              <div className="flex h-full w-full items-center justify-center bg-gradient-to-br from-primary/10 via-secondary/10 to-accent/10">
+                <span className="text-3xl font-semibold text-foreground/70">
+                  {video.title.slice(0, 1)}
+                </span>
+              </div>
+            )}
 
-              {/* Keep the playback surface clean; only show native controls. */}
+            <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-foreground/20 via-transparent to-transparent" />
+            <div className="absolute bottom-3 right-3 flex h-12 w-12 items-center justify-center rounded-full border-2 border-background/80 bg-background/20 text-background backdrop-blur-sm sm:h-14 sm:w-14">
+              <Play className="ml-0.5 size-5 fill-current sm:size-6" />
             </div>
-          ) : null}
-        </DialogContent>
-      </Dialog>
-    </>
+          </div>
+
+          <div className="flex min-h-[140px] flex-1 flex-col px-4 py-3.5 sm:min-h-[148px] sm:px-4 sm:py-4">
+            <div className="mb-1.5 flex items-start justify-between gap-3">
+              <h2 className="min-h-[3.2rem] line-clamp-2 text-[18px] font-bold leading-tight text-foreground sm:min-h-[3.35rem] sm:text-[19px]">
+                {video.title}
+              </h2>
+              <span className="shrink-0 text-xs text-muted-foreground">
+                {new Date(video.publishedAt || video.createdAt).toLocaleDateString(
+                  dateLocale
+                )}
+              </span>
+            </div>
+            <p className="min-h-[4.5rem] line-clamp-3 text-[14px] leading-6 text-muted-foreground">
+              {videoDescription}
+            </p>
+          </div>
+          <span className="sr-only">
+            {video.title}. {videoDescription}
+          </span>
+        </Link>
+      )})}
+    </div>
   );
 }

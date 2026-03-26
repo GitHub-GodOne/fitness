@@ -1,5 +1,3 @@
-import { defaultLocale } from '@/config/locale';
-
 function slugifyShowcaseVideoTitle(title: string) {
   return title
     .toLowerCase()
@@ -18,18 +16,14 @@ export function getShowcaseVideoWatchSlug(video: {
 
 export function getShowcaseVideoWatchPath({
   video,
-  locale = defaultLocale,
 }: {
   video: {
     id: string;
     title?: string | null;
   };
-  locale?: string;
 }) {
   const slug = getShowcaseVideoWatchSlug(video);
-  return locale === defaultLocale
-    ? `/showcases/watch/${slug}`
-    : `/${locale}/showcases/watch/${slug}`;
+  return `/showcases/watch/${slug}`;
 }
 
 export function parseShowcaseVideoIdFromWatchSlug(watchSlug: string) {

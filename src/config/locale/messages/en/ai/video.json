@@ -86,6 +86,16 @@
     "generating": "Generating...",
     "queue_notice": "Expected to wait 3-5 minutes. Please wait patiently.",
     "sign_in_to_generate": "Sign In to Generate Video",
+    "subscription": {
+      "checking": "Checking subscription...",
+      "required": "An active subscription is required to generate videos.",
+      "subscribe_to_generate": "Subscribe to Generate Video",
+      "view_plans": "View Plans",
+      "manage": "Manage",
+      "inactive": "No active subscription",
+      "active": "Subscription active: {plan}",
+      "default_plan": "Current Plan"
+    },
     "credits_cost": "Cost {credits} credits",
     "credits_remaining": "Remaining {credits} credits",
     "buy_credits": "Buy Credits",
@@ -127,7 +137,7 @@
     "merge_videos": "Merge {count} Videos",
     "copied": "Copied!",
     "refund_support": "Refund service available",
-    "learn_more": "Learn more",
+    "learn_more": "View refund policy",
     "history": {
       "title": "History",
       "order": "Order",
@@ -223,6 +233,15 @@
         "image": "Image",
         "image_uploaded": "Uploaded",
         "image_none": "None"
+      },
+      "validation": {
+        "gender_required": "Please choose your gender first.",
+        "age_group_required": "Please choose your age group first.",
+        "difficulty_required": "Please choose your difficulty level first.",
+        "body_parts_required": "Please select a target body part first.",
+        "body_parts_loading": "Body part options are still loading. Please try again.",
+        "body_parts_unavailable": "Your selected body part is no longer available. Please choose another one.",
+        "no_body_parts_available": "No body parts are currently available. Please enable them in the admin panel."
       }
     },
     "regenerate_not_available": "Regenerate feature is not available",

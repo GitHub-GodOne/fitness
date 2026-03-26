@@ -5,7 +5,6 @@ import { getLocale, setRequestLocale } from "next-intl/server";
 import NextTopLoader from "nextjs-toploader";
 
 import { envConfigs } from "@/config";
-import { locales } from "@/config/locale";
 import {
   defaultFontPresetValues,
   monoFontPresets,
@@ -38,9 +37,6 @@ export default async function RootLayout({
 
   const isProduction = process.env.NODE_ENV === "production";
   const isDebug = process.env.NEXT_PUBLIC_DEBUG === "true";
-
-  // app url
-  const appUrl = envConfigs.app_url || "";
 
   const configs = await getAllConfigs();
   const configuredDefaultTheme =
@@ -193,20 +189,6 @@ export default async function RootLayout({
           )
           .join("")}}`}</style>
         <script dangerouslySetInnerHTML={{ __html: themeColorBootstrap }} />
-
-        {/* inject locales */}
-        {locales ? (
-          <>
-            {locales.map((loc) => (
-              <link
-                key={loc}
-                rel="alternate"
-                hrefLang={loc}
-                href={`${appUrl}${loc === "en" ? "" : `/${loc}`}`}
-              />
-            ))}
-          </>
-        ) : null}
 
         {/* inject ads meta tags */}
         {adsMetaTags}

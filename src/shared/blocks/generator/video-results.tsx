@@ -13,6 +13,8 @@ import { Card, CardContent } from "@/shared/components/ui/card";
 import { Badge } from "@/shared/components/ui/badge";
 import { useAppContext } from "@/shared/contexts/app";
 
+const GUEST_VIDEO_RESULT_STORAGE_PREFIX = "ai-video-generator-guest-result:";
+
 interface HistoryTask {
   id: string;
   taskId: string | null;
@@ -37,6 +39,20 @@ function extractVideoGroups(result: any): any[] {
     return result.matchedVideos;
   }
   return [];
+}
+
+function limitVideoGroupsForFreeUser(
+  groups: any[],
+  hasActiveSubscription: boolean,
+): any[] {
+  if (hasActiveSubscription) {
+    return groups;
+  }
+
+  return groups.map((group: any) => ({
+    ...group,
+    videos: Array.isArray(group.videos) ? group.videos.slice(0, 1) : group.videos,
+  }));
 }
 
 function extractVideoUrls(result: any): string[] {
@@ -123,7 +139,9 @@ export function VideoResults() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const taskId = searchParams.get("taskId");
+  const guestTaskId = searchParams.get("guestTaskId");
   const { user } = useAppContext();
+  const hasActiveSubscription = Boolean(user?.hasActiveSubscription);
 
   const [loading, setLoading] = useState(true);
   const [videoGroups, setVideoGroups] = useState<any[]>([]);
@@ -139,6 +157,43 @@ export function VideoResults() {
 
   // Fetch the specific task to get video groups
   useEffect(() => {
+    if (guestTaskId) {
+      setLoading(true);
+
+      try {
+        const raw =
+          typeof window !== "undefined"
+            ? sessionStorage.getItem(
+                `${GUEST_VIDEO_RESULT_STORAGE_PREFIX}${guestTaskId}`,
+              )
+            : null;
+
+        if (!raw) {
+          throw new Error("Guest video result not found");
+        }
+
+        const task = JSON.parse(raw);
+        const parsed = parseTaskResult(task.taskResult);
+        const groups = limitVideoGroupsForFreeUser(
+          extractVideoGroups(parsed),
+          false,
+        );
+        setVideoGroups(groups);
+        const initialSelection: Record<string, number> = {};
+        groups.forEach((group: any) => {
+          initialSelection[group.id] = 0;
+        });
+        setSelectedVideoIndex(initialSelection);
+      } catch (err) {
+        console.error("Failed to load guest task:", err);
+        toast.error("Failed to load video results");
+      } finally {
+        setLoading(false);
+      }
+
+      return;
+    }
+
     if (!taskId) { setLoading(false); return; }
 
     setLoading(true); // Reset loading state when taskId changes
@@ -157,7 +212,10 @@ export function VideoResults() {
         console.log('[VideoResults] Response data:', { code, data });
         if (code !== 0 || !data) throw new Error("Task not found");
         const parsed = parseTaskResult(data.taskResult);
-        const groups = extractVideoGroups(parsed);
+        const groups = limitVideoGroupsForFreeUser(
+          extractVideoGroups(parsed),
+          hasActiveSubscription,
+        );
         console.log('[VideoResults] Extracted groups:', groups);
         setVideoGroups(groups);
         // Initialize selected video index for each group (default to 0)
@@ -173,7 +231,7 @@ export function VideoResults() {
         setLoading(false);
       }
     })();
-  }, [taskId]);
+  }, [guestTaskId, hasActiveSubscription, taskId]);
 
   const fetchHistory = useCallback(async () => {
     if (!user) return;

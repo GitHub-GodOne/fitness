@@ -2,7 +2,6 @@
 import { AITask } from "@/shared/models/ai_task";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import {
-  CreditCard,
   Download,
   Eye,
   Loader2,
@@ -15,7 +14,6 @@ import {
   Image,
   Settings,
   Merge,
-  Plus,
   RotateCcw,
 } from "lucide-react";
 import { useTranslations } from "next-intl";
@@ -45,7 +43,10 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/shared/components/ui/select";
-import { BodyPartSelector2D } from "@/shared/components/body-part-selector-2d";
+import {
+  BODY_PARTS,
+  BodyPartSelector2D,
+} from "@/shared/components/body-part-selector-2d";
 import { Badge } from "@/shared/components/ui/badge";
 import {
   Table,
@@ -124,6 +125,12 @@ interface VideoSettings {
   duration: number;
 }
 
+interface SelectableBodyPart {
+  id: string;
+  name: string;
+  status: string;
+}
+
 interface BackendTask {
   id: string;
   status: string;
@@ -150,10 +157,7 @@ const POLL_INTERVAL = 3000; // 3 seconds - faster polling for better UX
 const GENERATION_TIMEOUT = 600000; // 10 minutes for video
 const MAX_PROMPT_LENGTH = 2000;
 const VIDEO_GENERATOR_DRAFT_STORAGE_KEY = "ai-video-generator-draft";
-
-const textToVideoCredits = 1;
-const imageToVideoCredits = 1;
-const videoToVideoCredits = 1;
+const GUEST_VIDEO_RESULT_STORAGE_PREFIX = "ai-video-generator-guest-result:";
 
 const MODEL_OPTIONS = [
   // Replicate models
@@ -365,7 +369,6 @@ export function VideoGenerator({
   const [activeTab, setActiveTab] =
     useState<VideoGeneratorTab>("image-to-video");
 
-  const [costCredits, setCostCredits] = useState<number>(textToVideoCredits);
   // Default to Volcano Engine
   const [provider, setProvider] = useState("sp");
   // Default to Volcano Engine's model for image-to-video
@@ -433,15 +436,22 @@ export function VideoGenerator({
   const [ageGroup, setAgeGroup] = useState<"young" | "middle" | "senior" | "">("");
   const [difficulty, setDifficulty] = useState<"easy" | "medium" | "hard" | "">("");
   const [selectedBodyParts, setSelectedBodyParts] = useState<string[]>([]);
+  const [availableBodyParts, setAvailableBodyParts] = useState<string[] | null>(
+    null,
+  );
+  const [bodyPartsLoaded, setBodyPartsLoaded] = useState(false);
   const TOTAL_STEPS = 5;
 
   // Get user context first (needed for wizard progress)
-  const { user, isCheckSign, setIsShowSignModal, fetchUserCredits } =
+  const { user, isCheckSign, fetchUserCredits } =
     useAppContext();
 
   const isDesktop = useMediaQuery("(min-width: 768px)");
   const pathname = usePathname();
   const router = useRouter();
+  const hasKnownSubscriptionState =
+    !user || typeof user.hasActiveSubscription === "boolean";
+  const hasActiveSubscription = Boolean(user?.hasActiveSubscription);
 
   // Helper functions for cookies
   const setCookie = (name: string, value: string, days = 30) => {
@@ -555,6 +565,61 @@ export function VideoGenerator({
   useEffect(() => {
     loadWizardProgress();
   }, [loadWizardProgress]);
+
+  useEffect(() => {
+    let cancelled = false;
+
+    const fetchBodyParts = async () => {
+      try {
+        const resp = await fetch("/api/video-library/body-parts", {
+          cache: "no-store",
+        });
+        if (!resp.ok) {
+          throw new Error(`request failed with status: ${resp.status}`);
+        }
+
+        const { code, message, data } = await resp.json();
+        if (code !== 0) {
+          throw new Error(message || "Failed to fetch body parts");
+        }
+
+        if (cancelled) {
+          return;
+        }
+
+        const names = ((data?.bodyParts || []) as SelectableBodyPart[])
+          .map((item) => item.name)
+          .filter((name): name is string => BODY_PARTS.includes(name as any));
+
+        setAvailableBodyParts(names);
+      } catch (error) {
+        console.error("[VideoGenerator] Failed to fetch body parts:", error);
+        if (!cancelled) {
+          setAvailableBodyParts([...BODY_PARTS]);
+        }
+      } finally {
+        if (!cancelled) {
+          setBodyPartsLoaded(true);
+        }
+      }
+    };
+
+    fetchBodyParts();
+
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
+  useEffect(() => {
+    if (!availableBodyParts) {
+      return;
+    }
+
+    setSelectedBodyParts((prev) =>
+      prev.filter((part) => availableBodyParts.includes(part)),
+    );
+  }, [availableBodyParts]);
 
   // Auto-save progress when state changes (for both logged in and guest users)
   useEffect(() => {
@@ -1082,32 +1147,6 @@ export function VideoGenerator({
     setSelectedVideos(new Map());
   }, []);
 
-  const remainingCredits = user?.credits?.remainingCredits ?? 0;
-
-
-  const handleTabChange = (value: string) => {
-    const tab = value as VideoGeneratorTab;
-    setActiveTab(tab);
-
-    const availableModels = MODEL_OPTIONS.filter(
-      (option) => option.scenes.includes(tab) && option.provider === provider,
-    );
-
-    if (availableModels.length > 0) {
-      setModel(availableModels[0].value);
-    } else {
-      setModel("");
-    }
-
-    if (tab === "text-to-video") {
-      setCostCredits(textToVideoCredits);
-    } else if (tab === "image-to-video") {
-      setCostCredits(imageToVideoCredits);
-    } else if (tab === "video-to-video") {
-      setCostCredits(videoToVideoCredits);
-    }
-  };
-
   const handleProviderChange = (value: string) => {
     setProvider(value);
 
@@ -1382,19 +1421,73 @@ export function VideoGenerator({
     toast.success(t("reset_success"));
   };
 
+  const jumpToRequiredStep = useCallback(
+    (step: number, message: string) => {
+      setCurrentStep(step);
+      toast.error(message);
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    },
+    [],
+  );
+
+  const validateRequiredSelections = useCallback(() => {
+    if (!voiceGender) {
+      jumpToRequiredStep(1, t("wizard.validation.gender_required"));
+      return false;
+    }
+
+    if (!ageGroup) {
+      jumpToRequiredStep(2, t("wizard.validation.age_group_required"));
+      return false;
+    }
+
+    if (!difficulty) {
+      jumpToRequiredStep(3, t("wizard.validation.difficulty_required"));
+      return false;
+    }
+
+    if (!bodyPartsLoaded) {
+      toast.error(t("wizard.validation.body_parts_loading"));
+      return false;
+    }
+
+    if (availableBodyParts && availableBodyParts.length === 0) {
+      jumpToRequiredStep(5, t("wizard.validation.no_body_parts_available"));
+      return false;
+    }
+
+    if (selectedBodyParts.length === 0) {
+      jumpToRequiredStep(5, t("wizard.validation.body_parts_required"));
+      return false;
+    }
+
+    const invalidBodyParts = selectedBodyParts.filter(
+      (part) => availableBodyParts && !availableBodyParts.includes(part),
+    );
+    if (invalidBodyParts.length > 0) {
+      jumpToRequiredStep(5, t("wizard.validation.body_parts_unavailable"));
+      return false;
+    }
+
+    return true;
+  }, [
+    ageGroup,
+    availableBodyParts,
+    bodyPartsLoaded,
+    difficulty,
+    jumpToRequiredStep,
+    selectedBodyParts,
+    t,
+    voiceGender,
+  ]);
+
   const handleGenerate = async () => {
-    // Check credits only for logged-in users
-    if (user && remainingCredits < costCredits) {
-      toast.error("Insufficient credits. Please top up to keep creating.");
+    if (!validateRequiredSelections()) {
       return;
     }
 
     // Use selectedBodyParts as the muscle group target
     const trimmedFeeling = selectedBodyParts.join(",");
-    if (!trimmedFeeling) {
-      toast.error(t("form.user_feeling_required"));
-      return;
-    }
 
     if (!provider || !model) {
       toast.error("Provider or model is not configured correctly.");
@@ -1416,9 +1509,6 @@ export function VideoGenerator({
     setTaskStatus(AITaskStatus.PENDING);
     setGeneratedVideos([]);
     setGenerationStartTime(Date.now());
-
-    // 显示排队提示
-    toast.info(t("queue_notice"), { duration: 5000 });
 
     // Scroll to progress card on mobile after a short delay
     setTimeout(() => {
@@ -1516,9 +1606,28 @@ export function VideoGenerator({
           setProgress(100);
           setTaskStatus(AITaskStatus.SUCCESS);
           setIsGenerating(false);
-          await fetchUserCredits();
-          // Redirect to results page
-          router.push(`/ai-video-generator/results?taskId=${newTaskId}`);
+          if (user) {
+            await fetchUserCredits();
+            router.push(`/ai-video-generator/results?taskId=${newTaskId}`);
+          } else {
+            if (typeof window !== "undefined") {
+              sessionStorage.setItem(
+                `${GUEST_VIDEO_RESULT_STORAGE_PREFIX}${newTaskId}`,
+                JSON.stringify({
+                  id: newTaskId,
+                  taskId: data.taskId || newTaskId,
+                  status: data.status,
+                  provider: data.provider,
+                  model: data.model,
+                  prompt: data.prompt,
+                  options: data.options,
+                  taskInfo: data.taskInfo,
+                  taskResult: data.taskResult,
+                }),
+              );
+            }
+            router.push(`/ai-video-generator/results?guestTaskId=${newTaskId}`);
+          }
           return;
         }
       }
@@ -1529,7 +1638,14 @@ export function VideoGenerator({
       await fetchUserCredits();
     } catch (error: any) {
       console.error("Failed to generate video:", error);
-      setGenerationError(error.message || "Failed to generate video");
+      if (
+        typeof error.message === "string" &&
+        error.message.startsWith("inactive_body_parts:")
+      ) {
+        setGenerationError(t("wizard.validation.body_parts_unavailable"));
+      } else {
+        setGenerationError(error.message || "Failed to generate video");
+      }
       resetTaskState();
     }
   };
@@ -1919,7 +2035,13 @@ export function VideoGenerator({
                   onChange={setSelectedBodyParts}
                   disabled={isGenerating}
                   singleSelect={true}
+                  availableParts={availableBodyParts ?? undefined}
                 />
+                {bodyPartsLoaded && availableBodyParts?.length === 0 && (
+                  <p className="mt-3 text-center text-sm text-destructive">
+                    {t("wizard.validation.no_body_parts_available")}
+                  </p>
+                )}
               </div>
 
               {/* Generate / Sign in button */}
@@ -1932,12 +2054,24 @@ export function VideoGenerator({
                   <button disabled className="w-full flex items-center justify-center px-6 py-3 rounded-xl bg-primary text-primary-foreground font-medium text-[15px] shadow-sm transition-all disabled:opacity-40">
                     <Loader2 className="mr-2 h-4 w-4 animate-spin" /> {t("checking_account")}
                   </button>
-// __STEP5_BUTTONS_CONTINUE__
+                ) : !user ? (
+                  <button
+                    type="button"
+                    onClick={handleGenerate}
+                    disabled={isGenerating}
+                    className="w-full flex items-center justify-center px-6 py-3 rounded-xl bg-primary text-primary-foreground hover:bg-primary/90 font-medium text-[15px] shadow-sm hover:shadow transition-all"
+                  >
+                    {isGenerating ? (
+                      <><Loader2 className="mr-2 h-5 w-5 animate-spin" /> {t("generating")}</>
+                    ) : (
+                      <><Sparkles className="mr-2 h-5 w-5" /> {t("generate")}</>
+                    )}
+                  </button>
                 ) : (
                   <button
                     type="button"
                     onClick={handleGenerate}
-                    disabled={isGenerating || selectedBodyParts.length === 0}
+                    disabled={isGenerating}
                     className="w-full flex items-center justify-center px-6 py-3 rounded-xl bg-primary text-primary-foreground hover:bg-primary/90 font-medium text-[15px] shadow-sm hover:shadow transition-all disabled:opacity-40"
                   >
                     {isGenerating ? (
@@ -1948,26 +2082,23 @@ export function VideoGenerator({
                   </button>
                 )}
 
-                {/* Credits info */}
-                {isMounted && user && (
-                  <div className="flex items-center justify-between text-sm text-muted-foreground">
-                    <span className="text-primary">{t("credits_cost", { credits: costCredits })}</span>
-                    <div className="flex items-center gap-2">
-                      <Link href="/pricing">
-                        <button className="text-primary hover:text-primary/80 flex h-5 w-5 items-center justify-center rounded-full border border-current transition-colors" title="Buy Credits">
-                          <Plus className="h-3 w-3" />
-                        </button>
+                {isMounted && user && hasKnownSubscriptionState && (
+                  <div className="rounded-xl border border-border bg-muted/40 px-4 py-3 text-sm text-muted-foreground">
+                    <div className="flex items-center justify-between gap-3">
+                      <span>
+                        {hasActiveSubscription
+                          ? t("subscription.active", {
+                              plan: user.currentSubscription?.planName || t("subscription.default_plan"),
+                            })
+                          : t("subscription.inactive")}
+                      </span>
+                      <Link href="/pricing" className="text-primary hover:text-primary/80">
+                        {hasActiveSubscription
+                          ? t("subscription.manage")
+                          : t("subscription.view_plans")}
                       </Link>
-                      <span>{t("credits_remaining", { credits: remainingCredits })}</span>
                     </div>
                   </div>
-                )}
-                {isMounted && user && remainingCredits <= 0 && (
-                  <Link href="/pricing" className="block">
-                    <button className="w-full flex items-center justify-center px-5 py-2.5 rounded-xl border border-border text-muted-foreground bg-background hover:bg-muted font-medium text-[15px] transition-all">
-                      <CreditCard className="mr-2 h-4 w-4" /> {t("buy_credits")}
-                    </button>
-                  </Link>
                 )}
               </div>
 

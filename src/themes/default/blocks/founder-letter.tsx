@@ -1,19 +1,11 @@
 "use client";
 
 import { LazyImage } from "@/shared/blocks/common";
-import { Button } from "@/shared/components/ui/button";
 import { ScrollAnimation } from "@/shared/components/ui/scroll-animation";
 import { useRequireAuth } from "@/shared/hooks/use-require-auth";
 import { cn } from "@/shared/lib/utils";
 import { Section } from "@/shared/types/blocks/landing";
-
-type ButtonVariant =
-  | "default"
-  | "link"
-  | "destructive"
-  | "outline"
-  | "secondary"
-  | "ghost";
+import { HomeCtaButton } from "./home-cta-button";
 
 export function FounderLetter({
   section,
@@ -51,10 +43,12 @@ export function FounderLetter({
             {/* Founder photo */}
             {founderImage && (
               <div className="flex justify-center mb-6">
-                <div className="w-20 h-20 sm:w-24 sm:h-24 rounded-full overflow-hidden border-4 border-primary/20 shadow-md">
+                <div className="relative w-20 h-20 sm:w-24 sm:h-24 rounded-full overflow-hidden border-4 border-primary/20 shadow-md">
                   <LazyImage
                     src={founderImage}
                     alt={founderName || "Founder"}
+                    fill
+                    sizes="96px"
                     className="w-full h-full object-cover"
                   />
                 </div>
@@ -80,6 +74,8 @@ export function FounderLetter({
                   <LazyImage
                     src={signatureImage}
                     alt="Signature"
+                    width={220}
+                    height={72}
                     className="h-10 sm:h-12 w-auto opacity-80"
                   />
                 )}
@@ -94,37 +90,19 @@ export function FounderLetter({
             {/* CTA Buttons */}
             {section.buttons && section.buttons.length > 0 && (
               <ScrollAnimation delay={0.4}>
-                <div className="flex flex-col sm:flex-row justify-center gap-3 sm:gap-4">
+                <div className="flex flex-col items-center sm:flex-row sm:flex-wrap sm:justify-center gap-3 sm:gap-4">
                   {section.buttons.map((button, index) => {
                     const btn = button as any;
-                    const safeVariant: ButtonVariant =
-                      btn.variant &&
-                      [
-                        "default",
-                        "link",
-                        "destructive",
-                        "outline",
-                        "secondary",
-                        "ghost",
-                      ].includes(btn.variant)
-                        ? (btn.variant as ButtonVariant)
-                        : "default";
                     return (
-                      <Button
+                      <HomeCtaButton
                         key={index}
-                        size="default"
-                        className={cn(
-                          "h-auto min-h-11 sm:min-h-12 text-sm sm:text-base px-4 sm:px-6 md:px-8 font-semibold shadow-lg hover:shadow-xl transition-all",
-                          "flex items-center justify-center gap-2 whitespace-normal break-words text-center",
-                          "w-full sm:w-auto max-w-full py-2.5 sm:py-3",
-                        )}
-                        variant={safeVariant}
+                        title={btn.title}
+                        sectionIcon="founderLetter"
                         onClick={() => navigateWithAuth(btn.url || "")}
-                      >
-                        <span className="break-words overflow-wrap-anywhere">
-                          {btn.title}
-                        </span>
-                      </Button>
+                        className={cn(
+                          "max-w-full",
+                        )}
+                      />
                     );
                   })}
                 </div>

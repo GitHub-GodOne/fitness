@@ -29,6 +29,20 @@ interface ChatMessage {
  * - Music toggles background worship music
  */
 export function FloatingWidget() {
+  const { configs, isConfigsLoaded } = useAppContext();
+
+  if (!isConfigsLoaded) {
+    return null;
+  }
+
+  if (configs.floating_widget_enabled === "false") {
+    return null;
+  }
+
+  return <FloatingWidgetContent />;
+}
+
+function FloatingWidgetContent() {
   const { user, setIsShowSignModal } = useAppContext();
   const [isExpanded, setIsExpanded] = useState(false);
   const [isChatOpen, setIsChatOpen] = useState(false);

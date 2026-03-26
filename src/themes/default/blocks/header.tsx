@@ -58,6 +58,11 @@ export function Header({
 }) {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isScrolled, setIsScrolled] = useState(false);
+  const [mobileHeaderOffset, setMobileHeaderOffset] = useState(0);
+  const headerShellRef = useRef<HTMLDivElement>(null);
+  const headerHeightRef = useRef(56);
+  const lastScrollYRef = useRef(0);
+  const scrollFrameRef = useRef<number | null>(null);
   const isLarge = useMedia("(min-width: 64rem)");
   const router = useRouter();
   const pathname = usePathname();
@@ -65,18 +70,68 @@ export function Header({
   const { navigateWithAuth } = useRequireAuth({
     callbackUrl: "/ai-video-generator",
   });
-
-  useEffect(() => {
-    // Listen to scroll event to enable header styles on scroll
-    const handleScroll = () => {
-      setIsScrolled(window.scrollY > 50);
-    };
-    window.addEventListener("scroll", handleScroll);
-    return () => window.removeEventListener("scroll", handleScroll);
-  }, []);
-
   const showMobileTabs =
     mobileNavMode === "tabs" && (header.nav?.items?.length || 0) > 0;
+
+  useEffect(() => {
+    const updateHeaderHeight = () => {
+      headerHeightRef.current = headerShellRef.current?.offsetHeight ?? 56;
+    };
+
+    updateHeaderHeight();
+    window.addEventListener("resize", updateHeaderHeight);
+
+    return () => window.removeEventListener("resize", updateHeaderHeight);
+  }, [showMobileTabs]);
+
+  useEffect(() => {
+    const handleScroll = () => {
+      if (scrollFrameRef.current !== null) return;
+
+      scrollFrameRef.current = window.requestAnimationFrame(() => {
+        const currentScrollY = window.scrollY;
+        const delta = currentScrollY - lastScrollYRef.current;
+        setIsScrolled(currentScrollY > 50);
+
+        if (window.innerWidth >= 1024 || isMobileMenuOpen) {
+          setMobileHeaderOffset(0);
+          lastScrollYRef.current = currentScrollY;
+          scrollFrameRef.current = null;
+          return;
+        }
+
+        if (currentScrollY <= 8) {
+          setMobileHeaderOffset(0);
+          lastScrollYRef.current = currentScrollY;
+          scrollFrameRef.current = null;
+          return;
+        }
+
+        setMobileHeaderOffset((prev) => {
+          const nextOffset = prev + delta;
+          return Math.max(0, Math.min(headerHeightRef.current, nextOffset));
+        });
+
+        lastScrollYRef.current = currentScrollY;
+        scrollFrameRef.current = null;
+      });
+    };
+
+    handleScroll();
+    window.addEventListener("scroll", handleScroll);
+    return () => {
+      window.removeEventListener("scroll", handleScroll);
+      if (scrollFrameRef.current !== null) {
+        window.cancelAnimationFrame(scrollFrameRef.current);
+      }
+    };
+  }, [isMobileMenuOpen]);
+
+  useEffect(() => {
+    if (isLarge || isMobileMenuOpen) {
+      setMobileHeaderOffset(0);
+    }
+  }, [isLarge, isMobileMenuOpen]);
 
   useEffect(() => {
     if (showMobileTabs && isMobileMenuOpen) {
@@ -255,18 +310,22 @@ export function Header({
       <header
         data-state={isMobileMenuOpen ? "active" : "inactive"}
         {...(isScrolled && { "data-scrolled": true })}
-        className="has-data-[state=open]:bg-background fixed inset-x-0 top-0 z-50 has-data-[state=open]:h-screen"
+        className="fixed inset-x-0 top-0 z-50 data-[state=active]:bg-background data-[state=active]:h-screen"
       >
         <div
+          ref={headerShellRef}
           className={cn(
-            "absolute inset-x-0 top-0 z-50 bg-background border-b border-border ring-1 ring-transparent transition-all duration-300",
-            "has-data-[state=open]:ring-foreground/5 has-data-[state=open]:bg-card has-data-[state=open]:h-[calc(var(--navigation-menu-viewport-height)+3.4rem)] has-data-[state=open]:shadow-lg has-data-[state=open]:shadow-black/10",
+            "absolute inset-x-0 top-0 z-50 bg-background border-b border-border ring-1 ring-transparent will-change-transform transition-[background-color,box-shadow,border-color,height] duration-300",
+            "lg:has-data-[state=open]:ring-foreground/5 lg:has-data-[state=open]:bg-card lg:has-data-[state=open]:h-[calc(var(--navigation-menu-viewport-height)+3.4rem)] lg:has-data-[state=open]:shadow-lg lg:has-data-[state=open]:shadow-black/10",
             "h-18",
             showMobileTabs
               ? "max-lg:h-24 max-lg:in-data-[state=active]:h-24"
               : "max-lg:h-14 max-lg:overflow-hidden max-lg:in-data-[state=active]:h-screen",
             "max-lg:in-data-[state=active]:bg-background",
           )}
+          style={{
+            transform: `translateY(-${isLarge || isMobileMenuOpen ? 0 : mobileHeaderOffset}px)`,
+          }}
         >
           <div className="container px-4 sm:px-6 md:px-8">
             <div className="relative flex items-center justify-between h-14 lg:h-18">
@@ -311,7 +370,10 @@ export function Header({
                       ),
                     )}
                   {header.show_sign ? (
-                    <SignUser userNav={header.user_nav} />
+                    <SignUser
+                      userNav={header.user_nav}
+                      showNotification={false}
+                    />
                   ) : null}
                 </div>
 
@@ -325,17 +387,20 @@ export function Header({
                       key={`mobile-cta-${idx}`}
                       type="button"
                       size="icon-sm"
-                      className="h-8 w-8 rounded-full bg-primary text-primary-foreground shadow-sm hover:bg-primary/90"
+                      className="h-7 w-7 rounded-full bg-primary p-0 text-primary-foreground shadow-sm hover:bg-primary/90 sm:h-8 sm:w-8"
                       aria-label={button.title}
                       title={button.title}
                       onClick={() => navigateWithAuth(button.url || "")}
                     >
-                      <Sparkles className="size-4" />
+                      <Sparkles className="size-3.5 sm:size-4" />
                     </Button>
                   ))}
                   {header.show_sign ? (
                     <div className="flex-shrink-0">
-                      <SignUser userNav={header.user_nav} />
+                      <SignUser
+                        userNav={header.user_nav}
+                        showNotification={false}
+                      />
                     </div>
                   ) : null}
                 </div>
@@ -347,10 +412,10 @@ export function Header({
                     aria-label={
                       isMobileMenuOpen == true ? "Close Menu" : "Open Menu"
                     }
-                    className="relative z-20 -m-2.5 block cursor-pointer p-2.5 lg:hidden"
+                    className="relative z-20 -m-2 block cursor-pointer p-2 lg:hidden sm:-m-2.5 sm:p-2.5"
                   >
-                    <Menu className="m-auto size-5 duration-200 in-data-[state=active]:scale-0 in-data-[state=active]:rotate-180 in-data-[state=active]:opacity-0" />
-                    <X className="absolute inset-0 m-auto size-5 scale-0 -rotate-180 opacity-0 duration-200 in-data-[state=active]:scale-100 in-data-[state=active]:rotate-0 in-data-[state=active]:opacity-100" />
+                    <Menu className="m-auto size-4.5 duration-200 in-data-[state=active]:scale-0 in-data-[state=active]:rotate-180 in-data-[state=active]:opacity-0 sm:size-5" />
+                    <X className="absolute inset-0 m-auto size-4.5 scale-0 -rotate-180 opacity-0 duration-200 in-data-[state=active]:scale-100 in-data-[state=active]:rotate-0 in-data-[state=active]:opacity-100 sm:size-5" />
                   </button>
                 ) : null}
               </div>

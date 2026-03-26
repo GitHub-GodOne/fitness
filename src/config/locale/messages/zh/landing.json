@@ -105,7 +105,7 @@
           "children": [
             {
               "title": "联系支持",
-              "url": "mailto:support@your-domain.com",
+              "url": "feedback://support",
               "target": "_self"
             },
             {
@@ -159,7 +159,7 @@
         {
           "title": "邮箱",
           "icon": "Mail",
-          "url": "mailto:support@your-domain.com",
+          "url": "feedback://support",
           "target": "_self"
         }
       ]

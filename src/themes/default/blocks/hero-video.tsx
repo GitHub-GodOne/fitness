@@ -1,11 +1,14 @@
 "use client";
 
+import Image from "next/image";
 import { useState, useRef, useEffect } from "react";
 import { Play } from "lucide-react";
 import { Button } from "@/shared/components/ui/button";
 import { SmartIcon } from "@/shared/blocks/common";
 import { cn } from "@/shared/lib/utils";
 import { Section } from "@/shared/types/blocks/landing";
+
+import { SectionCtaIcon } from "./section-cta-icon";
 
 interface HeroVideoButton {
   title: string;
@@ -187,7 +190,7 @@ export function HeroVideo({
 
             {/* CTA Buttons */}
             {section.buttons && section.buttons.length > 0 && (
-              <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 justify-center pt-2 sm:pt-4 px-4 sm:px-0">
+              <div className="flex flex-col items-center sm:flex-row sm:flex-wrap sm:justify-center gap-3 sm:gap-4 justify-center pt-2 sm:pt-4 px-4 sm:px-0">
                 {section.buttons.map((button, index) => (
                   <Button
                     key={index}
@@ -198,7 +201,7 @@ export function HeroVideo({
                     className={cn(
                       "h-auto min-h-11 text-sm font-semibold shadow-lg hover:shadow-xl transition-all sm:h-12 sm:text-base md:h-14 md:text-lg sm:px-6 md:px-8 py-2.5 sm:py-3",
                       "flex items-center justify-center gap-2 whitespace-normal break-words text-center",
-                      "w-full sm:w-auto max-w-full",
+                      "w-fit max-w-full self-center",
                       button.variant === "default" &&
                         "bg-primary hover:bg-primary/90 text-primary-foreground border-0",
                     )}
@@ -206,8 +209,12 @@ export function HeroVideo({
                     <a
                       href={button.url}
                       target={button.target || "_self"}
-                      className="flex items-center justify-center gap-2 w-full sm:w-auto"
+                      className="flex w-fit max-w-full items-center justify-center gap-2"
                     >
+                      <SectionCtaIcon
+                        section="heroVideo"
+                        className="h-4 w-4 shrink-0 sm:h-5 sm:w-5"
+                      />
                       {button.icon && (
                         <SmartIcon
                           name={button.icon}
@@ -242,10 +249,12 @@ export function HeroVideo({
                           key={index}
                           className="relative w-10 h-10 sm:w-12 sm:h-12 lg:w-14 lg:h-14 rounded-full border-3 border-background overflow-hidden bg-primary/10"
                         >
-                          <img
+                          <Image
                             src={avatar.src}
                             alt={avatar.alt}
-                            className="w-full h-full object-cover"
+                            fill
+                            sizes="(min-width: 1024px) 56px, (min-width: 640px) 48px, 40px"
+                            className="object-cover"
                           />
                         </div>
                       ))}

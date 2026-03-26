@@ -24,16 +24,14 @@ export function Faq({
       className={`py-8 sm:py-10 md:py-12 lg:py-16 ${className}`}
     >
       <div className={`mx-auto max-w-full px-4 sm:px-6 md:max-w-3xl md:px-8`}>
-        <ScrollAnimation>
-          <div className="mx-auto max-w-2xl text-center text-balance">
-            <h2 className="text-foreground mb-3 text-2xl font-semibold tracking-tight sm:text-3xl md:text-4xl">
-              {section.title}
-            </h2>
-            <p className="text-muted-foreground text-sm sm:text-base mb-6 md:mb-10 lg:mb-12">
-              {section.description}
-            </p>
-          </div>
-        </ScrollAnimation>
+        <div className="mx-auto max-w-2xl text-center text-balance">
+          <h2 className="text-foreground mb-3 text-2xl font-semibold tracking-tight sm:text-3xl md:text-4xl">
+            {section.title}
+          </h2>
+          <p className="text-muted-foreground text-sm sm:text-base mb-6 md:mb-10 lg:mb-12">
+            {section.description}
+          </p>
+        </div>
 
         <ScrollAnimation delay={0.2}>
           <div className="mx-auto mt-8 sm:mt-10 md:mt-12 max-w-full">

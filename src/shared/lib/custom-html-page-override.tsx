@@ -1,8 +1,8 @@
 import type { Metadata } from "next";
 
-import { envConfigs } from "@/config";
 import { defaultLocale } from "@/config/locale";
 import { CustomHtmlRenderer } from "@/shared/blocks/common/custom-html-renderer";
+import { buildAbsoluteSiteUrl } from "@/shared/lib/site-url";
 import { getCustomHtmlPageBySlug } from "@/shared/models/custom-html-page";
 
 export async function renderCustomHtmlPageOverride({
@@ -39,9 +39,11 @@ export async function getCustomHtmlPageOverrideMetadata({
   const normalizedCanonicalPath = canonicalPath || (slug ? `/${slug}` : "/");
   const canonical = normalizedCanonicalPath.startsWith("http")
     ? normalizedCanonicalPath
-    : `${envConfigs.app_url}${
-        locale === defaultLocale ? "" : `/${locale}`
-      }${normalizedCanonicalPath === "/" ? "" : normalizedCanonicalPath}`;
+    : buildAbsoluteSiteUrl(
+        `${locale === defaultLocale ? "" : `/${locale}`}${
+          normalizedCanonicalPath === "/" ? "" : normalizedCanonicalPath
+        }` || "/"
+      );
 
   return {
     title: page.title || undefined,

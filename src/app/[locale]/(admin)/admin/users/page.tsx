@@ -127,6 +127,12 @@ export default async function AdminUsersPage({
             icon: 'Coins',
             url: `/admin/users/${item.id}/grant-credits`,
           },
+          {
+            name: 'grant-subscription',
+            title: t('list.buttons.grant_subscription'),
+            icon: 'BadgeCheck',
+            url: `/admin/users/${item.id}/grant-subscription`,
+          },
         ],
       },
     ],

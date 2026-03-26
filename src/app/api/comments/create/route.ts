@@ -33,6 +33,7 @@ export async function POST(req: NextRequest) {
 
         const {
             content,
+            pageId,
             userName,
             userEmail,
             referencedTaskId,
@@ -123,6 +124,7 @@ export async function POST(req: NextRequest) {
                 userEmail: finalUserEmail,
                 userAvatar: finalUserAvatar,
                 content: content.trim(),
+                pageId: pageId?.trim() || null,
                 referencedTaskId: referencedTaskId || null,
                 referencedTaskType: taskType,
                 referencedTaskUrl: taskUrl,

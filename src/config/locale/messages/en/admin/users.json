@@ -25,7 +25,8 @@
       "view": "View User",
       "delete": "Delete User",
       "edit_roles": "Edit Roles",
-      "grant_credits": "Grant Credits"
+      "grant_credits": "Grant Credits",
+      "grant_subscription": "Grant Subscription"
     },
     "search": {
       "email": {
@@ -72,6 +73,33 @@
       "valid_days_tip": "0 means no expiration",
       "description": "Credits Grant Description",
       "description_placeholder": "Admin grant credits"
+    }
+  },
+  "grant_subscription": {
+    "title": "Grant Subscription",
+    "crumbs": {
+      "admin": "Admin",
+      "users": "Users",
+      "grant_subscription": "Grant Subscription"
+    },
+    "buttons": {
+      "submit": "Grant"
+    },
+    "options": {
+      "starter": "Starter Subscription",
+      "pro": "Pro Subscription",
+      "month": "Monthly",
+      "year": "Yearly"
+    },
+    "fields": {
+      "access_tier": "Subscription Tier",
+      "interval": "Billing Interval",
+      "interval_count": "Interval Count",
+      "amount": "Amount",
+      "amount_tip": "Optional record amount in the smallest currency unit, 0 means free admin grant.",
+      "currency": "Currency",
+      "description": "Subscription Description",
+      "description_placeholder": "Admin granted subscription"
     }
   }
 }

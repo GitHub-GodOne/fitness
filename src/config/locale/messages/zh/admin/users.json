@@ -25,7 +25,8 @@
       "view": "查看用户",
       "delete": "删除用户",
       "edit_roles": "编辑角色",
-      "grant_credits": "授予积分"
+      "grant_credits": "授予积分",
+      "grant_subscription": "授予订阅"
     },
     "search": {
       "email": {
@@ -72,6 +73,33 @@
       "valid_days_tip": "0 表示永久有效",
       "description": "积分授予描述",
       "description_placeholder": "管理员授予积分"
+    }
+  },
+  "grant_subscription": {
+    "title": "授予订阅",
+    "crumbs": {
+      "admin": "管理后台",
+      "users": "用户",
+      "grant_subscription": "授予订阅"
+    },
+    "buttons": {
+      "submit": "授予"
+    },
+    "options": {
+      "starter": "Starter 订阅",
+      "pro": "Pro 订阅",
+      "month": "按月",
+      "year": "按年"
+    },
+    "fields": {
+      "access_tier": "订阅层级",
+      "interval": "订阅周期",
+      "interval_count": "周期数量",
+      "amount": "金额",
+      "amount_tip": "可选，仅用于记录订阅金额，单位为最小货币单位；填 0 表示后台免费授予。",
+      "currency": "币种",
+      "description": "订阅描述",
+      "description_placeholder": "管理员授予订阅"
     }
   }
 }

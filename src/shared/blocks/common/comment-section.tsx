@@ -43,7 +43,13 @@ export function CommentSection({ className, pageId }: CommentSectionProps) {
 
   useEffect(() => {
     loadComments();
-  }, [page, sortBy]);
+  }, [page, sortBy, pageId]);
+
+  useEffect(() => {
+    setPage(1);
+    setComments([]);
+    setHasMore(true);
+  }, [pageId]);
 
   // Scroll to and highlight comment when highlight parameter is present
   useEffect(() => {
@@ -69,6 +75,9 @@ export function CommentSection({ className, pageId }: CommentSectionProps) {
         limit: "20",
         sort: sortBy,
       });
+      if (pageId) {
+        params.set("pageId", pageId);
+      }
 
       const response = await fetch(`/api/comments/list?${params}`);
       if (!response.ok) throw new Error("Failed to load comments");
@@ -140,7 +149,7 @@ export function CommentSection({ className, pageId }: CommentSectionProps) {
       </div>
 
       {/* Comment Input */}
-      <CommentInput onCommentAdded={handleCommentAdded} />
+      <CommentInput onCommentAdded={handleCommentAdded} pageId={pageId} />
 
       {/* Comments List */}
       <div className="space-y-4">
