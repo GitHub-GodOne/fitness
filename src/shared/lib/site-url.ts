@@ -2,9 +2,27 @@ import type { NextRequest } from 'next/server';
 
 const DEFAULT_APP_URL = 'http://localhost:3000';
 
+function normalizePublicAppUrl(url: URL) {
+  if (
+    url.port === '3000' &&
+    url.hostname !== 'localhost' &&
+    url.hostname !== '127.0.0.1'
+  ) {
+    url.port = '';
+  }
+
+  return url;
+}
+
 function getConfiguredAppUrl() {
   const configured = process.env.NEXT_PUBLIC_APP_URL?.trim();
-  return (configured || DEFAULT_APP_URL).replace(/\/$/, '');
+
+  try {
+    const url = new URL((configured || DEFAULT_APP_URL).replace(/\/$/, ''));
+    return normalizePublicAppUrl(url).toString().replace(/\/$/, '');
+  } catch {
+    return (configured || DEFAULT_APP_URL).replace(/\/$/, '');
+  }
 }
 
 export function getCanonicalSiteOrigin() {

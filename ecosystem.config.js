@@ -1,3 +1,6 @@
+require("dotenv").config({ path: ".env.production" });
+require("dotenv").config({ path: ".env", override: false });
+
 module.exports = {
   apps: [
     {
@@ -11,6 +14,9 @@ module.exports = {
       env: {
         PORT: 3000,
         NODE_ENV: "production",
+        NEXT_PUBLIC_APP_URL: process.env.NEXT_PUBLIC_APP_URL,
+        AUTH_URL: process.env.AUTH_URL,
+        AUTH_COOKIE_DOMAIN: process.env.AUTH_COOKIE_DOMAIN,
       },
       // 增加监听就绪，防止 reload 过程中新老进程打架
       wait_ready: true,
