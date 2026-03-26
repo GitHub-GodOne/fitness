@@ -3,11 +3,21 @@ import { getSessionCookie } from 'better-auth/cookies';
 import createIntlMiddleware from 'next-intl/middleware';
 
 import { routing } from '@/core/i18n/config';
+import { getCanonicalHostRedirectUrl } from '@/shared/lib/site-url';
 
 const intlMiddleware = createIntlMiddleware(routing);
 
 export async function proxy(request: NextRequest) {
   const { pathname } = request.nextUrl;
+  const canonicalHostRedirectUrl =
+    request.method === 'GET' || request.method === 'HEAD'
+      ? getCanonicalHostRedirectUrl(request.url)
+      : null;
+
+  if (canonicalHostRedirectUrl) {
+    return NextResponse.redirect(canonicalHostRedirectUrl, 301);
+  }
+
   const isRscRequest =
     request.nextUrl.searchParams.has('_rsc') ||
     request.headers.has('rsc') ||

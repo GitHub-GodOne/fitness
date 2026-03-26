@@ -1,8 +1,8 @@
 import { getTranslations, setRequestLocale } from 'next-intl/server';
-import { headers } from 'next/headers';
 
 import { envConfigs } from '@/config';
 import { defaultLocale, locales } from '@/config/locale';
+import { buildAbsoluteSiteUrl } from '@/shared/lib/site-url';
 
 export function buildSeoTitle(title?: string, appName?: string) {
   const baseTitle = String(title || '').trim();
@@ -63,30 +63,8 @@ function toAppRelativePath(canonicalUrl: string) {
   }
 }
 
-async function getRequestOrigin() {
-  const fallbackOrigin = envConfigs.app_url.replace(/\/$/, '');
-
-  try {
-    const requestHeaders = await headers();
-    const forwardedHost =
-      requestHeaders.get('x-forwarded-host') || requestHeaders.get('host');
-    const forwardedProto =
-      requestHeaders.get('x-forwarded-proto') ||
-      (forwardedHost?.includes('localhost') ? 'http' : 'https');
-
-    if (!forwardedHost) {
-      return fallbackOrigin;
-    }
-
-    return `${forwardedProto}://${forwardedHost}`.replace(/\/$/, '');
-  } catch {
-    return fallbackOrigin;
-  }
-}
-
 export async function buildCanonicalUrl(canonicalUrl: string, locale: string) {
   let resolvedCanonicalUrl = canonicalUrl || '/';
-  const requestOrigin = await getRequestOrigin();
 
   if (resolvedCanonicalUrl.startsWith('http')) {
     try {
@@ -95,10 +73,10 @@ export async function buildCanonicalUrl(canonicalUrl: string, locale: string) {
       const localePrefix = !locale || locale === defaultLocale ? '' : `/${locale}`;
 
       if (normalizedPath === '/') {
-        return `${requestOrigin}${localePrefix || ''}`;
+        return buildAbsoluteSiteUrl(localePrefix || '/');
       }
 
-      return `${requestOrigin}${localePrefix}${normalizedPath}`;
+      return buildAbsoluteSiteUrl(`${localePrefix}${normalizedPath}`);
     } catch {
       return resolvedCanonicalUrl;
     }
@@ -112,10 +90,10 @@ export async function buildCanonicalUrl(canonicalUrl: string, locale: string) {
   const localePrefix = !locale || locale === defaultLocale ? '' : `/${locale}`;
 
   if (normalizedPath === '/') {
-    return `${requestOrigin}${localePrefix || ''}`;
+    return buildAbsoluteSiteUrl(localePrefix || '/');
   }
 
-  return `${requestOrigin}${localePrefix}${normalizedPath}`;
+  return buildAbsoluteSiteUrl(`${localePrefix}${normalizedPath}`);
 }
 
 export async function getLocaleAlternates(canonicalUrl: string, locale: string) {
