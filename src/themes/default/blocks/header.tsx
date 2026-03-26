@@ -167,7 +167,7 @@ export function Header({
               >
                 {item.children && item.children.length > 0 ? (
                   <>
-                    <AccordionTrigger className="data-[state=open]:bg-muted flex items-center justify-between px-4 py-3 text-lg **:!font-normal">
+                    <AccordionTrigger className="data-[state=open]:bg-muted flex items-center justify-between px-4 py-3 text-base sm:text-lg **:!font-normal">
                       {item.title}
                     </AccordionTrigger>
                     <AccordionContent className="pb-5">
@@ -187,7 +187,9 @@ export function Header({
                                   <SmartIcon name={subItem.icon as string} />
                                 )}
                               </div>
-                              <div className="text-base">{subItem.title}</div>
+                              <div className="text-sm sm:text-base">
+                                {subItem.title}
+                              </div>
                             </Link>
                           </li>
                         ))}
@@ -198,7 +200,7 @@ export function Header({
                   <Link
                     href={item.url || ""}
                     onClick={closeMenu}
-                    className="data-[state=open]:bg-foreground/10 flex items-center justify-between px-4 py-3 text-lg text-foreground hover:text-primary transition-colors **:!font-normal"
+                    className="data-[state=open]:bg-foreground/10 flex items-center justify-between px-4 py-3 text-base text-foreground transition-colors hover:text-primary sm:text-lg **:!font-normal"
                   >
                     {item.title}
                   </Link>
@@ -370,7 +372,7 @@ export function Header({
                             href={item.url || ""}
                             target={item.target || "_self"}
                             className={cn(
-                              "inline-flex h-8 shrink-0 items-center whitespace-nowrap px-0.5 text-sm transition-colors",
+                              "inline-flex h-8 shrink-0 items-center whitespace-nowrap px-0.5 text-xs transition-colors sm:text-sm",
                               isActive
                                 ? "font-medium text-foreground"
                                 : "text-muted-foreground",
