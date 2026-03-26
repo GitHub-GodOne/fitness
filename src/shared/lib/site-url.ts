@@ -1,3 +1,5 @@
+import type { NextRequest } from 'next/server';
+
 const DEFAULT_APP_URL = 'http://localhost:3000';
 
 function getConfiguredAppUrl() {
@@ -26,13 +28,35 @@ export function buildAbsoluteSiteUrl(pathname: string) {
   return `${origin}${normalizedPath}`;
 }
 
-export function getCanonicalHostRedirectUrl(requestUrl: string) {
+function getFirstHeaderValue(value: string | null) {
+  return value?.split(',')[0]?.trim() || null;
+}
+
+function getEffectiveRequestOrigin(request: NextRequest) {
+  const forwardedHost = getFirstHeaderValue(
+    request.headers.get('x-forwarded-host')
+  );
+  const forwardedProto = getFirstHeaderValue(
+    request.headers.get('x-forwarded-proto')
+  );
+  const host = forwardedHost || request.headers.get('host') || request.nextUrl.host;
+  const protocol =
+    forwardedProto ||
+    (host?.includes('localhost')
+      ? 'http'
+      : request.nextUrl.protocol.replace(/:$/, '') || 'https');
+
+  return { host, protocol };
+}
+
+export function getCanonicalHostRedirectUrl(request: NextRequest) {
   try {
     const canonicalUrl = new URL(getConfiguredAppUrl());
-    const incomingUrl = new URL(requestUrl);
+    const incomingUrl = request.nextUrl.clone();
+    const effectiveOrigin = getEffectiveRequestOrigin(request);
 
     const canonicalHostname = canonicalUrl.hostname;
-    const incomingHostname = incomingUrl.hostname;
+    const incomingHostname = effectiveOrigin.host.split(':')[0];
     const canonicalApexHostname = canonicalHostname.startsWith('www.')
       ? canonicalHostname.slice(4)
       : canonicalHostname;
@@ -45,7 +69,11 @@ export function getCanonicalHostRedirectUrl(requestUrl: string) {
     }
 
     if (canonicalHostname === incomingHostname) {
-      return null;
+      const canonicalProtocol = canonicalUrl.protocol.replace(/:$/, '');
+
+      if (effectiveOrigin.protocol === canonicalProtocol) {
+        return null;
+      }
     }
 
     incomingUrl.protocol = canonicalUrl.protocol;

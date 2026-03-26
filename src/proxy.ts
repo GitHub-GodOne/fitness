@@ -11,7 +11,7 @@ export async function proxy(request: NextRequest) {
   const { pathname } = request.nextUrl;
   const canonicalHostRedirectUrl =
     request.method === 'GET' || request.method === 'HEAD'
-      ? getCanonicalHostRedirectUrl(request.url)
+      ? getCanonicalHostRedirectUrl(request)
       : null;
 
   if (canonicalHostRedirectUrl) {
