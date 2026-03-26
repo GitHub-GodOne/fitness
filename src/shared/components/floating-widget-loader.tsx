@@ -26,8 +26,8 @@ export function FloatingWidgetLoader() {
       return () => window.cancelIdleCallback(idleId);
     }
 
-    const timeoutId = window.setTimeout(onIdle, 1500);
-    return () => window.clearTimeout(timeoutId);
+    const timeoutId = setTimeout(onIdle, 1500);
+    return () => clearTimeout(timeoutId);
   }, []);
 
   if (!shouldRender) {
