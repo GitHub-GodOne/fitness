@@ -1,7 +1,11 @@
 {
   "fields": {
     "title": "标题",
+    "homepageFeatured": "首页主视频",
+    "homepageFeaturedSwitch": "设为首页主视频",
+    "watchUrl": "播放页 URL",
     "category": "分类",
+    "noCategory": "不挂分类",
     "user": "用户",
     "status": "状态",
     "featured": "推荐位",
@@ -26,6 +30,10 @@
     "featured": "推荐",
     "normal": "普通"
   },
+  "homepageOptions": {
+    "enabled": "首页主视频",
+    "disabled": "-"
+  },
   "list": {
     "title": "案例视频审核",
     "crumbs": {
@@ -34,7 +42,9 @@
     },
     "buttons": {
       "add": "新增案例视频",
-      "edit": "审核 / 编辑"
+      "edit": "审核 / 编辑",
+      "view": "打开播放页",
+      "delete": "删除"
     },
     "tabs": {
       "all": "全部",
@@ -84,6 +94,24 @@
     "messages": {
       "notFound": "案例视频不存在",
       "success": "案例视频已更新"
+    }
+  },
+  "delete": {
+    "title": "删除案例视频",
+    "description": "删除这条案例视频，并同步移除 sitemap 中对应的播放页 URL。",
+    "crumbs": {
+      "admin": "后台",
+      "videos": "案例视频",
+      "delete": "删除"
+    },
+    "buttons": {
+      "confirm": "确认删除",
+      "cancel": "取消"
+    },
+    "messages": {
+      "notFound": "案例视频不存在",
+      "confirm": "此操作会永久删除这条案例视频。",
+      "sitemap": "对应的播放页 URL 也会从 sitemap.xml 和 video sitemap 生成结果中移除。"
     }
   }
 }

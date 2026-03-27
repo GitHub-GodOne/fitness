@@ -2,6 +2,7 @@ import { and, count, desc, eq, inArray } from 'drizzle-orm';
 
 import { db } from '@/core/db';
 import { taxonomy } from '@/config/db/schema';
+import { syncShowcaseCategorySitemapEntry } from '@/shared/lib/showcase-category-sitemap';
 
 export type Taxonomy = typeof taxonomy.$inferSelect;
 export type NewTaxonomy = typeof taxonomy.$inferInsert;
@@ -23,15 +24,25 @@ export enum TaxonomyStatus {
 export async function addTaxonomy(data: NewTaxonomy) {
   const [result] = await db().insert(taxonomy).values(data).returning();
 
+  await syncShowcaseCategorySitemapEntry({
+    nextCategory: result,
+  });
+
   return result;
 }
 
 export async function updateTaxonomy(id: string, data: UpdateTaxonomy) {
+  const previousTaxonomy = await findTaxonomy({ id });
   const [result] = await db()
     .update(taxonomy)
     .set(data)
     .where(eq(taxonomy.id, id))
     .returning();
+
+  await syncShowcaseCategorySitemapEntry({
+    previousCategory: previousTaxonomy,
+    nextCategory: result,
+  });
 
   return result;
 }

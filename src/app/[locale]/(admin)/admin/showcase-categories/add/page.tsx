@@ -4,7 +4,6 @@ import { PERMISSIONS, requirePermission } from '@/core/rbac';
 import { Header, Main, MainHeader } from '@/shared/blocks/dashboard';
 import { FormCard } from '@/shared/blocks/form';
 import { getUuid } from '@/shared/lib/hash';
-import { addUrlToSitemap } from '@/shared/lib/sitemap-updater';
 import {
   addTaxonomy,
   TaxonomyStatus,
@@ -172,8 +171,6 @@ export default async function ShowcaseCategoryAddPage({
             message: 'Failed to add showcase category',
           } as const;
         }
-
-        await addUrlToSitemap(`/showcases/${slug}`);
 
         return {
           status: 'success',

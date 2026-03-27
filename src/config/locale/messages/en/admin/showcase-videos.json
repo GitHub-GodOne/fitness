@@ -1,7 +1,11 @@
 {
   "fields": {
     "title": "Title",
+    "homepageFeatured": "Homepage Main Video",
+    "homepageFeaturedSwitch": "Set as homepage main video",
+    "watchUrl": "Watch URL",
     "category": "Category",
+    "noCategory": "No category",
     "user": "User",
     "status": "Status",
     "featured": "Featured",
@@ -26,6 +30,10 @@
     "featured": "Featured",
     "normal": "Normal"
   },
+  "homepageOptions": {
+    "enabled": "Homepage",
+    "disabled": "-"
+  },
   "list": {
     "title": "Showcase Video Review",
     "crumbs": {
@@ -34,7 +42,9 @@
     },
     "buttons": {
       "add": "Add Video Review",
-      "edit": "Review / Edit"
+      "edit": "Review / Edit",
+      "view": "Open Watch Page",
+      "delete": "Delete"
     },
     "tabs": {
       "all": "All",
@@ -84,6 +94,24 @@
     "messages": {
       "notFound": "Showcase video not found",
       "success": "Showcase video updated"
+    }
+  },
+  "delete": {
+    "title": "Delete Showcase Video",
+    "description": "Delete this showcase video and remove its watch URL from the sitemap.",
+    "crumbs": {
+      "admin": "Admin",
+      "videos": "Showcase Videos",
+      "delete": "Delete"
+    },
+    "buttons": {
+      "confirm": "Delete Video",
+      "cancel": "Cancel"
+    },
+    "messages": {
+      "notFound": "Showcase video not found",
+      "confirm": "This action will permanently delete the showcase video.",
+      "sitemap": "The corresponding watch page URL will also be removed from sitemap.xml and video sitemap generation."
     }
   }
 }

@@ -1,8 +1,12 @@
 import { getTranslations, setRequestLocale } from 'next-intl/server';
 
+import { Link } from '@/core/i18n/navigation';
 import { PERMISSIONS, requirePermission } from '@/core/rbac';
+import { defaultLocale } from '@/config/locale';
 import { Header, Main, MainHeader } from '@/shared/blocks/dashboard';
+import { getShowcaseVideoWatchPath } from '@/shared/lib/showcase-video-url';
 import { TableCard } from '@/shared/blocks/table';
+import { getConfigs } from '@/shared/models/config';
 import {
   getShowcaseVideos,
   getShowcaseVideosCount,
@@ -30,6 +34,7 @@ export default async function ShowcaseVideosPage({
   });
 
   const t = await getTranslations('admin.showcase-videos');
+  const configs = await getConfigs();
 
   const { page: pageNum, pageSize, status } = await searchParams;
   const page = pageNum || 1;
@@ -86,6 +91,14 @@ export default async function ShowcaseVideosPage({
   const categoryMap = new Map(categories.map((item) => [item.id, item.title]));
   const data = videos.map((video: ShowcaseVideo) => ({
     ...video,
+    watchPath:
+      locale === defaultLocale
+        ? getShowcaseVideoWatchPath({ video })
+        : `/${locale}${getShowcaseVideoWatchPath({ video })}`,
+    homepageFeaturedLabel:
+      configs.homepage_showcase_video_id === video.id
+        ? t('homepageOptions.enabled')
+        : t('homepageOptions.disabled'),
     categoryTitle: video.categoryId ? categoryMap.get(video.categoryId) || '-' : '-',
     featuredLabel: video.featured ? t('featuredOptions.featured') : t('featuredOptions.normal'),
   }));
@@ -93,6 +106,25 @@ export default async function ShowcaseVideosPage({
   const table: Table = {
     columns: [
       { name: 'title', title: t('fields.title') },
+      {
+        name: 'homepageFeaturedLabel',
+        title: t('fields.homepageFeatured'),
+        type: 'label',
+      },
+      {
+        name: 'watchPath',
+        title: t('fields.watchUrl'),
+        className: 'max-w-[320px]',
+        callback: (item: ShowcaseVideo & { watchPath: string }) => (
+          <Link
+            href={item.watchPath}
+            target="_blank"
+            className="block truncate text-sm text-primary underline-offset-4 hover:underline"
+          >
+            {item.watchPath}
+          </Link>
+        ),
+      },
       { name: 'categoryTitle', title: t('fields.category') },
       { name: 'user', title: t('fields.user'), type: 'user' },
       { name: 'status', title: t('fields.status'), type: 'label' },
@@ -107,6 +139,19 @@ export default async function ShowcaseVideosPage({
             title: t('list.buttons.edit'),
             icon: 'RiEditLine',
             url: `/admin/showcase-videos/${item.id}/edit`,
+          },
+          {
+            title: t('list.buttons.view'),
+            icon: 'RiExternalLinkLine',
+            url:
+              locale === defaultLocale
+                ? getShowcaseVideoWatchPath({ video: item })
+                : `/${locale}${getShowcaseVideoWatchPath({ video: item })}`,
+          },
+          {
+            title: t('list.buttons.delete'),
+            icon: 'RiDeleteBinLine',
+            url: `/admin/showcase-videos/${item.id}/delete`,
           },
         ],
       },

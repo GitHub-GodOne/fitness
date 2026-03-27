@@ -36,6 +36,15 @@ export async function updateShowcaseVideo(id: string, data: UpdateShowcaseVideo)
   return result;
 }
 
+export async function deleteShowcaseVideoById(id: string) {
+  const [result] = await db()
+    .delete(showcaseVideo)
+    .where(eq(showcaseVideo.id, id))
+    .returning();
+
+  return result ?? null;
+}
+
 export async function findShowcaseVideoById(id: string) {
   const [result] = await db()
     .select()
@@ -58,6 +67,46 @@ export async function findPublishedShowcaseVideoByWatchSlug(watchSlug: string) {
     .where(
       and(
         eq(showcaseVideo.id, id),
+        eq(showcaseVideo.status, ShowcaseVideoStatus.PUBLISHED)
+      )
+    )
+    .limit(1);
+
+  return result ?? null;
+}
+
+export async function findPublishedShowcaseVideoByVideoUrl(videoUrl: string) {
+  const normalizedVideoUrl = videoUrl.trim();
+  if (!normalizedVideoUrl) {
+    return null;
+  }
+
+  const [result] = await db()
+    .select()
+    .from(showcaseVideo)
+    .where(
+      and(
+        eq(showcaseVideo.videoUrl, normalizedVideoUrl),
+        eq(showcaseVideo.status, ShowcaseVideoStatus.PUBLISHED)
+      )
+    )
+    .limit(1);
+
+  return result ?? null;
+}
+
+export async function findPublishedShowcaseVideoById(id: string) {
+  const normalizedId = id.trim();
+  if (!normalizedId) {
+    return null;
+  }
+
+  const [result] = await db()
+    .select()
+    .from(showcaseVideo)
+    .where(
+      and(
+        eq(showcaseVideo.id, normalizedId),
         eq(showcaseVideo.status, ShowcaseVideoStatus.PUBLISHED)
       )
     )

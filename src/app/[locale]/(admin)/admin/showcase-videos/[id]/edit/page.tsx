@@ -1,9 +1,13 @@
 import { getTranslations, setRequestLocale } from 'next-intl/server';
+import { revalidatePath } from 'next/cache';
 
+import { defaultLocale, locales } from '@/config/locale';
 import { PERMISSIONS, requirePermission } from '@/core/rbac';
 import { Empty } from '@/shared/blocks/common';
 import { Header, Main, MainHeader } from '@/shared/blocks/dashboard';
 import { FormCard } from '@/shared/blocks/form';
+import { syncShowcaseVideoSitemapEntry } from '@/shared/lib/showcase-video-sitemap';
+import { getConfigs, saveConfigs } from '@/shared/models/config';
 import {
   findShowcaseVideoById,
   ShowcaseVideoStatus,
@@ -14,6 +18,8 @@ import { getTaxonomies, TaxonomyType } from '@/shared/models/taxonomy';
 import { getUserInfo } from '@/shared/models/user';
 import type { Crumb } from '@/shared/types/blocks/common';
 import type { Form } from '@/shared/types/blocks/form';
+
+const NO_CATEGORY_VALUE = '__none__';
 
 export default async function ShowcaseVideoEditPage({
   params,
@@ -30,6 +36,7 @@ export default async function ShowcaseVideoEditPage({
   });
 
   const t = await getTranslations('admin.showcase-videos');
+  const configs = await getConfigs();
 
   const video = await findShowcaseVideoById(id);
   if (!video) {
@@ -53,11 +60,16 @@ export default async function ShowcaseVideoEditPage({
         name: 'categoryId',
         type: 'select',
         title: t('fields.category'),
-        validation: { required: true },
-        options: categories.map((category) => ({
-          title: category.title,
-          value: category.id,
-        })),
+        options: [
+          {
+            title: t('fields.noCategory'),
+            value: NO_CATEGORY_VALUE,
+          },
+          ...categories.map((category) => ({
+            title: category.title,
+            value: category.id,
+          })),
+        ],
       },
       {
         name: 'title',
@@ -131,6 +143,11 @@ export default async function ShowcaseVideoEditPage({
         title: t('fields.featuredSwitch'),
       },
       {
+        name: 'homepageFeatured',
+        type: 'switch',
+        title: t('fields.homepageFeaturedSwitch'),
+      },
+      {
         name: 'sort',
         type: 'number',
         title: t('fields.sort'),
@@ -142,7 +159,11 @@ export default async function ShowcaseVideoEditPage({
         attributes: { rows: 4 },
       },
     ],
-    data: video,
+    data: {
+      ...video,
+      categoryId: video.categoryId || NO_CATEGORY_VALUE,
+      homepageFeatured: configs.homepage_showcase_video_id === video.id,
+    },
     submit: {
       button: {
         title: t('edit.buttons.submit'),
@@ -160,7 +181,11 @@ export default async function ShowcaseVideoEditPage({
           return { status: 'error', message: 'Please sign in again' } as const;
         }
 
-        const categoryId = String(data.get('categoryId') || '').trim();
+        const categoryIdRaw = String(data.get('categoryId') || '').trim();
+        const categoryId =
+          categoryIdRaw && categoryIdRaw !== NO_CATEGORY_VALUE
+            ? categoryIdRaw
+            : null;
         const title = String(data.get('title') || '').trim();
         const description = String(data.get('description') || '').trim();
         const seoKeywords = String(data.get('seoKeywords') || '').trim();
@@ -168,13 +193,15 @@ export default async function ShowcaseVideoEditPage({
         const coverUrl = String(data.get('coverUrl') || '').trim();
         const status = String(data.get('status') || ShowcaseVideoStatus.PENDING);
         const featured = String(data.get('featured') || 'false') === 'true';
+        const homepageFeatured =
+          String(data.get('homepageFeatured') || 'false') === 'true';
         const sort = Number(data.get('sort') || 0);
         const reviewNote = String(data.get('reviewNote') || '').trim();
 
-        if (!categoryId || !title || !videoUrl) {
+        if (!title || !videoUrl) {
           return {
             status: 'error',
-            message: 'Category, title and video URL are required',
+            message: 'Title and video URL are required',
           } as const;
         }
 
@@ -204,6 +231,29 @@ export default async function ShowcaseVideoEditPage({
             message: 'Failed to update showcase video',
           } as const;
         }
+
+        await syncShowcaseVideoSitemapEntry({
+          previousVideo: video,
+          nextVideo: result,
+        });
+
+        const nextConfigs = await getConfigs();
+        if (homepageFeatured) {
+          await saveConfigs({
+            ...nextConfigs,
+            homepage_showcase_video_id: video.id,
+          });
+        } else if (nextConfigs.homepage_showcase_video_id === video.id) {
+          await saveConfigs({
+            ...nextConfigs,
+            homepage_showcase_video_id: '',
+          });
+        }
+
+        revalidatePath('/');
+        locales
+          .filter((item) => item !== defaultLocale)
+          .forEach((item) => revalidatePath(`/${item}`));
 
         return {
           status: 'success',

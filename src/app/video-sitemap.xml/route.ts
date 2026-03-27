@@ -1,5 +1,4 @@
 import { getAllConfigs } from '@/shared/models/config';
-import { getAllHomeHeroWatchPages } from '@/shared/lib/home-hero-watch-page';
 import {
   getShowcaseVideos,
   type ShowcaseVideo,
@@ -28,19 +27,9 @@ function escapeXml(value: string) {
     .replace(/'/g, '&apos;');
 }
 
-function toIsoDate(value?: string) {
-  if (!value) {
-    return '';
-  }
-
-  const parsed = new Date(value);
-  return Number.isNaN(parsed.getTime()) ? '' : parsed.toISOString();
-}
-
 export async function GET() {
   const configs = await getAllConfigs();
   const watchPagesEnabled = configs.showcases_video_page_mode === 'watch_page';
-  const homeHeroWatchPages = getAllHomeHeroWatchPages();
 
   const videos = watchPagesEnabled
     ? await getShowcaseVideos({
@@ -49,8 +38,22 @@ export async function GET() {
       })
     : [];
 
+  const seenWatchUrls = new Set<string>();
+
   const showcaseBody = videos
-    .filter((video: ShowcaseVideo) => video.videoUrl)
+    .filter((video: ShowcaseVideo) => {
+      if (!video.videoUrl) {
+        return false;
+      }
+
+      const watchUrl = getShowcaseVideoWatchAbsoluteUrl({ video });
+      if (seenWatchUrls.has(watchUrl)) {
+        return false;
+      }
+
+      seenWatchUrls.add(watchUrl);
+      return true;
+    })
     .map((video: ShowcaseVideo) => {
       const watchUrl = getShowcaseVideoWatchAbsoluteUrl({ video });
       const thumbnailUrl = getShowcaseVideoThumbnailUrl(video);
@@ -78,30 +81,10 @@ export async function GET() {
     })
     .join('\n');
 
-  const heroBody = homeHeroWatchPages
-    .filter((item) => item.videoSrc)
-    .map((item) => {
-      const thumbnailUrl = toPublicAbsoluteUrl(item.videoPoster);
-
-      return `  <url>
-    <loc>${escapeXml(toPublicAbsoluteUrl(item.url))}</loc>
-    <video:video>
-      <video:thumbnail_loc>${escapeXml(thumbnailUrl)}</video:thumbnail_loc>
-      <video:title>${escapeXml(item.title)}</video:title>
-      <video:description>${escapeXml(item.description)}</video:description>
-      <video:content_loc>${escapeXml(toPublicAbsoluteUrl(item.videoSrc))}</video:content_loc>
-      ${toIsoDate(item.uploadDate) ? `<video:publication_date>${escapeXml(toIsoDate(item.uploadDate))}</video:publication_date>` : ''}
-      <video:family_friendly>yes</video:family_friendly>
-    </video:video>
-  </url>`;
-    })
-    .join('\n');
-
   const xml = `<?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"
   xmlns:video="http://www.google.com/schemas/sitemap-video/1.1">
 ${showcaseBody}
-${heroBody}
 </urlset>`;
 
   return new Response(xml, {

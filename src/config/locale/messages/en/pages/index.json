@@ -33,20 +33,9 @@
           "height": 480
         },
         "featured_video": {
-          "src": "https://file.freesoragenerator.com/videos/1f15e7e9-6a98-4c7e-8057-1b58c3895bfd/30e742d7b96e5ca50cc08429dc205e99-1771987593778.mp4",
-          "poster": "https://public.pikju.top/uploads/34566.jpeg"
-        },
-        "watch_page": {
-          "slug": "find-peace-in-his-promises",
-          "url": "/watch/find-peace-in-his-promises",
-          "link_title": "Watch featured video",
-          "title": "Find Peace in His Promises",
-          "description": "Watch our featured faith video and reflect on God's promise to be with you in every season.",
-          "video_label": "Featured video",
-          "back_title": "Back to home",
-          "cta_title": "Create My Faith Video",
-          "cta_url": "/ai-video-generator",
-          "upload_date": "2026-03-16"
+          "src": "https://public.fearnotforiamwithyou.com/uploads/media-library/showcase-videos/video/hero.mp4",
+          "poster": "https://public.pikju.top/uploads/34566.jpeg",
+          "watch_label": "Watch video details"
         },
         "trust_title": "Joined by 1,000+ Believers Finding Strength in Scripture",
         "partner_logos": [
