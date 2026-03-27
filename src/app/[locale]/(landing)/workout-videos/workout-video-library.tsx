@@ -22,12 +22,6 @@ import {
   CardTitle,
 } from '@/shared/components/ui/card';
 import { Input } from '@/shared/components/ui/input';
-import {
-  Tabs,
-  TabsContent,
-  TabsList,
-  TabsTrigger,
-} from '@/shared/components/ui/tabs';
 import { cn } from '@/shared/lib/utils';
 
 interface FitnessObject {
@@ -543,103 +537,83 @@ function VideoGroupCard({
     )
   );
   const visibleVideos = hasActiveSubscription ? entry.videos : entry.videos.slice(0, 1);
+  const visibleAngleLabels = uniqueLabels(
+    visibleVideos.map((video) =>
+      isZh && video.viewAngleZh ? video.viewAngleZh : video.viewAngle
+    )
+  );
 
   return (
-    <Card className="overflow-hidden rounded-[28px] border-border/70 bg-card/95">
-      <div className="relative">
-        <div className="absolute left-4 top-4 z-10 flex flex-wrap gap-2">
-          <Badge className="rounded-full px-3 py-1">
-            {t(`access.${normalizeAccessType(group.accessType)}`)}
-          </Badge>
-          <Badge variant="outline" className="rounded-full bg-background/85 px-3 py-1">
-            {formatDifficulty(group.difficulty, t)}
-          </Badge>
+    <Link
+      href={`/ai-video-generator/results?videoGroupId=${group.id}`}
+      className="block"
+    >
+      <Card className="overflow-hidden rounded-[28px] border-border/70 bg-card/95 transition-all hover:-translate-y-1 hover:shadow-lg">
+        <div className="relative">
+          <div className="absolute left-4 top-4 z-10 flex flex-wrap gap-2">
+            <Badge className="rounded-full px-3 py-1">
+              {t(`access.${normalizeAccessType(group.accessType)}`)}
+            </Badge>
+            <Badge variant="outline" className="rounded-full bg-background/85 px-3 py-1">
+              {formatDifficulty(group.difficulty, t)}
+            </Badge>
+          </div>
+          <div className="aspect-[16/10] overflow-hidden bg-muted">
+            {group.thumbnailUrl ? (
+              // eslint-disable-next-line @next/next/no-img-element
+              <img
+                src={group.thumbnailUrl}
+                alt={title}
+                className="h-full w-full object-cover"
+              />
+            ) : (
+              <div className="flex h-full items-center justify-center bg-[linear-gradient(135deg,_rgba(249,115,22,0.18),_rgba(20,184,166,0.14))]">
+                <Sparkles className="h-10 w-10 text-primary" />
+              </div>
+            )}
+          </div>
         </div>
-        <div className="aspect-[16/10] overflow-hidden bg-muted">
-          {group.thumbnailUrl ? (
-            // eslint-disable-next-line @next/next/no-img-element
-            <img
-              src={group.thumbnailUrl}
-              alt={title}
-              className="h-full w-full object-cover"
-            />
-          ) : (
-            <div className="flex h-full items-center justify-center bg-[linear-gradient(135deg,_rgba(249,115,22,0.18),_rgba(20,184,166,0.14))]">
-              <Sparkles className="h-10 w-10 text-primary" />
+
+        <CardHeader className="space-y-3 pb-3">
+          <div className="space-y-2">
+            <CardTitle className="text-xl font-semibold text-foreground">
+              {title}
+            </CardTitle>
+            <p className="text-sm leading-7 text-muted-foreground">{description}</p>
+          </div>
+          <div className="flex flex-wrap gap-2 text-xs text-muted-foreground">
+            <span>{t('card.views', { count: group.viewCount })}</span>
+            <span>•</span>
+            <span>{t('card.video_count', { count: visibleVideos.length })}</span>
+          </div>
+        </CardHeader>
+
+        <CardContent className="space-y-5">
+          <VideoMetadata title={t('card.equipment')} labels={objectLabels} />
+          <VideoMetadata title={t('card.body_parts')} labels={bodyPartLabels} />
+          <VideoMetadata title={t('card.view_angles')} labels={visibleAngleLabels} />
+
+          {!hasActiveSubscription && entry.videos.length > 1 ? (
+            <div className="rounded-2xl border border-primary/20 bg-primary/5 px-4 py-3 text-sm text-foreground">
+              {t('card.free_angle_limit')}
             </div>
-          )}
-        </div>
-      </div>
+          ) : null}
 
-      <CardHeader className="space-y-3 pb-3">
-        <div className="space-y-2">
-          <CardTitle className="text-xl font-semibold text-foreground">
-            {title}
-          </CardTitle>
-          <p className="text-sm leading-7 text-muted-foreground">{description}</p>
-        </div>
-        <div className="flex flex-wrap gap-2 text-xs text-muted-foreground">
-          <span>{t('card.views', { count: group.viewCount })}</span>
-          <span>•</span>
-          <span>{t('card.video_count', { count: visibleVideos.length })}</span>
-        </div>
-      </CardHeader>
+          {instructions ? (
+            <div className="rounded-2xl border border-border/70 bg-muted/30 px-4 py-3">
+              <p className="text-xs font-semibold uppercase tracking-[0.16em] text-muted-foreground">
+                {t('card.instructions')}
+              </p>
+              <p className="mt-2 text-sm leading-6 text-foreground">{instructions}</p>
+            </div>
+          ) : null}
 
-      <CardContent className="space-y-5">
-        <VideoMetadata title={t('card.equipment')} labels={objectLabels} />
-        <VideoMetadata title={t('card.body_parts')} labels={bodyPartLabels} />
-
-        {!hasActiveSubscription && entry.videos.length > 1 ? (
-          <div className="rounded-2xl border border-primary/20 bg-primary/5 px-4 py-3 text-sm text-foreground">
-            {t('card.free_angle_limit')}
+          <div className="rounded-2xl border border-border/70 bg-muted/20 px-4 py-4 text-sm text-muted-foreground">
+            {t('card.click_to_play')}
           </div>
-        ) : null}
-
-        {instructions ? (
-          <div className="rounded-2xl border border-border/70 bg-muted/30 px-4 py-3">
-            <p className="text-xs font-semibold uppercase tracking-[0.16em] text-muted-foreground">
-              {t('card.instructions')}
-            </p>
-            <p className="mt-2 text-sm leading-6 text-foreground">{instructions}</p>
-          </div>
-        ) : null}
-
-        {hasActiveSubscription ? (
-          <Tabs defaultValue={visibleVideos[0]?.id}>
-            <TabsList className="h-auto w-full flex-wrap justify-start gap-2 rounded-2xl bg-muted/50 p-2">
-              {visibleVideos.map((video) => (
-                <TabsTrigger
-                  key={video.id}
-                  value={video.id}
-                  className="rounded-full px-3 py-1.5"
-                >
-                  {isZh && video.viewAngleZh ? video.viewAngleZh : video.viewAngle}
-                </TabsTrigger>
-              ))}
-            </TabsList>
-            {visibleVideos.map((video) => (
-              <TabsContent key={video.id} value={video.id} className="mt-4">
-                <video
-                  controls
-                  preload="metadata"
-                  poster={group.thumbnailUrl || undefined}
-                  className="aspect-video w-full rounded-[24px] border border-border/70 bg-black object-cover"
-                  src={video.videoUrl}
-                />
-              </TabsContent>
-            ))}
-          </Tabs>
-        ) : (
-          <video
-            controls
-            preload="metadata"
-            poster={group.thumbnailUrl || undefined}
-            className="aspect-video w-full rounded-[24px] border border-border/70 bg-black object-cover"
-            src={visibleVideos[0]?.videoUrl}
-          />
-        )}
-      </CardContent>
-    </Card>
+        </CardContent>
+      </Card>
+    </Link>
   );
 }
 

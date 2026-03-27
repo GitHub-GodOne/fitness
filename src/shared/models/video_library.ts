@@ -920,6 +920,7 @@ interface ListAccessibleFitnessVideoCatalogOptions {
   accessType?: string;
   objectIds?: string[];
   bodyPartIds?: string[];
+  videoGroupIds?: string[];
   search?: string;
   limit?: number;
 }
@@ -984,14 +985,20 @@ export async function listAccessibleFitnessVideoCatalog(
 ) {
   const objectIds = Array.from(new Set((options?.objectIds || []).filter(Boolean)));
   const bodyPartIds = Array.from(new Set((options?.bodyPartIds || []).filter(Boolean)));
+  const videoGroupIds = Array.from(new Set((options?.videoGroupIds || []).filter(Boolean)));
   const limit = options?.limit || 48;
   const hasMappingFilters = objectIds.length > 0 || bodyPartIds.length > 0;
 
   if (!hasMappingFilters) {
+    const directConditions = [...buildCatalogVideoGroupConditions(options)];
+    if (videoGroupIds.length > 0) {
+      directConditions.push(inArray(fitnessVideoGroup.id, videoGroupIds));
+    }
+
     const groups = await db()
       .select()
       .from(fitnessVideoGroup)
-      .where(and(...buildCatalogVideoGroupConditions(options)))
+      .where(and(...directConditions))
       .orderBy(asc(fitnessVideoGroup.sort), desc(fitnessVideoGroup.viewCount))
       .limit(limit);
 
@@ -1008,6 +1015,9 @@ export async function listAccessibleFitnessVideoCatalog(
 
   if (bodyPartIds.length > 0) {
     conditions.push(inArray(objectVideoMapping.bodyPartId, bodyPartIds));
+  }
+  if (videoGroupIds.length > 0) {
+    conditions.push(inArray(objectVideoMapping.videoGroupId, videoGroupIds));
   }
 
   const rows = await db()

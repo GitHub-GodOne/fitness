@@ -32,6 +32,7 @@ export async function GET(req: Request) {
     const { searchParams } = new URL(req.url);
     const objectIds = parseCsvParam(searchParams.get('objectIds'));
     const bodyPartIds = parseCsvParam(searchParams.get('bodyPartIds'));
+    const videoGroupIds = parseCsvParam(searchParams.get('videoGroupIds'));
     const search = searchParams.get('search')?.trim() || undefined;
     const limit = Math.min(
       Math.max(Number.parseInt(searchParams.get('limit') || '48', 10) || 48, 1),
@@ -51,6 +52,7 @@ export async function GET(req: Request) {
         accessType: accessTier,
         objectIds,
         bodyPartIds,
+        videoGroupIds,
         search,
         limit,
       }),

@@ -140,6 +140,7 @@ export function VideoResults() {
   const searchParams = useSearchParams();
   const taskId = searchParams.get("taskId");
   const guestTaskId = searchParams.get("guestTaskId");
+  const videoGroupId = searchParams.get("videoGroupId");
   const { user } = useAppContext();
   const hasActiveSubscription = Boolean(user?.hasActiveSubscription);
 
@@ -157,6 +158,54 @@ export function VideoResults() {
 
   // Fetch the specific task to get video groups
   useEffect(() => {
+    if (videoGroupId) {
+      setLoading(true);
+
+      (async () => {
+        try {
+          const params = new URLSearchParams({
+            videoGroupIds: videoGroupId,
+            limit: "1",
+          });
+          const resp = await fetch(`/api/video-library/catalog?${params.toString()}`, {
+            cache: "no-store",
+          });
+          if (!resp.ok) {
+            throw new Error("Failed to fetch video group");
+          }
+
+          const { code, data } = await resp.json();
+          if (code !== 0) {
+            throw new Error("Failed to fetch video group");
+          }
+
+          const groups = limitVideoGroupsForFreeUser(
+            Array.isArray(data?.videoGroups)
+              ? data.videoGroups.map((item: any) => item.videoGroup ? {
+                  ...item.videoGroup,
+                  videos: item.videos || [],
+                } : item)
+              : [],
+            hasActiveSubscription,
+          );
+
+          setVideoGroups(groups);
+          const initialSelection: Record<string, number> = {};
+          groups.forEach((group: any) => {
+            initialSelection[group.id] = 0;
+          });
+          setSelectedVideoIndex(initialSelection);
+        } catch (err) {
+          console.error("Failed to load catalog video group:", err);
+          toast.error("Failed to load video results");
+        } finally {
+          setLoading(false);
+        }
+      })();
+
+      return;
+    }
+
     if (guestTaskId) {
       setLoading(true);
 
@@ -231,7 +280,7 @@ export function VideoResults() {
         setLoading(false);
       }
     })();
-  }, [guestTaskId, hasActiveSubscription, taskId]);
+  }, [guestTaskId, hasActiveSubscription, taskId, videoGroupId]);
 
   const fetchHistory = useCallback(async () => {
     if (!user) return;
