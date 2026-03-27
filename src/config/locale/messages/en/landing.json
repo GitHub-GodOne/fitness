@@ -26,6 +26,12 @@
           "icon": "Heart"
         },
         {
+          "title": "Video Library",
+          "description": "Browse workouts by subscription access",
+          "url": "/workout-videos",
+          "icon": "Library"
+        },
+        {
           "title": "Pricing",
           "url": "/pricing",
           "icon": "DollarSign"
@@ -60,6 +66,11 @@
           "title": "History",
           "url": "/settings/history",
           "icon": "History"
+        },
+        {
+          "title": "Video Library",
+          "url": "/workout-videos",
+          "icon": "Library"
         }
       ]
     },
@@ -208,5 +219,68 @@
       "errorSubmit": "Failed to submit. Please try again."
     },
     "className": "bg-gradient-to-b from-amber-50/15 via-amber-50/10 to-amber-50/5 dark:from-amber-950/10 dark:via-amber-950/8 dark:to-amber-950/5"
+  },
+  "video_library": {
+    "metadata": {
+      "title": "Workout Video Library",
+      "description": "Browse workout videos available for your current subscription and filter them by equipment and body part.",
+      "keywords": "workout video library, subscription workout videos, equipment workout, body part workout"
+    },
+    "eyebrow": "Subscription Video Library",
+    "title": "Browse the workout videos available in your current plan",
+    "description": "This page automatically respects the backend Access Type rules. Free users see Free videos, Starter sees Free + Starter, and Pro sees Free + Starter + Pro.",
+    "access": {
+      "free": "Free",
+      "starter": "Starter",
+      "pro": "Pro"
+    },
+    "plans": {
+      "guest": "Guest / Free"
+    },
+    "tier_visibility": {
+      "free": "Free content only",
+      "starter": "Free + Starter content",
+      "pro": "Free + Starter + Pro content"
+    },
+    "current_access": "Current access",
+    "current_access_description": "Your library is currently filtered to the {tier} tier.",
+    "can_view": "Included access",
+    "available_now": "Available now",
+    "upgrade_cta": "View pricing",
+    "search_title": "Search videos",
+    "search_placeholder": "Search by video title",
+    "selected_title": "Selected filters",
+    "selected_description": "Chosen workout items and body parts will appear here.",
+    "selected_empty": "No filters selected yet. Showing everything available in your current plan.",
+    "selected_placeholder": "Selected workout items and body parts will appear here for quick removal.",
+    "clear_all": "Clear all",
+    "equipment_title": "Workout items",
+    "equipment_description": "Choose equipment or everyday objects to narrow the library.",
+    "body_parts_title": "Body parts",
+    "body_parts_description": "Select one or more target areas.",
+    "results_title": "Available videos",
+    "results_count": "{count} video groups",
+    "loading": "Updating results...",
+    "empty_title": "No matching videos",
+    "empty_description": "Try clearing some filters, or upgrade your plan to unlock more content.",
+    "empty_reset": "Reset filters",
+    "errors": {
+      "fetch_failed": "Failed to load the video library. Please try again."
+    },
+    "card": {
+      "no_description": "Structured workout guidance matched to your current filters.",
+      "equipment": "Workout items",
+      "body_parts": "Body parts",
+      "instructions": "Instructions",
+      "views": "{count} views",
+      "video_count": "{count} angles",
+      "free_angle_limit": "Free users currently see 1 angle only. Subscribe to unlock all View Angles for this workout."
+    },
+    "difficulty": {
+      "beginner": "Beginner",
+      "intermediate": "Intermediate",
+      "advanced": "Advanced",
+      "universal": "Universal"
+    }
   }
 }

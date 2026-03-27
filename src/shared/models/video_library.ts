@@ -1,7 +1,7 @@
 /**
  * Video Library Model - CRUD operations for fitness video library
  */
-import { eq, and, like, desc, asc, inArray, sql } from 'drizzle-orm';
+import { eq, and, like, desc, asc, inArray, or, sql } from 'drizzle-orm';
 import { nanoid } from 'nanoid';
 
 import { db } from '@/core/db';
@@ -902,4 +902,132 @@ export async function getVideosByBodyPart(
   // No matching videos for this body part
   console.log(`[VideoLibrary] No mapping results for body part "${bodyPartName}", returning empty`);
   return [];
+}
+
+export type VideoGroupMappingRecord = {
+  mapping: typeof objectVideoMapping.$inferSelect;
+  object: typeof fitnessObject.$inferSelect | null;
+  bodyPart: typeof bodyPart.$inferSelect | null;
+};
+
+export interface FitnessVideoCatalogEntry {
+  videoGroup: typeof fitnessVideoGroup.$inferSelect;
+  videos: (typeof fitnessVideo.$inferSelect)[];
+  mappings: VideoGroupMappingRecord[];
+}
+
+interface ListAccessibleFitnessVideoCatalogOptions {
+  accessType?: string;
+  objectIds?: string[];
+  bodyPartIds?: string[];
+  search?: string;
+  limit?: number;
+}
+
+function buildCatalogVideoGroupConditions(options?: {
+  accessType?: string;
+  search?: string;
+}) {
+  const conditions = [eq(fitnessVideoGroup.status, 'active')];
+
+  if (options?.accessType) {
+    const allowedTiers = getAllowedVideoAccessTiers(options.accessType);
+    conditions.push(
+      inArray(fitnessVideoGroup.accessType, [
+        ...allowedTiers,
+        ...(allowedTiers.includes('pro') ? ['premium'] : []),
+      ])
+    );
+  } else {
+    conditions.push(sql`${fitnessVideoGroup.accessType} != 'hidden'`);
+  }
+
+  if (options?.search) {
+    conditions.push(
+      or(
+        like(fitnessVideoGroup.title, `%${options.search}%`),
+        like(sql`COALESCE(${fitnessVideoGroup.titleZh}, '')`, `%${options.search}%`)
+      )!
+    );
+  }
+
+  return conditions;
+}
+
+async function hydrateCatalogEntries(
+  groups: (typeof fitnessVideoGroup.$inferSelect)[]
+): Promise<FitnessVideoCatalogEntry[]> {
+  const entries = await Promise.all(
+    groups.map(async (group) => {
+      const [videos, mappings] = await Promise.all([
+        listFitnessVideosByGroup(group.id),
+        getVideoMappings(group.id),
+      ]);
+
+      return {
+        videoGroup: group,
+        videos,
+        mappings: mappings.map((item) => ({
+          mapping: item.mapping,
+          object: item.object ?? null,
+          bodyPart: item.bodyPart ?? null,
+        })),
+      };
+    })
+  );
+
+  return entries.filter((entry) => entry.videos.length > 0);
+}
+
+export async function listAccessibleFitnessVideoCatalog(
+  options?: ListAccessibleFitnessVideoCatalogOptions
+) {
+  const objectIds = Array.from(new Set((options?.objectIds || []).filter(Boolean)));
+  const bodyPartIds = Array.from(new Set((options?.bodyPartIds || []).filter(Boolean)));
+  const limit = options?.limit || 48;
+  const hasMappingFilters = objectIds.length > 0 || bodyPartIds.length > 0;
+
+  if (!hasMappingFilters) {
+    const groups = await db()
+      .select()
+      .from(fitnessVideoGroup)
+      .where(and(...buildCatalogVideoGroupConditions(options)))
+      .orderBy(asc(fitnessVideoGroup.sort), desc(fitnessVideoGroup.viewCount))
+      .limit(limit);
+
+    return hydrateCatalogEntries(groups);
+  }
+
+  const conditions = [
+    ...buildCatalogVideoGroupConditions(options),
+  ];
+
+  if (objectIds.length > 0) {
+    conditions.push(inArray(objectVideoMapping.objectId, objectIds));
+  }
+
+  if (bodyPartIds.length > 0) {
+    conditions.push(inArray(objectVideoMapping.bodyPartId, bodyPartIds));
+  }
+
+  const rows = await db()
+    .select({
+      videoGroup: fitnessVideoGroup,
+    })
+    .from(objectVideoMapping)
+    .innerJoin(
+      fitnessVideoGroup,
+      eq(objectVideoMapping.videoGroupId, fitnessVideoGroup.id)
+    )
+    .where(and(...conditions))
+    .orderBy(asc(fitnessVideoGroup.sort), desc(fitnessVideoGroup.viewCount));
+
+  const uniqueGroups = new Map<string, typeof fitnessVideoGroup.$inferSelect>();
+  for (const row of rows) {
+    if (!uniqueGroups.has(row.videoGroup.id)) {
+      uniqueGroups.set(row.videoGroup.id, row.videoGroup);
+    }
+  }
+
+  return hydrateCatalogEntries(Array.from(uniqueGroups.values()).slice(0, limit));
 }

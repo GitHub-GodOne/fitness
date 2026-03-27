@@ -26,6 +26,12 @@
           "icon": "Heart"
         },
         {
+          "title": "视频库",
+          "description": "按订阅查看可用训练视频",
+          "url": "/workout-videos",
+          "icon": "Library"
+        },
+        {
           "title": "价格",
           "url": "/pricing",
           "icon": "DollarSign"
@@ -54,6 +60,11 @@
           "title": "历史记录",
           "url": "/settings/history",
           "icon": "History"
+        },
+        {
+          "title": "视频库",
+          "url": "/workout-videos",
+          "icon": "Library"
         }
       ]
     },
@@ -198,5 +209,68 @@
       "errorSubmit": "提交失败，请重试。"
     },
     "className": "bg-gradient-to-b from-amber-50/15 via-amber-50/10 to-amber-50/5 dark:from-amber-950/10 dark:via-amber-950/8 dark:to-amber-950/5"
+  },
+  "video_library": {
+    "metadata": {
+      "title": "订阅视频库",
+      "description": "根据当前订阅直接查看可访问的训练视频，支持按训练物品和身体部位筛选。",
+      "keywords": "订阅视频库,训练视频,健身视频,身体部位,训练物品"
+    },
+    "eyebrow": "订阅视频库",
+    "title": "直接查看你当前套餐可访问的训练视频",
+    "description": "页面会按照后台设置的 Access Type 自动过滤内容。免费用户只看 Free，Starter 可看 Free 和 Starter，Pro 可看 Free、Starter 和 Pro。",
+    "access": {
+      "free": "Free",
+      "starter": "Starter",
+      "pro": "Pro"
+    },
+    "plans": {
+      "guest": "免费访客"
+    },
+    "tier_visibility": {
+      "free": "Free 内容",
+      "starter": "Free + Starter 内容",
+      "pro": "Free + Starter + Pro 内容"
+    },
+    "current_access": "当前访问权限",
+    "current_access_description": "你当前按 {tier} 层级查看视频库内容。",
+    "can_view": "可查看内容",
+    "available_now": "当前结果",
+    "upgrade_cta": "查看订阅方案",
+    "search_title": "搜索视频",
+    "search_placeholder": "按视频标题搜索",
+    "selected_title": "已选筛选项",
+    "selected_description": "已选择的训练物品和身体部位会在这里显示。",
+    "selected_empty": "还没有选择筛选项，当前展示你套餐内全部可访问内容。",
+    "selected_placeholder": "选择训练物品或身体部位后，会在这里显示，方便你快速移除。",
+    "clear_all": "清空",
+    "equipment_title": "训练物品",
+    "equipment_description": "选择想使用的器材或日常物品。",
+    "body_parts_title": "身体部位",
+    "body_parts_description": "选择一个或多个目标部位。",
+    "results_title": "可用视频",
+    "results_count": "{count} 个视频组",
+    "loading": "正在更新结果...",
+    "empty_title": "没有匹配的视频",
+    "empty_description": "可以清空部分筛选条件，或者升级订阅以解锁更多内容。",
+    "empty_reset": "重置筛选",
+    "errors": {
+      "fetch_failed": "加载视频库失败，请稍后重试。"
+    },
+    "card": {
+      "no_description": "根据当前筛选条件整理出的训练动作内容。",
+      "equipment": "训练物品",
+      "body_parts": "身体部位",
+      "instructions": "动作说明",
+      "views": "{count} 次查看",
+      "video_count": "{count} 个视角",
+      "free_angle_limit": "免费用户当前仅显示 1 个视角。订阅后可查看这个动作的全部 View Angles 视频。"
+    },
+    "difficulty": {
+      "beginner": "初级",
+      "intermediate": "中级",
+      "advanced": "高级",
+      "universal": "通用"
+    }
   }
 }
