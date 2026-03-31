@@ -265,7 +265,7 @@
       "instructions": "动作说明",
       "views": "{count} 次查看",
       "video_count": "{count} 个视角",
-      "free_angle_limit": "免费用户当前仅显示 1 个视角。订阅后可查看这个动作的全部 View Angles 视频。",
+      "free_angle_limit": "订阅后可解锁全部视角。",
       "click_to_play": "点击整个卡片即可跳转到结果页播放相关视频。"
     },
     "difficulty": {

@@ -275,7 +275,7 @@
       "instructions": "Instructions",
       "views": "{count} views",
       "video_count": "{count} angles",
-      "free_angle_limit": "Free users currently see 1 angle only. Subscribe to unlock all View Angles for this workout.",
+      "free_angle_limit": "Subscribe to unlock all angles.",
       "click_to_play": "Click the whole card to jump to the results page and play the related video."
     },
     "difficulty": {

@@ -518,11 +518,6 @@ function VideoGroupCard({
   const isZh = locale.startsWith('zh');
   const group = entry.videoGroup;
   const title = isZh && group.titleZh ? group.titleZh : group.title;
-  const description =
-    (isZh && group.descriptionZh ? group.descriptionZh : group.description) ||
-    t('card.no_description');
-  const instructions =
-    (isZh && group.instructionsZh ? group.instructionsZh : group.instructions) || '';
 
   const objectLabels = uniqueLabels(
     entry.mappings.map((item) =>
@@ -537,11 +532,6 @@ function VideoGroupCard({
     )
   );
   const visibleVideos = hasActiveSubscription ? entry.videos : entry.videos.slice(0, 1);
-  const visibleAngleLabels = uniqueLabels(
-    visibleVideos.map((video) =>
-      isZh && video.viewAngleZh ? video.viewAngleZh : video.viewAngle
-    )
-  );
 
   return (
     <Link
@@ -579,38 +569,23 @@ function VideoGroupCard({
             <CardTitle className="text-xl font-semibold text-foreground">
               {title}
             </CardTitle>
-            <p className="text-sm leading-7 text-muted-foreground">{description}</p>
-          </div>
-          <div className="flex flex-wrap gap-2 text-xs text-muted-foreground">
-            <span>{t('card.views', { count: group.viewCount })}</span>
-            <span>•</span>
-            <span>{t('card.video_count', { count: visibleVideos.length })}</span>
+            <div className="flex flex-wrap gap-2">
+              <Badge variant="secondary" className="rounded-full px-3 py-1">
+                {t('card.video_count', { count: visibleVideos.length })}
+              </Badge>
+            </div>
           </div>
         </CardHeader>
 
-        <CardContent className="space-y-5">
+        <CardContent className="space-y-4">
           <VideoMetadata title={t('card.equipment')} labels={objectLabels} />
           <VideoMetadata title={t('card.body_parts')} labels={bodyPartLabels} />
-          <VideoMetadata title={t('card.view_angles')} labels={visibleAngleLabels} />
 
           {!hasActiveSubscription && entry.videos.length > 1 ? (
             <div className="rounded-2xl border border-primary/20 bg-primary/5 px-4 py-3 text-sm text-foreground">
               {t('card.free_angle_limit')}
             </div>
           ) : null}
-
-          {instructions ? (
-            <div className="rounded-2xl border border-border/70 bg-muted/30 px-4 py-3">
-              <p className="text-xs font-semibold uppercase tracking-[0.16em] text-muted-foreground">
-                {t('card.instructions')}
-              </p>
-              <p className="mt-2 text-sm leading-6 text-foreground">{instructions}</p>
-            </div>
-          ) : null}
-
-          <div className="rounded-2xl border border-border/70 bg-muted/20 px-4 py-4 text-sm text-muted-foreground">
-            {t('card.click_to_play')}
-          </div>
         </CardContent>
       </Card>
     </Link>
