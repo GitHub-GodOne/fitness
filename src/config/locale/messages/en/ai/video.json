@@ -149,6 +149,8 @@
       "status": "Status",
       "created": "Created",
       "actions": "Actions",
+      "preview": "Preview",
+      "view": "View",
       "status_success": "Success",
       "status_failed": "Failed",
       "status_processing": "Processing",

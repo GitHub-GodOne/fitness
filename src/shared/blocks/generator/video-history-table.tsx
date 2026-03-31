@@ -3,7 +3,6 @@
 import { useState, useCallback, useMemo } from "react";
 import { useTranslations } from "next-intl";
 import {
-  Download,
   Eye,
   Loader2,
   RefreshCw,
@@ -12,11 +11,15 @@ import {
   ChevronRight,
   Gift,
   Send,
-  X,
+  Sparkles,
 } from "lucide-react";
 import { toast } from "sonner";
 
 import { AITaskStatus } from "@/extensions/ai/types";
+import {
+  extractVideoCoverFromAITask,
+  extractVideoUrlFromAITask,
+} from "@/shared/lib/ai-task-video";
 
 interface HistoryTask {
   id: string;
@@ -108,15 +111,10 @@ export function VideoHistoryTable({
   // 提取视频 URL
   const extractVideoUrl = useCallback(
     (taskInfo: string | null, taskResult: string | null): string | null => {
-      try {
-        if (taskResult) {
-          const result = JSON.parse(taskResult);
-          return result.video_url || null;
-        }
-      } catch (e) {
-        // 忽略解析错误
-      }
-      return null;
+      return extractVideoUrlFromAITask({
+        taskInfo,
+        taskResult,
+      });
     },
     [],
   );
@@ -256,6 +254,7 @@ export function VideoHistoryTable({
                   <TableHeader>
                     <TableRow>
                       <TableHead>{t("history.status")}</TableHead>
+                      <TableHead>{t("history.preview")}</TableHead>
                       <TableHead>{t("history.prompt")}</TableHead>
                       <TableHead>{t("history.verse_reference")}</TableHead>
                       {showFinalPrompt && (
@@ -281,6 +280,7 @@ export function VideoHistoryTable({
                         task.taskInfo,
                         task.taskResult,
                       );
+                      const coverUrl = extractVideoCoverFromAITask(task.taskResult);
                       let finalPrompt = "";
                       let verseReference = "";
 
@@ -340,6 +340,35 @@ export function VideoHistoryTable({
                                     ? t("history.status_processing")
                                     : t("history.status_pending")}
                             </span>
+                          </TableCell>
+                          <TableCell>
+                            <button
+                              type="button"
+                              onClick={() => handleOpenDownloadDialog(task)}
+                              className="group block w-[140px] text-left"
+                              title={t("history.view")}
+                            >
+                              <div className="relative overflow-hidden rounded-2xl border border-border/70 bg-muted">
+                                <div className="aspect-[16/10] overflow-hidden">
+                                  {coverUrl ? (
+                                    <img
+                                      src={coverUrl}
+                                      alt={task.prompt || "Video thumbnail"}
+                                      className="h-full w-full object-cover transition-transform duration-200 group-hover:scale-[1.03]"
+                                    />
+                                  ) : (
+                                    <div className="flex h-full items-center justify-center bg-[linear-gradient(135deg,_rgba(249,115,22,0.18),_rgba(20,184,166,0.14))]">
+                                      <Sparkles className="h-8 w-8 text-primary" />
+                                    </div>
+                                  )}
+                                </div>
+                                {videoUrl ? (
+                                  <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/55 to-transparent px-3 py-2 text-[11px] font-medium text-white">
+                                    {t("history.view")}
+                                  </div>
+                                ) : null}
+                              </div>
+                            </button>
                           </TableCell>
                           <TableCell>
                             {task.prompt ? (

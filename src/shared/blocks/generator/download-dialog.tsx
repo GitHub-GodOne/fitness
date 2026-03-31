@@ -36,7 +36,10 @@ import {
   TabsTrigger,
 } from "@/shared/components/ui/tabs";
 import { useMediaQuery } from "@/shared/hooks/use-media-query";
-import { extractOriginalImageUrlsFromAITask } from "@/shared/lib/ai-task-video";
+import {
+  extractOriginalImageUrlsFromAITask,
+  extractVideoCoverFromAITask,
+} from "@/shared/lib/ai-task-video";
 
 interface DownloadDialogProps {
   open: boolean;
@@ -137,11 +140,11 @@ function ImagePreview({
 // 视频预览组件
 function VideoPreview({
   videoUrl,
-  taskId,
+  poster,
   onDownload,
 }: {
   videoUrl: string;
-  taskId: string;
+  poster?: string | null;
   onDownload: () => Promise<void>;
 }) {
   const t = useTranslations("ai.video.generator");
@@ -160,6 +163,8 @@ function VideoPreview({
     <div className="space-y-4">
       <video
         src={videoUrl}
+        poster={poster || undefined}
+        preload="none"
         controls
         loop
         className="w-full h-auto rounded-lg border"
@@ -223,6 +228,10 @@ export function DownloadDialog({
       taskResult,
     });
   }, [taskInfo, taskResult]);
+  const videoPoster = useMemo(
+    () => extractVideoCoverFromAITask(taskResult),
+    [taskResult],
+  );
 
   const hasVideo = Boolean(resultData.video_url);
   const hasImagesWithText = Boolean(resultData.edited_image_url);
@@ -429,11 +438,11 @@ export function DownloadDialog({
       <div className="flex-1 overflow-y-auto mt-4">
         <TabsContent value="video" className="mt-0">
           {hasVideo && resultData.video_url ? (
-            <VideoPreview
-              videoUrl={resultData.video_url}
-              taskId={taskId}
-              onDownload={handleDownloadVideo}
-            />
+              <VideoPreview
+                videoUrl={resultData.video_url}
+                poster={videoPoster}
+                onDownload={handleDownloadVideo}
+              />
           ) : (
             <div className="text-center py-8 text-muted-foreground">
               {t("no_video_found")}
