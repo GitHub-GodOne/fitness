@@ -149,7 +149,16 @@ export function extractVideoUrlFromAITask(params: {
 
 export function extractVideoCoverFromAITask(taskResult?: string | null) {
   const result = parseJson(taskResult);
+  const matchedVideoCover =
+    result?.matchedVideos?.find?.(
+      (item: any) => item?.thumbnailUrl || item?.thumbnail_url
+    )?.thumbnailUrl ||
+    result?.matchedVideos?.find?.(
+      (item: any) => item?.thumbnailUrl || item?.thumbnail_url
+    )?.thumbnail_url ||
+    null;
   const cover =
+    matchedVideoCover ||
     result?.videos?.[0]?.thumbnailUrl ||
     result?.videos?.[0]?.thumbnail_url ||
     result?.content?.thumbnail_url ||
