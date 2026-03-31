@@ -12,6 +12,7 @@ import { Button } from "@/shared/components/ui/button";
 import { Card, CardContent } from "@/shared/components/ui/card";
 import { Badge } from "@/shared/components/ui/badge";
 import { useAppContext } from "@/shared/contexts/app";
+import { extractVideoCoverFromAITask } from "@/shared/lib/ai-task-video";
 
 const GUEST_VIDEO_RESULT_STORAGE_PREFIX = "ai-video-generator-guest-result:";
 
@@ -463,7 +464,7 @@ export function VideoResults() {
             {historyTasks.map((task) => {
               const parsed = parseTaskResult(task.taskResult);
               const videoGroups = extractVideoGroups(parsed);
-              const taskVideos = extractVideoUrls(parsed);
+              const coverUrl = extractVideoCoverFromAITask(task.taskResult);
               const bodyParts = getBodyPartsFromTask(task);
               const isSuccess = task.status === AITaskStatus.SUCCESS;
               const isFailed = task.status === AITaskStatus.FAILED;
@@ -487,15 +488,17 @@ export function VideoResults() {
                   <Card className="overflow-hidden w-full hover:shadow-lg transition-shadow">
                     {/* Video or status placeholder */}
                     <div className="aspect-video bg-muted relative">
-                      {isSuccess && taskVideos.length > 0 ? (
+                      {isSuccess ? (
                         <>
-                          <video
-                            src={taskVideos[0]}
-                            playsInline
-                            preload="metadata"
-                            className="w-full h-full object-contain"
-                            onClick={(e) => e.preventDefault()}
-                          />
+                          {coverUrl ? (
+                            <img
+                              src={coverUrl}
+                              alt={task.prompt || "Video thumbnail"}
+                              className="w-full h-full object-cover"
+                            />
+                          ) : (
+                            <div className="w-full h-full bg-[linear-gradient(135deg,_rgba(249,115,22,0.18),_rgba(20,184,166,0.14))]" />
+                          )}
                           {/* Video count badge */}
                           {totalVideos > 1 && (
                             <div className="absolute top-2 right-2 bg-black/70 text-white px-2 py-1 rounded-md text-xs font-medium flex items-center gap-1">
