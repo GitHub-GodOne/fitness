@@ -148,6 +148,7 @@ export function VideoResults() {
   const [loading, setLoading] = useState(true);
   const [videoGroups, setVideoGroups] = useState<any[]>([]);
   const [selectedVideoIndex, setSelectedVideoIndex] = useState<Record<string, number>>({});
+  const [activatedGroups, setActivatedGroups] = useState<Record<string, boolean>>({});
   const [downloadingVideoId, setDownloadingVideoId] = useState<string | null>(null);
 
   // History state
@@ -192,10 +193,13 @@ export function VideoResults() {
 
           setVideoGroups(groups);
           const initialSelection: Record<string, number> = {};
+          const initialActivated: Record<string, boolean> = {};
           groups.forEach((group: any) => {
             initialSelection[group.id] = 0;
+            initialActivated[group.id] = false;
           });
           setSelectedVideoIndex(initialSelection);
+          setActivatedGroups(initialActivated);
         } catch (err) {
           console.error("Failed to load catalog video group:", err);
           toast.error("Failed to load video results");
@@ -230,10 +234,13 @@ export function VideoResults() {
         );
         setVideoGroups(groups);
         const initialSelection: Record<string, number> = {};
+        const initialActivated: Record<string, boolean> = {};
         groups.forEach((group: any) => {
           initialSelection[group.id] = 0;
+          initialActivated[group.id] = false;
         });
         setSelectedVideoIndex(initialSelection);
+        setActivatedGroups(initialActivated);
       } catch (err) {
         console.error("Failed to load guest task:", err);
         toast.error("Failed to load video results");
@@ -270,10 +277,13 @@ export function VideoResults() {
         setVideoGroups(groups);
         // Initialize selected video index for each group (default to 0)
         const initialSelection: Record<string, number> = {};
+        const initialActivated: Record<string, boolean> = {};
         groups.forEach((group: any) => {
           initialSelection[group.id] = 0;
+          initialActivated[group.id] = false;
         });
         setSelectedVideoIndex(initialSelection);
+        setActivatedGroups(initialActivated);
       } catch (err: any) {
         console.error("Failed to load task:", err);
         toast.error("Failed to load video results");
@@ -364,6 +374,12 @@ export function VideoResults() {
               const title = getLocalizedText(group, "title", locale);
               const description = getLocalizedText(group, "description", locale);
               const instructions = getLocalizedText(group, "instructions", locale);
+              const posterUrl =
+                currentVideo?.thumbnailUrl ||
+                currentVideo?.thumbnail_url ||
+                group.thumbnailUrl ||
+                group.thumbnail_url ||
+                undefined;
 
               return (
                 <Card key={group.id} className="overflow-hidden">
@@ -391,7 +407,10 @@ export function VideoResults() {
                             key={video.id}
                             size="sm"
                             variant={currentVideoIndex === index ? "default" : "outline"}
-                            onClick={() => setSelectedVideoIndex(prev => ({ ...prev, [group.id]: index }))}
+                            onClick={() => {
+                              setSelectedVideoIndex(prev => ({ ...prev, [group.id]: index }));
+                              setActivatedGroups(prev => ({ ...prev, [group.id]: false }));
+                            }}
                           >
                             {getLocalizedText(video, "viewAngle", locale) || `View ${index + 1}`}
                           </Button>
@@ -401,14 +420,44 @@ export function VideoResults() {
 
                     {/* Video Player */}
                     {currentVideo && (
-                      <video
-                        key={currentVideo.id}
-                        src={currentVideo.videoUrl}
-                        controls
-                        playsInline
-                        className="w-full rounded-lg"
-                        preload="metadata"
-                      />
+                      activatedGroups[group.id] ? (
+                        <video
+                          key={currentVideo.id}
+                          src={currentVideo.videoUrl}
+                          poster={posterUrl}
+                          controls
+                          playsInline
+                          autoPlay
+                          className="w-full rounded-lg"
+                          preload="metadata"
+                        />
+                      ) : (
+                        <button
+                          type="button"
+                          onClick={() =>
+                            setActivatedGroups(prev => ({ ...prev, [group.id]: true }))
+                          }
+                          className="group relative block w-full overflow-hidden rounded-lg bg-muted"
+                        >
+                          <div className="aspect-video w-full overflow-hidden">
+                            {posterUrl ? (
+                              <img
+                                src={posterUrl}
+                                alt={title || "Video thumbnail"}
+                                className="h-full w-full object-cover transition-transform duration-200 group-hover:scale-[1.02]"
+                              />
+                            ) : (
+                              <div className="h-full w-full bg-[linear-gradient(135deg,_rgba(249,115,22,0.18),_rgba(20,184,166,0.14))]" />
+                            )}
+                          </div>
+                          <div className="absolute inset-0 flex items-center justify-center bg-black/20 transition-colors group-hover:bg-black/28">
+                            <span className="inline-flex items-center gap-2 rounded-full bg-white/92 px-4 py-2 text-sm font-medium text-foreground shadow-sm">
+                              <Play className="h-4 w-4 fill-current" />
+                              {t("history.view")}
+                            </span>
+                          </div>
+                        </button>
+                      )
                     )}
 
                     {/* Instructions */}

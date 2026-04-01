@@ -63,9 +63,6 @@ export default function HistoryPage() {
         );
         setHistoryTasks(transformedTasks);
         setHistoryTotal(data.data.total || 0);
-        console.log(data);
-        console.log(data.data.data);
-        console.log(data.data.total);
       }
     } catch (error) {
       console.error("Failed to fetch history:", error);
@@ -99,7 +96,8 @@ export default function HistoryPage() {
         onPageChange={setHistoryPage}
         onRefresh={fetchHistory}
         showTitle={true}
-        showFinalPrompt={true}
+        showFinalPrompt={false}
+        variant="workout"
       />
     </div>
   );

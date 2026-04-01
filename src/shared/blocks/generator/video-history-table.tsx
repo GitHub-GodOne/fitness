@@ -68,7 +68,63 @@ interface VideoHistoryTableProps {
   onRegenerate?: (task: HistoryTask) => void;
   showTitle?: boolean;
   showFinalPrompt?: boolean;
+  variant?: "default" | "workout";
   className?: string;
+}
+
+function parseJsonSafely(value: string | null | undefined) {
+  if (!value) {
+    return null;
+  }
+
+  try {
+    return JSON.parse(value);
+  } catch {
+    return null;
+  }
+}
+
+function normalizeLabel(value: string) {
+  return value.replace(/[_-]+/g, " ").trim();
+}
+
+function extractTargetMuscles(task: HistoryTask) {
+  const taskResult = parseJsonSafely(task.taskResult);
+  const options = parseJsonSafely(task.options);
+
+  const values = [
+    ...(Array.isArray(taskResult?.matchedBodyParts) ? taskResult.matchedBodyParts : []),
+    ...(Array.isArray(options?.selected_body_parts) ? options.selected_body_parts : []),
+    ...(typeof options?.target_muscle_group === "string"
+      ? options.target_muscle_group.split(",")
+      : []),
+    ...(typeof options?.user_feeling === "string"
+      ? options.user_feeling.split(",")
+      : []),
+    ...(typeof task.prompt === "string" ? task.prompt.split(",") : []),
+  ]
+    .map((item) => (typeof item === "string" ? normalizeLabel(item) : ""))
+    .filter(Boolean);
+
+  return Array.from(new Set(values));
+}
+
+function extractWorkoutItems(task: HistoryTask) {
+  const taskResult = parseJsonSafely(task.taskResult);
+
+  const values = [
+    ...(Array.isArray(taskResult?.workoutItems) ? taskResult.workoutItems : []),
+    ...(Array.isArray(taskResult?.matchedVideos)
+      ? taskResult.matchedVideos.flatMap((item: any) =>
+          Array.isArray(item?.workoutItems) ? item.workoutItems : []
+        )
+      : []),
+    ...(typeof taskResult?.matchedObject === "string" ? [taskResult.matchedObject] : []),
+  ]
+    .map((item) => (typeof item === "string" ? normalizeLabel(item) : ""))
+    .filter(Boolean);
+
+  return Array.from(new Set(values));
 }
 
 /**
@@ -93,6 +149,7 @@ export function VideoHistoryTable({
   onRegenerate,
   showTitle = true,
   showFinalPrompt = true,
+  variant = "default",
   className = "",
 }: VideoHistoryTableProps) {
   const t = useTranslations("ai.video.generator");
@@ -255,9 +312,18 @@ export function VideoHistoryTable({
                     <TableRow>
                       <TableHead>{t("history.status")}</TableHead>
                       <TableHead>{t("history.preview")}</TableHead>
-                      <TableHead>{t("history.prompt")}</TableHead>
-                      <TableHead>{t("history.verse_reference")}</TableHead>
-                      {showFinalPrompt && (
+                      {variant === "workout" ? (
+                        <>
+                          <TableHead>{t("history.target_muscle")}</TableHead>
+                          <TableHead>{t("history.workout_items")}</TableHead>
+                        </>
+                      ) : (
+                        <>
+                          <TableHead>{t("history.prompt")}</TableHead>
+                          <TableHead>{t("history.verse_reference")}</TableHead>
+                        </>
+                      )}
+                      {variant !== "workout" && showFinalPrompt && (
                         <TableHead className="max-w-xs">
                           {t("history.final_prompt")}
                         </TableHead>
@@ -281,6 +347,8 @@ export function VideoHistoryTable({
                         task.taskResult,
                       );
                       const coverUrl = extractVideoCoverFromAITask(task.taskResult);
+                      const targetMuscles = extractTargetMuscles(task);
+                      const workoutItems = extractWorkoutItems(task);
                       let finalPrompt = "";
                       let verseReference = "";
 
@@ -370,35 +438,76 @@ export function VideoHistoryTable({
                               </div>
                             </button>
                           </TableCell>
-                          <TableCell>
-                            {task.prompt ? (
-                              <Copy
-                                value={task.prompt}
-                                className="max-w-[200px]"
-                              >
-                                <span className="truncate" title={task.prompt}>
-                                  {task.prompt}
-                                </span>
-                              </Copy>
-                            ) : (
-                              <span>-</span>
-                            )}
-                          </TableCell>
-                          <TableCell>
-                            {verseReference ? (
-                              <Copy value={verseReference} className="">
-                                <span
-                                  className="truncate font-medium text-blue-600 dark:text-blue-400"
-                                  title={verseReference}
-                                >
-                                  {verseReference}
-                                </span>
-                              </Copy>
-                            ) : (
-                              <span className="text-muted-foreground">-</span>
-                            )}
-                          </TableCell>
-                          {showFinalPrompt && (
+                          {variant === "workout" ? (
+                            <>
+                              <TableCell>
+                                {targetMuscles.length > 0 ? (
+                                  <Copy
+                                    value={targetMuscles.join(", ")}
+                                    className="max-w-[220px]"
+                                  >
+                                    <span
+                                      className="truncate font-medium text-blue-600 dark:text-blue-400"
+                                      title={targetMuscles.join(", ")}
+                                    >
+                                      {targetMuscles.join(", ")}
+                                    </span>
+                                  </Copy>
+                                ) : (
+                                  <span className="text-muted-foreground">-</span>
+                                )}
+                              </TableCell>
+                              <TableCell>
+                                {workoutItems.length > 0 ? (
+                                  <Copy
+                                    value={workoutItems.join(", ")}
+                                    className="max-w-[220px]"
+                                  >
+                                    <span
+                                      className="truncate"
+                                      title={workoutItems.join(", ")}
+                                    >
+                                      {workoutItems.join(", ")}
+                                    </span>
+                                  </Copy>
+                                ) : (
+                                  <span className="text-muted-foreground">-</span>
+                                )}
+                              </TableCell>
+                            </>
+                          ) : (
+                            <>
+                              <TableCell>
+                                {task.prompt ? (
+                                  <Copy
+                                    value={task.prompt}
+                                    className="max-w-[200px]"
+                                  >
+                                    <span className="truncate" title={task.prompt}>
+                                      {task.prompt}
+                                    </span>
+                                  </Copy>
+                                ) : (
+                                  <span>-</span>
+                                )}
+                              </TableCell>
+                              <TableCell>
+                                {verseReference ? (
+                                  <Copy value={verseReference} className="">
+                                    <span
+                                      className="truncate font-medium text-blue-600 dark:text-blue-400"
+                                      title={verseReference}
+                                    >
+                                      {verseReference}
+                                    </span>
+                                  </Copy>
+                                ) : (
+                                  <span className="text-muted-foreground">-</span>
+                                )}
+                              </TableCell>
+                            </>
+                          )}
+                          {variant !== "workout" && showFinalPrompt && (
                             <TableCell>
                               {finalPrompt ? (
                                 <Copy value={finalPrompt} className="max-w-xs">

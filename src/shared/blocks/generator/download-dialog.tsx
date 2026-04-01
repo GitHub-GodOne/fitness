@@ -39,6 +39,7 @@ import { useMediaQuery } from "@/shared/hooks/use-media-query";
 import {
   extractOriginalImageUrlsFromAITask,
   extractVideoCoverFromAITask,
+  extractVideoUrlFromAITask,
 } from "@/shared/lib/ai-task-video";
 
 interface DownloadDialogProps {
@@ -228,12 +229,20 @@ export function DownloadDialog({
       taskResult,
     });
   }, [taskInfo, taskResult]);
+  const extractedVideoUrl = useMemo(
+    () =>
+      extractVideoUrlFromAITask({
+        taskInfo,
+        taskResult,
+      }),
+    [taskInfo, taskResult],
+  );
   const videoPoster = useMemo(
     () => extractVideoCoverFromAITask(taskResult),
     [taskResult],
   );
 
-  const hasVideo = Boolean(resultData.video_url);
+  const hasVideo = Boolean(extractedVideoUrl);
   const hasImagesWithText = Boolean(resultData.edited_image_url);
   const hasOriginalImages = Boolean(allOriginalImages.length);
 
@@ -274,13 +283,13 @@ export function DownloadDialog({
   );
 
   const handleDownloadVideo = useCallback(async () => {
-    if (!resultData.video_url) {
+    if (!extractedVideoUrl) {
       toast.error(t("no_video_found"));
       return;
     }
-    await downloadFile(resultData.video_url, `video-${taskId}.mp4`);
+    await downloadFile(extractedVideoUrl, `video-${taskId}.mp4`);
     toast.success(t("video_downloaded"));
-  }, [resultData.video_url, downloadFile, t, taskId]);
+  }, [extractedVideoUrl, downloadFile, t, taskId]);
 
   const handleDownloadImage = useCallback(
     async (url: string, index: number) => {
@@ -437,9 +446,9 @@ export function DownloadDialog({
       {/* 可滚动的内容区域 */}
       <div className="flex-1 overflow-y-auto mt-4">
         <TabsContent value="video" className="mt-0">
-          {hasVideo && resultData.video_url ? (
+          {hasVideo && extractedVideoUrl ? (
               <VideoPreview
-                videoUrl={resultData.video_url}
+                videoUrl={extractedVideoUrl}
                 poster={videoPoster}
                 onDownload={handleDownloadVideo}
               />

@@ -143,6 +143,8 @@
       "order": "Order",
       "task_id": "Task ID",
       "prompt": "Prompt",
+      "target_muscle": "Target Muscle",
+      "workout_items": "Workout items",
       "verse_reference": "Target Muscle",
       "final_prompt": "Final Prompt",
       "current_step": "Current Step",

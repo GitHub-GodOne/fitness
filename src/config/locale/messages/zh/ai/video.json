@@ -143,6 +143,8 @@
       "order": "顺序",
       "task_id": "任务ID",
       "prompt": "提示词",
+      "target_muscle": "目标肌肉",
+      "workout_items": "训练物品",
       "verse_reference": "目标肌肉",
       "final_prompt": "最终提示词",
       "current_step": "当前步骤",
