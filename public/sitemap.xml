@@ -56,4 +56,19 @@
   <lastmod>2026-02-10T19:36:46+00:00</lastmod>
   <priority>0.60</priority>
 </url>
+  <url>
+    <loc>http://localhost:3000/showcases/watch/ces--a9186a09-3a66-4136-8a85-d61220bb0f97</loc>
+    <lastmod>2026-03-27T03:06:42.541Z</lastmod>
+    <priority>0.80</priority>
+  </url>
+  <url>
+    <loc>http://localhost:3000/showcases/bible-verses-for-anxiety-and-fear</loc>
+    <lastmod>2026-03-27T03:19:06.669Z</lastmod>
+    <priority>0.80</priority>
+  </url>
+  <url>
+    <loc>http://localhost:3000/wxy</loc>
+    <lastmod>2026-03-27T03:25:43.357Z</lastmod>
+    <priority>1.00</priority>
+  </url>
 </urlset>

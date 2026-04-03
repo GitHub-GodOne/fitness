@@ -2,7 +2,8 @@
 
 import { useCallback, useEffect, useRef, useState } from "react";
 import Image from "next/image";
-import { Play, Pause, Volume2, VolumeX } from "lucide-react";
+import { ArrowUpRight, Play, Pause, Volume2, VolumeX } from "lucide-react";
+import { Link } from "@/core/i18n/navigation";
 import { SmartIcon } from "@/shared/blocks/common";
 import { useRequireAuth } from "@/shared/hooks/use-require-auth";
 import { cn } from "@/shared/lib/utils";
@@ -31,11 +32,8 @@ interface HeroLumen5Section extends Omit<Section, "buttons"> {
   featured_video?: {
     src: string;
     poster?: string;
-  };
-  watch_page?: {
-    url: string;
-    title?: string;
-    link_title?: string;
+    watch_url?: string;
+    watch_label?: string;
   };
   partner_logos?: Array<{
     src: string;
@@ -284,12 +282,28 @@ export function HeroLumen5({
           {/* Video/Image - shows first on mobile, second on desktop */}
           <div className="w-full lg:flex-1 sm:max-w-[480px] max-w-[450px] order-first lg:order-last py-4 lg:py-15">
             {section.featured_video ? (
-              <HeroVideo
-                src={section.featured_video.src}
-                poster={
-                  section.featured_video.poster || section.featured_image?.src
-                }
-              />
+              <div className="space-y-3">
+                <HeroVideo
+                  src={section.featured_video.src}
+                  poster={
+                    section.featured_video.poster || section.featured_image?.src
+                  }
+                />
+                {section.featured_video.watch_url ? (
+                  <div className="flex justify-center lg:justify-start">
+                    <Link
+                      href={section.featured_video.watch_url}
+                      className="inline-flex items-center gap-2 rounded-full border border-border/70 bg-background/90 px-4 py-2 text-sm font-medium text-foreground shadow-sm transition hover:border-primary/40 hover:text-primary"
+                    >
+                      <span>
+                        {section.featured_video.watch_label ||
+                          "Watch video details"}
+                      </span>
+                      <ArrowUpRight className="h-4 w-4" />
+                    </Link>
+                  </div>
+                ) : null}
+              </div>
             ) : section.featured_image ? (
               <Image
                 src={section.featured_image.src}

@@ -1,11 +1,13 @@
-import Link from 'next/link';
+'use client';
 
-import { Button } from '@/shared/components/ui/button';
+import { useTranslations } from 'next-intl';
 
 export function BuiltWith() {
+  const t = useTranslations('landing.footer');
+
   return (
     <div className="text-sm text-muted-foreground">
-      Built with ❤️ for peace and comfort
+      {t('built_with')}
     </div>
   );
 }
