@@ -341,8 +341,8 @@
         "signature_image": "/imgs/founder/signature.svg",
         "className": "bg-muted/30"
       },
-      "testimonials": {
-        "id": "testimonials",
+      "legacy_testimonials": {
+        "id": "legacy-testimonials",
         "title": "Stories of Faith & Comfort",
         "description": "",
         "items": [
