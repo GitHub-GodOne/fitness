@@ -652,6 +652,28 @@ export async function getSettings() {
       tab: 'payment',
     },
     {
+      name: 'pricing_paid_mode',
+      title: 'Paid Plan Mode',
+      type: 'select',
+      value: 'subscription_monthly',
+      options: [
+        { title: 'Monthly Subscription', value: 'subscription_monthly' },
+        { title: 'One-time Payment', value: 'one_time' },
+      ],
+      tip: 'Controls whether paid pricing plans are treated as monthly subscriptions or one-time payments at checkout.',
+      group: 'basic_payment',
+      tab: 'payment',
+    },
+    {
+      name: 'video_history_keep_full_after_expiry',
+      title: 'Keep Full History Access After Expiry',
+      type: 'switch',
+      value: 'false',
+      tip: 'When enabled, tasks created during an active subscription period will continue to show full history details after the subscription expires.',
+      group: 'basic_payment',
+      tab: 'payment',
+    },
+    {
       name: 'stripe_enabled',
       title: 'Stripe Enabled',
       type: 'switch',

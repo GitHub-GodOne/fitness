@@ -68,20 +68,6 @@ interface ObjectRecognitionResponse {
     matchedObject: string;
 }
 
-function limitVideosForAccessType(
-    groups: any[],
-    accessType: VideoAccessTier
-) {
-    if (accessType !== 'free') {
-        return groups;
-    }
-
-    return groups.map((group: any) => ({
-        ...group,
-        videos: Array.isArray(group.videos) ? group.videos.slice(0, 1) : group.videos,
-    }));
-}
-
 /**
  * Video Library Provider
  */
@@ -356,10 +342,7 @@ Output: a single JSON with "matchedObject" set to the exact name from the list, 
                     }
                 }
 
-                videosForResult = limitVideosForAccessType(
-                    allVideoGroups.slice(0, 10),
-                    accessType
-                );
+                videosForResult = allVideoGroups.slice(0, 10);
 
                 if (videosForResult.length === 0) {
                     throw new Error('No matching videos found for the identified object and selected body parts. Please try different options.');
@@ -437,10 +420,7 @@ Output: a single JSON with "matchedObject" set to the exact name from the list, 
                     }
                 }
 
-                videosForResult = limitVideosForAccessType(
-                    allVideoGroups.slice(0, 10),
-                    accessType
-                );
+                videosForResult = allVideoGroups.slice(0, 10);
                 console.log(`[VideoLibrary] Found ${videosForResult.length} videos for body parts: ${bodyPartsList.join(', ')}`);
 
                 if (videosForResult.length === 0) {

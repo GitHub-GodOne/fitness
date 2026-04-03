@@ -1,7 +1,9 @@
 import { envConfigs } from '@/config';
 import { AIMediaType, AITaskStatus } from '@/extensions/ai';
 import { getUuid } from '@/shared/lib/hash';
+import { withTaskHistoryAccessSnapshot } from '@/shared/lib/history-visibility';
 import { respData, respErr } from '@/shared/lib/resp';
+import { limitVideoLibraryTaskResultAngles } from '@/shared/lib/video-library-task-result';
 import { createAITask, NewAITask, updateAITaskById } from '@/shared/models/ai_task';
 import { getRemainingCredits } from '@/shared/models/credit';
 import { getCurrentSubscription } from '@/shared/models/subscription';
@@ -149,6 +151,10 @@ export async function POST(request: Request) {
         : null;
       hasActiveSubscription = Boolean(currentSubscription);
       accessTier = resolveVideoAccessTierFromSubscription(currentSubscription);
+      options = withTaskHistoryAccessSnapshot({
+        options,
+        currentSubscription,
+      });
 
       const selectedBodyParts: string[] = Array.isArray(options?.selected_body_parts)
         ? options.selected_body_parts
@@ -230,6 +236,16 @@ export async function POST(request: Request) {
     }
 
     if (!user && mediaType === AIMediaType.VIDEO) {
+      const limitedTaskResult =
+        provider === 'video-library'
+          ? limitVideoLibraryTaskResultAngles(
+              result.taskResult ? JSON.stringify(result.taskResult) : null,
+              false,
+            )
+          : result.taskResult
+            ? JSON.stringify(result.taskResult)
+            : null;
+
       return respData({
         id: taskId,
         userId: null,
@@ -242,7 +258,7 @@ export async function POST(request: Request) {
         status: result.taskStatus || AITaskStatus.PENDING,
         taskId: result.taskId,
         taskInfo: result.taskInfo ? JSON.stringify(result.taskInfo) : null,
-        taskResult: result.taskResult ? JSON.stringify(result.taskResult) : null,
+        taskResult: limitedTaskResult,
         costCredits: 0,
         creditId: null,
         anonymous: true,
@@ -277,6 +293,17 @@ export async function POST(request: Request) {
             creditId: createdTask.creditId,
           })
         : createdTask;
+
+    if (persistedTask.provider === 'video-library') {
+      return respData({
+        ...persistedTask,
+        taskResult:
+          limitVideoLibraryTaskResultAngles(
+            persistedTask.taskResult,
+            Boolean(currentSubscription),
+          ) || null,
+      });
+    }
 
     return respData(persistedTask);
   } catch (e: any) {

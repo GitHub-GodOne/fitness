@@ -2,12 +2,21 @@
   "fields": {
     "subscription_no": "Subscription No",
     "user": "User",
+    "user_email": "User Email",
     "amount": "Amount",
+    "currency": "Currency",
     "interval": "Interval",
+    "interval_count": "Interval Count",
     "provider": "Provider",
+    "provider_subscription_id": "Provider Subscription ID",
+    "product_id": "Product ID",
+    "product_name": "Product Name",
+    "plan_name": "Plan Name",
     "created_at": "Created At",
     "current_period_start": "Current Period Start",
     "current_period_end": "Current Period End",
+    "canceled_at": "Canceled At",
+    "canceled_end_at": "Canceled End At",
     "status": "Status",
     "description": "Description",
     "action": "Action"
@@ -21,7 +30,22 @@
     "tabs": {
       "all": "All",
       "month": "Month",
-      "year": "Year"
+      "year": "Year",
+      "one_time": "One-time"
+    },
+    "buttons": {
+      "edit": "Edit"
+    }
+  },
+  "edit": {
+    "title": "Edit Subscription",
+    "crumbs": {
+      "admin": "Admin",
+      "subscriptions": "Subscriptions",
+      "edit": "Edit"
+    },
+    "buttons": {
+      "submit": "Save Changes"
     }
   }
 }

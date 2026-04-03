@@ -8,8 +8,10 @@ import {
   renderCustomHtmlPageOverride,
 } from '@/shared/lib/custom-html-page-override';
 import { getMetadata } from '@/shared/lib/seo';
+import { getAllConfigs } from '@/shared/models/config';
 import { getCurrentSubscription } from '@/shared/models/subscription';
 import { getUserInfo } from '@/shared/models/user';
+import { applyPricingRuntimeSettings } from '@/shared/lib/pricing-runtime';
 import { DynamicPage } from '@/shared/types/blocks/landing';
 
 export const revalidate = 3600;
@@ -63,6 +65,8 @@ export default async function PricingPage({
     console.log('getting current subscription failed:', error);
   }
 
+  const configs = await getAllConfigs();
+
   // get pricing data
   const t = await getTranslations('pages.pricing');
   const getRawOrDefault = <T,>(key: string, fallback: T): T => {
@@ -72,7 +76,28 @@ export default async function PricingPage({
       return fallback;
     }
   };
-  const pricingSection = t.raw('page.sections.pricing');
+  const getTextOrDefault = (
+    key: string,
+    fallback: string,
+    values?: Record<string, string | number>,
+  ) => {
+    try {
+      return t(key as any, values as any);
+    } catch {
+      return fallback;
+    }
+  };
+  const pricingSection = applyPricingRuntimeSettings(
+    getRawOrDefault('page.sections.pricing', {
+      id: 'pricing',
+      title: t.raw('page.title'),
+      description: '',
+      groups: [],
+      items: [],
+    }),
+    configs,
+    getRawOrDefault('runtime', {}),
+  );
   const comparisonSection = getRawOrDefault('page.seo.comparison', {
     eyebrow: '',
     title: '',
@@ -265,13 +290,28 @@ export default async function PricingPage({
       <section className="container pb-16 pt-0">
         <div className="rounded-[28px] border border-border/70 bg-card/70 px-5 py-6 shadow-sm sm:px-8">
           <h2 className="text-2xl font-semibold tracking-tight text-foreground sm:text-3xl">
-            {t('messages.seo_body_title')}
+            {getTextOrDefault(
+              'messages.seo_body_title',
+              'How to Choose a Plan',
+            )}
           </h2>
           <div className="mt-4 space-y-4 text-sm leading-7 text-muted-foreground sm:text-[15px]">
             {planSummary ? (
-              <p>{t('messages.seo_plan_summary', { plans: planSummary })}</p>
+              <p>
+                {getTextOrDefault(
+                  'messages.seo_plan_summary',
+                  `Current options on this page include ${planSummary}.`,
+                  { plans: planSummary },
+                )}
+              </p>
             ) : null}
-            {(t.raw('messages.seo_body_paragraphs') as string[]).map((paragraph) => (
+            {(
+              Array.isArray(
+                getRawOrDefault('messages.seo_body_paragraphs', [] as string[]),
+              )
+                ? getRawOrDefault('messages.seo_body_paragraphs', [] as string[])
+                : []
+            ).map((paragraph) => (
               <p key={paragraph}>{paragraph}</p>
             ))}
           </div>

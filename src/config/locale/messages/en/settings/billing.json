@@ -2,6 +2,7 @@
   "fields": {
     "subscription_no": "Subscription No",
     "interval": "Interval",
+    "permanent": "Permanent",
     "provider": "Provider",
     "current_period": "Current Period",
     "plan": "Plan",
@@ -14,6 +15,7 @@
   "view": {
     "title": "Current Plan",
     "tip": "Your subscription will auto renew on {date}",
+    "permanent_tip": "Your one-time membership is active permanently.",
     "end_tip": "Your subscription will be auto canceled on {date}",
     "no_subscription": "No plan",
     "buttons": {

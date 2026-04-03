@@ -1,9 +1,16 @@
+import { getAllConfigs } from '@/shared/models/config';
 import { respData, respErr } from '@/shared/lib/resp';
+import { canViewFullHistoryForTask } from '@/shared/lib/history-visibility';
+import {
+  hydrateVideoLibraryTaskResult,
+  limitVideoLibraryTaskResultAngles,
+} from '@/shared/lib/video-library-task-result';
 import {
   findAITaskById,
   UpdateAITask,
   updateAITaskById,
 } from '@/shared/models/ai_task';
+import { getCurrentSubscription, getSubscriptions } from '@/shared/models/subscription';
 import { getUserInfo } from '@/shared/models/user';
 import { getAIService } from '@/shared/services/ai';
 import { ensureUploadedVideoThumbnail } from '@/shared/services/video-thumbnail';
@@ -17,6 +24,17 @@ export async function POST(req: Request) {
     }
 
     const user = await getUserInfo();
+    const [configs, currentSubscription, subscriptions] = user
+      ? await Promise.all([
+          getAllConfigs(),
+          getCurrentSubscription(user.id),
+          getSubscriptions({
+            userId: user.id,
+            page: 1,
+            limit: 200,
+          }),
+        ])
+      : [null, null, []];
 
     const task = await findAITaskById(taskId);
     if (!task || !task.taskId) {
@@ -38,6 +56,31 @@ export async function POST(req: Request) {
     // If task is already completed (SUCCESS or FAILED), return it directly
     // without querying the provider again (prevents overwriting valid results)
     if (task.status === 'success' || task.status === 'failed') {
+      if (task.provider === 'video-library' && task.taskResult) {
+        const hydratedTaskResult = await hydrateVideoLibraryTaskResult(
+          task.taskResult,
+        );
+
+        if (hydratedTaskResult !== task.taskResult) {
+          await updateAITaskById(task.id, {
+            taskResult: hydratedTaskResult,
+          });
+          task.taskResult = hydratedTaskResult || null;
+        }
+
+        task.taskResult =
+          limitVideoLibraryTaskResultAngles(
+            task.taskResult,
+            canViewFullHistoryForTask({
+              taskCreatedAt: task.createdAt,
+              taskOptions: task.options,
+              currentSubscription,
+              subscriptions,
+              configs,
+            }),
+          ) || null;
+      }
+
       return respData(task);
     }
 
@@ -113,6 +156,20 @@ export async function POST(req: Request) {
     task.status = updateAITask.status || '';
     task.taskInfo = updateAITask.taskInfo || null;
     task.taskResult = updateAITask.taskResult || null;
+
+    if (task.provider === 'video-library') {
+      task.taskResult =
+        limitVideoLibraryTaskResultAngles(
+          task.taskResult,
+          canViewFullHistoryForTask({
+            taskCreatedAt: task.createdAt,
+            taskOptions: task.options,
+            currentSubscription,
+            subscriptions,
+            configs,
+          }),
+        ) || null;
+    }
 
     return respData(task);
   } catch (e: any) {

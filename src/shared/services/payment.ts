@@ -6,6 +6,7 @@ import {
 } from '@/extensions/payment';
 import {
   PaymentSession,
+  PaymentInterval,
   PaymentStatus,
   PaymentType,
 } from '@/extensions/payment/types';
@@ -36,6 +37,56 @@ import {
   UpdateSubscription,
   updateSubscriptionBySubscriptionNo,
 } from '../models/subscription';
+
+function shouldCreatePermanentSubscriptionFromOneTimeOrder(order: Order) {
+  return (
+    order.paymentType === PaymentType.ONE_TIME &&
+    Boolean(order.productId) &&
+    order.productId !== 'free' &&
+    (order.amount || 0) > 0
+  );
+}
+
+function buildPermanentSubscriptionFromOneTimeOrder({
+  order,
+  session,
+}: {
+  order: Order;
+  session: PaymentSession;
+}): NewSubscription {
+  const paidAt = session.paymentInfo?.paidAt || new Date();
+  const syntheticSubscriptionId =
+    session.subscriptionId ||
+    `${order.paymentProvider}_one_time_${order.orderNo}`;
+
+  return {
+    id: getUuid(),
+    subscriptionNo: getSnowId(),
+    userId: order.userId,
+    userEmail: order.paymentEmail || order.userEmail,
+    status: SubscriptionStatus.ACTIVE,
+    paymentProvider: order.paymentProvider,
+    subscriptionId: syntheticSubscriptionId,
+    subscriptionResult: JSON.stringify(
+      session.subscriptionResult || session.paymentResult || {}
+    ),
+    productId: order.productId,
+    description: order.description || 'One-time lifetime access',
+    amount: session.paymentInfo?.paymentAmount || order.amount,
+    currency: session.paymentInfo?.paymentCurrency || order.currency,
+    interval: PaymentInterval.ONE_TIME,
+    intervalCount: 1,
+    currentPeriodStart: paidAt,
+    currentPeriodEnd: null,
+    planName: order.planName || order.productName,
+    billingUrl: '',
+    productName: order.productName,
+    creditsAmount: order.creditsAmount,
+    creditsValidDays: order.creditsValidDays,
+    paymentProductId: order.paymentProductId,
+    paymentUserId: session.paymentInfo?.paymentUserId,
+  };
+}
 
 /**
  * get payment service with configs
@@ -165,7 +216,7 @@ export async function handleCheckoutSuccess({
     const subscriptionInfo = session.subscriptionInfo;
 
     // subscription first payment
-    if (subscriptionInfo) {
+    if (order.paymentType === PaymentType.SUBSCRIPTION && subscriptionInfo) {
       // new subscription
       newSubscription = {
         id: getUuid(),
@@ -199,6 +250,15 @@ export async function handleCheckoutSuccess({
       updateOrder.subscriptionResult = JSON.stringify(
         session.subscriptionResult
       );
+    } else if (shouldCreatePermanentSubscriptionFromOneTimeOrder(order)) {
+      newSubscription = buildPermanentSubscriptionFromOneTimeOrder({
+        order,
+        session,
+      });
+
+      updateOrder.subscriptionNo = newSubscription.subscriptionNo;
+      updateOrder.subscriptionId = newSubscription.subscriptionId;
+      updateOrder.subscriptionResult = newSubscription.subscriptionResult;
     }
 
     // grant credit for order
@@ -303,7 +363,7 @@ export async function handlePaymentSuccess({
     const subscriptionInfo = session.subscriptionInfo;
 
     // subscription first payment
-    if (subscriptionInfo) {
+    if (order.paymentType === PaymentType.SUBSCRIPTION && subscriptionInfo) {
       // new subscription
       newSubscription = {
         id: getUuid(),
@@ -336,6 +396,15 @@ export async function handlePaymentSuccess({
       updateOrder.subscriptionResult = JSON.stringify(
         session.subscriptionResult
       );
+    } else if (shouldCreatePermanentSubscriptionFromOneTimeOrder(order)) {
+      newSubscription = buildPermanentSubscriptionFromOneTimeOrder({
+        order,
+        session,
+      });
+
+      updateOrder.subscriptionNo = newSubscription.subscriptionNo;
+      updateOrder.subscriptionId = newSubscription.subscriptionId;
+      updateOrder.subscriptionResult = newSubscription.subscriptionResult;
     }
 
     // grant credit for order

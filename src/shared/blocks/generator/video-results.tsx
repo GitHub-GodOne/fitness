@@ -188,7 +188,7 @@ export function VideoResults() {
                   videos: item.videos || [],
                 } : item)
               : [],
-            hasActiveSubscription,
+            Boolean(data?.hasActiveSubscription),
           );
 
           setVideoGroups(groups);
@@ -269,10 +269,7 @@ export function VideoResults() {
         console.log('[VideoResults] Response data:', { code, data });
         if (code !== 0 || !data) throw new Error("Task not found");
         const parsed = parseTaskResult(data.taskResult);
-        const groups = limitVideoGroupsForFreeUser(
-          extractVideoGroups(parsed),
-          hasActiveSubscription,
-        );
+        const groups = extractVideoGroups(parsed);
         console.log('[VideoResults] Extracted groups:', groups);
         setVideoGroups(groups);
         // Initialize selected video index for each group (default to 0)

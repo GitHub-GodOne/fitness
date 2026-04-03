@@ -81,21 +81,21 @@
           },
           {
             "title": "Starter Subscription",
-            "description": "Unlock the full guided workout experience with subscription access built for regular training.",
+            "description": "Unlock the full guided workout experience for regular training users.",
             "features_title": "What's Included",
             "features": [
               "Full workout video access",
               "Unlock all available view angles",
-              "Designed for ongoing weekly training"
+              "Expanded access for regular training"
             ],
-            "interval": "one-time",
+            "interval": "month",
             "amount": 990,
             "currency": "USD",
             "price": "$9.9",
             "original_price": "",
-            "unit": "",
+            "unit": "/month",
             "is_featured": false,
-            "tip": "Upgrade from free mode and unlock the complete workout viewing experience.",
+            "tip": "Billed every month. Cancel any time before your next renewal.",
             "button": {
               "title": "Choose Starter",
               "url": "/#pricing",
@@ -103,6 +103,7 @@
             },
             "product_id": "credits_20",
             "product_name": "Starter Subscription",
+            "plan_name": "Starter Monthly Subscription",
             "credits": 20,
             "valid_days": 0
           },
@@ -116,16 +117,16 @@
               "Everything in Starter Subscription",
               "Best value for committed users",
               "Ideal for frequent video workouts",
-              "Share more guided routines with family and friends"
+              "Built for the fullest training experience"
             ],
-            "interval": "one-time",
+            "interval": "month",
             "amount": 1990,
             "currency": "USD",
             "price": "$19.9",
             "original_price": "$29.7",
-            "unit": "",
+            "unit": "/month",
             "is_featured": true,
-            "tip": "Best value for members who want the fullest training experience.",
+            "tip": "Billed every month. Best value for users who want the fullest training experience.",
             "button": {
               "title": "Choose Pro",
               "url": "/#pricing",
@@ -133,6 +134,7 @@
             },
             "product_id": "credits_60",
             "product_name": "Pro Subscription",
+            "plan_name": "Pro Monthly Subscription",
             "credits": 60,
             "valid_days": 0
           }
@@ -154,5 +156,69 @@
       "The comparison and FAQ sections explain what each access level is best suited for and how to choose between trying the product for free and upgrading for more complete workout access."
     ],
     "seo_plan_summary": "Current options on this page include {plans}, giving visitors a clear way to choose between first-time access, occasional creation, and more consistent video use."
+  },
+  "runtime": {
+    "one_time": {
+      "unit": "",
+      "tip": "One-time payment. No recurring billing.",
+      "items": {
+        "credits_20": {
+          "title": "Starter Lifetime Access",
+          "description": "Unlock the full guided workout experience with a one-time purchase designed for long-term access.",
+          "features": [
+            "Full workout video access",
+            "Unlock all available view angles",
+            "One-time payment with permanent membership access"
+          ],
+          "tip": "One-time payment. Permanent membership access with no recurring billing.",
+          "product_name": "Starter Lifetime Access",
+          "plan_name": "Starter Lifetime Access"
+        },
+        "credits_60": {
+          "title": "Pro Lifetime Access",
+          "description": "Most Popular. Best for committed training with a one-time purchase that permanently unlocks the fullest experience.",
+          "features_title": "Everything in Starter, plus",
+          "features": [
+            "Everything in Starter Lifetime Access",
+            "Best value for committed users",
+            "Ideal for frequent video workouts",
+            "One-time payment with permanent membership access"
+          ],
+          "tip": "One-time payment. Permanent membership access for users who want the fullest training experience.",
+          "product_name": "Pro Lifetime Access",
+          "plan_name": "Pro Lifetime Access"
+        }
+      }
+    },
+    "subscription_monthly": {
+      "unit": "/month",
+      "tip": "Billed every month. Cancel any time before your next renewal.",
+      "items": {
+        "credits_20": {
+          "title": "Starter Subscription",
+          "description": "Unlock the full guided workout experience with a monthly subscription built for regular training.",
+          "features": [
+            "Full workout video access",
+            "Unlock all available view angles",
+            "Billed monthly with recurring access"
+          ],
+          "product_name": "Starter Subscription",
+          "plan_name": "Starter Monthly Subscription"
+        },
+        "credits_60": {
+          "title": "Pro Subscription",
+          "description": "Most Popular. Best for consistent training, richer workout variety, and unlocking the strongest value from the platform.",
+          "features_title": "Everything in Starter, plus",
+          "features": [
+            "Everything in Starter Subscription",
+            "Best value for committed users",
+            "Ideal for frequent video workouts",
+            "Monthly subscription with uninterrupted access"
+          ],
+          "product_name": "Pro Subscription",
+          "plan_name": "Pro Monthly Subscription"
+        }
+      }
+    }
   }
 }

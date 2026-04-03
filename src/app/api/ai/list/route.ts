@@ -1,143 +1,54 @@
 import { NextRequest } from 'next/server';
 
+import { getAllConfigs } from '@/shared/models/config';
 import { respData, respErr } from '@/shared/lib/resp';
+import { canViewFullHistoryForTask } from '@/shared/lib/history-visibility';
 import { getAITasks, getAITasksCount } from '@/shared/models/ai_task';
+import {
+    hydrateVideoLibraryTaskResult,
+    limitVideoLibraryTaskResultAngles,
+} from '@/shared/lib/video-library-task-result';
+import { getCurrentSubscription, getSubscriptions } from '@/shared/models/subscription';
 import { getUserInfo } from '@/shared/models/user';
 import { AIMediaType } from '@/extensions/ai/types';
-import {
-    getFitnessVideoGroupById,
-    getVideoMappings,
-} from '@/shared/models/video_library';
-
-function parseJsonSafely(value: string | null | undefined) {
-    if (!value) {
-        return null;
-    }
-
-    try {
-        return JSON.parse(value);
-    } catch {
-        return null;
-    }
-}
 
 async function enrichVideoLibraryTaskThumbnails<T extends {
+    configs?: any;
+    createdAt?: Date | string | null;
+    currentSubscription?: any;
+    options?: string | null;
     provider?: string | null;
+    subscriptions?: any[];
     taskResult?: string | null;
+    userId?: string | null;
 }>(tasks: T[]) {
-    const videoLibraryTasks = tasks.filter((task) => task.provider === 'video-library');
-    if (videoLibraryTasks.length === 0) {
-        return tasks;
-    }
-
-    const missingGroupIds = new Set<string>();
-
-    for (const task of videoLibraryTasks) {
-        const result = parseJsonSafely(task.taskResult);
-        const matchedVideos = Array.isArray(result?.matchedVideos) ? result.matchedVideos : [];
-
-        for (const item of matchedVideos) {
-            const hasThumbnail = Boolean(item?.thumbnailUrl || item?.thumbnail_url);
-            if (!hasThumbnail && typeof item?.id === 'string' && item.id.trim()) {
-                missingGroupIds.add(item.id.trim());
+    return Promise.all(
+        tasks.map(async (task) => {
+            if (task.provider !== 'video-library' || !task.taskResult) {
+                return task;
             }
-        }
-    }
 
-    if (missingGroupIds.size === 0) {
-        return tasks;
-    }
-
-    const groupEntries = await Promise.all(
-        Array.from(missingGroupIds).map(async (groupId) => {
-            const group = await getFitnessVideoGroupById(groupId);
-            const mappings = await getVideoMappings(groupId);
-            const workoutItems = Array.from(
-                new Set(
-                    mappings
-                        .map((item) => item.object?.nameZh || item.object?.name || '')
-                        .filter(Boolean)
-                )
+            const hydratedTaskResult = await hydrateVideoLibraryTaskResult(
+                task.taskResult,
             );
 
-            return [
-                groupId,
-                {
-                    thumbnailUrl: group?.thumbnailUrl || null,
-                    workoutItems,
-                },
-            ] as const;
+            return {
+                ...task,
+                taskResult: limitVideoLibraryTaskResultAngles(
+                    hydratedTaskResult,
+                    task.userId
+                        ? canViewFullHistoryForTask({
+                            taskCreatedAt: task.createdAt,
+                            taskOptions: task.options,
+                            currentSubscription: task.currentSubscription as any,
+                            subscriptions: task.subscriptions as any,
+                            configs: task.configs as any,
+                        })
+                        : false,
+                ),
+            };
         })
     );
-
-    const groupMetaMap = new Map(groupEntries);
-
-    if (groupMetaMap.size === 0) {
-        return tasks;
-    }
-
-    return tasks.map((task) => {
-        if (task.provider !== 'video-library' || !task.taskResult) {
-            return task;
-        }
-
-        const result = parseJsonSafely(task.taskResult);
-        const matchedVideos = Array.isArray(result?.matchedVideos) ? result.matchedVideos : null;
-        if (!matchedVideos) {
-            return task;
-        }
-
-        let changed = false;
-        const taskWorkoutItems = new Set<string>();
-        const nextMatchedVideos = matchedVideos.map((item: any) => {
-            if (typeof item?.id !== 'string') {
-                return item;
-            }
-
-            const groupMeta = groupMetaMap.get(item.id);
-            if (!groupMeta) {
-                return item;
-            }
-
-            const nextItem = {
-                ...item,
-                thumbnailUrl:
-                    item?.thumbnailUrl || item?.thumbnail_url || groupMeta.thumbnailUrl || '',
-                workoutItems:
-                    Array.isArray(item?.workoutItems) && item.workoutItems.length > 0
-                        ? item.workoutItems
-                        : groupMeta.workoutItems,
-            };
-
-            if (
-                nextItem.thumbnailUrl !== item?.thumbnailUrl ||
-                JSON.stringify(nextItem.workoutItems || []) !== JSON.stringify(item?.workoutItems || [])
-            ) {
-                changed = true;
-            }
-
-            for (const workoutItem of nextItem.workoutItems || []) {
-                if (workoutItem) {
-                    taskWorkoutItems.add(workoutItem);
-                }
-            }
-
-            return nextItem;
-        });
-
-        if (!changed) {
-            return task;
-        }
-
-        return {
-            ...task,
-            taskResult: JSON.stringify({
-                ...result,
-                workoutItems: Array.from(taskWorkoutItems),
-                matchedVideos: nextMatchedVideos,
-            }),
-        };
-    });
 }
 
 export async function GET(req: NextRequest) {
@@ -146,6 +57,16 @@ export async function GET(req: NextRequest) {
         if (!user) {
             return respErr('no auth, please sign in');
         }
+
+        const [configs, currentSubscription, subscriptions] = await Promise.all([
+            getAllConfigs(),
+            getCurrentSubscription(user.id),
+            getSubscriptions({
+                userId: user.id,
+                page: 1,
+                limit: 200,
+            }),
+        ]);
 
         const searchParams = req.nextUrl.searchParams;
         const page = Math.max(1, Number(searchParams.get('page') || 1));
@@ -167,7 +88,14 @@ export async function GET(req: NextRequest) {
                 status: status || undefined,
             }),
         ]);
-        const enrichedTasks = await enrichVideoLibraryTaskThumbnails(tasks);
+        const enrichedTasks = await enrichVideoLibraryTaskThumbnails(
+            tasks.map((task) => ({
+                ...task,
+                currentSubscription,
+                subscriptions,
+                configs,
+            }))
+        );
 
         const hasMore = page * limit < total;
 
@@ -191,6 +119,16 @@ export async function POST(req: Request) {
             return respErr('no auth, please sign in');
         }
 
+        const [configs, currentSubscription, subscriptions] = await Promise.all([
+            getAllConfigs(),
+            getCurrentSubscription(user.id),
+            getSubscriptions({
+                userId: user.id,
+                page: 1,
+                limit: 200,
+            }),
+        ]);
+
         const { page = 1, limit = 10, mediaType = AIMediaType.VIDEO, status } = await req.json();
 
         const safePage = Math.max(1, Number(page));
@@ -210,7 +148,14 @@ export async function POST(req: Request) {
                 status: status || undefined,
             }),
         ]);
-        const enrichedTasks = await enrichVideoLibraryTaskThumbnails(tasks);
+        const enrichedTasks = await enrichVideoLibraryTaskThumbnails(
+            tasks.map((task) => ({
+                ...task,
+                currentSubscription,
+                subscriptions,
+                configs,
+            }))
+        );
 
         const hasMore = safePage * safeLimit < total;
 

@@ -42,6 +42,10 @@ export default async function CancelBillingPage({
     return <Empty message="subscription with no payment subscription id" />;
   }
 
+  if (subscription.interval === 'one-time') {
+    return <Empty message="one-time membership cannot be canceled" />;
+  }
+
   if (subscription.userId !== user.id) {
     return <Empty message="no permission" />;
   }
@@ -86,6 +90,7 @@ export default async function CancelBillingPage({
     }
 
     if (
+      subscription.interval === 'one-time' ||
       subscription.status !== SubscriptionStatus.ACTIVE &&
       subscription.status !== SubscriptionStatus.TRIALING
     ) {
@@ -104,13 +109,24 @@ export default async function CancelBillingPage({
       throw new Error('cancel subscription failed');
     }
 
+    const nextStatus =
+      result.subscriptionInfo?.status || SubscriptionStatus.PENDING_CANCEL;
+
     await updateSubscriptionBySubscriptionNo(subscription.subscriptionNo, {
-      status: SubscriptionStatus.CANCELED,
+      status: nextStatus,
+      canceledAt: result.subscriptionInfo?.canceledAt || new Date(),
+      canceledEndAt:
+        result.subscriptionInfo?.canceledEndAt ||
+        result.subscriptionInfo?.currentPeriodEnd ||
+        subscription.currentPeriodEnd,
     });
 
     return {
       status: 'success' as const,
-      message: 'Subscription canceled',
+      message:
+        nextStatus === SubscriptionStatus.PENDING_CANCEL
+          ? 'Subscription will cancel at the end of the current billing period'
+          : 'Subscription canceled',
       redirect_url: '/settings/billing',
     };
   };

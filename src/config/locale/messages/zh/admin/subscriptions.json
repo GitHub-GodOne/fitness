@@ -2,12 +2,21 @@
   "fields": {
     "subscription_no": "订阅号",
     "user": "用户",
+    "user_email": "用户邮箱",
     "amount": "金额",
+    "currency": "货币",
     "interval": "周期",
+    "interval_count": "周期数量",
     "provider": "提供商",
+    "provider_subscription_id": "支付平台订阅 ID",
+    "product_id": "产品 ID",
+    "product_name": "产品名称",
+    "plan_name": "套餐名称",
     "created_at": "创建时间",
     "current_period_start": "当前周期开始时间",
     "current_period_end": "当前周期结束时间",
+    "canceled_at": "取消时间",
+    "canceled_end_at": "取消生效结束时间",
     "status": "状态",
     "description": "描述",
     "action": "操作"
@@ -21,7 +30,22 @@
     "tabs": {
       "all": "全部",
       "month": "月付",
-      "year": "年付"
+      "year": "年付",
+      "one_time": "一次性"
+    },
+    "buttons": {
+      "edit": "编辑"
+    }
+  },
+  "edit": {
+    "title": "编辑订阅",
+    "crumbs": {
+      "admin": "管理后台",
+      "subscriptions": "订阅",
+      "edit": "编辑"
+    },
+    "buttons": {
+      "submit": "保存修改"
     }
   }
 }

@@ -2,6 +2,7 @@
   "fields": {
     "subscription_no": "订阅号",
     "interval": "周期",
+    "permanent": "永久有效",
     "provider": "提供商",
     "current_period": "当前周期",
     "plan": "计划",
@@ -14,6 +15,7 @@
   "view": {
     "title": "当前计划",
     "tip": "你的订阅将在 {date} 自动续费",
+    "permanent_tip": "你的一次性会员已永久生效。",
     "end_tip": "你的订阅将在 {date} 自动取消",
     "no_subscription": "未订阅",
     "buttons": {

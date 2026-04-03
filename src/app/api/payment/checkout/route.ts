@@ -17,6 +17,7 @@ import {
 } from '@/shared/models/order';
 import { getUserInfo } from '@/shared/models/user';
 import { getPaymentService } from '@/shared/services/payment';
+import { applyPricingRuntimeSettings } from '@/shared/lib/pricing-runtime';
 import { PricingCurrency } from '@/shared/types/blocks/pricing';
 
 export async function POST(req: Request) {
@@ -31,9 +32,12 @@ export async function POST(req: Request) {
       locale: locale || 'en',
       namespace: 'pages.pricing',
     });
-    const pricing = t.raw('page.sections.pricing');
-
-    const pricingItem = pricing.items.find(
+    const pricing = applyPricingRuntimeSettings(
+      t.raw('page.sections.pricing'),
+      await getAllConfigs(),
+      t.raw('runtime'),
+    );
+    const pricingItem: any = (pricing.items || []).find(
       (item: any) => item.product_id === product_id
     );
 
@@ -107,7 +111,7 @@ export async function POST(req: Request) {
     // Security: currency can be provided by frontend, but amount must be calculated server-side
     const defaultCurrency = (pricingItem.currency || 'usd').toLowerCase();
     let checkoutCurrency = defaultCurrency;
-    let checkoutAmount = pricingItem.amount;
+    let checkoutAmount = pricingItem.amount || 0;
 
     // If currency is provided, validate it and find corresponding amount from server-side data
     if (currency) {
@@ -134,13 +138,15 @@ export async function POST(req: Request) {
 
     // get payment interval
     const paymentInterval: PaymentInterval =
-      pricingItem.interval || PaymentInterval.ONE_TIME;
+      (pricingItem.interval as PaymentInterval) || PaymentInterval.ONE_TIME;
 
     // get payment type
     const paymentType =
       paymentInterval === PaymentInterval.ONE_TIME
         ? PaymentType.ONE_TIME
         : PaymentType.SUBSCRIPTION;
+    const grantsMembershipAccess =
+      pricingItem.product_id !== 'free' && checkoutAmount > 0;
 
     const orderNo = getSnowId();
 
@@ -167,7 +173,7 @@ export async function POST(req: Request) {
     // If still not found, get from payment provider's config
     if (!paymentProductId) {
       paymentProductId = await getPaymentProductId(
-        pricingItem.product_id,
+        String(pricingItem.product_id),
         paymentProviderName,
         checkoutCurrency
       );
@@ -204,7 +210,7 @@ export async function POST(req: Request) {
     }
 
     const callbackUrl =
-      paymentType === PaymentType.SUBSCRIPTION
+      paymentType === PaymentType.SUBSCRIPTION || grantsMembershipAccess
         ? `${callbackBaseUrl}/settings/billing`
         : `${callbackBaseUrl}/settings/payments`;
 

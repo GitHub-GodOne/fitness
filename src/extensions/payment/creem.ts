@@ -228,10 +228,14 @@ export class CreemProvider implements PaymentProvider {
     try {
       const result = await this.makeRequest(
         `/v1/subscriptions/${subscriptionId}/cancel`,
-        'POST'
+        'POST',
+        {
+          mode: 'scheduled',
+          onExecute: 'cancel',
+        }
       );
 
-      if (!result.canceled_at) {
+      if (!result.id) {
         throw new Error('cancel subscription failed');
       }
 
@@ -287,8 +291,9 @@ export class CreemProvider implements PaymentProvider {
 
     const response = await fetch(url, config);
     if (!response.ok) {
+      const errorText = await response.text();
       throw new Error(
-        `request creem api failed with status: ${response.status}`
+        `request creem api failed with status: ${response.status}${errorText ? `, body: ${errorText}` : ''}`
       );
     }
 
@@ -306,6 +311,8 @@ export class CreemProvider implements PaymentProvider {
       case 'subscription.paused':
         return PaymentEventType.SUBSCRIBE_UPDATED;
       case 'subscription.active':
+        return PaymentEventType.SUBSCRIBE_UPDATED;
+      case 'subscription.scheduled_cancel':
         return PaymentEventType.SUBSCRIBE_UPDATED;
       case 'subscription.canceled':
         return PaymentEventType.SUBSCRIBE_CANCELED;
@@ -478,21 +485,44 @@ export class CreemProvider implements PaymentProvider {
       metadata: subscription.metadata,
     };
 
-    if (subscription.status === 'active') {
+    if (
+      subscription.status === 'scheduled_cancel' ||
+      (subscription.status === 'active' &&
+        (subscription.cancel_at || subscription.canceled_at))
+    ) {
+      subscriptionInfo.status = SubscriptionStatus.PENDING_CANCEL;
+      subscriptionInfo.canceledAt = subscription.canceled_at
+        ? new Date(subscription.canceled_at)
+        : undefined;
+      subscriptionInfo.canceledEndAt = subscription.current_period_end_date
+        ? new Date(subscription.current_period_end_date)
+        : undefined;
+    } else if (subscription.status === 'active') {
       if (subscription.cancel_at) {
         subscriptionInfo.status = SubscriptionStatus.PENDING_CANCEL;
-        // cancel apply at
-        subscriptionInfo.canceledAt = new Date(subscription.canceled_at);
+        subscriptionInfo.canceledAt = subscription.canceled_at
+          ? new Date(subscription.canceled_at)
+          : undefined;
+        subscriptionInfo.canceledEndAt = subscription.current_period_end_date
+          ? new Date(subscription.current_period_end_date)
+          : undefined;
       } else {
         subscriptionInfo.status = SubscriptionStatus.ACTIVE;
       }
     } else if (subscription.status === 'canceled') {
       // subscription canceled
       subscriptionInfo.status = SubscriptionStatus.CANCELED;
-      subscriptionInfo.canceledAt = new Date(subscription.canceled_at);
+      subscriptionInfo.canceledAt = subscription.canceled_at
+        ? new Date(subscription.canceled_at)
+        : undefined;
+      subscriptionInfo.canceledEndAt = subscription.current_period_end_date
+        ? new Date(subscription.current_period_end_date)
+        : undefined;
     } else if (subscription.status === 'trialing') {
       subscriptionInfo.status = SubscriptionStatus.TRIALING;
     } else if (subscription.status === 'paused') {
+      subscriptionInfo.status = SubscriptionStatus.PAUSED;
+    } else if (subscription.status === 'unpaid') {
       subscriptionInfo.status = SubscriptionStatus.PAUSED;
     } else {
       throw new Error(

@@ -61,6 +61,12 @@ export default async function SubscriptionsPage({
       url: '/admin/subscriptions?interval=year',
       is_active: interval === 'year',
     },
+    {
+      name: 'one-time',
+      title: t('list.tabs.one_time'),
+      url: '/admin/subscriptions?interval=one-time',
+      is_active: interval === 'one-time',
+    },
   ];
 
   const total = await getSubscriptionsCount({
@@ -104,6 +110,12 @@ export default async function SubscriptionsPage({
         title: t('fields.provider'),
         type: 'label',
       },
+      {
+        name: 'subscriptionId',
+        title: t('fields.provider_subscription_id'),
+        type: 'copy',
+        placeholder: '-',
+      },
       { name: 'createdAt', title: t('fields.created_at'), type: 'time' },
       {
         name: 'currentPeriodStart',
@@ -119,6 +131,19 @@ export default async function SubscriptionsPage({
       },
       { name: 'status', title: t('fields.status'), type: 'label' },
       { name: 'description', title: t('fields.description'), placeholder: '-' },
+      {
+        name: 'actions',
+        title: t('fields.action'),
+        type: 'dropdown',
+        callback: (item) => [
+          {
+            name: 'edit',
+            title: t('list.buttons.edit'),
+            icon: 'RiEditLine',
+            url: `/admin/subscriptions/${item.id}/edit`,
+          },
+        ],
+      },
     ],
     data: subscriptions,
     pagination: {

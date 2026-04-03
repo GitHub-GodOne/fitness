@@ -58,6 +58,10 @@ export default async function BillingPage({
         name: 'interval',
         title: t('fields.interval'),
         callback: function (item) {
+          if (item.interval === 'one-time') {
+            return <div>{t('fields.permanent')}</div>;
+          }
+
           if (!item.interval || !item.intervalCount) {
             return '-';
           }
@@ -99,6 +103,14 @@ export default async function BillingPage({
       {
         title: t('fields.current_period'),
         callback: function (item) {
+          if (item.interval === 'one-time') {
+            return <div>{t('fields.permanent')}</div>;
+          }
+
+          if (!item.currentPeriodStart || !item.currentPeriodEnd) {
+            return '-';
+          }
+
           let period = (
             <div>
               {`${moment(item.currentPeriodStart).format('YYYY-MM-DD')}`} ~
@@ -113,6 +125,10 @@ export default async function BillingPage({
       {
         title: t('fields.end_time'),
         callback: function (item) {
+          if (item.interval === 'one-time') {
+            return <div>{t('fields.permanent')}</div>;
+          }
+
           if (item.canceledEndAt) {
             return <div>{moment(item.canceledEndAt).format('YYYY-MM-DD')}</div>;
           }
@@ -124,6 +140,7 @@ export default async function BillingPage({
         type: 'dropdown',
         callback: function (item) {
           if (
+            item.interval === 'one-time' ||
             item.status !== SubscriptionStatus.ACTIVE &&
             item.status !== SubscriptionStatus.TRIALING
           ) {
@@ -206,7 +223,10 @@ export default async function BillingPage({
         size: 'sm',
       },
     ];
-    if (currentSubscription.paymentUserId) {
+    if (
+      currentSubscription.paymentUserId &&
+      currentSubscription.interval !== 'one-time'
+    ) {
       buttons.push({
         title: t('view.buttons.manage'),
         url: `/settings/billing/retrieve?subscription_no=${currentSubscription.subscriptionNo}`,
@@ -241,7 +261,11 @@ export default async function BillingPage({
         </div>
         {currentSubscription ? (
           <>
-            {currentSubscription?.status === SubscriptionStatus.ACTIVE ||
+            {currentSubscription.interval === 'one-time' ? (
+              <div className="text-muted-foreground mt-4 text-sm font-normal">
+                {t('view.permanent_tip')}
+              </div>
+            ) : currentSubscription?.status === SubscriptionStatus.ACTIVE ||
             currentSubscription?.status === SubscriptionStatus.TRIALING ? (
               <div className="text-muted-foreground mt-4 text-sm font-normal">
                 {t('view.tip', {
