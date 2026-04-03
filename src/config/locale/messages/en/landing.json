@@ -192,6 +192,7 @@
     "show_theme": true,
     "show_theme_switcher": true,
     "show_locale": true,
+    "built_with": "Built with ❤️ for peace and comfort",
     "feedback_labels": {
       "title": "Contact Support",
       "description": "Describe your issue and we'll get back to you.",

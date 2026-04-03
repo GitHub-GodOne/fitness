@@ -197,6 +197,7 @@
     "show_theme": true,
     "show_theme_switcher": true,
     "show_locale": true,
+    "built_with": "用 ❤️ 打造，只为带来平安与安慰",
     "feedback_labels": {
       "title": "联系支持",
       "description": "请描述您遇到的问题，我们会尽快回复您。",
